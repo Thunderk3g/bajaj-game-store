@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --bajaj-blue: #0066B2;
+        --bajaj-orange: #FF8C00;
+        --bajaj-orange-dark: #993D00;
+        --charcoal: #2D3748;
+    }
+
+    /* Prevent mobile browser quirks */
+    html {
+        -webkit-text-size-adjust: 100%;
+        -moz-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+        overflow: hidden;
+        height: 100%;
+        height: -webkit-fill-available;
+    }
+
+    body {
+        @apply bg-slate-900 text-slate-800 overflow-hidden;
+        font-family: 'Inter', sans-serif;
+        /* Use dynamic viewport height with fallback */
+        min-height: 100dvh;
+        min-height: 100dvh;
+        min-height: -webkit-fill-available;
+        /* Prevent pull-to-refresh and overscroll */
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+        /* Safe area padding for notched devices */
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        /* Prevent touch delays */
+        touch-action: manipulation;
+    }
+}
+
+@layer components {
+
+    /* Responsive Container for the Quiz App */
+    .quiz-container {
+        @apply w-full h-[100dvh] flex items-center justify-center p-2 sm:p-4;
+    }
+
+    /* Standardized Ghibli Card Layout - Optimized for PC and Mobile */
+    .ghibli-card {
+        @apply relative w-full h-[100dvh] flex flex-col overflow-hidden;
+        @apply bg-[#0066B2] border-slate-800;
+
+        /* Mobile first */
+        border-width: 4px;
+    }
+
+    /* Small Mobile (iPhone SE, etc.) */
+    @media (max-width: 360px) {
+        .ghibli-card {
+            border-width: 3px;
+        }
+    }
+
+    /* Large Mobile / Small Tablet */
+    @media (min-width: 414px) and (max-width: 639px) {
+        .ghibli-card {
+            border-width: 6px;
+        }
+    }
+
+    /* PC / Tablet Optimization - Responsive to viewport height to avoid clipping */
+    /* PC / Tablet Optimization - Responsive to viewport height to avoid clipping */
+    @media (min-width: 640px) {
+        .ghibli-card {
+            border-width: 8px;
+            max-width: 560px;
+            height: 98vh;
+            max-height: 950px;
+            min-height: 550px;
+            margin: auto;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .ghibli-card {
+            max-width: 600px;
+        }
+    }
+
+    /* Inner Content Area - Focus on middle scroll if needed */
+    .ghibli-content {
+        @apply relative z-10 w-full h-full flex flex-col py-4 px-4 sm:px-8 overflow-y-auto overflow-x-hidden custom-scrollbar;
+    }
+
+    /* Short Viewport Optimization (iPhone SE, etc.) */
+    @media (max-height: 700px) {
+        .ghibli-content {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (max-height: 600px) {
+        .ghibli-content {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            gap: 0.25rem;
+        }
+    }
+
+    /* 3D Button - Unified Premium Style */
+    .btn-primary-3d {
+        @apply relative bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black transition-all uppercase tracking-widest border-2 border-white/20;
+        @apply shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none;
+        @apply py-3 sm:py-4 px-6 text-base sm:text-lg;
+    }
+
+    /* 3D Button - White Secondary */
+    .btn-secondary-3d {
+        @apply relative bg-white hover:bg-slate-50 text-slate-700 font-extrabold transition-all border-2 border-slate-100;
+        @apply shadow-[0_6px_0_#cbd5e1] active:translate-y-1 active:shadow-none;
+        @apply py-3 sm:py-4 px-6 text-base sm:text-lg;
+    }
+
+    /* Modern Progress Bar */
+    .progress-track {
+        @apply w-full h-2.5 bg-black/20 overflow-hidden;
+    }
+
+    .progress-fill {
+        @apply h-full bg-[#FF8C00];
+        box-shadow: 0 0 15px rgba(255, 140, 0, 0.6);
+    }
+
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+/* Background Utility */
+.bg-burst {
+    @apply absolute inset-0 z-0 pointer-events-none bg-cover bg-center;
+    background-image: url('/assets/images/background_burst.png');
+    opacity: 0.6;
+    mix-blend-mode: overlay;
+}
