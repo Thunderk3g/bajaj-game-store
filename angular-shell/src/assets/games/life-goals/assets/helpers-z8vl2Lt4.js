@@ -1,0 +1,1 @@
+const o=t=>/^[6-9]\d{9}$/.test(t.replace(/\s/g,"")),a=()=>{const t=new Date;return t.setDate(t.getDate()+1),{date:t.toISOString().split("T")[0],time:"09:00 AM - 10:00 AM"}};export{a as formatCallbackDate,o as isValidPhone};
