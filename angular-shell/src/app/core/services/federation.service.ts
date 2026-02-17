@@ -30,7 +30,7 @@ export class FederationService {
   constructor(
     private http: HttpClient,
     private store: GamificationStoreService,
-  ) {}
+  ) { }
 
   /**
    * Load the federation manifest from assets.
@@ -39,7 +39,7 @@ export class FederationService {
   async loadManifest(): Promise<void> {
     try {
       this.manifest = await firstValueFrom(
-        this.http.get<GameManifest>('/assets/federation.manifest.json'),
+        this.http.get<GameManifest>('assets/federation.manifest.json'),
       );
       console.log('[FederationService] Manifest loaded:', this.manifest);
     } catch (error) {
@@ -115,4 +115,34 @@ export class FederationService {
       .filter(([_, entry]) => entry.popular)
       .map(([id, _]) => id);
   }
+
+  /**
+   * Resolve an API game ID (e.g., GAME_001) to the internal manifest key
+   * (e.g., life-goals). Returns the input as-is if it already matches
+   * a manifest key or if no mapping is found.
+   */
+  resolveApiGameId(apiGameId: string): string {
+    // If it already matches a manifest key directly, return it
+    if (this.manifest?.[apiGameId]) {
+      return apiGameId;
+    }
+
+    // Look up by the gameId field in manifest entries
+    if (this.manifest) {
+      for (const [key, entry] of Object.entries(this.manifest)) {
+        if (entry.gameId === apiGameId) {
+          console.log(
+            `[FederationService] Resolved API ID "${apiGameId}" → "${key}"`,
+          );
+          return key;
+        }
+      }
+    }
+
+    console.warn(
+      `[FederationService] No mapping found for API ID "${apiGameId}", using as-is`,
+    );
+    return apiGameId;
+  }
 }
+

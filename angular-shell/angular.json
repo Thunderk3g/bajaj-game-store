@@ -16,7 +16,9 @@
             "outputPath": "dist/angular-shell",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -29,11 +31,14 @@
                 "output": "/assets"
               }
             ],
-            "styles": ["src/styles.css"],
+            "styles": [
+              "src/styles.css"
+            ],
             "scripts": []
           },
           "configurations": {
             "production": {
+              "baseHref": "/gamification/",
               "budgets": [
                 {
                   "type": "initial",
@@ -54,6 +59,7 @@
               "sourceMap": true
             },
             "uat": {
+              "baseHref": "/gamification/",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -95,7 +101,10 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": ["zone.js", "zone.js/testing"],
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {
@@ -103,7 +112,9 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css"],
+            "styles": [
+              "src/styles.css"
+            ],
             "scripts": []
           }
         }

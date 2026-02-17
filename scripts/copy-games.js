@@ -55,49 +55,53 @@ console.log('\n✅ All games copied to Shell assets!\n');
 const manifestPath = path.join(ROOT_DIR, 'angular-shell', 'src', 'assets', 'federation.manifest.json');
 const manifest = {
   "scramble-words": {
-    "remoteEntry": "/assets/games/scramble-words/index.js",
+    "remoteEntry": "assets/games/scramble-words/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
     "displayName": "Scramble Words",
     "popular": false,
+    "gameId": "GAME_003",
     "assets": []
   },
   "life-goals": {
-    "remoteEntry": "/assets/games/life-goals/index.js",
+    "remoteEntry": "assets/games/life-goals/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
     "displayName": "Life Goals Planner",
     "popular": true,
+    "gameId": "GAME_001",
     "assets": [
-      "/assets/games/life-goals/assets/videos/business.mp4",
-      "/assets/games/life-goals/assets/videos/child_edu.mp4",
-      "/assets/games/life-goals/assets/videos/child_marriage.mp4",
-      "/assets/games/life-goals/assets/videos/dream_car.mp4",
-      "/assets/games/life-goals/assets/videos/financial_security.mp4",
-      "/assets/games/life-goals/assets/videos/health.mp4",
-      "/assets/games/life-goals/assets/videos/house.mp4",
-      "/assets/games/life-goals/assets/videos/retirement.mp4",
-      "/assets/games/life-goals/assets/videos/travel.mp4"
+      "assets/games/life-goals/assets/videos/business.mp4",
+      "assets/games/life-goals/assets/videos/child_edu.mp4",
+      "assets/games/life-goals/assets/videos/child_marriage.mp4",
+      "assets/games/life-goals/assets/videos/dream_car.mp4",
+      "assets/games/life-goals/assets/videos/financial_security.mp4",
+      "assets/games/life-goals/assets/videos/health.mp4",
+      "assets/games/life-goals/assets/videos/house.mp4",
+      "assets/games/life-goals/assets/videos/retirement.mp4",
+      "assets/games/life-goals/assets/videos/travel.mp4"
     ]
   },
   "quiz-game": {
-    "remoteEntry": "/assets/games/quiz-game/index.js",
+    "remoteEntry": "assets/games/quiz-game/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
     "displayName": "Quiz Challenge",
     "popular": true,
+    "gameId": "GAME_002",
     "assets": [
-      "/assets/games/quiz-game/assets/bajaj.png",
-      "/assets/games/quiz-game/assets/bg.png",
-      "/assets/games/quiz-game/assets/gst.png"
+      "assets/games/quiz-game/assets/bajaj.png",
+      "assets/games/quiz-game/assets/bg.png",
+      "assets/games/quiz-game/assets/gst.png"
     ]
   },
   "life-milestone-race": {
-    "remoteEntry": "/assets/games/life-milestone-race/index.js",
+    "remoteEntry": "assets/games/life-milestone-race/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
     "displayName": "Life Milestone Race",
     "popular": true,
+    "gameId": "GAME_004",
     "assets": []
   }
 };

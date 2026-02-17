@@ -511,15 +511,16 @@ export class LobbyComponent implements OnInit {
     private store: GamificationStoreService,
     private route: ActivatedRoute,
     private router: Router,
-  ) {}
+  ) { }
 
   ngOnInit() {
     // ── Step 1: Check for JWT in query params ──
     this.route.queryParams.subscribe((params) => {
       const token = params['token'];
+      const routeGameId = this.route.snapshot.params['gameId'];
 
       if (token) {
-        this.handleTokenDispatch(token);
+        this.handleTokenDispatch(token, routeGameId);
         return;
       }
 
@@ -532,12 +533,18 @@ export class LobbyComponent implements OnInit {
    * JWT token flow:
    * Decode → validate → push to store → navigate to /play/:gameId
    * URL is scrubbed from browser history (replaceUrl: true)
+   *
+   * @param token     Raw JWT string from query parameter
+   * @param routeGameId  Optional API game ID from the URL path (e.g., GAME_001)
    */
-  private handleTokenDispatch(token: string) {
+  private handleTokenDispatch(token: string, routeGameId?: string) {
     this.dispatching = true;
     this.dispatchError = null;
 
     console.log('[Lobby] Token detected, starting dispatch flow');
+    if (routeGameId) {
+      console.log(`[Lobby] Route game ID: ${routeGameId}`);
+    }
 
     // Small timeout to let the spinner render
     setTimeout(() => {
@@ -557,8 +564,14 @@ export class LobbyComponent implements OnInit {
         return;
       }
 
-      console.log(`[Lobby] Token valid, dispatching to game: ${gameId}`);
-      this.securityService.secureNavigateToGame(gameId);
+      // Resolve the game ID: use JWT gameId, but if the route had an API ID,
+      // resolve it through the manifest mapping
+      const resolvedGameId = routeGameId
+        ? this.federationService.resolveApiGameId(routeGameId)
+        : this.federationService.resolveApiGameId(gameId);
+
+      console.log(`[Lobby] Token valid, dispatching to game: ${resolvedGameId}`);
+      this.securityService.secureNavigateToGame(resolvedGameId);
     }, 300);
   }
 

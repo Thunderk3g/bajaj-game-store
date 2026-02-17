@@ -24,6 +24,12 @@ export const routes: Routes = [
     component: ErrorFallbackComponent,
   },
   {
+    // Catch API game IDs like GAME_001, GAME_002, etc.
+    // LobbyComponent reads :gameId + ?token= and dispatches to the correct game.
+    path: ':gameId',
+    component: LobbyComponent,
+  },
+  {
     path: '**',
     redirectTo: '/',
   },

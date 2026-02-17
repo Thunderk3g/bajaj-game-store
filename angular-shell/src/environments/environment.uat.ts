@@ -7,8 +7,7 @@ export const environment = {
   gameBaseUrl: 'https://balicuat.bajajlifeinsurance.com/gamification',
 
   // ── Manifest ──
-  manifestUrl:
-    'https://balicuat.bajajlifeinsurance.com/gamification/federation.manifest.json',
+  manifestUrl: 'assets/federation.manifest.json',
 
   // ── Games (UAT paths) ──
   games: {
