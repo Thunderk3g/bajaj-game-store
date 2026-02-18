@@ -102,7 +102,7 @@ const Results = ({ score, onReset, userInfo }) => {
     return (
         <div className="max-w-[480px] mx-auto w-full flex flex-col space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12 h-auto 
             [/* Mobile-only one-screen constraint */] 
-            max-[640px]:h-[100dvh] max-[640px]:overflow-hidden max-[640px]:p-2 max-[640px]:space-y-4">
+            max-[640px]:h-[92dvh] max-[640px]:overflow-hidden max-[640px]:p-2 max-[640px]:space-y-4">
 
             {/* Score Card Section */}
             <div className="text-center space-y-4 sm:space-y-6 bg-[#3b82f6] rounded-[2rem] p-6 sm:p-10 text-white shadow-2xl shadow-blue-500/20 relative flex-shrink-0

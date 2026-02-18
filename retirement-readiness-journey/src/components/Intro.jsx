@@ -246,9 +246,7 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
                             </button>
                             <h3 className="text-[#0066B2] font-black text-lg uppercase mb-4 tracking-tight">Terms & Conditions</h3>
                             <div className="text-sm text-slate-600 space-y-3 font-medium leading-relaxed max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar text-left">
-                                <p>I/we hereby represent that all the details/information provided today or in the past by me/us to Bajaj Allianz Life Insurance Co. Ltd (the Company) are true, correct and complete.</p>
-                                <p>I/we hereby authorize the Company, its group companies, its agents, its employees and representatives to share information, about my/our relationship with the Company and its group companies, including but not limited to, the details of my/our policy/ies or relationship, with the Company and/or its group companies, as the case may be, for the purpose of cross-selling or for any other purpose.</p>
-                                <p>I/we hereby authorize the Company and its group companies to contact me/us by way of SMS/Phone/Email/WhatsApp/Post/Social Media as regards my/our policy information, service related info or regarding any other services or products (new or existing) offered by the Company or its group companies and I/we confirm that this shall prevail over any "Do Not Disturb" (DND) or such other registry.</p>
+                                <p>BAJAJ LIFE INSURANCE</p>
                             </div>
                             <button
                                 onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
