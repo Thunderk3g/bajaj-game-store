@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, RotateCcw, Phone, Calendar, Clock, X, CheckCircle2, ChevronDown, Share2, ShieldCheck } from "lucide-react";
+import { Trophy, RotateCcw, Phone, Calendar, Clock, X, CheckCircle2, ChevronDown, Share2, ShieldCheck, Medal, Star, AlertCircle } from "lucide-react";
 import ScoreCard from './ScoreCard';
 import Confetti from './Confetti';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -9,6 +9,11 @@ import { useQuiz } from '../context/QuizContext';
 const ResultsScreen = ({ score, total, onRestart }) => {
     const { leadName, leadPhone, handleBookingSubmit, isTermsAccepted } = useQuiz();
     const percentage = (score / total) * 100;
+    const today = new Date().toISOString().split("T")[0];
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+    const maxDate = thirtyDaysFromNow.toISOString().split("T")[0];
+
     const [isBookingOpen, setIsBookingOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingTermsAccepted, setBookingTermsAccepted] = useState(isTermsAccepted);
@@ -18,7 +23,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
         date: '',
         timeSlot: ''
     });
-    const [error, setError] = useState('');
+    const [errors, setErrors] = useState({});
 
     const timeSlots = [
         "10:00 AM - 12:00 PM",
@@ -28,7 +33,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
     ];
 
     const handleShare = async () => {
-        const shareMessage = `I scored ${score}/${total} on the GST Quiz! 🏆 Check your GST knowledge here:`;
+        const shareMessage = `I scored ${score}/${total} on the GST quiz! 🏆 Check your GST knowledge here:`;
         const shareUrl = window.location.href;
 
         if (navigator.share) {
@@ -53,26 +58,37 @@ const ResultsScreen = ({ score, total, onRestart }) => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    const validate = () => {
+        const errs = {};
+        if (!bookingData.name.trim()) {
+            errs.name = "Name is required";
+        } else if (!/^[A-Za-z\s]+$/.test(bookingData.name.trim())) {
+            errs.name = "Letters only";
+        }
 
-        const selectedDate = new Date(bookingData.date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        if (!bookingData.mobile_no.trim()) {
+            errs.mobile_no = "Mobile is required";
+        } else if (!/^[6-9]\d{9}$/.test(bookingData.mobile_no)) {
+            errs.mobile_no = "Invalid 10-digit number";
+        }
 
-        if (!bookingData.date || selectedDate < today) {
-            setError('Please select a valid future date');
-            return;
+        if (!bookingData.date) {
+            errs.date = "Select a date";
         }
         if (!bookingData.timeSlot) {
-            setError('Please select a time slot');
-            return;
+            errs.timeSlot = "Select a slot";
         }
         if (!bookingTermsAccepted) {
-            setError('Please accept the Terms & Conditions');
-            return;
+            errs.terms = "Accept terms";
         }
+
+        setErrors(errs);
+        return Object.keys(errs).length === 0;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validate()) return;
 
         setIsSubmitting(true);
         const result = await handleBookingSubmit({
@@ -84,227 +100,235 @@ const ResultsScreen = ({ score, total, onRestart }) => {
         if (result.success) {
             setIsBookingOpen(false);
         } else {
-            setError(result.error || 'Failed to book slot. Please try again.');
+            setErrors({ submit: result.error || 'Failed to book slot. Please try again.' });
         }
     };
 
-    // Custom title based on score
     const getResultTitle = (currentScore) => {
-        if (currentScore === 0) return "LEARNING BEGINS";
-        if (currentScore <= 2) return "KEEP GOING";
-        if (currentScore <= 3) return "GOOD ATTEMPT";
-        if (currentScore === 4) return "WELL DONE";
-        return "OUTSTANDING";
+        if (currentScore === 0) return "Learning begins";
+        if (currentScore <= 2) return "Keep going";
+        if (currentScore <= 3) return "Good attempt";
+        if (currentScore === 4) return "Well done";
+        return "Outstanding";
     };
 
-    // Custom motivational message based on score
     const getMotivationalMessage = (currentScore) => {
-        if (currentScore === 0) return "NO WORRIES — LET’S TRY AGAIN!";
-        if (currentScore <= 2) return "NOT QUITE THERE YET — YOU CAN DO BETTER!";
-        if (currentScore <= 3) return "GOOD EFFORT — YOU CAN DO BETTER!";
-        if (currentScore === 4) return "YOU’VE LEARNED IMPORTANT FINANCIAL AND INSURANCE CONCEPTS.";
-        return "EXCELLENT! YOU ARE A GST EXPERT!";
+        if (currentScore === 0) return "No worries — Let’s try again!";
+        if (currentScore <= 2) return "Not quite there yet — You can do better!";
+        if (currentScore <= 3) return "Good effort — You can do better!";
+        if (currentScore === 4) return "You’ve learned important financial concepts.";
+        return "Excellent! You are a GST expert!";
+    };
+
+    const getAchievementIcon = (currentScore) => {
+        if (currentScore === 0) return <AlertCircle className="w-12 h-12 text-brand-blue" strokeWidth={2} />;
+        if (currentScore <= 2) return <Star className="w-12 h-12 text-brand-blue" strokeWidth={2} />;
+        if (currentScore <= 4) return <Medal className="w-12 h-12 text-brand-blue" strokeWidth={2} />;
+        return <Trophy className="w-12 h-12 text-brand-blue" strokeWidth={2} />;
     };
 
     return (
         <motion.div
-            className="w-full h-full flex flex-col justify-between py-4 px-2 text-center relative"
+            className="w-full h-full flex flex-col items-center justify-center p-4 text-center relative overflow-hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
-            {/* Top Right Share Icon - SHARP EDGES */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-none text-white transition-colors z-10"
-                aria-label="Share results"
-            >
-                <Share2 className="w-5 h-5" />
-            </button>
             {percentage >= 60 && <Confetti />}
 
-            <div className="flex-1 flex flex-col justify-center space-y-4">
-                <div className="flex justify-center pt-0 flex-col items-center">
-                    <p className="text-white font-black text-sm uppercase tracking-widest mb-4">
-                        HI {leadName ? leadName.toUpperCase() : 'FRIEND'}
+            {/* Top Right Share Button */}
+            <button
+                onClick={handleShare}
+                className="absolute top-4 right-4 p-3 bg-white/50 backdrop-blur-sm rounded-full text-brand-blue hover:bg-white shadow-sm transition-all active:scale-95 z-10"
+            >
+                <Share2 className="w-6 h-6" />
+            </button>
+
+            {/* Content Wrapper for consistency across heights */}
+            <div className="w-full h-full max-w-sm flex flex-col justify-between max-h-[850px] mx-auto">
+                <div className="flex-1 flex flex-col justify-center space-y-3 w-full py-4">
+                    {/* 1. Greeting */}
+                    <p className="text-gray-600 font-bold text-2xl">
+                        Hi <span className="text-brand-blue font-black">{leadName || 'Friend'}</span>
                     </p>
-                    <motion.div
-                        animate={{ rotate: [0, -5, 5, -5, 5, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                        className="p-2 bg-white border-4 border-brand-orange shadow-sm rounded-none"
+
+                    {/* 2. Animated Meter */}
+                    <div className="py-1">
+                        <ScoreCard score={score} total={total} />
+                    </div>
+
+                    {/* 3. Titles & Feedback */}
+                    <div className="space-y-2">
+                        <h2 className="text-3xl font-black text-gray-800 tracking-tight leading-none">
+                            {getResultTitle(score)}
+                        </h2>
+                        <p className="text-base text-gray-500 font-bold leading-tight px-4">
+                            {getMotivationalMessage(score)}
+                        </p>
+                    </div>
+
+                    {/* 4. Share Button */}
+                    <button
+                        onClick={handleShare}
+                        className="flex items-center justify-center gap-2 bg-brand-blue text-white font-black py-4 px-8 rounded-2xl shadow-lg hover:bg-blue-500 transition-all text-lg w-full max-w-[280px] mx-auto mt-4"
                     >
-                        <Trophy className="w-10 h-10 text-brand-orange" strokeWidth={1.5} />
-                    </motion.div>
+                        <Share2 className="w-5 h-5" />
+                        <span>Share</span>
+                    </button>
                 </div>
 
-                <div className="space-y-2">
-                    <h2 className="text-3xl font-black text-white uppercase tracking-tight leading-none">
-                        {getResultTitle(score)}
-                    </h2>
-                    <div className="bg-brand-orange text-white text-[10px] font-black py-1.5 px-4 inline-block uppercase tracking-widest shadow-sm">
-                        {getMotivationalMessage(score)}
-                    </div>
-                </div>
+                <div className="w-full space-y-3 pb-4">
+                    {/* Enhanced Action Card */}
+                    <div className="bg-white rounded-[24px] p-5 shadow-sm border-2 border-soft-gray space-y-4 relative overflow-hidden text-left">
+                        <div className="absolute top-0 left-0 w-2 h-full bg-brand-blue" />
+                        <p className="text-gray-700 text-sm font-bold leading-tight pl-2">
+                            Connect with our manager to know more about insurance & savings!
+                        </p>
 
-                <div className="py-1">
-                    <ScoreCard score={score} total={total} />
-                </div>
-
-            </div>
-
-            <div className="mt-2 flex flex-col items-center gap-4">
-                {/* Top Share Button */}
-                <button
-                    onClick={handleShare}
-                    className="game-btn-orange text-lg py-2.5 px-12 flex items-center justify-center gap-2 shadow-[0px_4px_0px_0px_rgba(194,65,12,1)] uppercase font-black rounded-none"
-                >
-                    <Share2 className="w-5 h-5 flex-shrink-0" />
-                    <span>SHARE</span>
-                </button>
-
-                {/* Glassmorphic Action Card - SHARP EDGES */}
-                <div className="bg-white/10 border-2 border-white/20 backdrop-blur-xl rounded-none p-6 w-full max-w-[400px] shadow-2xl relative overflow-hidden ring-1 ring-white/10">
-                    <p className="text-white text-xs font-bold text-center mb-6 px-2 opacity-90">
-                        To Know more about insurance and savings products! Connect with our Relationship Manager to get started.
-                    </p>
-
-                    <div className="space-y-3">
-                        <a
-                            href="tel:18002097272"
-                            className="w-full bg-[#0066B2] hover:bg-[#005a9e] text-white text-lg py-3.5 flex items-center justify-center gap-2 rounded-none shadow-[0px_3px_0px_0px_rgba(30,58,138,1)] uppercase font-black transition-colors"
-                        >
-                            <Phone className="w-5 h-5 flex-shrink-0" />
-                            <span>CALL NOW</span>
-                        </a>
-
-                        <div className="flex items-center justify-center gap-4">
-                            <div className="h-[1px] bg-white/10 flex-1"></div>
-                            <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">OR</span>
-                            <div className="h-[1px] bg-white/10 flex-1"></div>
+                        <div className="flex flex-col gap-2 pt-1">
+                            <motion.a
+                                href="tel:18002097272"
+                                animate={{
+                                    boxShadow: ["0 0 0px rgba(59, 130, 246, 0)", "0 0 20px rgba(59, 130, 246, 0.4)", "0 0 0px rgba(59, 130, 246, 0)"]
+                                }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                className="bg-gray-100 text-gray-700 font-black py-4 px-6 rounded-2xl border-b-4 border-gray-300 active:border-b-0 active:translate-y-1 flex items-center justify-center gap-3 transition-all text-lg"
+                            >
+                                <Phone className="w-6 h-6" />
+                                <span>Call now</span>
+                            </motion.a>
+                            <motion.button
+                                onClick={() => setIsBookingOpen(true)}
+                                animate={{
+                                    boxShadow: ["0 0 0px rgba(88, 204, 2, 0)", "0 0 20px rgba(88, 204, 2, 0.6)", "0 0 0px rgba(88, 204, 2, 0)"]
+                                }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                                className="bg-brand-green text-white font-black py-4 px-6 rounded-2xl border-b-4 border-green-700 active:border-b-0 active:translate-y-1 flex items-center justify-center gap-3 transition-all text-lg"
+                            >
+                                <Calendar className="w-5 h-5" />
+                                <span>Book a slot</span>
+                            </motion.button>
                         </div>
-
-                        <button
-                            onClick={() => setIsBookingOpen(true)}
-                            className="w-full game-btn-orange text-[14px] sm:text-lg py-3.5 flex items-center justify-center gap-2 rounded-none shadow-[0px_3px_0px_0px_rgba(194,65,12,1)] uppercase font-black transition-all whitespace-nowrap"
-                        >
-                            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                            <span>BOOK A CONVENIENT SLOT</span>
-                        </button>
                     </div>
-                </div>
 
-                <button
-                    onClick={onRestart}
-                    className="py-2 text-white font-black hover:opacity-80 transition-all flex items-center justify-center gap-2 uppercase tracking-[0.2em] text-[10px]"
-                >
-                    <RotateCcw className="w-4 h-4" />
-                    <span>RETAKE QUIZ</span>
-                </button>
+                    {/* Large Retake Button */}
+                    <button
+                        onClick={onRestart}
+                        className="game-btn w-full py-5 text-xl flex items-center justify-center gap-3"
+                    >
+                        <RotateCcw className="w-6 h-6" />
+                        <span>Retake quiz</span>
+                    </button>
+                </div>
             </div>
 
             {/* Booking Modal */}
             <Dialog.Root open={isBookingOpen} onOpenChange={setIsBookingOpen}>
                 <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-md z-50" />
+                    <Dialog.Overlay className="fixed inset-0 bg-[#B9E6FE]/80 backdrop-blur-md z-50" />
                     <Dialog.Content asChild>
-                        <div className="fixed inset-0 z-50 grid place-items-center p-4">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                className="bg-white/10 border-2 border-white/20 backdrop-blur-2xl rounded-[2rem] p-8 w-full max-w-md shadow-2xl relative overflow-hidden"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-white rounded-[32px] p-8 w-full max-w-md shadow-2xl border-2 border-soft-gray relative overflow-hidden my-auto"
                             >
                                 <button
                                     onClick={() => setIsBookingOpen(false)}
-                                    className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
+                                    className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <X className="w-6 h-6" />
                                 </button>
 
-                                <Dialog.Title className="text-2xl font-black text-white text-center mb-1 uppercase tracking-tight">
-                                    Book a Slot
+                                <Dialog.Title className="text-3xl font-black text-gray-800 text-center mb-2 tracking-tight">
+                                    Book a slot
                                 </Dialog.Title>
-                                <Dialog.Description className="sr-only">
-                                    Choose your preferred date and time for a callback from our relationship manager.
-                                </Dialog.Description>
-                                <p className="text-center text-white/60 text-[10px] font-black uppercase tracking-widest mb-8">
+                                <p className="text-center text-gray-400 font-bold mb-8">
                                     Pick your preferred time
                                 </p>
 
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-black text-white/70 uppercase tracking-widest ml-1">Name</label>
-                                            <input
-                                                type="text"
-                                                value={bookingData.name}
-                                                onChange={(e) => setBookingData(prev => ({ ...prev, name: e.target.value.replace(/[^a-zA-Z\s]/g, '') }))}
-                                                placeholder="Your name"
-                                                className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-bold focus:outline-none focus:border-brand-orange/50 transition-colors"
-                                            />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-black text-white/70 uppercase tracking-widest ml-1">Phone</label>
-                                            <input
-                                                type="text"
-                                                value={bookingData.mobile_no}
-                                                onChange={(e) => setBookingData(prev => ({ ...prev, mobile_no: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
-                                                placeholder="10-digit number"
-                                                className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-bold focus:outline-none focus:border-brand-orange/50 transition-colors"
-                                            />
-                                        </div>
+                                <form onSubmit={handleSubmit} className="space-y-5">
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <input
+                                            type="text"
+                                            value={bookingData.name}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                                setBookingData(prev => ({ ...prev, name: val }));
+                                                if (!val.trim()) setErrors(prev => ({ ...prev, name: "Name is required" }));
+                                                else setErrors(prev => ({ ...prev, name: null }));
+                                            }}
+                                            placeholder="Your name"
+                                            className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl px-5 py-3 text-gray-800 font-bold focus:outline-none focus:border-brand-blue"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={bookingData.mobile_no}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                                setBookingData(prev => ({ ...prev, mobile_no: val }));
+                                                if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile is required" }));
+                                                else if (val.length > 0 && val.length < 10) setErrors(prev => ({ ...prev, mobile_no: "Enter 10 digits" }));
+                                                else if (val.length === 10 && !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Must start 6-9" }));
+                                                else setErrors(prev => ({ ...prev, mobile_no: null }));
+                                            }}
+                                            placeholder="Mobile number"
+                                            className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl px-5 py-3 text-gray-800 font-bold focus:outline-none focus:border-brand-blue"
+                                        />
                                     </div>
 
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-white/70 uppercase tracking-widest ml-1">Select Date</label>
-                                        <div className="relative">
-                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-orange" />
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-blue pointer-events-none" />
                                             <input
                                                 type="date"
                                                 value={bookingData.date}
-                                                min={new Date().toISOString().split('T')[0]}
-                                                onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
-                                                className="w-full bg-white/10 border-2 border-white/20 rounded-xl pl-11 pr-4 py-3 text-white font-bold focus:outline-none focus:border-brand-orange/50 transition-colors [color-scheme:dark]"
+                                                min={today}
+                                                max={maxDate}
+                                                onChange={(e) => {
+                                                    setBookingData(prev => ({ ...prev, date: e.target.value }));
+                                                    setErrors(prev => ({ ...prev, date: null }));
+                                                }}
+                                                className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none focus:border-brand-blue"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-white/70 uppercase tracking-widest ml-1">Select Time Slot</label>
-                                        <div className="relative">
-                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-orange" />
-                                            <select
-                                                value={bookingData.timeSlot}
-                                                onChange={(e) => setBookingData(prev => ({ ...prev, timeSlot: e.target.value }))}
-                                                className="w-full bg-white/10 border-2 border-white/20 rounded-xl pl-11 pr-10 py-3 text-white font-bold focus:outline-none focus:border-brand-orange/50 transition-colors appearance-none"
-                                            >
-                                                <option value="" className="bg-zinc-900">Choose a slot</option>
-                                                {timeSlots.map(slot => (
-                                                    <option key={slot} value={slot} className="bg-zinc-900">{slot}</option>
-                                                ))}
-                                            </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
-                                        </div>
+                                    <div className="relative">
+                                        <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-blue pointer-events-none" />
+                                        <select
+                                            value={bookingData.timeSlot}
+                                            onChange={(e) => {
+                                                setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
+                                                setErrors(prev => ({ ...prev, timeSlot: null }));
+                                            }}
+                                            className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl pl-11 pr-10 py-3 text-gray-800 font-bold focus:outline-none focus:border-brand-blue appearance-none"
+                                        >
+                                            <option value="">Choose a slot</option>
+                                            {timeSlots.map(slot => (
+                                                <option key={slot} value={slot}>{slot}</option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                                     </div>
 
-                                    <div className="flex items-start gap-3 group cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
-                                        <div className={`shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-orange border-brand-orange' : 'border-white/30 bg-white/5'}`}>
-                                            {bookingTermsAccepted && <ShieldCheck className="w-4 h-4 text-white" />}
-                                        </div>
-                                        <div className="text-[11px] text-white/80 font-bold leading-tight uppercase">
-                                            I accept the Terms & Conditions and acknowledge the privacy policy.
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-start gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
+                                            <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : 'border-soft-gray bg-gray-50'}`}>
+                                                {bookingTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
+                                            </div>
+                                            <div className="text-sm text-gray-500 font-bold leading-tight">
+                                                I accept the terms & conditions and acknowledge the privacy policy.
+                                            </div>
                                         </div>
                                     </div>
-
-                                    {error && (
-                                        <p className="text-red-400 text-xs font-black text-center uppercase">{error}</p>
-                                    )}
 
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full game-btn-orange text-xl py-4 shadow-[0px_6px_0px_0px_rgba(194,65,12,1)] disabled:opacity-50 disabled:translate-y-1 disabled:shadow-none transition-all"
+                                        className="w-full game-btn-green text-xl py-4 disabled:opacity-50"
                                     >
-                                        {isSubmitting ? 'BOOKING...' : 'CONFIRM BOOKING'}
+                                        {isSubmitting ? 'Booking...' : 'Confirm booking'}
                                     </button>
                                 </form>
                             </motion.div>

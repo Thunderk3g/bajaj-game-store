@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 const FeedbackScreen = ({ isCorrect, explanation, onNext }) => {
     useEffect(() => {
-        const duration = 4000;
+        const duration = 10000;
         const timer = setTimeout(() => {
             onNext();
         }, duration);
@@ -12,7 +12,7 @@ const FeedbackScreen = ({ isCorrect, explanation, onNext }) => {
     }, [onNext, isCorrect]);
 
     return (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-brand-blue/60 backdrop-blur-md">
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-[#B9E6FE]/80 backdrop-blur-sm">
             <motion.div
                 className="w-full max-w-sm"
                 initial={{ y: 50, opacity: 0, scale: 0.9 }}
@@ -20,53 +20,57 @@ const FeedbackScreen = ({ isCorrect, explanation, onNext }) => {
                 exit={{ y: 50, opacity: 0, scale: 0.9 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
             >
-                <div className={`bg-white border-4 ${isCorrect ? 'border-brand-blue' : 'border-brand-orange'
-                    } shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] relative overflow-hidden`}>
+                <div className="bg-white rounded-[32px] p-8 shadow-2xl border-2 border-soft-gray relative overflow-hidden">
+                    {/* Top Accent Bar */}
+                    <div className={`absolute top-0 left-0 w-full h-2 ${isCorrect ? 'bg-brand-blue' : 'bg-red-500'}`} />
 
-                    <div className="p-8 text-center">
+                    <div className="text-center">
                         {/* Icon */}
                         <motion.div
-                            initial={{ scale: 0, rotate: -180 }}
+                            initial={{ scale: 0, rotate: -20 }}
                             animate={{ scale: 1, rotate: 0 }}
                             transition={{ type: "spring", damping: 15, stiffness: 200 }}
-                            className="mb-6 inline-block p-4 border-4 border-current shadow-[4px_4px_0px_0px_rgba(0,0,0,0.05)]"
-                            style={{ color: isCorrect ? 'var(--brand-blue)' : 'var(--brand-orange)' }}
+                            className="mb-6 inline-block"
                         >
-                            {isCorrect ? (
-                                <CheckCircle2 className="w-16 h-16" strokeWidth={2.5} />
-                            ) : (
-                                <XCircle className="w-16 h-16" strokeWidth={2.5} />
-                            )}
+                            <div className={`p-5 rounded-3xl ${isCorrect ? 'bg-blue-50 text-brand-blue' : 'bg-red-50 text-red-500'}`}>
+                                {isCorrect ? (
+                                    <CheckCircle2 className="w-16 h-16" strokeWidth={2.5} />
+                                ) : (
+                                    <XCircle className="w-16 h-16" strokeWidth={2.5} />
+                                )}
+                            </div>
                         </motion.div>
 
                         {/* Title */}
-                        <motion.h3
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className={`text-3xl font-black uppercase tracking-widest mb-4 ${isCorrect ? 'text-brand-blue' : 'text-brand-orange'
+                        <h3 className={`text-4xl font-black mb-4 tracking-tight ${isCorrect ? 'text-brand-blue' : 'text-red-500'}`}>
+                            {isCorrect ? 'Correct!' : "Incorrect!"}
+                        </h3>
+
+                        {/* Explanation Area */}
+                        <div className={`p-6 rounded-2xl mb-8 border-2 text-left ${isCorrect ? 'bg-blue-50/50 border-blue-100/50' : 'bg-red-50 border-red-100'}`}>
+                            <p className="text-gray-700 font-bold text-lg leading-snug">
+                                {explanation}
+                            </p>
+                        </div>
+
+                        {/* Action Button */}
+                        <button
+                            onClick={onNext}
+                            className={`w-full font-black py-4 px-6 rounded-2xl border-b-4 transition-all active:border-b-0 active:translate-y-1 text-xl mb-6 ${isCorrect
+                                ? 'bg-brand-blue text-white border-blue-600'
+                                : 'bg-red-500 text-white border-red-700'
                                 }`}
                         >
-                            {isCorrect ? 'Correct!' : "Incorrect!"}
-                        </motion.h3>
+                            Next
+                        </button>
 
-                        {/* Explanation */}
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                            className="text-gray-900 text-sm font-bold leading-relaxed mb-6 bg-gray-50 p-4 border-2 border-gray-100 uppercase"
-                        >
-                            {explanation}
-                        </motion.p>
-
-                        {/* Progress Bar (Sharp) */}
-                        <div className="w-full bg-gray-100 h-3 overflow-hidden border border-gray-200">
+                        {/* Progress Capsule */}
+                        <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
                             <motion.div
-                                className={`h-full ${isCorrect ? 'bg-brand-blue' : 'bg-brand-orange'}`}
+                                className={`h-full ${isCorrect ? 'bg-brand-blue' : 'bg-red-500'}`}
                                 initial={{ width: "0%" }}
                                 animate={{ width: "100%" }}
-                                transition={{ duration: 4, ease: "linear" }}
+                                transition={{ duration: 10, ease: "linear" }}
                             />
                         </div>
                     </div>

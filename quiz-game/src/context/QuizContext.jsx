@@ -106,6 +106,11 @@ export const QuizProvider = ({ children }) => {
         setUserAnswers([]);
         setSelectedAnswer(null);
         setShowFeedback(false);
+        // Reset lead state for a fresh start
+        setIsLeadSubmitted(false);
+        setLeadName('');
+        setLeadPhone('');
+        setIsTermsAccepted(false);
     }, []);
 
     const retakeQuiz = useCallback(() => {
@@ -115,6 +120,11 @@ export const QuizProvider = ({ children }) => {
         setUserAnswers([]);
         setSelectedAnswer(null);
         setShowFeedback(false);
+        // Reset lead state for a fresh start
+        setIsLeadSubmitted(false);
+        setLeadName('');
+        setLeadPhone('');
+        setIsTermsAccepted(false);
     }, []);
 
     const onLeadSubmit = useCallback(async (name, phone) => {

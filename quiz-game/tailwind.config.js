@@ -22,21 +22,16 @@ export default {
                 serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
             },
             colors: {
-                // Bajaj Life Insurance Brand Colors (Exact)
-                charcoal: "#2D3748",
-                cream: "#FFFFFF",
-                "soft-gray": "#E2E8F0",
-                "bajaj-blue": "#0066B2", // Exact Bajaj Blue
-                "bajaj-orange": "#FF6600", // Exact Bajaj Orange
+                "soft-gray": "#E5E5E5",
+                "brand-blue": "#1CB0F6",
+                "brand-green": "#58CC02",
+                "brand-orange": "#005EB8", // Changed to dark blue to avoid orange
 
-                // Alias for compatibility
-                "soft-blue": "#0066B2",
-                "soft-orange": "#FF6600",
-
-                // Legacy brand colors (updated to exact)
+                // Legacy brand colors
                 brand: {
-                    blue: "#0066B2",
-                    orange: "#FF6600",
+                    blue: "#1CB0F6",
+                    green: "#58CC02",
+                    orange: "#005EB8",
                 },
 
                 border: "hsl(var(--border))",
