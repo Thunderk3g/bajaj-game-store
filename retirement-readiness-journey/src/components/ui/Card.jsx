@@ -1,28 +1,18 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '../../utils/cn';
 
-const Card = ({
-    children,
-    className = '',
-    onClick,
-    selected = false,
-    hoverable = true,
-}) => {
+const Card = ({ className, children, ...props }) => {
     return (
-        <motion.div
-            whileHover={hoverable ? { y: -4, scale: 1.01 } : {}}
-            onClick={onClick}
+        <div
             className={cn(
-                'glass-card p-6 transition-all duration-300',
-                selected ? 'neon-ring border-primary-500/50 transform scale-[1.02]' : 'hover:border-primary-500/20',
-                onClick ? 'cursor-pointer' : '',
+                'bg-white border-2 border-slate-50 rounded-[1.5rem] p-8 shadow-sm',
                 className
             )}
+            {...props}
         >
             {children}
-        </motion.div>
+        </div>
     );
 };
 
-export default Card;
+export { Card };

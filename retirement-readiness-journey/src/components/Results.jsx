@@ -1,201 +1,196 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Calendar, Mail, User, ArrowRight, RefreshCcw, Award, Lightbulb } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { Button } from './ui/Button';
 import { READINESS_BANDS } from '../constants/journeySteps';
-import Button from './ui/Button';
-import Card from './ui/Card';
+import { cn } from '../utils/cn';
 
-const Results = ({ totalScore, readinessBand, resetJourney, formData, setFormData, formSuccess, setFormSuccess }) => {
-    const [displayScore, setDisplayScore] = useState(0);
-    const band = READINESS_BANDS.find(b => b.label === readinessBand) || READINESS_BANDS[4];
+const Results = ({ score, selections, onReset, insights, scoreBreakdown }) => {
+    const [formState, setFormState] = useState({ name: '', mobile: '', date: '', time: '' });
+    const [isSubmitted, setIsSubmitted] = useState(false);
+
+    // Counting animation for the score
+    const count = useMotionValue(0);
+    const roundedCount = useTransform(count, (latest) => Math.round(latest));
+    const [displayCount, setDisplayCount] = useState(0);
 
     useEffect(() => {
-        const duration = 1500;
-        const start = 0;
-        const end = totalScore;
-        const startTime = performance.now();
+        const animation = animate(count, score, {
+            duration: 1.5,
+            delay: 0.5,
+            ease: "easeOut",
+            onUpdate: (latest) => setDisplayCount(Math.round(latest))
+        });
 
-        const updateScore = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const current = Math.floor(progress * (end - start) + start);
+        return animation.stop;
+    }, [score, count]);
 
-            setDisplayScore(current);
+    const band = READINESS_BANDS.find(b => score >= b.min) || READINESS_BANDS[READINESS_BANDS.length - 1];
 
-            if (progress < 1) {
-                requestAnimationFrame(updateScore);
-            }
-        };
-
-        requestAnimationFrame(updateScore);
-    }, [totalScore]);
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormState(prev => ({ ...prev, [name]: value }));
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (formData.name && formData.email) {
-            setFormSuccess(true);
-        }
+        console.log("Lead Captured:", {
+            ...formState,
+            score,
+            ...scoreBreakdown,
+            timestamp: new Date().toISOString()
+        });
+        setTimeout(() => setIsSubmitted(true), 1000);
     };
 
-    const circumference = 2 * Math.PI * 90;
-    const strokeDashoffset = circumference - (displayScore / 100) * circumference;
-
     return (
-        <div className="max-w-4xl mx-auto space-y-12 pb-12">
-            <div className="text-center space-y-4">
-                <h2 className="text-3xl font-extrabold text-slate-800">Your Retirement Readiness</h2>
-                <p className="text-slate-500 max-w-xl mx-auto">Based on your selections, we've calculated your personalized readiness profile.</p>
-            </div>
+        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            {/* Score Section */}
+            <div className="text-center space-y-6 bg-primary-500 rounded-[2rem] p-10 text-white shadow-2xl shadow-primary-500/30">
+                <p className="text-[0.875rem] font-bold tracking-[0.2em] uppercase opacity-80">Your Preparedness Score</p>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                {/* Score Ring */}
-                <div className="flex flex-col items-center justify-center p-8 bg-white/50 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
-                    <div className="relative w-64 h-64">
-                        {/* Progress Ring */}
-                        <svg className="w-full h-full transform -rotate-90">
-                            <circle
-                                cx="128"
-                                cy="128"
-                                r="90"
-                                stroke="currentColor"
-                                strokeWidth="12"
-                                fill="transparent"
-                                className="text-slate-100"
-                            />
-                            <motion.circle
-                                cx="128"
-                                cy="128"
-                                r="90"
-                                stroke="currentColor"
-                                strokeWidth="12"
-                                strokeDasharray={circumference}
-                                initial={{ strokeDashoffset: circumference }}
-                                animate={{ strokeDashoffset }}
-                                transition={{ duration: 1.5, ease: "easeOut" }}
-                                fill="transparent"
-                                strokeLinecap="round"
-                                className={
-                                    totalScore >= 85 ? 'text-emerald-500' :
-                                        totalScore >= 50 ? 'text-primary-500' :
-                                            'text-accent-500'
-                                }
-                            />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-6xl font-black text-slate-800 leading-none">{displayScore}</span>
-                            <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-2">Readiness Score</span>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 text-center px-4">
-                        <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-3 ${band.color === 'emerald' ? 'bg-emerald-100 text-emerald-600' :
-                                band.color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                                    'bg-orange-100 text-orange-600'
-                            }`}>
-                            <Award className="w-3 h-3 mr-2" />
-                            {band.label}
-                        </div>
-                        <p className="text-slate-600 font-medium leading-relaxed">{band.description}</p>
-                    </div>
-                </div>
-
-                {/* insights and booking */}
-                <div className="space-y-6">
-                    <h3 className="text-xl font-bold text-slate-800 flex items-center">
-                        <Lightbulb className="w-5 h-5 mr-2 text-primary-500" />
-                        Personalized Insights
-                    </h3>
-                    <div className="space-y-4">
-                        <Card hoverable={false} className="p-5 border-l-4 border-l-primary-500 bg-white shadow-md">
-                            <h4 className="font-bold text-slate-800">Growth Optimization</h4>
-                            <p className="text-sm text-slate-500 mt-1">Your strategy shows strong potential. Consider tax-efficient legacy planning to boost your score to the next level.</p>
-                        </Card>
-                        <Card hoverable={false} className="p-5 border-l-4 border-l-accent-500 bg-white shadow-md">
-                            <h4 className="font-bold text-slate-800">Risk Mitigation</h4>
-                            <p className="text-sm text-slate-500 mt-1">Inflation is your biggest silent risk. We recommend exploring inflation-indexed instruments for your fixed income portion.</p>
-                        </Card>
-                    </div>
-                </div>
-            </div>
-
-            {/* Booking Form */}
-            <div className="max-w-2xl mx-auto bg-slate-900 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-
-                <AnimatePresence mode="wait">
-                    {!formSuccess ? (
-                        <motion.div
-                            key="form"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="relative z-10 space-y-8"
+                <div className="relative inline-flex flex-col items-center justify-center">
+                    <svg className="w-[12rem] h-[12rem] -rotate-90">
+                        <circle
+                            cx="96" cy="96" r="88"
+                            fill="transparent"
+                            stroke="rgba(255,255,255,0.2)"
+                            strokeWidth="12"
+                        />
+                        <motion.circle
+                            cx="96" cy="96" r="88"
+                            fill="transparent"
+                            stroke="#ffffff"
+                            strokeWidth="12"
+                            strokeDasharray="552.9"
+                            initial={{ strokeDashoffset: 552.9 }}
+                            animate={{ strokeDashoffset: 552.9 * (1 - score / 100) }}
+                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+                            strokeLinecap="round"
+                        />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <motion.span
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 1, duration: 0.5 }}
+                            className="text-[4rem] font-black leading-none"
                         >
-                            <div className="text-center space-y-2">
-                                <h3 className="text-3xl font-bold">Secure Your Strategy</h3>
-                                <p className="text-slate-400">Book a complimentary 15-minute diagnostic session with a Senior Wealth Architect.</p>
-                            </div>
+                            {displayCount}
+                        </motion.span>
+                        <span className="text-[1rem] font-bold opacity-70">/ 100</span>
+                    </div>
+                </div>
 
+                <div className="space-y-2">
+                    <h2 className="text-[2rem] font-black tracking-tight flex items-center justify-center gap-2">
+                        {band.icon} <span style={{ color: band.color }}>{band.label.toUpperCase()}</span>
+                    </h2>
+                    <p className="text-[1.125rem] opacity-90 max-w-[24rem] mx-auto font-medium">
+                        {band.description}
+                    </p>
+                </div>
+            </div>
+
+            {/* Insights */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {insights.map((insight, idx) => (
+                    <div key={idx} className="bg-white border-2 border-slate-50 p-6 rounded-[1.25rem] shadow-sm flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[1.25rem]">{insight.label.split(' ')[0]}</span>
+                            <span className="text-[0.75rem] font-bold text-primary-500 uppercase tracking-wider">
+                                {insight.label.split(' ').slice(1).join(' ')}
+                            </span>
+                        </div>
+                        <p className="text-[0.9375rem] font-semibold text-slate-700 leading-snug">{insight.text}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Conversion Section */}
+            <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 overflow-hidden relative">
+                <div className="relative z-10 space-y-8">
+                    <div className="text-center space-y-2">
+                        <h3 className="text-[1.5rem] font-bold text-slate-900">Expert Guidance awaits you</h3>
+                        <p className="text-slate-500">To improve your retirement readiness score, connect with our advisor for personalized planning.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                        <Button className="w-full h-[4rem] bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[1.125rem] font-bold shadow-lg shadow-orange-500/30">
+                            📞 CALL NOW
+                        </Button>
+
+                        <div className="flex items-center gap-4 text-slate-300">
+                            <div className="flex-1 h-px bg-current" />
+                            <span className="text-[0.75rem] font-bold uppercase tracking-widest">or book a slot</span>
+                            <div className="flex-1 h-px bg-current" />
+                        </div>
+
+                        {!isSubmitted ? (
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="relative">
-                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-                                        <input
-                                            required
-                                            type="text"
-                                            placeholder="Full Name"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
-                                        />
-                                    </div>
-                                    <div className="relative">
-                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-                                        <input
-                                            required
-                                            type="email"
-                                            placeholder="Work Email"
-                                            value={formData.email}
-                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
-                                        />
-                                    </div>
+                                    <input
+                                        required
+                                        name="name"
+                                        placeholder="Full Name *"
+                                        className="h-[3.5rem] bg-white border-2 border-slate-100 rounded-[0.75rem] px-4 focus:border-primary-500 outline-none transition-all"
+                                        onChange={handleInputChange}
+                                    />
+                                    <input
+                                        required
+                                        name="mobile"
+                                        type="tel"
+                                        pattern="[0-9]{10}"
+                                        placeholder="Mobile Number (10 digits) *"
+                                        className="h-[3.5rem] bg-white border-2 border-slate-100 rounded-[0.75rem] px-4 focus:border-primary-500 outline-none transition-all"
+                                        onChange={handleInputChange}
+                                    />
+                                    <input
+                                        required
+                                        type="date"
+                                        name="date"
+                                        min={new Date().toISOString().split('T')[0]}
+                                        className="h-[3.5rem] bg-white border-2 border-slate-100 rounded-[0.75rem] px-4 focus:border-primary-500 outline-none transition-all"
+                                        onChange={handleInputChange}
+                                    />
+                                    <select
+                                        required
+                                        name="time"
+                                        className="h-[3.5rem] bg-white border-2 border-slate-100 rounded-[0.75rem] px-4 focus:border-primary-500 outline-none transition-all appearance-none"
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="">Preferred Time *</option>
+                                        <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                                        <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                                        <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM</option>
+                                        <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
+                                        <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
+                                        <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
+                                    </select>
                                 </div>
-                                <Button type="submit" className="w-full py-4 bg-primary-500 hover:bg-primary-600 text-lg font-bold">
-                                    BOOK SESSION
+                                <Button type="submit" className="w-full h-[3.5rem] bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold">
+                                    BOOK A SLOT
                                 </Button>
                             </form>
-                            <p className="text-center text-xs text-slate-500 font-medium">Limited availability for Q1 2026 diagnostic sessions.</p>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="success"
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="relative z-10 flex flex-col items-center justify-center text-center space-y-6 py-12"
-                        >
-                            <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                                <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                        ) : (
+                            <div className="text-center py-8 space-y-2 bg-emerald-50 rounded-[1rem] border border-emerald-100">
+                                <div className="text-[2rem]">✅</div>
+                                <h4 className="text-emerald-800 font-bold">Slot Booked Successfully!</h4>
+                                <p className="text-emerald-600/80 text-[0.875rem]">Thank you {formState.name}! Our Bajaj Life advisor will contact you shortly.</p>
                             </div>
-                            <div className="space-y-2">
-                                <h3 className="text-3xl font-bold">Booking Confirmed!</h3>
-                                <p className="text-slate-400 max-w-sm">We've sent a confirmation email to <span className="text-white font-bold">{formData.email}</span>. A wealth architect will reach out shortly.</p>
-                            </div>
-                            <Button onClick={resetJourney} variant="ghost" className="text-white hover:bg-white/10">
-                                <RefreshCcw className="w-4 h-4 mr-2" /> Start Over
-                            </Button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+                        )}
+                    </div>
 
-            <div className="text-center">
-                <button onClick={resetJourney} className="text-slate-400 hover:text-slate-600 flex items-center justify-center mx-auto text-sm font-bold tracking-widest uppercase transition-colors">
-                    <RefreshCcw className="w-4 h-4 mr-2" /> Reset Assessment
-                </button>
+                    <button
+                        onClick={onReset}
+                        className="w-full text-slate-400 text-[0.875rem] font-bold uppercase tracking-widest hover:text-primary-500 transition-colors"
+                    >
+                        Retake Assessment
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
+
 
 export default Results;

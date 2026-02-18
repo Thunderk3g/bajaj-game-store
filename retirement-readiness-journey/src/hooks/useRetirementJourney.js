@@ -1,180 +1,160 @@
-import { useState, useMemo } from 'react';
-import {
-    JOURNEY_STEPS,
-    STEP_ORDER,
-    SCENARIO_OPTIONS,
-    LIFESTYLE_OPTIONS,
-    ESSENTIALS_OPTIONS,
-    ENGINE_OPTIONS,
-    SURPRISE_CATEGORIES
-} from '../constants/journeySteps';
+import { useState, useCallback, useMemo } from 'react';
+import { JOURNEY_STEPS, STEPS_DATA } from '../constants/journeySteps';
 
 export const useRetirementJourney = () => {
-    const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const [selections, setSelections] = useState({
-        scenario: null,
-        lifestyle: null,
-        essentials: [],
-        engine: [],
-        surprises: {
-            medical: null,
-            inflation: null,
-            longevity: null,
-        },
-    });
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-    });
-    const [formSuccess, setFormSuccess] = useState(false);
+    const [currentStepIndex, setCurrentStepIndex] = useState(-1); // -1 for Intro
+    const [selections, setSelections] = useState({});
+    const [isFinished, setIsFinished] = useState(false);
 
-    const currentStep = STEP_ORDER[currentStepIndex];
+    const currentStep = useMemo(() => {
+        if (currentStepIndex === -1) return { id: JOURNEY_STEPS.INTRO };
+        if (currentStepIndex >= STEPS_DATA.length) return { id: JOURNEY_STEPS.RESULTS };
+        return STEPS_DATA[currentStepIndex];
+    }, [currentStepIndex]);
 
-    const totalScore = useMemo(() => {
-        let score = 0;
-
-        // 1. Scenario
-        const selectedScenario = SCENARIO_OPTIONS.find(opt => opt.id === selections.scenario);
-        if (selectedScenario) score += selectedScenario.points;
-
-        // 2. Lifestyle
-        const selectedLifestyle = LIFESTYLE_OPTIONS.find(opt => opt.id === selections.lifestyle);
-        if (selectedLifestyle) score += selectedLifestyle.points;
-
-        // 3. Essentials
-        selections.essentials.forEach(id => {
-            const opt = ESSENTIALS_OPTIONS.find(o => o.id === id);
-            if (opt) score += opt.points;
-        });
-
-        // 4. Engine
-        if (selections.engine.length === 3) {
-            score += 25; // Bonus for all 3
-        } else {
-            selections.engine.forEach(id => {
-                const opt = ENGINE_OPTIONS.find(o => o.id === id);
-                if (opt) score += opt.points;
-            });
-        }
-
-        // 5. Surprises
-        Object.values(selections.surprises).forEach(val => {
-            if (val) {
-                // Find the points for the selected option in any surprise category
-                SURPRISE_CATEGORIES.forEach(cat => {
-                    const opt = cat.options.find(o => o.id === val);
-                    if (opt) score += opt.points;
-                });
-            }
-        });
-
-        return Math.min(score, 100);
-    }, [selections]);
-
-    const readinessBand = useMemo(() => {
-        if (totalScore >= 85) return 'CHAMPION';
-        if (totalScore >= 70) return 'STRATEGIST';
-        if (totalScore >= 50) return 'PLANNER';
-        if (totalScore >= 30) return 'STARTER';
-        return 'JUST BEGINNING';
-    }, [totalScore]);
-
-    const isStepValid = useMemo(() => {
-        switch (currentStep) {
-            case JOURNEY_STEPS.INTRO:
-                return true;
-            case JOURNEY_STEPS.SCENARIO:
-                return selections.scenario !== null;
-            case JOURNEY_STEPS.LIFESTYLE:
-                return selections.lifestyle !== null;
-            case JOURNEY_STEPS.ESSENTIALS:
-                return selections.essentials.length > 0;
-            case JOURNEY_STEPS.ENGINE:
-                return true; // Optional or multi-select without min requirement specified, but usually people want next to be enabled.
-            case JOURNEY_STEPS.SURPRISES:
-                return (
-                    selections.surprises.medical !== null &&
-                    selections.surprises.inflation !== null &&
-                    selections.surprises.longevity !== null
-                );
-            case JOURNEY_STEPS.RESULTS:
-                return true;
-            default:
-                return false;
-        }
-    }, [currentStep, selections]);
-
-    const handleNext = () => {
-        if (isStepValid && currentStepIndex < STEP_ORDER.length - 1) {
+    const goToNextStep = useCallback(() => {
+        if (currentStepIndex < STEPS_DATA.length) {
             setCurrentStepIndex(prev => prev + 1);
+        } else {
+            setIsFinished(true);
         }
-    };
+    }, [currentStepIndex]);
 
-    const handleBack = () => {
-        if (currentStepIndex > 0) {
+    const goToPrevStep = useCallback(() => {
+        if (currentStepIndex > -1) {
             setCurrentStepIndex(prev => prev - 1);
         }
-    };
+    }, [currentStepIndex]);
 
-    const handleSelectionChange = (category, value) => {
-        setSelections(prev => {
-            if (Array.isArray(prev[category])) {
-                const exists = prev[category].includes(value);
-                return {
-                    ...prev,
-                    [category]: exists
-                        ? prev[category].filter(item => item !== value)
-                        : [...prev[category], value]
-                };
-            }
-            return {
-                ...prev,
-                [category]: value
-            };
-        });
-    };
-
-    const handleSurpriseChange = (subCategory, value) => {
+    const handleSelection = useCallback((stepId, value) => {
         setSelections(prev => ({
             ...prev,
-            surprises: {
-                ...prev.surprises,
-                [subCategory]: value
-            }
+            [stepId]: value
         }));
-    };
+    }, []);
 
-    const resetJourney = () => {
-        setCurrentStepIndex(0);
-        setSelections({
-            scenario: null,
-            lifestyle: null,
-            essentials: [],
-            engine: [],
-            surprises: {
-                medical: null,
-                inflation: null,
-                longevity: null,
-            },
+    const calculateScoreValues = useCallback(() => {
+        const scores = {
+            scoreA: 0,
+            scoreB: 0,
+            scoreC: 0,
+            scoreD: 0,
+            scoreE: 0,
+            totalScore: 0
+        };
+
+        // Level A: Time to Retirement (Single Choice)
+        const scenario = selections[JOURNEY_STEPS.SCENARIO];
+        if (scenario) {
+            const option = STEPS_DATA[0].options.find(o => o.id === scenario);
+            scores.scoreA = option?.points || 0;
+        }
+
+        // Level B: Lifestyle Load (Single Choice)
+        const lifestyle = selections[JOURNEY_STEPS.LIFESTYLE];
+        if (lifestyle) {
+            const option = STEPS_DATA[1].options.find(o => o.id === lifestyle);
+            scores.scoreB = option?.points || 0;
+        }
+
+        // Level C: Expense Protection (Multi-select, capped at 15)
+        const essentials = selections[JOURNEY_STEPS.ESSENTIALS] || [];
+        const step3Points = essentials.reduce((sum, id) => {
+            const option = STEPS_DATA[2].options.find(o => o.id === id);
+            return sum + (option?.points || 0);
+        }, 0);
+        scores.scoreC = Math.min(15, step3Points);
+
+        // Level D: Investment Strength (Multi-select + Diversification Bonus, capped at 25)
+        const engine = selections[JOURNEY_STEPS.ENGINE] || [];
+        let engineTotal = engine.reduce((sum, id) => {
+            const option = STEPS_DATA[3].options.find(o => o.id === id);
+            return sum + (option?.points || 0);
+        }, 0);
+
+        if (engine.length === 3) {
+            engineTotal += 2; // Diversification bonus
+        }
+        scores.scoreD = Math.min(25, engineTotal);
+
+        // Level E: Inflation & Shock Readiness (Average of 3 scenarios, rounded)
+        const surprises = selections[JOURNEY_STEPS.SURPRISES] || {};
+        const shockScores = [];
+        Object.entries(surprises).forEach(([catId, optionId]) => {
+            const category = STEPS_DATA[4].categories.find(c => c.id === catId);
+            const option = category?.options.find(o => o.id === optionId);
+            if (option) {
+                shockScores.push(option.points);
+            }
         });
-        setFormSuccess(false);
-    };
+
+        if (shockScores.length > 0) {
+            const avg = shockScores.reduce((a, b) => a + b, 0) / shockScores.length;
+            scores.scoreE = Math.round(avg);
+        } else {
+            scores.scoreE = 0;
+        }
+
+        scores.totalScore = Math.min(100, scores.scoreA + scores.scoreB + scores.scoreC + scores.scoreD + scores.scoreE);
+        return scores;
+    }, [selections]);
+
+    const scoreData = useMemo(() => calculateScoreValues(), [calculateScoreValues]);
+
+    const insights = useMemo(() => {
+        const list = [];
+        const { scoreA, scoreB, scoreD, scoreE } = scoreData;
+
+        // Insight 1: Time to Retirement
+        if (scoreA === 20) {
+            list.push({ label: "⏰ Time Advantage", text: "30+ years to grow retirement savings exponentially" });
+        } else if (scoreA >= 15) {
+            list.push({ label: "⏰ Strong Timeline", text: "Good opportunity for wealth accumulation" });
+        }
+
+        // Insight 2: Lifestyle
+        if (scoreB === 25) {
+            list.push({ label: "💰 Sustainable Lifestyle", text: "Modest retirement vision is financially achievable" });
+        } else if (scoreB === 20) {
+            list.push({ label: "💰 Balanced Approach", text: "Your comfortable lifestyle is well-balanced" });
+        } else if (scoreB === 14) {
+            list.push({ label: "💰 Premium Challenge", text: "Premium lifestyle requires careful financial planning" });
+        }
+
+        // Insight 3: Investments
+        if (scoreD >= 23) {
+            list.push({ label: "📊 Diversified Portfolio", text: "Combined safety, growth & income generation" });
+        } else if (scoreD === 0) {
+            list.push({ label: "📊 Investment Gap", text: "Consider developing a diversified investment strategy" });
+        }
+
+        // Insight 4: Shock Readiness
+        if (scoreE >= 13) {
+            list.push({ label: "🛡️ Shock Ready", text: "Strong resilience demonstrated against challenges" });
+        }
+
+        return list.slice(0, 3);
+    }, [scoreData]);
 
     return {
         currentStep,
         currentStepIndex,
+        totalSteps: STEPS_DATA.length,
         selections,
-        totalScore,
-        readinessBand,
-        isStepValid,
-        formData,
-        setFormData,
-        formSuccess,
-        setFormSuccess,
-        handleNext,
-        handleBack,
-        handleSelectionChange,
-        handleSurpriseChange,
-        resetJourney,
+        score: scoreData.totalScore,
+        scoreBreakdown: scoreData,
+        insights,
+        isFinished,
+        actions: {
+            goToNextStep,
+            goToPrevStep,
+            handleSelection,
+            reset: () => {
+                setCurrentStepIndex(-1);
+                setSelections({});
+                setIsFinished(false);
+            }
+        }
     };
 };
+

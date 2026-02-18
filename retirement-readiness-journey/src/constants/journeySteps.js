@@ -8,76 +8,98 @@ export const JOURNEY_STEPS = {
     RESULTS: 'results',
 };
 
-export const STEP_ORDER = [
-    JOURNEY_STEPS.INTRO,
-    JOURNEY_STEPS.SCENARIO,
-    JOURNEY_STEPS.LIFESTYLE,
-    JOURNEY_STEPS.ESSENTIALS,
-    JOURNEY_STEPS.ENGINE,
-    JOURNEY_STEPS.SURPRISES,
-    JOURNEY_STEPS.RESULTS,
-];
-
-export const SCENARIO_OPTIONS = [
-    { id: '5years', label: 'Within 5 Years', points: 20, icon: 'Clock' },
-    { id: '10years', label: '10 Years Ready', points: 17, icon: 'Calendar' },
-    { id: '15years', label: '15 Year Horizon', points: 14, icon: 'Compass' },
-    { id: '20years', label: '20 Year Planning', points: 11, icon: 'Map' },
-    { id: '25years', label: '25 Year Strategy', points: 8, icon: 'Search' },
-    { id: '30years', label: '30+ Years Away', points: 5, icon: 'Star' },
-];
-
-export const LIFESTYLE_OPTIONS = [
-    { id: 'simple', label: 'Simple', description: 'Essential needs and modest comfort.', points: 10, icon: 'Home' },
-    { id: 'comfortable', label: 'Comfortable', description: 'Freedom to travel and enjoy hobbies.', points: 18, icon: 'Coffee' },
-    { id: 'premium', label: 'Premium', description: 'Full luxury and legacy planning.', points: 25, icon: 'Crown' },
-];
-
-export const ESSENTIALS_OPTIONS = [
-    { id: 'housing', label: 'Housing', points: 3 },
-    { id: 'food', label: 'Food & Needs', points: 3 },
-    { id: 'medical', label: 'Medical', points: 3 },
-    { id: 'utilities', label: 'Utilities', points: 3 },
-    { id: 'transport', label: 'Transportation', points: 3 },
-];
-
-export const ENGINE_OPTIONS = [
-    { id: 'safety', label: 'Safety-Oriented', description: 'Bonds, Savings, Guaranteed Income', points: 8 },
-    { id: 'growth', label: 'Growth-Oriented', description: 'Stocks, Real Estate, Diversified Portfolio', points: 9 },
-    { id: 'income', label: 'Income-Oriented', description: 'Dividends, Annuities, Rental Income', points: 8 },
-];
-
-export const SURPRISE_CATEGORIES = [
+export const STEPS_DATA = [
     {
-        id: 'medical',
-        label: 'Medical Crisis',
+        id: JOURNEY_STEPS.SCENARIO,
+        title: "Time to Retirement",
+        description: "💡 How much time do you have to prepare and grow your retirement savings?",
         options: [
-            { id: 'medical_strong', label: 'Strong', subLabel: 'Comprehensive Coverage', points: 5 },
-            { id: 'medical_weak', label: 'Weak', subLabel: 'Basic Protection', points: 2 },
+            { id: 'retired', label: 'Fully Retired', sublabel: 'Already retired or retiring very soon', icon: '🏖️', points: 4 },
+            { id: 'soon', label: 'Very Soon', sublabel: '5-9 years', icon: '⏰', points: 8 },
+            { id: 'medium', label: 'Medium Term', sublabel: '10-14 years', icon: '📅', points: 12 },
+            { id: 'later', label: 'Later', sublabel: '15-19 years', icon: '🎯', points: 15 },
+            { id: 'much_later', label: 'Much Later', sublabel: '20-24 years', icon: '🚀', points: 18 },
+            { id: 'distant', label: 'Distant Future', sublabel: '30+ years', icon: '✨', points: 20 },
         ]
     },
     {
-        id: 'inflation',
-        label: 'Living Cost Inflation',
+        id: JOURNEY_STEPS.LIFESTYLE,
+        title: "Lifestyle Load",
+        description: "💡 What kind of lifestyle are you aiming for in retirement?",
         options: [
-            { id: 'inflation_strong', label: 'Strong', subLabel: 'Inflation-Adjusted', points: 5 },
-            { id: 'inflation_weak', label: 'Weak', subLabel: 'Fixed Income', points: 2 },
+            { id: 'simple', label: 'Simple Living', sublabel: 'Basic home, limited travel, controlled expenses', icon: '☘️', points: 25 },
+            { id: 'comfortable', label: 'Comfortable', sublabel: 'Good home, regular leisure, moderate travel', icon: '🏠', points: 20 },
+            { id: 'premium', label: 'Premium Living', sublabel: 'Luxury living, frequent travel, high spending', icon: '✨', points: 14 },
         ]
     },
     {
-        id: 'longevity',
-        label: 'Longer Life',
+        id: JOURNEY_STEPS.ESSENTIALS,
+        title: "Expense Protection",
+        description: "💡 Which essential expenses have you planned to cover in retirement?",
         options: [
-            { id: 'longevity_strong', label: 'Strong', subLabel: 'Multi-Generational', points: 5 },
-            { id: 'longevity_weak', label: 'Weak', subLabel: 'Standard Lifespan', points: 2 },
+            { id: 'housing', label: 'Housing', sublabel: 'Rent, mortgage, property tax, maintenance', points: 4 },
+            { id: 'food', label: 'Food & Daily Needs', sublabel: 'Groceries and household essentials', points: 3 },
+            { id: 'medical', label: 'Medical Expenses', sublabel: 'Healthcare, insurance, medications', points: 4 },
+            { id: 'utilities', label: 'Utilities', sublabel: 'Electricity, water, gas, internet', points: 2 },
+            { id: 'transport', label: 'Transportation', sublabel: 'Car, fuel, public transit, maintenance', points: 2 },
+        ]
+    },
+    {
+        id: JOURNEY_STEPS.ENGINE,
+        title: "Investment Strength",
+        description: "💡 What types of investments are part of your retirement portfolio?",
+        options: [
+            { id: 'safety', label: 'Safety-Focused', sublabel: 'PPF, FD, guaranteed savings', points: 8 },
+            { id: 'growth', label: 'Growth-Oriented', sublabel: 'Mutual funds, equity investments', points: 9 },
+            { id: 'income', label: 'Income-Focused', sublabel: 'Pension, annuity, ULIP income', points: 8 },
+        ]
+    },
+    {
+        id: JOURNEY_STEPS.SURPRISES,
+        title: "Inflation & Shock Readiness",
+        description: "💡 How prepared are you for unexpected financial challenges?",
+        categories: [
+            {
+                id: 'medical',
+                title: 'Medical Crisis',
+                description: 'Unexpected medical expenses',
+                icon: '⏥',
+                options: [
+                    { id: 'income', label: 'USE PLANNED RETIREMENT INCOME', strength: 'STRONG', points: 15 },
+                    { id: 'investments_adjusted', label: 'TAP INTO INVESTMENTS STRATEGICALLY', strength: 'STRONG', points: 12 },
+                    { id: 'lifestyle_cut', label: 'CUT LIFESTYLE EXPENSES TEMPORARILY', strength: 'WEAK', points: 8 },
+                ]
+            },
+            {
+                id: 'inflation',
+                title: 'Living Cost Inflation',
+                description: 'Cost of living increases 25% over three years',
+                icon: '📊',
+                options: [
+                    { id: 'income', label: 'INVESTMENT INCOME COVERS THE DIFFERENCE', strength: 'STRONG', points: 15 },
+                    { id: 'withdrawal', label: 'ADJUST WITHDRAWAL RATE FROM PORTFOLIO', strength: 'STRONG', points: 12 },
+                    { id: 'reduce', label: 'REDUCE SPENDING ON NON-ESSENTIALS', strength: 'WEAK', points: 8 },
+                ]
+            },
+            {
+                id: 'longer',
+                title: 'Longer Life Expectancy',
+                description: 'You live to 95 (longer than planned)',
+                icon: '🎂',
+                options: [
+                    { id: 'steady', label: 'DIVERSIFIED INVESTMENTS PROVIDE STEADY RETURNS', strength: 'STRONG', points: 15 },
+                    { id: 'planned_income', label: 'RELY ON PLANNED INCOME STREAMS', strength: 'STRONG', points: 12 },
+                    { id: 'conservative', label: 'CONSERVATIVE SPENDING ADJUSTMENTS', strength: 'WEAK', points: 8 },
+                ]
+            }
         ]
     }
 ];
 
 export const READINESS_BANDS = [
-    { min: 85, max: 100, label: 'CHAMPION', description: 'You are exceptionally prepared for a secure and thriving retirement.', color: 'emerald' },
-    { min: 70, max: 84, label: 'STRATEGIST', description: 'You have a solid foundation but may need minor adjustments to reach the peak.', color: 'blue' },
-    { min: 50, max: 69, label: 'PLANNER', description: 'You are on the right track, but significant gaps still need to be addressed.', color: 'blue' },
-    { min: 30, max: 49, label: 'STARTER', description: 'You have begun the journey, but a more aggressive strategy is required.', color: 'orange' },
-    { min: 0, max: 29, label: 'JUST BEGINNING', description: 'It is time to take serious action to ensure your financial future.', color: 'orange' },
+    { min: 85, label: 'Champion', description: "Congratulations! You've just aced the quiz!", color: '#DC2626', icon: '🏆' },
+    { min: 70, label: 'Secure', description: "Great Job! You're on track with your retirement planning!", color: '#10B981', icon: '✓' },
+    { min: 50, label: 'Builder', description: "Good Start! You have a foundation to build upon!", color: '#F59E0B', icon: '🏗️' },
+    { min: 0, label: 'Explorer', description: "Time to Act! Your retirement journey begins now!", color: '#3B82F6', icon: '🗺️' },
 ];
+

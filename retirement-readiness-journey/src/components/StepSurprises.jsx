@@ -1,68 +1,72 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2, AlertTriangle, TrendingUp, HelpCircle } from 'lucide-react';
-import { SURPRISE_CATEGORIES } from '../constants/journeySteps';
-import Card from './ui/Card';
-import Button from './ui/Button';
+import { cn } from '../utils/cn';
 
-const iconMap = {
-    medical: AlertTriangle,
-    inflation: TrendingUp,
-    longevity: HelpCircle,
-};
+const StepSurprises = ({ step, selections, onSelect }) => {
+    const currentSelections = selections[step.id] || {};
 
-const StepSurprises = ({ selections, handleSurpriseChange, handleNext, handleBack, isStepValid }) => {
+    const handleSubSelect = (catId, optId) => {
+        onSelect(step.id, {
+            ...currentSelections,
+            [catId]: optId
+        });
+    };
+
     return (
-        <div className="space-y-8">
-            <div className="text-center space-y-2">
-                <h2 className="text-3xl font-bold text-slate-800">Handling Surprises</h2>
-                <p className="text-slate-500">How prepared are you for the three biggest retirement risks?</p>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
+            <div className="space-y-2">
+                <h2 className="text-[1.75rem] font-bold text-slate-900">{step.title}</h2>
+                <p className="text-slate-500 text-[1rem]">{step.description}</p>
             </div>
 
-            <div className="space-y-6">
-                {SURPRISE_CATEGORIES.map((cat) => {
-                    const Icon = iconMap[cat.id];
-                    return (
-                        <div key={cat.id} className="space-y-4">
-                            <div className="flex items-center space-x-3 text-slate-700">
-                                {Icon && <Icon size={20} className="text-primary-500" />}
-                                <h4 className="font-bold uppercase tracking-wider text-sm">{cat.label}</h4>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {cat.options.map((opt) => (
-                                    <Card
-                                        key={opt.id}
-                                        selected={selections.surprises[cat.id] === opt.id}
-                                        onClick={() => handleSurpriseChange(cat.id, opt.id)}
-                                        className="flex items-center justify-between p-4"
-                                    >
-                                        <div>
-                                            <p className="font-bold text-slate-800">{opt.label}</p>
-                                            <p className="text-xs text-slate-400 mt-1">{opt.subLabel}</p>
-                                        </div>
-                                        <div className="flex items-center space-x-3">
-                                            <span className={`text-[10px] font-black px-2 py-1 rounded border ${opt.label === 'Strong'
-                                                    ? 'border-primary-200 text-primary-600 bg-primary-50'
-                                                    : 'border-accent-200 text-accent-600 bg-accent-50'
-                                                }`}>
-                                                +{opt.points} PTS
-                                            </span>
-                                            {selections.surprises[cat.id] === opt.id && <CheckCircle2 className="text-emerald-500" size={18} />}
-                                        </div>
-                                    </Card>
-                                ))}
+            <div className="space-y-8">
+                {step.categories.map((category) => (
+                    <div key={category.id} className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <span className="text-[1.5rem]">{category.icon}</span>
+                            <div>
+                                <h3 className="text-[1.125rem] font-bold text-slate-800 uppercase tracking-wide">
+                                    {category.title}
+                                </h3>
+                                <p className="text-[0.875rem] text-slate-400 font-medium">
+                                    {category.description}
+                                </p>
                             </div>
                         </div>
-                    );
-                })}
-            </div>
 
-            <div className="flex justify-between items-center pt-8 border-t border-slate-100">
-                <Button variant="ghost" onClick={handleBack}>
-                    Back
-                </Button>
-                <Button disabled={!isStepValid} onClick={handleNext} className="flex items-center">
-                    See Results <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
+                        <div className="grid grid-cols-1 gap-2 pl-4 border-l-2 border-slate-100">
+                            {category.options.map((option) => {
+                                const isSelected = currentSelections[category.id] === option.id;
+                                return (
+                                    <button
+                                        key={option.id}
+                                        onClick={() => handleSubSelect(category.id, option.id)}
+                                        className={cn(
+                                            "flex items-center justify-between p-4 rounded-[0.75rem] border-2 transition-all text-left group",
+                                            isSelected
+                                                ? "border-primary-500 bg-primary-50/30"
+                                                : "border-slate-50 bg-white hover:border-slate-200"
+                                        )}
+                                    >
+                                        <span className={cn(
+                                            "text-[0.875rem] font-bold tracking-tight uppercase",
+                                            isSelected ? "text-primary-700" : "text-slate-600"
+                                        )}>
+                                            {option.label}
+                                        </span>
+                                        <div className={cn(
+                                            "px-3 py-1 rounded-full text-[0.625rem] font-black tracking-widest uppercase shadow-sm",
+                                            option.strength === 'STRONG'
+                                                ? (isSelected ? "bg-primary-500 text-white" : "bg-slate-100 text-slate-400")
+                                                : (isSelected ? "bg-accent-orange text-white" : "bg-slate-100 text-slate-400")
+                                        )}>
+                                            {option.strength}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );

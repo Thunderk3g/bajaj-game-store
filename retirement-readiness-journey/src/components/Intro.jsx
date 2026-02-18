@@ -1,45 +1,43 @@
 import React from 'react';
-import { Target, ShieldCheck, Zap } from 'lucide-react';
-import Button from './ui/Button';
+import { Button } from './ui/Button';
+import { motion } from 'framer-motion';
 
-const Intro = ({ handleNext }) => {
+const Intro = ({ onStart }) => {
     return (
-        <div className="text-center max-w-2xl mx-auto space-y-8">
-            <div className="flex justify-center">
-                <div className="w-20 h-20 bg-primary-50 rounded-full flex items-center justify-center animate-bounce">
-                    <Target className="w-10 h-10 text-primary-500" />
+        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8">
+            <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6, type: "spring" }}
+                className="w-[12rem] h-[12rem] bg-primary-50 rounded-full flex items-center justify-center p-8"
+            >
+                <div className="w-full h-full bg-primary-500 rounded-full flex items-center justify-center text-[4rem] shadow-xl shadow-primary-500/30">
+                    🎯
                 </div>
-            </div>
+            </motion.div>
 
-            <div className="space-y-4">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight">
-                    Retirement Readiness <span className="text-primary-500">Journey</span>
+            <div className="space-y-4 max-w-[32rem]">
+                <h1 className="text-[2.5rem] font-extrabold text-slate-900 leading-tight">
+                    Discover Your <br />
+                    <span className="text-primary-500 underline decoration-accent-orange decoration-4 underline-offset-8">
+                        Retirement Readiness
+                    </span>
                 </h1>
-                <p className="text-lg text-slate-500 max-w-lg mx-auto leading-relaxed">
-                    Embark on a premium guided experience to assess your financial future. Discover your readiness score and get personalized expert insights.
+                <p className="text-[1.125rem] text-slate-500">
+                    Embark on a fun, interactive journey to see how prepared you are for your future self. It only takes 2 minutes!
                 </p>
             </div>
 
-            <div className="flex flex-col items-center space-y-4">
-                <Button onClick={handleNext} className="w-full md:w-auto px-12 py-4 text-lg">
+            <div className="w-full max-w-[20rem] pt-8">
+                <Button
+                    onClick={onStart}
+                    className="w-full h-[4rem] text-[1.125rem] bg-primary-500 hover:bg-primary-600 shadow-xl shadow-primary-500/40"
+                >
                     BEGIN ASSESSMENT
                 </Button>
-                <div className="flex items-center space-x-6 text-sm text-slate-400 font-medium">
-                    <div className="flex items-center">
-                        <ShieldCheck className="w-4 h-4 mr-1.5 text-emerald-500" />
-                        No credit card required
-                    </div>
-                    <div className="flex items-center">
-                        <Zap className="w-4 h-4 mr-1.5 text-accent-500" />
-                        Instant results
-                    </div>
-                </div>
-            </div>
-
-            <div className="pt-8 border-t border-slate-100 flex justify-center space-x-8 opacity-50">
-                <div className="text-xs uppercase tracking-widest font-bold">Scalable</div>
-                <div className="text-xs uppercase tracking-widest font-bold">Secure</div>
-                <div className="text-xs uppercase tracking-widest font-bold">Precise</div>
+                <p className="mt-4 text-[0.875rem] text-slate-400">
+                    No credit card required • Instant results
+                </p>
             </div>
         </div>
     );
