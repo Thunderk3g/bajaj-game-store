@@ -6,59 +6,54 @@ const QuestionScreen = ({ question, currentQuestion, totalQuestions, onAnswerSel
 
     return (
         <motion.div
-            className="w-full h-full flex flex-col py-4 px-2"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
+            className="w-full h-full flex flex-col py-0 px-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
         >
-            {/* Quiz Progress Bar at Top */}
-            <div className="mb-4">
+            {/* Top Navigation / Progress */}
+            <div className="mb-6">
                 <QuizProgressBar currentQuestion={currentQuestion} totalQuestions={totalQuestions} />
             </div>
 
-            <div className="flex-1 flex flex-col justify-start space-y-6">
-
-
-                {/* Question Text Area */}
-                <div className="bg-white border-l-8 border-brand-orange py-6 px-6">
-                    <h2 className="text-xl sm:text-2xl font-black text-brand-blue leading-tight">
+            <div className="flex-1 flex flex-col justify-start space-y-8 px-2 max-w-md mx-auto w-full">
+                {/* Question Section */}
+                <div className="game-board">
+                    <h2 className="text-2xl font-black text-gray-700 leading-snug">
                         {question.question}
                     </h2>
                 </div>
 
-                {/* Options Area */}
-                <div className="space-y-4">
+                {/* Answer Options Section */}
+                <div className="flex flex-col gap-4">
                     {question.options.map((option, index) => (
                         <motion.button
                             key={index}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                             onClick={() => onAnswerSelect(index)}
                             disabled={selectedAnswer !== null}
-                            className={`w-full flex items-center group h-[100px] py-4 pr-6 pl-3 bg-brand-blue border-2 border-brand-blue transition-all ${selectedAnswer === index
-                                ? 'ring-4 ring-white/50 ring-offset-2 ring-offset-brand-blue shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)]'
-                                : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] sm:hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] sm:hover:translate-x-[-2px] sm:hover:translate-y-[-2px]'
-                                }`}
+                            className={`game-option ${selectedAnswer === index ? 'selected' : ''}`}
                         >
                             <span className={`
-                                flex items-center justify-center w-12 h-12 mr-4 font-black border-2 text-xl transition-colors flex-shrink-0
+                                flex items-center justify-center w-10 h-10 rounded-xl font-black border-2 text-lg transition-colors flex-shrink-0
                                 ${selectedAnswer === index
-                                    ? 'bg-white text-brand-blue border-white'
-                                    : 'bg-white text-brand-blue border-white'}
+                                    ? 'bg-brand-blue text-white border-brand-blue'
+                                    : 'bg-white text-[#E5E5E5] border-[#E5E5E5] group-hover:border-brand-blue'}
                             `}>
-                                {String.fromCharCode(65 + index)}
+                                {index + 1}
                             </span>
-                            <span className="flex-1 text-left font-bold text-sm sm:text-base text-white line-clamp-2 overflow-hidden">{option}</span>
+                            <span className={`flex-1 text-left font-bold text-lg leading-tight ${selectedAnswer === index ? 'text-brand-blue' : 'text-gray-600'}`}>
+                                {option}
+                            </span>
                         </motion.button>
                     ))}
                 </div>
             </div>
 
-            {/* Bottom spacer for balance */}
-            <div className="h-12 flex items-center justify-center">
-            </div>
+            {/* Bottom Section Spacer */}
+            <div className="py-8"></div>
         </motion.div>
     );
 };
