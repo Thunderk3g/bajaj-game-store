@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FederationService } from '../../../core/services/federation.service';
 import { GamificationStoreService } from '../../../core/services/gamification-store.service';
@@ -283,7 +283,8 @@ export class GameWrapperComponent implements OnInit, OnDestroy {
     private store: GamificationStoreService,
     private sanitizer: DomSanitizer,
     private ngZone: NgZone,
-  ) {}
+    private cdr: ChangeDetectorRef,
+  ) { }
 
   ngOnInit() {
     this.gameId = this.route.snapshot.params['gameId'];
@@ -310,9 +311,14 @@ export class GameWrapperComponent implements OnInit, OnDestroy {
   }
 
   onIframeLoad() {
-    this.ngZone.run(() => {
-      this.loading = false;
-      console.log(`[GameWrapper] Game "${this.gameId}" loaded`);
+    this.ngZone.runOutsideAngular(() => {
+      requestAnimationFrame(() => {
+        this.ngZone.run(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+          console.log(`[GameWrapper] Game "${this.gameId}" loaded`);
+        });
+      });
     });
   }
 
