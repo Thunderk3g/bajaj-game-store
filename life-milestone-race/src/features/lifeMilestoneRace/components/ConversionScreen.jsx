@@ -58,12 +58,12 @@ const ConversionScreen = memo(function ConversionScreen({
         >
             {/* Header */}
             <motion.div variants={itemVariants} className="text-center space-y-3">
-                <h2 className="race-heading text-[1.75rem] text-white">
+                <h2 className="race-heading text-[1.75rem] text-blue-950">
                     Strengthen Your Protection
                 </h2>
                 <div className="flex flex-col items-center">
                     <span
-                        className="text-[0.75rem] font-black uppercase tracking-[0.2em] text-white/40 mb-1"
+                        className="text-[0.75rem] font-black uppercase tracking-[0.2em] text-blue-900/40 mb-1"
                     >
                         Your Score
                     </span>
@@ -82,7 +82,7 @@ const ConversionScreen = memo(function ConversionScreen({
                 className="w-full bg-bajaj-blue/10 border border-bajaj-blue/30 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group"
             >
                 <div className="absolute top-0 left-0 w-1 h-full bg-bajaj-blue" />
-                <p className="text-[1rem] text-white/90 leading-relaxed font-medium">
+                <p className="text-[1rem] text-blue-900/90 leading-relaxed font-medium">
                     &ldquo;To know more about insurance and savings products, please connect with our relationship manager.&rdquo;
                 </p>
                 <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">

@@ -22,7 +22,7 @@ const ThankYou = memo(function ThankYou({ name }) {
                     <span className="text-[2.5rem]">✅</span>
                 </motion.div>
 
-                <h1 className="race-heading text-[2.5rem] sm:text-[3rem] text-white tracking-widest leading-tight uppercase">
+                <h1 className="race-heading text-[2.5rem] sm:text-[3rem] text-blue-950 tracking-widest leading-tight uppercase">
                     THANK YOU!
                 </h1>
 
@@ -35,10 +35,10 @@ const ThankYou = memo(function ThankYou({ name }) {
                 <div className="h-px w-24 bg-white/20 mx-auto my-6" />
 
                 <div className="space-y-3">
-                    <p className="text-white/90 text-[1.125rem] font-medium tracking-wide">
+                    <p className="text-blue-900/90 text-[1.125rem] font-medium tracking-wide">
                         Thank you for sharing your details.
                     </p>
-                    <p className="text-race-muted text-[0.9375rem] font-normal leading-relaxed max-w-xs mx-auto">
+                    <p className="text-blue-900/60 text-[0.9375rem] font-normal leading-relaxed max-w-xs mx-auto">
                         Our Relationship Manager will reach out to you shortly to help secure your milestones.
                     </p>
                 </div>

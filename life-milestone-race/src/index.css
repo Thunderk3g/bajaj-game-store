@@ -35,17 +35,26 @@
 }
 
 @layer components {
+
+  /* ─── Bajaj Brand Tokens ─── */
+  /* Primary Blue:  #0066B2 (deep Bajaj Blue) */
+  /* Accent Orange: #FF8C00 / #FF6600 (Bajaj Orange for CTAs) */
+  /* Dark BG:       #0B1120 → #131B2E gradient */
+
   .race-container {
     @apply relative w-full min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden;
-    background: radial-gradient(ellipse at 50% 0%, #131B2E 0%, #0B1120 70%);
+    background: radial-gradient(circle at center, #BAE6FD 0%, #0EA5E9 100%);
   }
 
   .race-glass-card {
-    @apply relative rounded-2xl border border-race-border;
-    background: rgba(19, 27, 46, 0.85);
+    @apply relative rounded-2xl border border-white;
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(1rem);
     -webkit-backdrop-filter: blur(1rem);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
+
+  /* ─── Buttons: Bajaj Branded (Blue primary, Orange accent) ─── */
 
   .race-button-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-race-dark;
@@ -71,28 +80,31 @@
     transform: translateY(-0.125rem);
   }
 
+  /* Protected = Orange (Bajaj accent) */
   .race-button-protected {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-4 font-bold text-white transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-race-dark;
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    box-shadow: 0 0.25rem 1rem rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, #FF8C00 0%, #FF6600 100%);
+    box-shadow: 0 4px 0 #CC5500, 0 0 16px rgba(255, 140, 0, 0.3);
     font-size: 1rem;
   }
 
   .race-button-protected:hover:not(:disabled) {
     transform: translateY(-0.125rem) scale(1.02);
-    box-shadow: 0 0.5rem 1.5rem rgba(16, 185, 129, 0.4);
+    box-shadow: 0 6px 0 #CC5500, 0 0 24px rgba(255, 140, 0, 0.4);
   }
 
+  /* Exposed = Blue (Bajaj primary) */
   .race-button-exposed {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-4 font-bold text-white transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-race-dark;
-    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-    box-shadow: 0 0.25rem 1rem rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, #0066B2 0%, #3B82F6 100%);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 0 #004A80;
     font-size: 1rem;
   }
 
   .race-button-exposed:hover:not(:disabled) {
     transform: translateY(-0.125rem) scale(1.02);
-    box-shadow: 0 0.5rem 1.5rem rgba(239, 68, 68, 0.4);
+    box-shadow: 0 6px 0 #004A80, 0 0 16px rgba(0, 102, 178, 0.4);
   }
 
   .race-heading {
@@ -106,33 +118,40 @@
   }
 
   .meter-track {
-    @apply relative w-full h-3 rounded-full overflow-hidden;
-    background: rgba(30, 42, 69, 0.8);
+    @apply relative w-full h-3.5 rounded-full overflow-hidden;
+    background: rgba(0, 102, 178, 0.15);
+    border: 1px solid rgba(0, 102, 178, 0.2);
   }
 
   .meter-fill {
     @apply absolute left-0 top-0 h-full rounded-full transition-all duration-700 ease-out;
+    background: linear-gradient(90deg, #FF8C00, #FF6600);
   }
 
+  /* Impact badges — styled with brand colors */
   .severity-badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider;
   }
 
   .severity-high {
-    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+    background-color: #FF8C00;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(255, 140, 0, 0.4);
   }
 
   .severity-medium {
-    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+    background-color: rgba(0, 102, 178, 0.2);
+    color: #60A5FA;
   }
 
   .severity-moderate {
-    @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+    background-color: rgba(0, 102, 178, 0.2);
+    color: #60A5FA;
   }
 
   .timeline-connector {
     @apply absolute left-6 top-0 w-0.5 h-full;
-    background: linear-gradient(to bottom, #1E2A45, #3B82F6, #1E2A45);
+    background: linear-gradient(to bottom, #1E2A45, #0066B2, #1E2A45);
   }
 
   /* ─── Gamified Level Select Map ─── */
@@ -166,9 +185,9 @@
 
   .glossy-card.glossy-selected {
     background: #ffffff;
-    border-color: #FBDB4C;
+    border-color: #FF8C00;
     transform: scale(1.05);
-    box-shadow: 0 0.625rem 1.25rem rgba(0, 0, 0, 0.1), 0 0.5rem 0 #EAB308;
+    box-shadow: 0 0.625rem 1.25rem rgba(0, 0, 0, 0.1), 0 0.5rem 0 #CC5500;
   }
 
   .glossy-card:active {
@@ -177,13 +196,14 @@
   }
 
   .chunky-btn {
-    box-shadow: 0 0.5rem 0 #1D4ED8;
+    box-shadow: 0 0.5rem 0 #004A80;
     transition: all 0.1s;
+    background: linear-gradient(135deg, #0066B2 0%, #3B82F6 100%) !important;
   }
 
   .chunky-btn:active {
     transform: translateY(0.25rem);
-    box-shadow: 0 0.125rem 0 #1D4ED8;
+    box-shadow: 0 0.125rem 0 #004A80;
   }
 
   .chunky-btn:disabled {
@@ -218,12 +238,12 @@
 @layer utilities {
   .text-gradient-blue {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #3B82F6, #06B6D4);
+    background-image: linear-gradient(135deg, #0066B2, #3B82F6);
   }
 
   .text-gradient-orange {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #FF6600, #F59E0B);
+    background-image: linear-gradient(135deg, #FF8C00, #FF6600);
   }
 
   .text-gradient-green {
@@ -232,7 +252,7 @@
   }
 
   .glow-blue {
-    box-shadow: 0 0 1.5rem 0.25rem rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 1.5rem 0.25rem rgba(0, 102, 178, 0.25);
   }
 
   .glow-green {
@@ -244,6 +264,6 @@
   }
 
   .glow-orange {
-    box-shadow: 0 0 1.5rem 0.25rem rgba(255, 102, 0, 0.2);
+    box-shadow: 0 0 1.5rem 0.25rem rgba(255, 140, 0, 0.25);
   }
 }

@@ -116,17 +116,17 @@ const LeadForm = memo(function LeadForm({
         >
             {/* Header */}
             <motion.div variants={itemVariants} className="text-center space-y-1">
-                <h2 className="race-subheading text-[1.375rem] text-white">
+                <h2 className="race-subheading text-[1.375rem] text-blue-950">
                     Book Your Slot
                 </h2>
-                <p className="text-race-muted text-[0.8125rem]">
+                <p className="text-blue-900/60 text-[0.8125rem]">
                     A protection expert will call you at your preferred time
                 </p>
             </motion.div>
 
             {/* Name */}
             <motion.div variants={itemVariants}>
-                <label htmlFor="lead-name" className="block text-[0.8125rem] font-medium text-slate-300 mb-1.5">
+                <label htmlFor="lead-name" className="block text-[0.8125rem] font-medium text-slate-600 mb-1.5">
                     Full Name
                 </label>
                 <div className="relative">
@@ -137,7 +137,7 @@ const LeadForm = memo(function LeadForm({
                         value={formData.name}
                         onChange={(e) => handleChange('name', e.target.value)}
                         placeholder="Enter your name"
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-race-surface border text-white placeholder-race-muted/50 text-[0.9375rem] transition-colors focus:outline-none focus:ring-2 focus:ring-race-accent ${errors.name ? 'border-red-500' : 'border-race-border focus:border-race-accent'
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border text-slate-900 placeholder-slate-500 text-[0.9375rem] transition-colors focus:outline-none focus:ring-2 focus:ring-race-accent ${errors.name ? 'border-red-500' : 'border-white focus:border-race-accent'
                             }`}
                         autoComplete="name"
                     />
@@ -149,7 +149,7 @@ const LeadForm = memo(function LeadForm({
 
             {/* Mobile */}
             <motion.div variants={itemVariants}>
-                <label htmlFor="lead-mobile" className="block text-[0.8125rem] font-medium text-slate-300 mb-1.5">
+                <label htmlFor="lead-mobile" className="block text-[0.8125rem] font-medium text-slate-600 mb-1.5">
                     Mobile Number
                 </label>
                 <div className="relative">
@@ -160,7 +160,7 @@ const LeadForm = memo(function LeadForm({
                         value={formData.mobile}
                         onChange={(e) => handleChange('mobile', e.target.value.replace(/\D/g, '').slice(0, 10))}
                         placeholder="10-digit mobile number"
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-race-surface border text-white placeholder-race-muted/50 text-[0.9375rem] transition-colors focus:outline-none focus:ring-2 focus:ring-race-accent ${errors.mobile ? 'border-red-500' : 'border-race-border focus:border-race-accent'
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border text-slate-900 placeholder-slate-500 text-[0.9375rem] transition-colors focus:outline-none focus:ring-2 focus:ring-race-accent ${errors.mobile ? 'border-red-500' : 'border-white focus:border-race-accent'
                             }`}
                         inputMode="numeric"
                         autoComplete="tel"
@@ -173,7 +173,7 @@ const LeadForm = memo(function LeadForm({
 
             {/* Date */}
             <motion.div variants={itemVariants}>
-                <label htmlFor="lead-date" className="block text-[0.8125rem] font-medium text-slate-300 mb-1.5">
+                <label htmlFor="lead-date" className="block text-[0.8125rem] font-medium text-slate-600 mb-1.5">
                     Preferred Date
                 </label>
                 <div className="relative">
@@ -184,7 +184,7 @@ const LeadForm = memo(function LeadForm({
                         value={formData.preferredDate}
                         onChange={(e) => handleChange('preferredDate', e.target.value)}
                         min={today}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-race-surface border text-white text-[0.9375rem] transition-colors focus:outline-none focus:ring-2 focus:ring-race-accent [color-scheme:dark] ${errors.preferredDate ? 'border-red-500' : 'border-race-border focus:border-race-accent'
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border text-slate-900 text-[0.9375rem] transition-colors focus:outline-none focus:ring-2 focus:ring-race-accent [color-scheme:light] ${errors.preferredDate ? 'border-red-500' : 'border-white focus:border-race-accent'
                             }`}
                     />
                 </div>
@@ -195,7 +195,7 @@ const LeadForm = memo(function LeadForm({
 
             {/* Time Slot */}
             <motion.div variants={itemVariants}>
-                <label className="block text-[0.8125rem] font-medium text-slate-300 mb-1.5">
+                <label className="block text-[0.8125rem] font-medium text-slate-600 mb-1.5">
                     <Clock size={14} className="inline mr-1" />
                     Preferred Time Slot
                 </label>
@@ -206,8 +206,8 @@ const LeadForm = memo(function LeadForm({
                             type="button"
                             onClick={() => handleChange('preferredSlot', slot)}
                             className={`px-3 py-2 rounded-lg text-[0.75rem] font-medium transition-all duration-200 ${formData.preferredSlot === slot
-                                    ? 'bg-race-accent text-white border border-race-accent'
-                                    : 'bg-race-surface text-slate-300 border border-race-border hover:border-race-accent/50'
+                                ? 'bg-race-accent text-white border border-race-accent'
+                                : 'bg-white/60 text-slate-600 border border-white hover:border-race-accent/50'
                                 }`}
                         >
                             {slot}

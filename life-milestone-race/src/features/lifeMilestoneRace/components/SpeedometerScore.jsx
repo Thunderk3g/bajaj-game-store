@@ -29,8 +29,8 @@ const SpeedometerScore = memo(function SpeedometerScore({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
             >
-                <h2 className="race-heading text-[2rem] text-white">Race Complete!</h2>
-                <p className="text-race-muted text-[0.875rem] uppercase tracking-widest font-bold">
+                <h2 className="race-heading text-[2rem] text-blue-950">Race Complete!</h2>
+                <p className="text-blue-900/60 text-[0.875rem] uppercase tracking-widest font-bold">
                     Your Life Protection Score
                 </p>
             </motion.div>
@@ -59,7 +59,7 @@ const SpeedometerScore = memo(function SpeedometerScore({
                     {category?.label}
                 </span>
 
-                <p className="text-race-muted text-[0.875rem] max-w-xs mx-auto leading-relaxed">
+                <p className="text-blue-900/70 text-[0.875rem] max-w-xs mx-auto leading-relaxed">
                     Life moves faster than planning. Let&apos;s strengthen your protection.
                 </p>
             </motion.div>

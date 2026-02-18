@@ -77,7 +77,7 @@ const DecisionButtons = memo(function DecisionButtons({
                     </svg>
                 </motion.div>
 
-                <span className="text-[1rem] font-bold text-white tracking-wide">
+                <span className="text-[1rem] font-bold text-blue-950 tracking-wide">
                     {isUrgent ? 'Decide Now!' : 'Make Your Choice'}
                 </span>
             </div>

@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
 import EVENTS from '../constants/eventsData';
-import { LIFE_STAGES, INITIAL_SCORE, GAME_PHASES, DECISIONS } from '../constants/lifeStages';
+import { LIFE_STAGES, INITIAL_SCORE, GAME_PHASES, DECISIONS, EVENTS_PER_STAGE } from '../constants/lifeStages';
 import { calculateScore, getProtectionCategory, normalizeScore, generateRiskGaps } from '../utils/scoreCalculator';
 import { isHighSeverity } from '../utils/severityImpact';
 
@@ -31,26 +31,26 @@ function shuffleArray(arr) {
 }
 
 /**
- * Build the event queue based on the selected starting stage.
- * Includes events from the starting stage onwards.
- * @param {string} startingStageId
+ * Build the event queue for ONLY the selected stage.
+ * Returns exactly EVENTS_PER_STAGE (5) events for that stage.
+ * @param {string} stageId
  * @returns {Array}
  */
-function buildEventQueue(startingStageId) {
-    const startIndex = LIFE_STAGES.findIndex((s) => s.id === startingStageId);
-    const relevantStages = LIFE_STAGES.slice(startIndex).map((s) => s.id);
-
-    const queue = [];
-    for (const stageId of relevantStages) {
-        const stageEvents = EVENTS.filter((e) => e.stage === stageId);
-        queue.push(...shuffleArray(stageEvents));
-    }
-    return queue;
+function buildEventQueue(stageId) {
+    const stageEvents = EVENTS.filter((e) => e.stage === stageId);
+    const shuffled = shuffleArray(stageEvents);
+    // Ensure we only return exactly EVENTS_PER_STAGE
+    return shuffled.slice(0, EVENTS_PER_STAGE);
 }
 
 /**
  * Core race engine hook.
  * Manages all game state, progression, scoring, and timeline tracking.
+ *
+ * KEY BEHAVIOUR:
+ * - Only events from the selected stage are loaded (5 per stage).
+ * - Score starts at 50, +10/-10 per decision.
+ * - Selecting a new stage fully resets all state.
  */
 export function useRaceEngine() {
     const [gameId, setGameId] = useState('');
@@ -87,10 +87,21 @@ export function useRaceEngine() {
         return generateRiskGaps(timeline);
     }, [timeline]);
 
+    /**
+     * Progress percent based on EVENTS_PER_STAGE (5), not total events.
+     */
     const progressPercent = useMemo(() => {
         if (eventQueue.length === 0) return 0;
         return Math.round(((currentEventIndex + 1) / eventQueue.length) * 100);
     }, [currentEventIndex, eventQueue.length]);
+
+    /**
+     * Resolved stage metadata for the currently selected stage.
+     */
+    const selectedStageData = useMemo(() => {
+        if (!selectedStage) return null;
+        return LIFE_STAGES.find((s) => s.id === selectedStage) ?? null;
+    }, [selectedStage]);
 
     // ── Actions ──
 
@@ -98,6 +109,9 @@ export function useRaceEngine() {
         setPhase(GAME_PHASES.STAGE_SELECTION);
     }, []);
 
+    /**
+     * Select a stage: resets ALL state, loads only that stage's 5 events.
+     */
     const selectStage = useCallback((stageId) => {
         const id = generateGameId();
         const queue = buildEventQueue(stageId);
@@ -220,6 +234,7 @@ export function useRaceEngine() {
         phase,
         score,
         selectedStage,
+        selectedStageData,
         currentEvent,
         currentEventIndex,
         eventQueue,

@@ -3,41 +3,29 @@ import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 
 /**
- * Compact, thick protection meter with glowing pill label.
- * No tiny grey numbers — just the bar, label pill, and bold score.
+ * Protection meter with Bajaj Blue base and Orange fill animation.
+ * Thick 14px bar, glowing pill label, bold white score.
  */
 const ProtectionMeter = memo(function ProtectionMeter({ score, maxScore = 100 }) {
     const percentage = useMemo(() => {
         return Math.max(0, Math.min(100, (score / maxScore) * 100));
     }, [score, maxScore]);
 
-    const { color, glowColor, label } = useMemo(() => {
+    const { label, pillColor } = useMemo(() => {
         if (percentage <= 35) {
-            return {
-                color: '#EF4444',
-                glowColor: 'rgba(239, 68, 68, 0.5)',
-                label: 'Low',
-            };
+            return { label: 'Low', pillColor: '#EF4444' };
         }
         if (percentage <= 70) {
-            return {
-                color: '#FF8C00',
-                glowColor: 'rgba(255, 140, 0, 0.5)',
-                label: 'Medium',
-            };
+            return { label: 'Medium', pillColor: '#FF8C00' };
         }
-        return {
-            color: '#10B981',
-            glowColor: 'rgba(16, 185, 129, 0.5)',
-            label: 'High',
-        };
+        return { label: 'High', pillColor: '#10B981' };
     }, [percentage]);
 
     return (
         <div className="w-full space-y-3">
-            {/* Header — Label left, pill + score right */}
+            {/* Header — label left, pill + score right */}
             <div className="flex items-center justify-between">
-                <span className="text-[0.9375rem] font-bold text-white tracking-wide">
+                <span className="text-[0.9375rem] font-bold text-blue-950 tracking-wide">
                     Protection Level
                 </span>
                 <div className="flex items-center gap-3">
@@ -45,30 +33,34 @@ const ProtectionMeter = memo(function ProtectionMeter({ score, maxScore = 100 })
                     <span
                         className="text-[0.75rem] font-black uppercase tracking-wider px-3 py-1 rounded-full"
                         style={{
-                            backgroundColor: color,
+                            backgroundColor: pillColor,
                             color: '#fff',
-                            boxShadow: `0 0 14px ${glowColor}, 0 0 4px ${glowColor}`,
+                            boxShadow: `0 0 14px ${pillColor}80, 0 0 4px ${pillColor}80`,
                         }}
                     >
                         {label}
                     </span>
                     {/* Bold score */}
-                    <span className="text-[1.5rem] font-black text-white leading-none">
+                    <span className="text-[1.5rem] font-black text-blue-950 leading-none">
                         {Math.round(score)}
                     </span>
                 </div>
             </div>
 
-            {/* Thick progress bar — 14px height */}
+            {/* Thick progress bar — Blue base, Orange fill */}
             <div
                 className="relative w-full rounded-full overflow-hidden"
-                style={{ height: '14px', backgroundColor: 'rgba(255,255,255,0.08)' }}
+                style={{
+                    height: '14px',
+                    backgroundColor: 'rgba(0, 102, 178, 0.2)',
+                    border: '1px solid rgba(0, 102, 178, 0.3)',
+                }}
             >
                 <motion.div
                     className="absolute left-0 top-0 h-full rounded-full"
                     style={{
-                        backgroundColor: color,
-                        boxShadow: `0 0 16px ${glowColor}`,
+                        background: 'linear-gradient(90deg, #FF8C00 0%, #FF6600 100%)',
+                        boxShadow: '0 0 16px rgba(255, 140, 0, 0.4)',
                     }}
                     initial={{ width: 0 }}
                     animate={{ width: `${percentage}%` }}

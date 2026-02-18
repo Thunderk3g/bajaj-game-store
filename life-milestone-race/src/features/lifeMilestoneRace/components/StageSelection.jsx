@@ -31,7 +31,7 @@ const cardVariants = {
  * Gamified stage selection screen — level-select map style.
  * Zigzag card layout with glossy cards, ray burst background,
  * SVG dashed path, and chunky 3D "BEGIN RACE" button.
- * Responsive: compact on small screens, spacious on larger.
+ * Cards now show: Emoji → Stage Name → Age Range.
  */
 const StageSelection = memo(function StageSelection({ onSelectStage }) {
     const [selected, setSelected] = useState(null);
@@ -110,11 +110,11 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
                             className={`flex ${alignment} w-full z-10`}
                         >
                             <div
-                                className={`glossy-card ${isSelected ? 'glossy-selected' : ''} w-[8.5rem] sm:w-[10rem] p-2 sm:p-3 rounded-2xl sm:rounded-3xl flex flex-col items-center gap-1 sm:gap-2 cursor-pointer`}
+                                className={`glossy-card ${isSelected ? 'glossy-selected' : ''} w-[8.5rem] sm:w-[10rem] p-2 sm:p-3 rounded-2xl sm:rounded-3xl flex flex-col items-center gap-1 sm:gap-1.5 cursor-pointer`}
                                 onClick={() => handleSelect(stage.id)}
                                 role="radio"
                                 aria-checked={isSelected}
-                                aria-label={stage.label}
+                                aria-label={`${stage.label} (${stage.ageRange})`}
                                 tabIndex={0}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' || e.key === ' ') {
@@ -142,8 +142,13 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
                                 </div>
 
                                 {/* Stage label */}
-                                <span className="font-game-body font-black text-[0.6875rem] sm:text-[0.8125rem] uppercase tracking-tight text-slate-800">
+                                <span className="font-game-body font-black text-[0.6875rem] sm:text-[0.8125rem] uppercase tracking-tight text-slate-800 text-center leading-tight">
                                     {stage.label}
+                                </span>
+
+                                {/* Age range — subtle but visible */}
+                                <span className="text-[0.5625rem] sm:text-[0.6875rem] font-semibold text-slate-500 tracking-wider">
+                                    {stage.ageRange}
                                 </span>
                             </div>
                         </motion.div>

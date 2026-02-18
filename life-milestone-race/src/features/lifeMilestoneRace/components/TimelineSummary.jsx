@@ -35,7 +35,7 @@ const TimelineSummary = memo(function TimelineSummary({ timeline, onContinue }) 
         >
             {/* Header */}
             <motion.div variants={itemVariants} className="text-center space-y-2">
-                <h2 className="race-subheading text-[1.5rem] text-white">
+                <h2 className="race-subheading text-[1.5rem] text-blue-950">
                     Your Life Journey
                 </h2>
                 <div className="flex justify-center gap-4">
@@ -64,8 +64,8 @@ const TimelineSummary = memo(function TimelineSummary({ timeline, onContinue }) 
                             {/* Timeline dot */}
                             <div
                                 className={`absolute -left-5 top-4 w-3 h-3 rounded-full border-2 ${isProtected
-                                        ? 'bg-race-success border-race-success'
-                                        : 'bg-race-danger border-race-danger'
+                                    ? 'bg-race-success border-race-success'
+                                    : 'bg-race-danger border-race-danger'
                                     }`}
                             />
 
@@ -73,14 +73,14 @@ const TimelineSummary = memo(function TimelineSummary({ timeline, onContinue }) 
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="text-[0.75rem] text-race-muted font-medium">
+                                            <span className="text-[0.75rem] text-blue-900/60 font-medium">
                                                 {entry.stage}
                                             </span>
                                             <span className={`severity-badge severity-${entry.severity}`}>
                                                 {getSeverityLabel(entry.severity)}
                                             </span>
                                         </div>
-                                        <p className="text-[0.875rem] font-medium text-white mt-1">
+                                        <p className="text-[0.875rem] font-medium text-blue-950 mt-1">
                                             {entry.title}
                                         </p>
                                     </div>
@@ -89,8 +89,8 @@ const TimelineSummary = memo(function TimelineSummary({ timeline, onContinue }) 
                                     <div className="flex-shrink-0 flex flex-col items-end gap-1">
                                         <span
                                             className={`inline-flex items-center gap-1 text-[0.6875rem] font-semibold rounded-full px-2 py-0.5 ${isProtected
-                                                    ? 'bg-green-500/20 text-green-400'
-                                                    : 'bg-red-500/20 text-red-400'
+                                                ? 'bg-green-500/20 text-green-400'
+                                                : 'bg-red-500/20 text-red-400'
                                                 }`}
                                         >
                                             {isProtected ? (

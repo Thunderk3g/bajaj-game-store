@@ -1,8 +1,7 @@
 import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
-import { AlertTriangle } from 'lucide-react';
-import { getSeverityLabel } from '../utils/severityImpact';
+import { AlertTriangle, Shield } from 'lucide-react';
 
 const cardVariants = {
     hidden: { opacity: 0, y: 40, scale: 0.95 },
@@ -21,32 +20,42 @@ const cardVariants = {
 };
 
 /**
- * Hero-style event card — dramatic, game challenge feel.
- * Slightly lighter blue bg, 24px corners, soft shadow, big text.
+ * Impact badge styling — High Impact is orange, Medium Impact is blue.
  */
-const EventCard = memo(function EventCard({ event, stageLabel, stageEmoji }) {
+const IMPACT_STYLES = {
+    high: {
+        label: 'High Impact',
+        bg: '#FF8C00',
+        text: '#fff',
+        glow: 'rgba(255, 140, 0, 0.4)',
+        Icon: AlertTriangle,
+    },
+    medium: {
+        label: 'Medium Impact',
+        bg: 'rgba(0, 102, 178, 0.15)',
+        text: '#0066B2',
+        glow: 'none',
+        Icon: Shield,
+    },
+    moderate: {
+        label: 'Medium Impact',
+        bg: 'rgba(0, 102, 178, 0.15)',
+        text: '#0066B2',
+        glow: 'none',
+        Icon: Shield,
+    },
+};
+
+/**
+ * Hero-style event card — dramatic, game challenge feel.
+ * Slightly lighter blue bg, 24px corners, soft shadow, big centered text.
+ * Contains: Impact Tag, Event Title, Short Description.
+ */
+const EventCard = memo(function EventCard({ event }) {
     if (!event) return null;
 
-    const severityLabel = getSeverityLabel(event.severity);
-
-    // Severity color mapping for the pill
-    const severityStyle = {
-        high: {
-            bg: '#FF8C00',
-            text: '#fff',
-            glow: 'rgba(255, 140, 0, 0.4)',
-        },
-        medium: {
-            bg: 'rgba(245, 158, 11, 0.2)',
-            text: '#F59E0B',
-            glow: 'none',
-        },
-        moderate: {
-            bg: 'rgba(59, 130, 246, 0.2)',
-            text: '#60A5FA',
-            glow: 'none',
-        },
-    }[event.severity] || { bg: 'rgba(255,255,255,0.1)', text: '#fff', glow: 'none' };
+    const impact = IMPACT_STYLES[event.severity] || IMPACT_STYLES.medium;
+    const ImpactIcon = impact.Icon;
 
     return (
         <motion.div
@@ -60,31 +69,32 @@ const EventCard = memo(function EventCard({ event, stageLabel, stageEmoji }) {
             <div
                 className="w-full text-center space-y-5"
                 style={{
-                    background: 'linear-gradient(180deg, rgba(30, 42, 69, 0.95) 0%, rgba(19, 27, 46, 0.9) 100%)',
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(12px)',
                     borderRadius: '24px',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    border: '3px solid #FFFFFF',
                     padding: '2rem 1.5rem',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2)',
+                    boxShadow: '0 8px 32px rgba(0, 102, 178, 0.15), 0 4px 12px rgba(0, 102, 178, 0.1)',
                 }}
             >
-                {/* Severity tag — orange pill with icon for critical */}
+                {/* Impact tag — orange badge for High, blue for Medium */}
                 <div className="flex justify-center">
                     <span
                         className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[0.8125rem] font-black uppercase tracking-wider"
                         style={{
-                            backgroundColor: severityStyle.bg,
-                            color: severityStyle.text,
-                            boxShadow: severityStyle.glow !== 'none' ? `0 0 12px ${severityStyle.glow}` : undefined,
+                            backgroundColor: impact.bg,
+                            color: impact.text,
+                            boxShadow: impact.glow !== 'none' ? `0 0 12px ${impact.glow}` : undefined,
                         }}
                     >
-                        <AlertTriangle size={14} />
-                        {severityLabel}
+                        <ImpactIcon size={14} />
+                        {impact.label}
                     </span>
                 </div>
 
                 {/* Event title — large, bold, centered */}
                 <h3
-                    className="font-black text-white leading-tight"
+                    className="font-black text-blue-950 leading-tight"
                     style={{ fontSize: '1.5rem', letterSpacing: '-0.02em' }}
                 >
                     {event.title}
@@ -92,13 +102,13 @@ const EventCard = memo(function EventCard({ event, stageLabel, stageEmoji }) {
 
                 {/* Description — 18px minimum */}
                 <p
-                    className="text-white/70 leading-relaxed max-w-xs mx-auto"
+                    className="text-blue-900/70 leading-relaxed max-w-xs mx-auto"
                     style={{ fontSize: '1.0625rem' }}
                 >
                     {event.description}
                 </p>
             </div>
-        </motion.div>
+        </motion.div >
     );
 });
 
@@ -112,8 +122,6 @@ EventCard.propTypes = {
         severity: PropTypes.oneOf(['high', 'medium', 'moderate']).isRequired,
         stage: PropTypes.string.isRequired,
     }),
-    stageLabel: PropTypes.string,
-    stageEmoji: PropTypes.string,
 };
 
 export default EventCard;

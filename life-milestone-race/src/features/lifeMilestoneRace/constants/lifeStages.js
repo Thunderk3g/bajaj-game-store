@@ -1,6 +1,6 @@
 /**
  * Life stages used throughout the race simulation.
- * Each stage represents a significant life milestone.
+ * Each stage represents a significant life milestone with age range.
  */
 
 export const LIFE_STAGES = [
@@ -8,50 +8,60 @@ export const LIFE_STAGES = [
         id: 'first-job',
         label: 'First Job',
         emoji: '💼',
+        ageRange: '22–25',
         description: 'Starting your career journey',
         order: 1,
-        color: '#3B82F6',
+        color: '#0066B2',
     },
     {
         id: 'marriage',
         label: 'Marriage',
-        emoji: '💍',
+        emoji: '💑',
+        ageRange: '25–30',
         description: 'Building a life together',
         order: 2,
-        color: '#EC4899',
+        color: '#0066B2',
     },
     {
         id: 'parenthood',
         label: 'Parenthood',
-        emoji: '👶',
+        emoji: '👨‍👩‍👧',
+        ageRange: '30–35',
         description: 'Welcoming a new life',
         order: 3,
-        color: '#F59E0B',
+        color: '#0066B2',
     },
     {
         id: 'mid-career',
         label: 'Mid-Career',
         emoji: '📈',
+        ageRange: '35–50',
         description: 'Peak responsibilities',
         order: 4,
-        color: '#10B981',
+        color: '#0066B2',
     },
     {
         id: 'retirement',
-        label: 'Retirement',
+        label: 'Approaching Retirement',
         emoji: '🏖️',
+        ageRange: '55–60',
         description: 'Securing your golden years',
         order: 5,
-        color: '#8B5CF6',
+        color: '#0066B2',
     },
 ];
+
+/**
+ * Number of events per stage (strictly enforced).
+ */
+export const EVENTS_PER_STAGE = 5;
 
 /**
  * Score category thresholds for protection assessment.
  */
 export const SCORE_CATEGORIES = {
     LOW: { min: 0, max: 35, label: 'Low Protection', color: '#EF4444' },
-    MEDIUM: { min: 36, max: 70, label: 'Medium Protection', color: '#F59E0B' },
+    MEDIUM: { min: 36, max: 70, label: 'Medium Protection', color: '#FF8C00' },
     HIGH: { min: 71, max: 100, label: 'High Protection', color: '#10B981' },
 };
 
