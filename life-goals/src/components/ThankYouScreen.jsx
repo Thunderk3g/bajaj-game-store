@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Phone } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import Confetti from './Confetti';
 import RotatingText from './RotatingText';
 import Speedometer from './Speedometer';
@@ -45,9 +45,9 @@ const ThankYouScreen = ({ userName = "User", score, onRestart }) => {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.6 }}
                         onClick={onRestart}
-                        className="w-full max-w-xs bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black text-xl py-5 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest border-2 border-white/20"
+                        className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 mx-auto drop-shadow-md py-4 px-8 border-2 border-white/20 bg-white/5 hover:bg-white/10 rounded-xl"
                     >
-                        RETAKE
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> Retake Quiz
                     </motion.button>
                 </motion.div>
 

@@ -56,7 +56,7 @@ const WelcomeScreen = ({
     const [showNamePopup, setShowNamePopup] = useState(false);
     const [userName, setUserName] = useState('');
     const [phone, setPhone] = useState('');
-    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [termsAccepted, setTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
 
     const handleStartClick = () => {

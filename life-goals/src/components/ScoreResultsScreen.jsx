@@ -176,12 +176,12 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                 </motion.div>
 
                 {/* Restart Option */}
-                <div className="shrink-0 text-center pb-2">
+                <div className="shrink-0 text-center pb-4">
                     <button
                         onClick={onRestart}
-                        className="text-blue-100 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md"
+                        className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 mx-auto drop-shadow-md py-4 px-8 border-2 border-white/20 bg-white/5 hover:bg-white/10 rounded-xl"
                     >
-                        <RotateCcw className="w-4 h-4" /> Retake Quiz
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> Retake Quiz
                     </button>
                 </div>
             </div>

@@ -29,8 +29,10 @@ const ThankYouScreen = () => {
 
                 {/* Thank You Message */}
                 <div className="space-y-4 px-4">
-                    <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tight leading-tight">
-                        Thank You {leadName ? leadName : ''} for<br />sharing your details
+                    <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tight leading-[1.1] flex flex-col items-center">
+                        <span>THANK YOU</span>
+                        <span className="text-brand-blue drop-shadow-[0_0_15px_rgba(28,176,246,0.6)]">{leadName ? leadName : ''}</span>
+                        <span>FOR SHARING YOUR DETAILS</span>
                     </h2>
                     <p className="text-base text-gray-500 font-bold uppercase tracking-wide max-w-[280px] mx-auto leading-relaxed">
                         Our Relationship Manager will reach out to you
