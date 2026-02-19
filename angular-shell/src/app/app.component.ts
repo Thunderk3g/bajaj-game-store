@@ -16,7 +16,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private assetLogger: AssetLoadingLogger) {}
 
   ngOnInit(): void {
-    console.log('UAT Deployed : 18-02-2026 17:36')
+    console.log('UAT Deployed : 19-02-2026 13:20');
     console.log('🎮 UAT Deployed Gamification');
     console.log('[AppComponent] Application initialized');
 
@@ -34,7 +34,10 @@ export class AppComponent implements OnInit, OnDestroy {
       if (failed.length > 0) {
         console.warn('[AppComponent] Failed assets detected:', failed);
       } else {
-        console.log('[AppComponent] ✅ All assets loaded successfully. Total: ' + summary.total);
+        console.log(
+          '[AppComponent] ✅ All assets loaded successfully. Total: ' +
+            summary.total,
+        );
       }
     }, 10000);
 

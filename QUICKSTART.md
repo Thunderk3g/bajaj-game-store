@@ -96,11 +96,11 @@ All games load from the same origin - no CORS issues!
 
 ```bash
 pnpm build
-cd angular-shell/dist/angular-shell/browser
+cd angular-shell/dist/angular-shell/
 # Upload this folder to your server
 ```
 
-Everything is self-contained - just deploy the `browser/` folder.
+Everything is self-contained - just deploy the `/` folder.
 
 ### Benefits
 
