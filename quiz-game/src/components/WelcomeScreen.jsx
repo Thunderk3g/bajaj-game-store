@@ -65,19 +65,19 @@ const WelcomeScreen = ({ onStart }) => {
 
     return (
         <motion.div
-            className="w-full h-full flex flex-col justify-between py-8 px-4"
+            className="w-full h-[100dvh] flex flex-col justify-between py-4 px-4 overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
         >
-            <div className="flex-1 flex flex-col items-center justify-center space-y-8">
+            <div className="flex-1 flex flex-col items-center justify-center space-y-4 min-h-0">
                 {/* Character Section */}
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.2 }}
-                    className="w-full max-w-[280px]"
+                    className="w-full max-w-[200px] sm:max-w-[280px]"
                 >
                     <img
                         src="./assets/gst.png"
@@ -87,17 +87,17 @@ const WelcomeScreen = ({ onStart }) => {
                 </motion.div>
 
                 {/* Title Section */}
-                <div className="text-center space-y-4 max-w-sm mx-auto">
-                    <h1 className="text-4xl font-black text-gray-800 tracking-tight leading-tight">
+                <div className="text-center space-y-3 max-w-sm mx-auto w-full">
+                    <h1 className="text-3xl sm:text-4xl font-black text-gray-800 tracking-tight leading-tight">
                         Life insurance<br />GST quiz
                     </h1>
 
-                    <div className="bg-white rounded-3xl p-6 shadow-sm border-2 border-soft-gray relative overflow-hidden">
+                    <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-soft-gray relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-2 h-full bg-brand-blue" />
-                        <p className="text-xl text-brand-blue font-black mb-2 text-left">
+                        <p className="text-lg sm:text-xl text-brand-blue font-black mb-1 sm:mb-2 text-left">
                             Did you know?
                         </p>
-                        <p className="text-lg text-gray-600 font-bold leading-snug text-left">
+                        <p className="text-base sm:text-lg text-gray-600 font-bold leading-snug text-left">
                             Life insurance attracts 0% GST! Test your knowledge now.
                         </p>
                     </div>
@@ -105,10 +105,10 @@ const WelcomeScreen = ({ onStart }) => {
             </div>
 
             {/* Action Section */}
-            <div className="w-full max-w-sm mx-auto pt-8">
+            <div className="w-full max-w-sm mx-auto pt-4 pb-2">
                 <button
                     onClick={handleStartClick}
-                    className="w-full game-btn-green text-2xl py-5"
+                    className="w-full game-btn-green text-xl sm:text-2xl py-4 sm:py-5"
                 >
                     Start Game
                 </button>

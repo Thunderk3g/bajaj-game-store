@@ -129,7 +129,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
 
     return (
         <motion.div
-            className="w-full h-full flex flex-col items-center justify-center p-4 text-center relative overflow-hidden"
+            className="w-full h-[100dvh] flex flex-col items-center justify-center p-4 text-center relative overflow-hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -139,30 +139,30 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             {/* Top Right Share Button */}
             <button
                 onClick={handleShare}
-                className="absolute top-4 right-4 p-3 bg-white/50 backdrop-blur-sm rounded-full text-brand-blue hover:bg-white shadow-sm transition-all active:scale-95 z-10"
+                className="absolute top-4 right-4 p-2 sm:p-3 bg-white/50 backdrop-blur-sm rounded-full text-brand-blue hover:bg-white shadow-sm transition-all active:scale-95 z-10"
             >
-                <Share2 className="w-6 h-6" />
+                <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
             {/* Content Wrapper for consistency across heights */}
-            <div className="w-full h-full max-w-sm flex flex-col justify-between max-h-[850px] mx-auto">
-                <div className="flex-1 flex flex-col justify-center space-y-3 w-full py-4">
+            <div className="w-full h-full max-w-sm flex flex-col justify-between mx-auto py-2 sm:py-4 min-h-0">
+                <div className="flex-1 flex flex-col justify-center space-y-2 sm:space-y-4 w-full min-h-0 py-2">
                     {/* 1. Greeting */}
-                    <p className="text-gray-600 font-bold text-2xl">
+                    <p className="text-gray-600 font-bold text-xl sm:text-3xl">
                         Hi <span className="text-brand-blue font-black">{leadName || 'Friend'}</span>
                     </p>
 
                     {/* 2. Animated Meter */}
-                    <div className="py-1">
+                    <div className="py-0 sm:py-1 scale-[0.85] sm:scale-100 flex justify-center origin-center">
                         <ScoreCard score={score} total={total} />
                     </div>
 
                     {/* 3. Titles & Feedback */}
-                    <div className="space-y-2">
-                        <h2 className="text-3xl font-black text-gray-800 tracking-tight leading-none">
+                    <div className="space-y-1 sm:space-y-2">
+                        <h2 className="text-3xl sm:text-4xl font-black text-gray-800 tracking-tight leading-none text-center">
                             {getResultTitle(score)}
                         </h2>
-                        <p className="text-base text-gray-500 font-bold leading-tight px-4">
+                        <p className="text-base sm:text-lg text-gray-500 font-bold leading-tight px-4 text-center">
                             {getMotivationalMessage(score)}
                         </p>
                     </div>
@@ -170,42 +170,34 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                     {/* 4. Share Button */}
                     <button
                         onClick={handleShare}
-                        className="flex items-center justify-center gap-2 bg-brand-blue text-white font-black py-4 px-8 rounded-2xl shadow-lg hover:bg-blue-500 transition-all text-lg w-full max-w-[280px] mx-auto mt-4"
+                        className="flex items-center justify-center gap-2 bg-brand-blue text-white font-black py-3 sm:py-4 px-6 sm:px-8 rounded-2xl shadow-lg hover:bg-blue-500 transition-all text-base sm:text-lg w-full max-w-[240px] sm:max-w-[280px] mx-auto mt-2"
                     >
-                        <Share2 className="w-5 h-5" />
+                        <Share2 className="w-4 h-4 sm:w-5 h-5" />
                         <span>Share</span>
                     </button>
                 </div>
 
-                <div className="w-full space-y-3 pb-4">
+                <div className="w-full space-y-2 sm:space-y-3 pb-2 sm:pb-4">
                     {/* Enhanced Action Card */}
-                    <div className="bg-white rounded-[24px] p-5 shadow-sm border-2 border-soft-gray space-y-4 relative overflow-hidden text-left">
+                    <div className="bg-white rounded-[20px] sm:rounded-[24px] p-3 sm:p-5 shadow-sm border-2 border-soft-gray space-y-3 sm:space-y-4 relative overflow-hidden text-left">
                         <div className="absolute top-0 left-0 w-2 h-full bg-brand-blue" />
-                        <p className="text-gray-700 text-sm font-bold leading-tight pl-2">
+                        <p className="text-gray-700 text-sm sm:text-base font-bold leading-tight pl-2">
                             Connect with our manager to know more about insurance & savings!
                         </p>
 
-                        <div className="flex flex-col gap-2 pt-1">
+                        <div className="flex flex-col gap-2 pt-0 sm:pt-1">
                             <motion.a
                                 href="tel:18002097272"
-                                animate={{
-                                    boxShadow: ["0 0 0px rgba(59, 130, 246, 0)", "0 0 20px rgba(59, 130, 246, 0.4)", "0 0 0px rgba(59, 130, 246, 0)"]
-                                }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                                className="bg-gray-100 text-gray-700 font-black py-4 px-6 rounded-2xl border-b-4 border-gray-300 active:border-b-0 active:translate-y-1 flex items-center justify-center gap-3 transition-all text-lg"
+                                className="bg-gray-100 text-gray-700 font-black py-3 sm:py-4 px-4 sm:px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-base sm:text-lg border-2 border-gray-200"
                             >
-                                <Phone className="w-6 h-6" />
+                                <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
                                 <span>Call now</span>
                             </motion.a>
                             <motion.button
                                 onClick={() => setIsBookingOpen(true)}
-                                animate={{
-                                    boxShadow: ["0 0 0px rgba(88, 204, 2, 0)", "0 0 20px rgba(88, 204, 2, 0.6)", "0 0 0px rgba(88, 204, 2, 0)"]
-                                }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                                className="bg-brand-green text-white font-black py-4 px-6 rounded-2xl border-b-4 border-green-700 active:border-b-0 active:translate-y-1 flex items-center justify-center gap-3 transition-all text-lg"
+                                className="bg-brand-green text-white font-black py-3 sm:py-4 px-4 sm:px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-base sm:text-lg"
                             >
-                                <Calendar className="w-5 h-5" />
+                                <Calendar className="w-4 h-4 sm:w-5 h-5" />
                                 <span>Book a slot</span>
                             </motion.button>
                         </div>
@@ -214,9 +206,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                     {/* Large Retake Button */}
                     <button
                         onClick={onRestart}
-                        className="game-btn w-full py-5 text-xl flex items-center justify-center gap-3"
+                        className="game-btn w-full py-4 sm:py-5 text-lg sm:text-xl flex items-center justify-center gap-3"
                     >
-                        <RotateCcw className="w-6 h-6" />
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />
                         <span>Retake quiz</span>
                     </button>
                 </div>
