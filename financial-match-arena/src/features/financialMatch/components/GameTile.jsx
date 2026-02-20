@@ -1,127 +1,104 @@
 /**
- * GameTile — Performance-Optimized Tile Component
- * ══════════════════════════════════════════════════════════
- * OPTIMIZATIONS:
- * - Replaced Framer Motion with pure CSS transitions (GPU-accelerated)
- * - Replaced drag system with lightweight pointer event swipe detection
- * - Removed layoutId (expensive layout animation system)
- * - Uses transform: translate3d() for GPU compositing
- * - React.memo with custom comparator prevents unnecessary re-renders
- * - Tile only re-renders if position, type, selected, or exploding changes
- * ══════════════════════════════════════════════════════════
+ * GameTile — Premium 14px rounded block with gloss, inner glow, and 3D depth.
+ * "Tactile Fintech Gem" style.
  */
-import { memo, useRef, useCallback } from 'react';
+import { memo } from 'react';
 import PropTypes from 'prop-types';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Tile Metadata — static, declared outside component
+// Tile Metadata with Tailwind gradients
 const TILE_STYLES = {
-    GREEN: 'bg-tile-green',
-    BLUE: 'bg-tile-blue',
-    YELLOW: 'bg-tile-yellow',
-    RED: 'bg-tile-red',
+    GREEN: { bg: 'bg-tile-green', shadow: 'shadow-green-900/40', icon: 'Family' },
+    BLUE: { bg: 'bg-tile-blue', shadow: 'shadow-blue-900/40', icon: 'Edu' },
+    YELLOW: { bg: 'bg-tile-yellow', shadow: 'shadow-amber-900/40', icon: 'Retire' },
+    RED: { bg: 'bg-tile-red', shadow: 'shadow-red-900/40', icon: 'Emerg' },
 };
 
-// Lightweight SVG icons — memoized outside render
-const ICONS = {
-    GREEN: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tile-icon w-[55%] h-[55%]">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="rgba(255,255,255,0.15)" />
-            <circle cx="9" cy="7" r="4" fill="rgba(255,255,255,0.15)" />
+// Simple Icon Placeholders (Use Lucide, or keep minimal shapes)
+// For max performance & cleanliness, let's use minimal SVG shapes.
+
+const TileIcon = ({ type }) => {
+    const stroke = "rgba(255,255,255,0.9)";
+    const fill = "rgba(255,255,255,0.15)";
+
+    if (type === 'GREEN') return (
+        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[55%] h-[55%] drop-shadow-md">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill={fill} />
+            <circle cx="9" cy="7" r="4" fill={fill} />
             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
-    ),
-    BLUE: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tile-icon w-[50%] h-[50%]">
-            <path d="M22 10v6M2 10l10-5 10 5-10 5z" fill="rgba(255,255,255,0.15)" />
+    ); // Users
+    if (type === 'BLUE') return (
+        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[50%] h-[50%] drop-shadow-md">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z" fill={fill} />
             <path d="M6 12v5c3 3 9 3 12 0v-5" />
         </svg>
-    ),
-    YELLOW: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tile-icon w-[55%] h-[55%]">
-            <circle cx="12" cy="12" r="10" fill="rgba(255,255,255,0.15)" />
+    ); // Graduation Cap
+    if (type === 'YELLOW') return (
+        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[55%] h-[55%] drop-shadow-md">
+            <circle cx="12" cy="12" r="10" fill={fill} />
             <path d="M12 6v6l4 2" />
         </svg>
-    ),
-    RED: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tile-icon w-[50%] h-[50%]">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" fill="rgba(255,255,255,0.15)" />
+    ); // Clock/Time/Coin
+    if (type === 'RED') return (
+        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[50%] h-[50%] drop-shadow-md">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" fill={fill} />
             <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
         </svg>
-    ),
+    ); // Medkit/Briefcase
+    return null;
 };
-
-// Swipe detection threshold (px)
-const SWIPE_THRESHOLD = 20;
 
 const GameTile = memo(function GameTile({
     tile,
     isSelected,
     isExploding,
     onTap,
-    onSwipe,
-    cellSize,
+    cellSize
 }) {
-    const pointerStart = useRef(null);
+    if (!tile || !tile.type) return <div style={{ width: cellSize, height: cellSize }} />;
 
-    const handlePointerDown = useCallback((e) => {
-        pointerStart.current = { x: e.clientX, y: e.clientY };
-    }, []);
+    const style = TILE_STYLES[tile.type] || TILE_STYLES.GREEN;
+    const isSelectedClass = isSelected ? 'scale-95 ring-[3px] ring-white/80 ring-offset-2 ring-offset-bb-navy z-20 brightness-110' : '';
+    const animClass = isExploding ? 'animate-tile-pop opacity-0' : '';
 
-    const handlePointerUp = useCallback((e) => {
-        if (!pointerStart.current) return;
-        const dx = e.clientX - pointerStart.current.x;
-        const dy = e.clientY - pointerStart.current.y;
-        const absDx = Math.abs(dx);
-        const absDy = Math.abs(dy);
-
-        if (absDx > SWIPE_THRESHOLD || absDy > SWIPE_THRESHOLD) {
-            // It's a swipe
-            let direction;
-            if (absDx > absDy) {
-                direction = dx > 0 ? 'RIGHT' : 'LEFT';
-            } else {
-                direction = dy > 0 ? 'DOWN' : 'UP';
-            }
-            onSwipe && onSwipe(tile.row, tile.col, direction);
-        } else {
-            // It's a tap
-            onTap(tile.row, tile.col);
-        }
-        pointerStart.current = null;
-    }, [tile.row, tile.col, onTap, onSwipe]);
-
-    if (!tile || !tile.type) {
-        return <div style={{ width: cellSize, height: cellSize }} />;
-    }
-
-    const bgClass = TILE_STYLES[tile.type] || TILE_STYLES.GREEN;
+    // Calculate internal dimensions
+    // Subtracting gap/padding relative to cell size if needed, 
+    // but parent grid handles gap. We fill the cell.
 
     return (
-        <div
-            className={`tile-perf ${bgClass} ${isSelected ? 'tile-selected' : ''} ${isExploding ? 'tile-exploding' : ''}`}
+        <motion.div
+            layoutId={tile.id} // Enable Framer Motion shared layout for smooth swaps? 
+            // Actually, standard CSS transform is lighter for 60fps game grid if possible, 
+            // but Framer's 'layout' prop is great for swaps. 
+            // Let's stick to standard prop-driven rendering for now to avoid overhead, unless 'layout' is needed.
+            // Re-using the CSS transition from index.css logic for perf.
+
+            className={`relative flex items-center justify-center 
+        ${style.bg} ${style.shadow} ${isSelectedClass} ${animClass} 
+        tile-premium select-none active:scale-[0.85]`}
             style={{
                 width: cellSize,
                 height: cellSize,
-                willChange: isExploding ? 'transform, opacity' : 'auto',
+                // Override shadow for specific colors if needed
             }}
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={() => { pointerStart.current = null; }}
+            onClick={() => onTap(tile.row, tile.col)}
+            initial={false}
+            animate={{ scale: isExploding ? 1.5 : 1, opacity: isExploding ? 0 : 1 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
-            {ICONS[tile.type]}
-        </div>
-    );
-}, (prev, next) => {
-    // Custom comparator: only re-render when meaningful props change
-    return (
-        prev.tile?.id === next.tile?.id &&
-        prev.tile?.type === next.tile?.type &&
-        prev.tile?.row === next.tile?.row &&
-        prev.tile?.col === next.tile?.col &&
-        prev.isSelected === next.isSelected &&
-        prev.isExploding === next.isExploding &&
-        prev.cellSize === next.cellSize
+            {/* Icon content */}
+            <TileIcon type={tile.type} />
+
+            {/* Selection Glow Overlay */}
+            {isSelected && (
+                <motion.div
+                    layoutId="select-glow"
+                    className="absolute inset-0 rounded-[14px] bg-white/20 animate-pulse"
+                />
+            )}
+        </motion.div>
     );
 });
 
@@ -130,7 +107,6 @@ GameTile.propTypes = {
     isSelected: PropTypes.bool,
     isExploding: PropTypes.bool,
     onTap: PropTypes.func.isRequired,
-    onSwipe: PropTypes.func,
     cellSize: PropTypes.number.isRequired,
 };
 

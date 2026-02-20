@@ -1,10 +1,7 @@
 /**
  * Balance Builder — Game Reducer
- * ══════════════════════════════════════════════════════════
- * PERFORMANCE-OPTIMIZED VERSION
- * - Added RESOLVE_CASCADE action for single batched update
- * - Reduced object creation in hot paths
- * ══════════════════════════════════════════════════════════
+ * Single-session 2-minute timer with bucket scoring.
+ * No stages, no protection meter, no risk tiles.
  */
 
 import {
@@ -12,11 +9,12 @@ import {
     TILE_TYPES,
     BUCKET_MAX,
     SCORING,
+    computeFinalScore,
     clamp,
 } from '../config/gameConfig.js';
 import { createMatchEngine } from '../../../core/matchEngine/index.js';
 
-// ── Action Types ────────────────────────────────────────────────
+// ── Action Types ────────────────────────────────────────────────────────
 
 export const A = {
     SET_ENTRY: 'SET_ENTRY',
@@ -37,9 +35,6 @@ export const A = {
     SET_GRID: 'SET_GRID',
     CLEAR_EXPLOSIONS: 'CLEAR_EXPLOSIONS',
 
-    // NEW: Single batched cascade resolution
-    RESOLVE_CASCADE: 'RESOLVE_CASCADE',
-
     ADD_FLOAT: 'ADD_FLOAT',
     REMOVE_FLOAT: 'REMOVE_FLOAT',
 
@@ -47,11 +42,7 @@ export const A = {
     HIDE_PRAISE: 'HIDE_PRAISE',
 };
 
-// Reusable empty set (avoid creating new Set() every render)
-const EMPTY_SET = new Set();
-const EMPTY_ARRAY = [];
-
-// ── Initial State ──────────────────────────────────────────────
+// ── Initial State ──────────────────────────────────────────────────────
 
 export const initialState = {
     entryDetails: null,
@@ -60,8 +51,8 @@ export const initialState = {
 
     grid: null,
     selectedCell: null,
-    explodingCells: EMPTY_SET,
-    floatingScores: EMPTY_ARRAY,
+    explodingCells: new Set(),
+    floatingScores: [],
     isProcessing: false,
 
     buckets: {
@@ -77,16 +68,17 @@ export const initialState = {
     activePraise: null,
 };
 
-// ── Helpers ────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────
 
 function addToBucket(buckets, type, points) {
-    if (buckets[type] === undefined) return buckets;
-    const newVal = clamp(buckets[type] + points, 0, BUCKET_MAX);
-    if (newVal === buckets[type]) return buckets; // No change
-    return { ...buckets, [type]: newVal };
+    const copy = { ...buckets };
+    if (copy[type] !== undefined) {
+        copy[type] = clamp(copy[type] + points, 0, BUCKET_MAX);
+    }
+    return copy;
 }
 
-// ── Reducer ────────────────────────────────────────────────────
+// ── Reducer ────────────────────────────────────────────────────────────
 
 export function gameReducer(state, action) {
     switch (action.type) {
@@ -95,6 +87,7 @@ export function gameReducer(state, action) {
             return {
                 ...state,
                 entryDetails: action.payload,
+                // Stay in LANDING so popup doesn't unmount prematurely
             };
 
         case A.SHOW_HOW_TO_PLAY:
@@ -114,8 +107,8 @@ export function gameReducer(state, action) {
                 maxCombo: 0,
                 activeCombo: 0,
                 selectedCell: null,
-                explodingCells: EMPTY_SET,
-                floatingScores: EMPTY_ARRAY,
+                explodingCells: new Set(),
+                floatingScores: [],
                 activePraise: null,
                 isProcessing: false,
                 gameStatus: GAME_PHASES.PLAYING,
@@ -123,7 +116,7 @@ export function gameReducer(state, action) {
         }
 
         case A.TICK: {
-            const newTime = state.timeLeft - 1;
+            const newTime = Math.max(0, state.timeLeft - 1);
             if (newTime <= 0) {
                 return {
                     ...state,
@@ -182,6 +175,7 @@ export function gameReducer(state, action) {
                 newGrid,
             } = action.payload;
 
+            /* Calculate bucket points per matched type */
             let bucketPoints = SCORING.match3;
             if (matchLen >= 5) bucketPoints = SCORING.match5;
             else if (matchLen >= 4) bucketPoints = SCORING.match4;
@@ -190,7 +184,7 @@ export function gameReducer(state, action) {
                 (comboStep > 1 ? SCORING.comboBonus : 0) +
                 (comboStep > 2 ? SCORING.cascadeBonus : 0);
 
-            let newBuckets = state.buckets;
+            let newBuckets = { ...state.buckets };
             for (const type of matchedTypes) {
                 newBuckets = addToBucket(newBuckets, type, bucketPoints + bonus);
             }
@@ -218,17 +212,7 @@ export function gameReducer(state, action) {
             return { ...state, grid: action.payload };
 
         case A.CLEAR_EXPLOSIONS:
-            return { ...state, explodingCells: EMPTY_SET, isProcessing: false };
-
-        // NEW: Single batched cascade resolution — replaces SET_GRID + CLEAR_EXPLOSIONS
-        case A.RESOLVE_CASCADE:
-            return {
-                ...state,
-                grid: action.payload.grid,
-                explodingCells: EMPTY_SET,
-                isProcessing: false,
-                selectedCell: null,
-            };
+            return { ...state, explodingCells: new Set(), isProcessing: false };
 
         case A.ADD_FLOAT:
             return { ...state, floatingScores: [...state.floatingScores, action.payload] };

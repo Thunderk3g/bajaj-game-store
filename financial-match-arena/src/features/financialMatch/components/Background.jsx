@@ -1,57 +1,48 @@
 /**
- * Background — Performance-Optimized Ambient Background
- * ══════════════════════════════════════════════════════════
- * OPTIMIZATIONS:
- * - Replaced 12 Framer Motion particles with CSS-only animation
- * - Replaced Framer Motion gradient blurs with CSS animations
- * - Removed window.innerWidth/Height calls during render
- * - Auto-detects low-end devices and disables particles
- * - Uses will-change: transform for GPU compositing
- * ══════════════════════════════════════════════════════════
+ * Background — Cinematic dashboard background with faint graph texture and floaters.
  */
-import { memo, useMemo } from 'react';
-
-// Check device performance on load
-const isLowEnd = typeof navigator !== 'undefined' && (navigator.hardwareConcurrency || 4) <= 3;
+import { memo } from 'react';
+import { motion } from 'framer-motion';
 
 const Background = memo(function Background() {
-    // Generate particle positions once (stable across re-renders)
-    const particles = useMemo(() => {
-        if (isLowEnd) return []; // Skip particles on low-end devices
-        const count = 6; // Reduced from 12
-        return Array.from({ length: count }, (_, i) => ({
-            key: i,
-            left: `${(i * 17 + 5) % 100}%`,
-            top: `${(i * 23 + 10) % 100}%`,
-            delay: `${i * 0.8}s`,
-            duration: `${5 + (i % 3) * 2}s`,
-        }));
-    }, []);
-
     return (
         <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-cinematic">
-            {/* Grid Texture — pure CSS, zero cost */}
+            {/* 1. Deep NAVY Gradient handled in index.css */}
+
+            {/* 2. Faint Grid (Financial Texture) */}
             <div className="absolute inset-0 grid-texture opacity-20" />
 
-            {/* Ambient Gradient Blurs — CSS animation, no Framer Motion */}
-            {!isLowEnd && (
-                <>
-                    <div className="bg-ambient-1" />
-                    <div className="bg-ambient-2" />
-                </>
-            )}
+            {/* 3. Floating Gradient Blurs */}
+            <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15], rotate: [0, 45, 0] }}
+                transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full"
+            />
+            <motion.div
+                animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1], rotate: [0, -30, 0] }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear', delay: 2 }}
+                className="absolute bottom-[-10%] right-[10%] w-[400px] h-[400px] bg-teal-500/10 blur-[100px] rounded-full"
+            />
 
-            {/* Dust Motes — CSS-only animation */}
-            {particles.map((p) => (
-                <div
-                    key={p.key}
-                    className="bg-particle"
-                    style={{
-                        left: p.left,
-                        top: p.top,
-                        animationDelay: p.delay,
-                        animationDuration: p.duration,
+            {/* 4. Subtle particles (Dust motes) */}
+            {[...Array(12)].map((_, i) => (
+                <motion.div
+                    key={i}
+                    initial={{
+                        x: Math.random() * window.innerWidth,
+                        y: Math.random() * window.innerHeight,
+                        opacity: 0,
                     }}
+                    animate={{
+                        y: [null, Math.random() * -100],
+                        opacity: [0, 0.3, 0],
+                    }}
+                    transition={{
+                        duration: 5 + Math.random() * 5,
+                        repeat: Infinity,
+                        delay: Math.random() * 5,
+                    }}
+                    className="absolute w-1 h-1 bg-white rounded-full blur-[1px]"
                 />
             ))}
         </div>

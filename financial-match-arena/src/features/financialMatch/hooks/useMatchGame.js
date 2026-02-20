@@ -1,13 +1,6 @@
 /**
  * useMatchGame — Balance Builder orchestration hook.
- * ══════════════════════════════════════════════════════════
- * PERFORMANCE-OPTIMIZED VERSION
- * - Lazy audio loading (on first interaction)
- * - Audio pool (max 2 channels, no cloneNode spam)
- * - Batched cascade: compute full chain in memory, dispatch ONCE
- * - Single reducer update per cascade cycle
- * - Ref-based state access in callbacks to prevent stale closures
- * ══════════════════════════════════════════════════════════
+ * Handles game loop, scoring, buckets, praise timing, and sound triggers.
  */
 import { useReducer, useCallback, useEffect, useRef } from 'react';
 import { gameReducer, initialState, A } from './gameReducer.js';
@@ -29,101 +22,74 @@ import {
 } from '../../../core/matchEngine/index.js';
 import { submitToLMS } from '../services/apiClient.js';
 
-// ── Lazy Audio (loaded on first interaction) ───────────────────
-let audioLoaded = false;
-const audioPool = { swap: [], burst: [] };
-const MAX_AUDIO_CHANNELS = 2;
+// Audio Assets
+import swapSoundUrl from '../../assets/audio/swapping.wav';
+import burstSoundUrl from '../../assets/audio/burst_audio.wav';
 
-function ensureAudioLoaded() {
-    if (audioLoaded) return;
-    audioLoaded = true;
-
-    // Dynamic import to avoid blocking initial load
-    import('../../assets/audio/swapping.wav').then((mod) => {
-        for (let i = 0; i < MAX_AUDIO_CHANNELS; i++) {
-            const a = new Audio(mod.default);
-            a.volume = 0.6;
-            a.preload = 'auto';
-            audioPool.swap.push(a);
-        }
-    }).catch(() => { });
-
-    import('../../assets/audio/burst_audio.wav').then((mod) => {
-        for (let i = 0; i < MAX_AUDIO_CHANNELS; i++) {
-            const a = new Audio(mod.default);
-            a.volume = 0.6;
-            a.preload = 'auto';
-            audioPool.burst.push(a);
-        }
-    }).catch(() => { });
-}
-
-// Pool index trackers
-let swapIdx = 0;
-let burstIdx = 0;
-
-function playSound(type) {
-    ensureAudioLoaded();
-    const pool = audioPool[type];
-    if (!pool || pool.length === 0) return;
-
-    let idx;
-    if (type === 'swap') {
-        idx = swapIdx % pool.length;
-        swapIdx++;
-    } else {
-        idx = burstIdx % pool.length;
-        burstIdx++;
-    }
-
-    const audio = pool[idx];
-    if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(() => { });
-    }
-}
-
-// ── Float ID ───────────────────────────────────────────────────
 let floatId = 0;
 function nextFloatId() {
     return `f-${++floatId}`;
 }
 
-// ══════════════════════════════════════════════════════════════════
+// Preload Audio
+const audioCache = {
+    swap: new Audio(swapSoundUrl),
+    burst: new Audio(burstSoundUrl),
+};
+
+// Configure Audio
+Object.values(audioCache).forEach(audio => {
+    audio.volume = 0.6;
+    audio.preload = 'auto'; // ensure ready
+});
+
+// Helper to play sound (clones to allow overlapping)
+const playSound = (type) => {
+    if (type === 'swap' || type === 'burst') {
+        const sound = audioCache[type];
+        if (sound) {
+            const clone = sound.cloneNode();
+            clone.volume = 0.6;
+            clone.play().catch(() => { });
+        }
+    }
+};
+
+
+
 export function useMatchGame() {
     const [state, dispatch] = useReducer(gameReducer, initialState);
-
-    // Refs for hot-path access (avoids stale closures in callbacks)
-    const stateRef = useRef(state);
-    stateRef.current = state;
 
     const timerRef = useRef(null);
     const leadFiredRef = useRef(false);
     const praiseTimeoutRef = useRef(null);
     const voiceRef = useRef(null);
 
-    // ── Preload Voices ─────────────────────────────────────────
+    // ── Preload Voices (Fix for first occurring male voice) ────────────
     useEffect(() => {
         const loadVoices = () => {
-            const voices = window.speechSynthesis?.getVoices();
-            if (voices && voices.length > 0) {
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                // Prioritize Female
                 const femaleVoice = voices.find(v =>
                     v.name.includes('Zira') ||
                     v.name.includes('Samantha') ||
                     v.name.includes('Google US English') ||
                     v.name.includes('Female')
                 );
-                if (femaleVoice) voiceRef.current = femaleVoice;
+                if (femaleVoice) {
+                    voiceRef.current = femaleVoice;
+                }
             }
         };
 
         loadVoices();
-        if (window.speechSynthesis) {
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
             window.speechSynthesis.onvoiceschanged = loadVoices;
         }
 
         return () => {
-            if (window.speechSynthesis) {
+            if (typeof window !== 'undefined' && window.speechSynthesis) {
                 window.speechSynthesis.onvoiceschanged = null;
             }
         };
@@ -141,6 +107,7 @@ export function useMatchGame() {
         if (voiceRef.current) {
             utter.voice = voiceRef.current;
         } else {
+            // Fallback try
             const voices = window.speechSynthesis.getVoices();
             const femaleVoice = voices.find(v =>
                 v.name.includes('Zira') ||
@@ -154,7 +121,7 @@ export function useMatchGame() {
         window.speechSynthesis.speak(utter);
     }, []);
 
-    // ── Timer (1Hz countdown) ──────────────────────────────────
+    // ── Timer (1Hz countdown) ──────────────────────────────────────────
     useEffect(() => {
         if (state.gameStatus === GAME_PHASES.PLAYING) {
             timerRef.current = setInterval(() => {
@@ -166,7 +133,7 @@ export function useMatchGame() {
         };
     }, [state.gameStatus]);
 
-    // ── Win Condition Watcher ───────────────────────────────────
+    // ── Win Condition Watcher (Updates frequently) ─────────────────────
     useEffect(() => {
         if (state.gameStatus === GAME_PHASES.PLAYING) {
             if (allBucketsFull(state.buckets)) {
@@ -175,12 +142,13 @@ export function useMatchGame() {
         }
     }, [state.gameStatus, state.buckets]);
 
-    // ── Phase Transition Watcher ───────────────────────────────
+    // ── Phase Transition Watcher (Strict) ──────────────────────────────
     useEffect(() => {
         const { gameStatus } = state;
 
         if (gameStatus === GAME_PHASES.FINISHED) {
             if (timerRef.current) clearInterval(timerRef.current);
+            // Wait 1.5s then show result
             const t = setTimeout(() => {
                 dispatch({ type: A.SHOW_RESULT });
             }, 1500);
@@ -190,6 +158,7 @@ export function useMatchGame() {
         if (gameStatus === GAME_PHASES.EXITED) {
             if (timerRef.current) clearInterval(timerRef.current);
 
+            // Submit partial score lead
             if (!leadFiredRef.current && state.entryDetails) {
                 leadFiredRef.current = true;
                 const score = computeFinalScore(state.buckets);
@@ -206,9 +175,9 @@ export function useMatchGame() {
             }, 800);
             return () => clearTimeout(t);
         }
-    }, [state.gameStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [state.gameStatus]); // Depends ONLY on status to avoid reset loops
 
-    // ── Cleanup ────────────────────────────────────────────────
+    // ── Cleanup ────────────────────────────────────────────────────────
     useEffect(() => {
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
@@ -217,7 +186,6 @@ export function useMatchGame() {
     }, []);
 
     const handleEntrySubmit = useCallback(async (name, mobile) => {
-        ensureAudioLoaded();
         dispatch({ type: A.SET_ENTRY, payload: { name, mobile } });
         leadFiredRef.current = false;
         const tomorrow = new Date();
@@ -237,17 +205,15 @@ export function useMatchGame() {
     }, []);
 
     const startGame = useCallback(() => {
-        ensureAudioLoaded();
         dispatch({ type: A.START_GAME });
     }, []);
 
-    // ── Cell Tap Logic ─────────────────────────────────────────
+    // ── Cell Tap Logic ──────────────────────────────────────────────
     const handleCellTap = useCallback(
         (row, col) => {
-            const s = stateRef.current;
-            if (s.isProcessing || s.gameStatus !== GAME_PHASES.PLAYING) return;
+            if (state.isProcessing || state.gameStatus !== GAME_PHASES.PLAYING) return;
 
-            const { selectedCell, grid } = s;
+            const { selectedCell, grid } = state;
 
             if (!selectedCell) {
                 dispatch({ type: A.SELECT_CELL, payload: { row, col } });
@@ -259,6 +225,7 @@ export function useMatchGame() {
                 return;
             }
 
+            // Check adjacency
             const { row: r1, col: c1 } = selectedCell;
             const r2 = row;
             const c2 = col;
@@ -269,46 +236,29 @@ export function useMatchGame() {
                 return;
             }
 
-            // Valid adjacency — attempt swap
-            attemptSwapInternal(r1, c1, r2, c2);
+            const isValid = wouldCreateMatch(grid, r1, c1, r2, c2);
+
+            if (!isValid) {
+                dispatch({ type: A.APPLY_INVALID_SWAP });
+                return;
+            }
+
+            // Valid Swap
+            playSound('swap');
+            dispatch({ type: A.SET_PROCESSING, payload: true });
+
+            const newGrid = grid.map((r) => r.map((c) => ({ ...c })));
+            const a = { ...newGrid[r1][c1] };
+            const b = { ...newGrid[r2][c2] };
+            newGrid[r1][c1] = { ...b, row: r1, col: c1 };
+            newGrid[r2][c2] = { ...a, row: r2, col: c2 };
+
+            resolveChain(newGrid);
         },
-        [] // eslint-disable-line react-hooks/exhaustive-deps
+        [state.isProcessing, state.gameStatus, state.selectedCell, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
-    // ── Attempt Swap (uses ref for latest state) ───────────────
-    const attemptSwapInternal = useCallback((r1, c1, r2, c2) => {
-        const s = stateRef.current;
-        if (s.isProcessing || s.gameStatus !== GAME_PHASES.PLAYING) return;
-        const { grid } = s;
-
-        if (!wouldCreateMatch(grid, r1, c1, r2, c2)) {
-            dispatch({ type: A.APPLY_INVALID_SWAP });
-            return;
-        }
-
-        playSound('swap');
-        dispatch({ type: A.SET_PROCESSING, payload: true });
-
-        // Perform swap in-memory
-        const newGrid = grid.map((r) => r.map((c) => ({ ...c })));
-        const a = { ...newGrid[r1][c1] };
-        const b = { ...newGrid[r2][c2] };
-        newGrid[r1][c1] = { ...b, row: r1, col: c1 };
-        newGrid[r2][c2] = { ...a, row: r2, col: c2 };
-
-        resolveChain(newGrid);
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // Public wrapper for external swap (swipe gesture)
-    const attemptSwap = useCallback((r1, c1, r2, c2) => {
-        attemptSwapInternal(r1, c1, r2, c2);
-    }, [attemptSwapInternal]);
-
-    // ══════════════════════════════════════════════════════════════
-    // BATCHED CASCADE RESOLUTION
-    // Compute full cascade chain in-memory, then dispatch ONCE
-    // per visual step (with minimal delay for animation).
-    // ══════════════════════════════════════════════════════════════
+    // ── Chain Resolution (Async) ────────────────────────────────────
     const resolveChain = useCallback(
         async (swappedGrid) => {
             let currentGrid = swappedGrid;
@@ -323,16 +273,17 @@ export function useMatchGame() {
                 const matchLen = matchedKeys.size;
                 const matchedTypes = [...getMatchedTypes(currentGrid, matchedKeys)];
 
-                // Points calculation
+                // Points
                 let pts = SCORING.match3;
                 if (matchLen >= 5) pts = SCORING.match5;
                 else if (matchLen >= 4) pts = SCORING.match4;
                 const bonus = (chainStep > 1 ? SCORING.comboBonus : 0) + (chainStep > 2 ? SCORING.cascadeBonus : 0);
                 totalPointsThisChain += pts + bonus;
 
+                // Visuals & Sound
                 playSound('burst');
 
-                // Single dispatch for this cascade step (visual + state)
+                // Update State (Explode)
                 dispatch({
                     type: A.APPLY_MATCH,
                     payload: {
@@ -345,25 +296,23 @@ export function useMatchGame() {
                 });
 
                 // Float UI
-                addFloat(`+${pts + bonus}`);
+                addFloat(`+${pts + bonus}`, matchedTypes[0]);
 
-                // Compute next grid state in-memory
+                // Logic: Remove -> Gravity -> Refill
                 const removed = removeMatches(currentGrid, matchedKeys);
                 const gravitated = applyGravity(removed);
                 currentGrid = refillGrid(gravitated, TILE_TYPES, 0);
 
-                // Reduced delay for snappier cascades (was 450ms)
-                await new Promise((res) => setTimeout(res, 300));
+                await new Promise((res) => setTimeout(res, 450));
             }
 
-            // Single batched final update
-            dispatch({
-                type: A.RESOLVE_CASCADE,
-                payload: { grid: currentGrid },
-            });
+            // Final Grid Set
+            dispatch({ type: A.SET_GRID, payload: currentGrid });
+            dispatch({ type: A.CLEAR_EXPLOSIONS });
 
-            // Praise after cascade settles
+            // Praise Logic: Strictly after cascade settles
             if (chainStep >= 2 || totalPointsThisChain >= 25) {
+                await new Promise((res) => setTimeout(res, 100));
                 showPraise();
             }
         },
@@ -379,9 +328,9 @@ export function useMatchGame() {
         praiseTimeoutRef.current = setTimeout(() => {
             dispatch({ type: A.HIDE_PRAISE });
         }, 1500);
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
-    const addFloat = useCallback((value) => {
+    const addFloat = useCallback((value, tileType) => {
         const id = nextFloatId();
         dispatch({
             type: A.ADD_FLOAT,
@@ -394,10 +343,10 @@ export function useMatchGame() {
         });
         setTimeout(() => {
             dispatch({ type: A.REMOVE_FLOAT, payload: id });
-        }, 700);
+        }, 800);
     }, []);
 
-    // ── Public Actions ─────────────────────────────────────────
+    // Public Actions
     const exitGame = useCallback(() => {
         dispatch({ type: A.EXIT_GAME });
     }, []);
@@ -413,10 +362,8 @@ export function useMatchGame() {
 
     const handleBookSlot = useCallback(
         async (formData) => {
-            console.log("handleBookSlot triggered", formData);
             try {
-                // Race the API call against a 2-second timeout to prevent UI hanging
-                const apiCall = submitToLMS({
+                await submitToLMS({
                     name: formData.name,
                     mobile_no: formData.mobile,
                     param4: formData.date,
@@ -424,17 +371,9 @@ export function useMatchGame() {
                     summary_dtls: 'Balance Builder - Slot Booking',
                     p_data_source: 'BALANCE_BUILDER_BOOKING',
                 });
-
-                const timeout = new Promise(resolve => setTimeout(resolve, 2000));
-
-                await Promise.race([apiCall, timeout]);
-                console.log("Slot booking request processed");
-
             } catch (error) {
                 console.error("Booking failed", error);
             } finally {
-                // Always transition to Thank You
-                console.log("Dispatching SHOW_THANK_YOU");
                 dispatch({ type: A.SHOW_THANK_YOU });
             }
         },
@@ -453,6 +392,5 @@ export function useMatchGame() {
         restartGame,
         showThankYou,
         handleBookSlot,
-        attemptSwap,
     };
 }

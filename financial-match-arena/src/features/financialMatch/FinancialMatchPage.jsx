@@ -39,7 +39,6 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
         restartGame,
         showThankYou,
         handleBookSlot,
-        attemptSwap,
     } = useMatchGame();
 
     const {
@@ -221,7 +220,6 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                                 floatingScores={floatingScores}
                                 activePraise={activePraise}
                                 onCellTap={handleCellTap}
-                                attemptSwap={attemptSwap}
                             />
                         </div>
 
@@ -253,10 +251,27 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                     </motion.div>
                 )}
 
+                {/* ── THANK YOU ── */}
+                {gameStatus === GAME_PHASES.THANK_YOU && (
+                    <motion.div
+                        key="thankyou"
+                        variants={pageVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        className="flex-1 w-full relative z-10"
+                    >
+                        <ThankYou
+                            userName={entryDetails?.name}
+                            onRestart={restartGame}
+                        />
+                    </motion.div>
+                )}
+
             </AnimatePresence>
 
             {/* ── RESULT / EXITED (Fixed Overlay) ── */}
-            {/* Outside AnimatePresence to guarantee independent rendering */}
+            {/* Moved outside AnimatePresence to guarantee independent rendering */}
             {(gameStatus === GAME_PHASES.RESULT || gameStatus === GAME_PHASES.EXITED) && (
                 <div className="fixed inset-0 z-[1000] w-full h-full bg-[#003366]">
                     <ResultScreen
@@ -266,19 +281,6 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                         userPhone={entryDetails?.mobile}
                         onRestart={restartGame}
                         onBookSlot={handleBookSlot}
-                    />
-                </div>
-            )}
-
-            {/* ── THANK YOU (Fixed Overlay — same pattern as Result) ── */}
-            {/* Outside AnimatePresence to avoid mode="wait" blocking mount */}
-            {/* ── THANK YOU (Fixed Overlay — same pattern as Result) ── */}
-            {/* Outside AnimatePresence to avoid mode="wait" blocking mount */}
-            {gameStatus === GAME_PHASES.THANK_YOU && (
-                <div key="thankyou-overlay" className="fixed inset-0 z-[2000] w-full h-full bg-[#003366]">
-                    <ThankYou
-                        userName={entryDetails?.name}
-                        onRestart={restartGame}
                     />
                 </div>
             )}

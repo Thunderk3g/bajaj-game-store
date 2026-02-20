@@ -65,12 +65,11 @@ const ResultScreen = ({
         try {
             if (onBookSlot) {
                 await onBookSlot(formData);
-                // Note: onBookSlot dispatches SHOW_THANK_YOU which unmounts this component.
-                // No need to call setShowBooking(false) — parent will handle unmount.
-                return;
             }
+            setShowBooking(false);
         } catch (err) {
             // Parent handles logging
+        } finally {
             setIsSubmitting(false);
         }
     };

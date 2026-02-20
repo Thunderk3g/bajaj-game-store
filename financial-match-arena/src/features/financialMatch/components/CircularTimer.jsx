@@ -1,14 +1,10 @@
 /**
- * CircularTimer — Performance-Optimized Countdown Ring
- * ══════════════════════════════════════════════════════════
- * OPTIMIZATIONS:
- * - Replaced motion.circle with standard SVG + CSS transition
- * - Removed drop-shadow filter from SVG (expensive on mobile)
- * - Uses CSS transition instead of Framer spring for dashoffset
- * ══════════════════════════════════════════════════════════
+ * CircularTimer — High-end animated countdown ring.
+ * Pulses red under 30s. Electric Blue normal state.
  */
 import { memo } from 'react';
 import PropTypes from 'prop-types';
+import { motion } from 'framer-motion';
 
 const RADIUS = 24;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -25,13 +21,13 @@ const CircularTimer = memo(function CircularTimer({ timeLeft, totalTime }) {
     const strokeColor = isWarning ? '#EF4444' : '#3B82F6';
 
     return (
-        <div className={`relative flex items-center justify-center w-16 h-16 ${isWarning ? 'timer-warning' : ''}`}>
-            {/* Warning glow — lightweight radial gradient instead of blur */}
+        <div className={`relative flex items-center justify-center w-16 h-16 ${isWarning ? 'animate-pulse' : ''}`}>
+            {/* Glow Backing */}
             {isWarning && (
-                <div className="absolute inset-0 rounded-full timer-glow" />
+                <div className="absolute inset-0 rounded-full bg-red-500/20 blur-xl animate-pulse" />
             )}
 
-            <svg width={60} height={60} viewBox="0 0 60 60" className="transform -rotate-90">
+            <svg width={60} height={60} viewBox="0 0 60 60" className="transform -rotate-90 drop-shadow-lg">
                 {/* Track */}
                 <circle
                     cx="30"
@@ -41,8 +37,8 @@ const CircularTimer = memo(function CircularTimer({ timeLeft, totalTime }) {
                     stroke="rgba(255,255,255,0.1)"
                     strokeWidth="3"
                 />
-                {/* Progress — CSS transition instead of Framer spring */}
-                <circle
+                {/* Progress */}
+                <motion.circle
                     cx="30"
                     cy="30"
                     r={RADIUS}
@@ -51,16 +47,18 @@ const CircularTimer = memo(function CircularTimer({ timeLeft, totalTime }) {
                     strokeWidth="3"
                     strokeLinecap="round"
                     strokeDasharray={CIRCUMFERENCE}
-                    strokeDashoffset={offset}
-                    style={{
-                        transition: 'stroke-dashoffset 1s linear',
-                    }}
+                    initial={{ strokeDashoffset: 0 }}
+                    animate={{ strokeDashoffset: offset }}
+                    transition={{ duration: 1, ease: "linear" }}
+                    style={{ filter: `drop-shadow(0 0 4px ${strokeColor})` }}
                 />
             </svg>
 
             {/* Time Text */}
             <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-game text-sm text-white tracking-wider leading-none" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+                <span
+                    className="font-game text-sm text-white drop-shadow-md tracking-wider leading-none"
+                >
                     {display}
                 </span>
             </div>
