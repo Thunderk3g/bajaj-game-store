@@ -58,4 +58,14 @@
     "gameId": "GAME_005",
     "assets": []
   }
+,
+  "financial-match-arena": {
+    "remoteEntry": "assets/games/financial-match-arena/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Financial Match Arena",
+    "popular": true,
+    "gameId": "GAME_006",
+    "assets": []
+  }
 }
