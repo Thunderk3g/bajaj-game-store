@@ -9,7 +9,7 @@
     "dev:shell": "pnpm --filter angular-shell dev:serve",
     "dev:games": "pnpm -r --workspace-concurrency 1 --filter !angular-shell dev",
     "build": "pnpm run build:games && pnpm run build:shell",
-    "build:games": "pnpm -r --workspace-concurrency 1 --filter !angular-shell build && pnpm run copy:games",
+    "build:games": "pnpm -r --workspace-concurrency 1 --filter !angular-shell --filter !master-microfrontend-shell build && pnpm run copy:games",
     "build:shell": "pnpm --filter angular-shell build",
     "copy:games": "node scripts/copy-games.js",
     "serve": "pnpm --filter angular-shell serve",
@@ -23,8 +23,5 @@
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "fs-extra": "^11.2.0"
-  },
-  "dependencies": {
-    "pnpm": "^10.29.3"
   }
 }

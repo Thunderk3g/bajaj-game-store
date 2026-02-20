@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldCheck, Loader2 } from 'lucide-react';
 import Modal from '../../../components/ui/Modal';
 import { submitToLMS } from '../../../utils/api';
+import welcomeBg from '/assets/welcome_bg.png';
 
 const IntroScreen = ({ onStart }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,7 +55,7 @@ const IntroScreen = ({ onStart }) => {
             <div
                 className="absolute inset-0 w-full h-full bg-[length:100%_100%] bg-center bg-no-repeat"
                 style={{
-                    backgroundImage: 'url("/assets/welcome_bg.png")',
+                    backgroundImage: `url("${welcomeBg}")`,
                 }}
             />
 
@@ -194,7 +195,7 @@ const IntroScreen = ({ onStart }) => {
                     </h2>
                     <div className="text-sm text-gray-500 font-bold space-y-4 max-h-[50vh] overflow-y-auto pr-2">
                         <p>BAJAJ.</p>
-                        <p>Please refer to our <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">Privacy Policy</a> for more details.</p>
+                        <p>Please refer to our <a href="#" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">Privacy Policy</a> for more details.</p>
                     </div>
                 </div>
             </Modal>
