@@ -4,6 +4,7 @@ import { JOURNEY_STEPS } from './constants/journeySteps';
 import { Progress } from './components/ui/Progress';
 import { Button } from './components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from './utils/cn';
 
 // Lazy load step components from the central components directory
 const Intro = lazy(() => import('./components/Intro'));
@@ -44,26 +45,25 @@ const App = () => {
     const progress = isIntro ? 0 : isResults ? 100 : ((currentStepIndex + 1) / totalSteps) * 100;
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
-            {/* Header / Progress */}
-            {!isIntro && !isResults && (
-                <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-100">
-                    <div className="max-w-[48rem] mx-auto px-6 py-4">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-[0.75rem] font-bold text-primary-500 tracking-wider uppercase">
-                                STEP {currentStepIndex + 1} OF {totalSteps}
-                            </span>
-                            <span className="text-[0.75rem] font-medium text-slate-400">
-                                {currentStep.title}
-                            </span>
-                        </div>
-                        <Progress value={progress} />
-                    </div>
-                </header>
+        <div
+            className={cn(
+                "h-screen flex flex-col w-full",
+                currentStep.id === JOURNEY_STEPS.SURPRISES ? "overflow-y-auto" : "overflow-hidden"
             )}
-
+            style={!isIntro ? {
+                backgroundImage: `url('./assets/bg-image.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundAttachment: 'fixed'
+            } : {}}
+        >
             {/* Main Content */}
-            <main className={`flex-1 flex flex-col max-w-[48rem] mx-auto w-full px-6 ${isResults ? 'pt-[3.4rem] pb-0' : 'py-12'}`}>
+            <main className={cn(
+                "flex-1 flex flex-col w-full mx-auto",
+                isIntro ? "p-0 max-w-none" : "max-w-[48rem] px-6",
+                isResults ? "pt-[3.4rem] pb-0" : (isIntro ? "" : "py-12")
+            )}>
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={currentStep.id}
@@ -86,7 +86,7 @@ const App = () => {
 
             {/* Footer Navigation */}
             {!isIntro && !isResults && (
-                <footer className="sticky bottom-0 bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+                <footer className="sticky bottom-0 p-6">
                     <div className="max-w-[48rem] mx-auto flex gap-4">
                         <Button
                             variant="outline"

@@ -68,9 +68,9 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
 
     return (
         <div
-            className="flex-1 flex flex-col items-center justify-end text-center animate-in fade-in duration-700"
+            className="flex-1 flex flex-col items-center justify-end text-center animate-in fade-in duration-700 w-full"
             style={{
-                backgroundImage: `url('/assests/Intro.png')`,
+                backgroundImage: `url('./assets/Intro.png')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',

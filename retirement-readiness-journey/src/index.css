@@ -17,12 +17,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
 body {
   margin: 0;
   display: flex;
-  place-content: center;
   min-width: 20rem;
+  width: 100vw;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 #root {
