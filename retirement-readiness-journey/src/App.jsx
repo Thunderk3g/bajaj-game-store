@@ -50,13 +50,19 @@ const App = () => {
                 "h-screen flex flex-col w-full",
                 currentStep.id === JOURNEY_STEPS.SURPRISES ? "overflow-y-auto" : "overflow-hidden"
             )}
-            style={!isIntro ? {
-                backgroundImage: `url('./assets/bg-image.png')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                backgroundAttachment: 'fixed'
-            } : {}}
+            style={
+                isIntro ? {} :
+                    isResults ? {
+                        background: 'linear-gradient(180deg, #0047AB 0%, #0066B2 100%)',
+                        backgroundAttachment: 'fixed'
+                    } : {
+                        backgroundImage: `url('./assets/bg-image.png')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundAttachment: 'fixed'
+                    }
+            }
         >
             {/* Main Content */}
             <main className={cn(
