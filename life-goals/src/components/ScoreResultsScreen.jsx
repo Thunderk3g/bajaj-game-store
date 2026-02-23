@@ -13,7 +13,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     const maxDate = thirtyDaysFromNow.toISOString().split("T")[0];
 
-    const [formData, setFormData] = useState({ name: userName || '', mobile: userPhone || '', date: '', time: '' });
+    const [formData, setFormData] = useState({ name: userName || '', mobile: userPhone || '', date: '', time: '', consent: true });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     const [showBooking, setShowBooking] = useState(false);
@@ -148,10 +148,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                     className="contact-box bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-3 shrink-0"
                 >
                     <p className="text-slate-600 text-[10px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
-                        {Math.round(score) <= 35 && "Attention! Connect with our Relationship Manager to get started."}
-                        {Math.round(score) >= 36 && Math.round(score) <= 74 && "Room to Improve! Reach out to our Relationship Manager to strengthen your plan."}
-                        {Math.round(score) >= 75 && Math.round(score) <= 99 && "On Track! Speak to our Relationship Manager to improve your score even further."}
-                        {Math.round(score) === 100 && "Perfect Score! Connect with our Relationship Manager to explore our products."}
+                        To Know more about insurance and savings products! Connect with our Relationship Manager to get started.
                     </p>
 
                     {/* Call Action */}
@@ -281,6 +278,19 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                 </div>
                             </div>
+
+                            {/* Consent Checkbox - pre-checked */}
+                            <label className="flex items-start gap-2 cursor-pointer mt-1">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.consent}
+                                    onChange={e => updateField('consent', e.target.checked)}
+                                    className="mt-0.5 w-4 h-4 accent-[#0066B2] cursor-pointer shrink-0"
+                                />
+                                <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">
+                                    I agree to the <span className="text-[#0066B2] underline cursor-pointer">Terms & Conditions</span> and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                </span>
+                            </label>
 
                             <button
                                 type="submit"

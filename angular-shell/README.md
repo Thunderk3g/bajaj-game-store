@@ -88,7 +88,7 @@ src/
 | Game ID          | Display Name       | Entry Point | Assets       |
 | ---------------- | ------------------ | ----------- | ------------ |
 | `scramble-words` | Scramble Words     | Port 5001   | Minimal      |
-| `life-goals`     | Life Goals Planner | Port 5002   | 9 MP4 videos |
+| `life-goals`     | Life Goals Preparedness | Port 5002   | 9 MP4 videos |
 | `quiz-game`      | Quiz Challenge     | Port 5003   | 3 images     |
 
 ## 🔐 JWT Authentication

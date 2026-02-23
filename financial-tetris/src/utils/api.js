@@ -48,7 +48,7 @@ export const submitToLMS = async (data) => {
     };
 
     try {
-        console.log('Final Payload for Bajaj LMS:', JSON.stringify(fullPayload, null, 2));
+        console.log('Final Payload Done');
 
         const response = await fetch(apiUrl, {
             method: "POST",

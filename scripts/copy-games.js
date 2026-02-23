@@ -138,7 +138,7 @@ const manifest = {
     remoteEntry: "assets/games/life-goals/index.js",
     exposedModule: "./GameEntry",
     type: "react",
-    displayName: "Life Goals Planner",
+    displayName: "Life Goals Preparedness",
     popular: true,
     gameId: "GAME_001",
     assets: [

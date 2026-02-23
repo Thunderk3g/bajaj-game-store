@@ -110,7 +110,7 @@ export const QuizProvider = ({ children }) => {
         setIsLeadSubmitted(false);
         setLeadName('');
         setLeadPhone('');
-        setIsTermsAccepted(false);
+        setIsTermsAccepted(true);
     }, []);
 
     const retakeQuiz = useCallback(() => {
@@ -124,7 +124,7 @@ export const QuizProvider = ({ children }) => {
         setIsLeadSubmitted(false);
         setLeadName('');
         setLeadPhone('');
-        setIsTermsAccepted(false);
+        setIsTermsAccepted(true);
     }, []);
 
     const onLeadSubmit = useCallback(async (name, phone) => {

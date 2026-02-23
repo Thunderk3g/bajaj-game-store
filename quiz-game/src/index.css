@@ -4,7 +4,7 @@
 
 @layer base {
     :root {
-        --background: 199 89% 95%;
+        --background: 201 94% 90%;
         /* Soft Sky Blue */
         --foreground: 222 47% 11%;
 
@@ -91,7 +91,7 @@ body,
     /* Premium Multi-layered Background */
     background:
         radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%),
-        linear-gradient(180deg, #E0F7FF 0%, #B9E6FE 50%, #A2D9F6 100%);
+        linear-gradient(180deg, #BAE6FD 0%, #38BDF8 50%, #0284C7 100%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }

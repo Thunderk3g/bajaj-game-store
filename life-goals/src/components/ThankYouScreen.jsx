@@ -26,9 +26,11 @@ const ThankYouScreen = ({ userName = "User", score, onRestart }) => {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="text-3xl sm:text-4xl md:text-5xl font-black text-white italic tracking-tight drop-shadow-xl mb-6 leading-tight"
+                        className="text-3xl sm:text-4xl md:text-5xl font-black text-white italic tracking-tight drop-shadow-xl mb-6 leading-tight flex flex-col items-center"
                     >
-                        Thank You for sharing your details
+                        <span>Thank You</span>
+                        <span className="text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.6)]">{userName}</span>
+                        <span>for sharing your details</span>
                     </motion.h1>
 
                     <motion.p

@@ -26,10 +26,18 @@ const ResultsScreen = ({ score, total, onRestart }) => {
     const [errors, setErrors] = useState({});
 
     const timeSlots = [
-        "10:00 AM - 12:00 PM",
-        "12:00 PM - 02:00 PM",
-        "02:00 PM - 04:00 PM",
-        "04:00 PM - 06:00 PM"
+        "9:00 AM - 10:00 AM",
+        "10:00 AM - 11:00 AM",
+        "11:00 AM - 12:00 PM",
+        "12:00 PM - 1:00 PM",
+        "1:00 PM - 2:00 PM",
+        "2:00 PM - 3:00 PM",
+        "3:00 PM - 4:00 PM",
+        "4:00 PM - 5:00 PM",
+        "5:00 PM - 6:00 PM",
+        "6:00 PM - 7:00 PM",
+        "7:00 PM - 8:00 PM",
+        "8:00 PM - 9:00 PM"
     ];
 
     const handleShare = async () => {
@@ -179,10 +187,10 @@ const ResultsScreen = ({ score, total, onRestart }) => {
 
                 <div className="w-full space-y-2 sm:space-y-3 pb-2 sm:pb-4">
                     {/* Enhanced Action Card */}
-                    <div className="bg-white rounded-[20px] sm:rounded-[24px] p-3 sm:p-5 shadow-sm border-2 border-soft-gray space-y-3 sm:space-y-4 relative overflow-hidden text-left">
+                    <div className="bg-white rounded-[20px] sm:rounded-[24px] p-3 sm:p-5 shadow-sm border-2 border-soft-gray space-y-3 sm:space-y-4 relative overflow-hidden text-center">
                         <div className="absolute top-0 left-0 w-2 h-full bg-brand-blue" />
-                        <p className="text-gray-700 text-sm sm:text-base font-bold leading-tight pl-2">
-                            Connect with our manager to know more about insurance & savings!
+                        <p className="text-gray-700 text-sm sm:text-base font-bold leading-tight italic px-2">
+                            To Know more about insurance and savings products! Connect with our Relationship Manager to get started.
                         </p>
 
                         <div className="flex flex-col gap-2 pt-0 sm:pt-1">
@@ -193,6 +201,11 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                 <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
                                 <span>Call now</span>
                             </motion.a>
+                            <div className="flex items-center gap-2 px-4">
+                                <div className="h-[1px] flex-1 bg-gray-200" />
+                                <span className="text-gray-400 font-bold text-sm">OR</span>
+                                <div className="h-[1px] flex-1 bg-gray-200" />
+                            </div>
                             <motion.button
                                 onClick={() => setIsBookingOpen(true)}
                                 className="bg-brand-green text-white font-black py-3 sm:py-4 px-4 sm:px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-base sm:text-lg"
