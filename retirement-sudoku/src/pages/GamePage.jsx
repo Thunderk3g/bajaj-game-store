@@ -181,15 +181,16 @@ function TimerBar() {
 ───────────────────────────────────────────────────────────────────────────── */
 const GamePage = memo(function GamePage() {
     return (
-        <div style={{ position: 'relative', width: '100%', height: '100dvh', display: 'flex', alignItems: 'stretch', justifyContent: 'center', overflow: 'hidden', background: 'radial-gradient(circle at center, #1e3a5f 0%, #0d1b3e 100%)' }}>
+        <div style={{ position: 'relative', width: '100%', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, #1e3a5f 0%, #0d1b3e 100%)' }}>
             <ConfettiBackground />
 
-            {/* Full-height card — stretches to fill the screen */}
+            {/* Full-height card — centered mobile-width column */}
             <div style={{
                 position: 'relative',
                 zIndex: 10,
                 width: '100%',
-                maxWidth: '480px',
+                maxWidth: '430px',
+                height: '100dvh',
                 display: 'flex',
                 flexDirection: 'column',
                 background: '#0d1b3e',

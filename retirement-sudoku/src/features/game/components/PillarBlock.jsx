@@ -16,9 +16,14 @@ const PillarBlock = memo(function PillarBlock({ pillar, count, disabled }) {
         disabled: disabled || isEmpty,
     });
 
-    const style = transform
-        ? { transform: CSS.Translate.toString(transform), zIndex: 999 }
-        : undefined;
+    // KEY FIX: when dragging, DON'T move the source element — let DragOverlay handle it.
+    // The source stays in place (invisible placeholder), only the ghost overlay moves.
+    // This eliminates the flicker caused by the element jumping when drag starts.
+    const style = isDragging
+        ? { opacity: 0, cursor: 'grabbing' }         // invisible placeholder
+        : transform
+            ? { transform: CSS.Translate.toString(transform), zIndex: 999 }
+            : undefined;
 
     return (
         <div
@@ -39,15 +44,16 @@ const PillarBlock = memo(function PillarBlock({ pillar, count, disabled }) {
                 background: isEmpty ? '#0f172a' : '#1e3a5f', // Dark blue (faded if empty)
                 border: isEmpty ? '1px solid #334155' : '1.5px solid #f97316', // Orange border
                 borderRadius: '0.75rem',
-                boxShadow: isDragging
-                    ? '0 0 15px rgba(249, 115, 22, 0.6)' // Strong glow dragging
-                    : isEmpty ? 'none' : '0 0 8px rgba(249, 115, 22, 0.25)', // Subtle glow
+                boxShadow: isEmpty ? 'none' : '0 0 8px rgba(249, 115, 22, 0.25)', // Subtle glow
 
-                opacity: isEmpty ? 0.5 : isDragging ? 0.8 : 1,
+                opacity: isEmpty ? 0.5 : isDragging ? 0 : 1,
                 cursor: isEmpty ? 'not-allowed' : isDragging ? 'grabbing' : 'grab',
-                transition: 'all 0.15s ease',
+                // Only transition when NOT dragging — prevents flash on drag start/end
+                transition: isDragging ? 'none' : 'opacity 0.15s ease, box-shadow 0.15s ease',
                 userSelect: 'none',
                 touchAction: 'none',
+                // GPU-accelerate the element for smoother compositing
+                willChange: isDragging ? 'auto' : 'transform',
             }}
             {...listeners}
             {...attributes}

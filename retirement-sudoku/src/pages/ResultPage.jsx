@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Share2, X, Calendar, Star, Phone } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Share2, X, Calendar, Star, Phone, Check } from 'lucide-react';
 import { useGame } from '../features/game/context/GameContext.jsx';
 import { GAME_PHASES } from '../features/game/context/gameReducer.js';
 import { GAME_DURATION } from '../constants/game.js';
@@ -309,6 +309,7 @@ const ResultPage = memo(function ResultPage() {
     const navigate = useNavigate();
     const { state, restartGame } = useGame();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [toast, setToast] = useState(null);
 
     // Guard: accessible only when game is WON or TIMEUP
     const isWon = state.phase === GAME_PHASES.WON;
@@ -321,17 +322,39 @@ const ResultPage = memo(function ResultPage() {
         if (!isEligible) navigate('/', { replace: true });
     }, [isEligible, navigate]);
 
+    // Auto-dismiss toast
+    useEffect(() => {
+        if (!toast) return;
+        const t = setTimeout(() => setToast(null), 3000);
+        return () => clearTimeout(t);
+    }, [toast]);
+
     if (!isEligible) return null;
 
-    /* Share handler */
+    /* Share handler — Web Share API with clipboard fallback + in-app toast */
     const handleShare = async () => {
-        const text = `I just solved Retirement Sudoku by Bajaj Life! I scored ${tier.points} points (${tier.tier} tier). Try it yourself: ${window.location.origin}`;
+        const text = `🎉 I just solved Retirement Sudoku by Bajaj Life! I scored ${tier.points} points (${tier.tier} tier). Try it yourself: ${window.location.origin}`;
         if (navigator.share) {
-            try { await navigator.share({ title: 'Retirement Sudoku Score', text, url: window.location.origin }); }
-            catch { /* dismissed */ }
+            try {
+                await navigator.share({ title: 'Retirement Sudoku Score', text, url: window.location.origin });
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    // Share failed, fallback to clipboard
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        setToast({ message: 'Result copied to clipboard!', type: 'success' });
+                    } catch {
+                        setToast({ message: 'Could not share. Please try again.', type: 'error' });
+                    }
+                }
+            }
         } else {
-            navigator.clipboard.writeText(text);
-            alert('Result copied to clipboard!');
+            try {
+                await navigator.clipboard.writeText(text);
+                setToast({ message: 'Result copied to clipboard!', type: 'success' });
+            } catch {
+                setToast({ message: 'Sharing not supported on this browser.', type: 'error' });
+            }
         }
     };
 
@@ -347,141 +370,165 @@ const ResultPage = memo(function ResultPage() {
 
     return (
         <div
-            className="w-full h-dvh flex flex-col items-center justify-center px-4 py-2 text-center overflow-hidden font-sans relative"
-            style={{ background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 55%, #0c1a2e 100%)' }}
+            style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 55%, #0c1a2e 100%)' }}
         >
-            {/* Confetti */}
-            <Confetti />
-
-            {/* Share button — top right */}
-            <button
-                onClick={handleShare}
-                className="absolute right-4 top-4 p-2 text-white/80 hover:text-white transition-colors z-20"
-                title="Share Score"
+            <div
+                className="w-full flex flex-col items-center justify-center px-4 py-2 text-center overflow-y-auto font-sans relative"
+                style={{ maxWidth: '430px', minHeight: '100dvh' }}
             >
-                <Share2 className="w-5 h-5" />
-            </button>
+                {/* Confetti */}
+                <Confetti />
 
-            {/* Main content — exactly like ResultScreen */}
-            <div className="w-full max-w-xs flex flex-col items-center z-10">
-
-                {/* Greeting */}
-                <motion.h1
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-2xl font-extrabold text-white tracking-widest uppercase leading-none mt-2"
+                {/* Share button — top right */}
+                <button
+                    onClick={handleShare}
+                    className="absolute right-4 top-4 p-2 text-white/80 hover:text-white transition-colors z-20"
+                    title="Share Score"
                 >
-                    HI {userName.split(' ')[0].toUpperCase()}!
-                </motion.h1>
+                    <Share2 className="w-5 h-5" />
+                </button>
 
-                <div className="h-3 shrink-0" />
+                {/* Main content — exactly like ResultScreen */}
+                <div className="w-full max-w-xs flex flex-col items-center z-10">
 
-                {/* "YOUR SCORE IS" */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-xs font-semibold text-white/80 tracking-widest uppercase"
-                >
-                    YOUR <span className="text-orange-500 font-extrabold text-sm mx-1">SCORE</span> IS
-                </motion.div>
-
-                <div className="h-4 shrink-0" />
-
-                {/* Score Shield */}
-                <div className="relative transform scale-[0.65] min-[375px]:scale-75 origin-center -my-10 -translate-y-2">
-                    <motion.div
-                        initial={{ scale: 0, rotate: -12 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.25 }}
-                    >
-                        <ScoreShield tier={tier} />
-                    </motion.div>
-                </div>
-
-                <div className="h-3 shrink-0" />
-
-                {/* Tier Heading */}
-                <h2 className="text-xl font-bold text-white tracking-wide leading-tight">
-                    {tier.label}
-                </h2>
-
-                <div className="h-2 shrink-0" />
-
-                {/* Subtext */}
-                <div className="w-full">
-                    <p className="text-white/80 text-xs leading-tight whitespace-pre-line px-2">
-                        {tier.subtext}
-                    </p>
-                </div>
-
-                <div className="h-4 shrink-0" />
-
-                {/* Action buttons */}
-                <div className="w-full flex flex-col gap-3">
-
-                    {/* SHARE */}
-                    <motion.button
-                        onClick={handleShare}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4 }}
-                        className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border border-white/10 transition-all"
-                    >
-                        SHARE
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                            <path d="M14 5V2L22 9L14 16V13C7 13 4 15 2 20C4 12 7 8 14 8V5Z" />
-                        </svg>
-                    </motion.button>
-
-                    {/* Info box */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 5 }}
+                    {/* Greeting */}
+                    <motion.h1
+                        initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="bg-blue-900/30 border border-white/10 rounded-lg p-2.5 mx-1 backdrop-blur-sm"
+                        className="text-2xl font-extrabold text-white tracking-widest uppercase leading-none mt-2"
                     >
-                        <p className="text-white/90 text-xs leading-tight font-medium">
-                            "To know more about insurance and savings products, please connect with our relationship manager."
-                        </p>
+                        HI {userName.split(' ')[0].toUpperCase()}!
+                    </motion.h1>
+
+                    <div className="h-3 shrink-0" />
+
+                    {/* "YOUR SCORE IS" */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-xs font-semibold text-white/80 tracking-widest uppercase"
+                    >
+                        YOUR <span className="text-orange-500 font-extrabold text-sm mx-1">SCORE</span> IS
                     </motion.div>
 
-                    {/* CALL NOW */}
-                    <button
-                        onClick={() => (window.location.href = 'tel:18002099999')}
-                        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
-                    >
-                        <Phone className="w-4 h-4 fill-current" />
-                        CALL NOW
-                    </button>
+                    <div className="h-4 shrink-0" />
 
-                    {/* BOOK SLOT */}
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
-                    >
-                        <Calendar className="w-4 h-4" />
-                        BOOK SLOT
-                    </button>
+                    {/* Score Shield */}
+                    <div className="relative transform scale-[0.65] min-[375px]:scale-75 origin-center -my-10 -translate-y-2">
+                        <motion.div
+                            initial={{ scale: 0, rotate: -12 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.25 }}
+                        >
+                            <ScoreShield tier={tier} />
+                        </motion.div>
+                    </div>
 
-                    {/* Try Again */}
-                    <button
-                        onClick={() => { restartGame(); navigate('/game'); }}
-                        className="text-white/70 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors underline underline-offset-4 mt-1"
-                    >
-                        Try Again
-                    </button>
+                    <div className="h-3 shrink-0" />
+
+                    {/* Tier Heading */}
+                    <h2 className="text-xl font-bold text-white tracking-wide leading-tight">
+                        {tier.label}
+                    </h2>
+
+                    <div className="h-2 shrink-0" />
+
+                    {/* Subtext */}
+                    <div className="w-full">
+                        <p className="text-white/80 text-xs leading-tight whitespace-pre-line px-2">
+                            {tier.subtext}
+                        </p>
+                    </div>
+
+                    <div className="h-4 shrink-0" />
+
+                    {/* Action buttons */}
+                    <div className="w-full flex flex-col gap-3">
+
+                        {/* SHARE */}
+                        <motion.button
+                            onClick={handleShare}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.4 }}
+                            className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border border-white/10 transition-all"
+                        >
+                            SHARE
+                            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                <path d="M14 5V2L22 9L14 16V13C7 13 4 15 2 20C4 12 7 8 14 8V5Z" />
+                            </svg>
+                        </motion.button>
+
+                        {/* Info box */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="bg-blue-900/30 border border-white/10 rounded-lg p-2.5 mx-1 backdrop-blur-sm"
+                        >
+                            <p className="text-white/90 text-xs leading-tight font-medium">
+                                "To know more about insurance and savings products, please connect with our relationship manager."
+                            </p>
+                        </motion.div>
+
+                        {/* CALL NOW */}
+                        <button
+                            onClick={() => (window.location.href = 'tel:18002099999')}
+                            className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
+                        >
+                            <Phone className="w-4 h-4 fill-current" />
+                            CALL NOW
+                        </button>
+
+                        {/* BOOK SLOT */}
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
+                        >
+                            <Calendar className="w-4 h-4" />
+                            BOOK SLOT
+                        </button>
+
+                        {/* Try Again */}
+                        <button
+                            onClick={() => { restartGame(); navigate('/game'); }}
+                            className="text-white/70 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors underline underline-offset-4 mt-1"
+                        >
+                            Try Again
+                        </button>
+                    </div>
                 </div>
+
+                {/* Booking Modal */}
+                <BookingModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onSubmit={handleBookingSubmit}
+                    initialName={userName}
+                    initialMobile={sessionStorage.getItem('lastSubmittedPhone') || ''}
+                />
             </div>
 
-            {/* Booking Modal */}
-            <BookingModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleBookingSubmit}
-                initialName={userName}
-                initialMobile={sessionStorage.getItem('lastSubmittedPhone') || ''}
-            />
+            {/* Toast notification */}
+            <AnimatePresence>
+                {toast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[120] px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-600'
+                            } text-white`}
+                    >
+                        {toast.type === 'error' ? (
+                            <X size={20} className="stroke-[3]" />
+                        ) : (
+                            <Check size={20} className="stroke-[3]" />
+                        )}
+                        <span className="font-bold text-sm">{toast.message}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 });
