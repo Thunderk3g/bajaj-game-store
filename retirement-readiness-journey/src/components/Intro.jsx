@@ -14,6 +14,7 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleStartClick = () => {
+        setTermsAccepted(true);
         setShowNamePopup(true);
     };
 

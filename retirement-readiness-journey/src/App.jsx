@@ -47,8 +47,7 @@ const App = () => {
     return (
         <div
             className={cn(
-                "h-screen flex flex-col w-full",
-                currentStep.id === JOURNEY_STEPS.SURPRISES ? "overflow-y-auto" : "overflow-hidden"
+                "h-screen flex flex-col w-full overflow-hidden"
             )}
             style={
                 isIntro ? {} :

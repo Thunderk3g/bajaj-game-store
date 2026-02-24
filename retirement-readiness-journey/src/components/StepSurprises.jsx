@@ -52,41 +52,42 @@ const StepSurprises = ({ step, selections, onSelect, stepIndex = 5 }) => {
         <div className="flex flex-col items-center justify-start w-full min-h-[60vh]">
             <div className="relative z-10 w-full max-w-md px-6 pt-12 pb-10 flex flex-col items-center overflow-hidden">
 
-                {/* Step Badge & Progress */}
-                <div className="flex flex-col items-center w-full mb-8">
-                    <div className="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold shadow-lg mb-4">
+                {/* Step Header & Progress */}
+                <div className="flex flex-col items-center w-full mb-6">
+                    <div className="px-5 py-1.5 bg-blue-600/10 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 border border-blue-600/20">
                         Step {stepIndex} of 5
                     </div>
 
-                    <h2 className="text-3xl font-black text-slate-900 text-center mb-2">
+                    <h2 className="text-2xl font-black text-slate-900 text-center mb-3 leading-tight px-4">
                         {step.title}
                     </h2>
 
-                    {/* Dot Indicators */}
-                    <div className="flex gap-2 mb-4">
+                    {/* Compact Dot Indicators (• • •) */}
+                    <div className="flex gap-2.5 mb-2">
                         {categories.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => goToSubStep(idx)}
                                 className={cn(
-                                    "w-2.5 h-2.5 rounded-full transition-all duration-300",
+                                    "w-2.5 h-2.5 rounded-full transition-all duration-500",
                                     currentSubStep === idx
-                                        ? "bg-blue-600 w-6"
-                                        : "bg-slate-300 hover:bg-slate-400"
+                                        ? "bg-blue-600 scale-125"
+                                        : "bg-slate-200"
                                 )}
+                                aria-label={`Go to scenario ${idx + 1}`}
                             />
                         ))}
                     </div>
                 </div>
 
-                <div className="relative w-full min-h-[400px]">
+                <div className="relative w-full overflow-visible">
                     <AnimatePresence initial={false} custom={direction} mode="wait">
                         <motion.div
                             key={currentSubStep}
                             custom={direction}
                             variants={{
                                 enter: (direction) => ({
-                                    x: direction > 0 ? 50 : -50,
+                                    x: direction > 0 ? '100%' : '-100%',
                                     opacity: 0
                                 }),
                                 center: {
@@ -94,7 +95,7 @@ const StepSurprises = ({ step, selections, onSelect, stepIndex = 5 }) => {
                                     opacity: 1
                                 },
                                 exit: (direction) => ({
-                                    x: direction < 0 ? 50 : -50,
+                                    x: direction < 0 ? '100%' : '-100%',
                                     opacity: 0
                                 })
                             }}
@@ -107,56 +108,63 @@ const StepSurprises = ({ step, selections, onSelect, stepIndex = 5 }) => {
                             }}
                             className="w-full"
                         >
-                            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 border-2 border-white/50 shadow-xl overflow-hidden">
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
-                                        {category.icon}
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-black text-blue-900 uppercase tracking-tight">
-                                            {category.title}
-                                        </h3>
-                                        <p className="text-sm text-slate-500 font-bold leading-tight">
-                                            {category.description}
-                                        </p>
-                                    </div>
-                                </div>
+                            <div className="bg-white rounded-[2.5rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-50 relative overflow-hidden">
+                                {/* Decorative elements */}
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50 shrink-0" />
 
-                                <div className="space-y-3">
-                                    {category.options.map((option) => {
-                                        const isSelected = currentSelections[category.id] === option.id;
-                                        return (
-                                            <button
-                                                key={option.id}
-                                                onClick={() => handleSubSelect(category.id, option.id)}
-                                                className={cn(
-                                                    "w-full flex items-center p-4 rounded-2xl border-4 transition-all text-left relative group",
-                                                    isSelected
-                                                        ? "border-blue-500 bg-blue-50 shadow-md translate-y-[-2px]"
-                                                        : "border-slate-100 bg-white hover:border-blue-200 hover:bg-slate-50"
-                                                )}
-                                            >
-                                                <div className="w-12 h-12 rounded-xl overflow-hidden mr-4 shadow-sm flex-shrink-0 border-2 border-white">
-                                                    <img
-                                                        src={option.image}
-                                                        alt={option.label}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <span className={cn(
-                                                        "text-sm font-black tracking-tight uppercase leading-tight block",
-                                                        isSelected ? "text-blue-700" : "text-slate-600"
-                                                    )}>
-                                                        {option.label}
-                                                    </span>
-                                                </div>
-                                                {isSelected && (
-                                                    <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                                                )}
-                                            </button>
-                                        );
-                                    })}
+                                <div className="relative z-10">
+                                    <div className="flex flex-col items-center text-center mb-8">
+                                        <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center text-4xl mb-4 shadow-sm border-2 border-white">
+                                            {category.icon}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight mb-2">
+                                                {category.title}
+                                            </h3>
+                                            <p className="text-[13px] text-slate-500 font-bold leading-relaxed px-4">
+                                                {category.description}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {category.options.map((option) => {
+                                            const isSelected = currentSelections[category.id] === option.id;
+                                            return (
+                                                <button
+                                                    key={option.id}
+                                                    onClick={() => handleSubSelect(category.id, option.id)}
+                                                    className={cn(
+                                                        "w-full flex items-center p-4 rounded-2xl border-2 transition-all text-left relative group",
+                                                        isSelected
+                                                            ? "border-blue-500 bg-blue-50/50"
+                                                            : "border-slate-100 bg-slate-50/50 hover:border-blue-200"
+                                                    )}
+                                                >
+                                                    <div className="w-10 h-10 rounded-xl overflow-hidden mr-3 shadow-sm flex-shrink-0 border-2 border-white bg-white">
+                                                        <img
+                                                            src={option.image}
+                                                            alt={option.label}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <span className={cn(
+                                                            "text-[11px] font-black tracking-wider uppercase leading-tight block",
+                                                            isSelected ? "text-blue-700" : "text-slate-600"
+                                                        )}>
+                                                            {option.label}
+                                                        </span>
+                                                    </div>
+                                                    {isSelected && (
+                                                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                                            <div className="w-2 h-2 bg-white rounded-full" />
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
