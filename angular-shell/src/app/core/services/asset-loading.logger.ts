@@ -178,22 +178,38 @@ export class AssetLoadingLogger {
             if (entry.entryType === 'resource') {
               const resourceEntry = entry as PerformanceResourceTiming;
               const assetType = self.getAssetTypeFromUrl(resourceEntry.name);
-              const status = resourceEntry.transferSize === 0 && resourceEntry.decodedBodySize > 0 ? 'loaded' : 'loaded';
               const duration = resourceEntry.duration;
 
-              // Log any failed resources
-              if (resourceEntry.transferSize === 0 && resourceEntry.decodedBodySize === 0 && resourceEntry.name) {
+              // Check for potential CORS/Network issues
+              // A resource timing entry with 0 transferSize and 0 decodedBodySize
+              // BUT with a non-zero duration or responseEnd usually indicates a cross-origin
+              // resource that is loading successfully but has restricted timing info.
+              const isPotentiallyRestricted =
+                resourceEntry.transferSize === 0 &&
+                resourceEntry.decodedBodySize === 0 &&
+                resourceEntry.responseEnd > 0;
+
+              if (resourceEntry.transferSize === 0 && resourceEntry.decodedBodySize === 0 && !isPotentiallyRestricted) {
                 self.logAsset({
                   timestamp: new Date(),
                   assetUrl: resourceEntry.name,
                   assetType,
                   status: 'failed',
                   duration,
-                  errorDetails: 'No data transferred - possible CORS or network issue',
+                  errorDetails: 'No data transferred - possible CORS, 404, or network issue',
                 });
                 console.warn(
-                  `[AssetLoadingLogger] Resource warning: ${resourceEntry.name} - No data transferred`,
+                  `[AssetLoadingLogger] Resource failure/warning: ${resourceEntry.name} - No data transferred`,
                 );
+              } else {
+                // Asset is loaded (even if timing is restricted)
+                self.logAsset({
+                  timestamp: new Date(),
+                  assetUrl: resourceEntry.name,
+                  assetType,
+                  status: 'loaded',
+                  duration,
+                });
               }
             }
           }
@@ -217,6 +233,7 @@ export class AssetLoadingLogger {
       if (event.filename && (
         event.filename.includes('.js') ||
         event.filename.includes('.css') ||
+        event.filename.includes('.html') ||
         event.filename.includes('.woff') ||
         event.filename.includes('.woff2') ||
         event.filename.includes('.png') ||
@@ -256,6 +273,10 @@ export class AssetLoadingLogger {
    * Log an asset
    */
   private logAsset(log: AssetLoadLog): void {
+    // Only log once for the same asset URL to avoid duplicates between observers
+    const existing = this.assetLogs.find(l => l.assetUrl === log.assetUrl && l.status === log.status);
+    if (existing) return;
+
     this.assetLogs.push(log);
 
     // Keep only last MAX_LOGS entries
@@ -269,8 +290,9 @@ export class AssetLoadingLogger {
    */
   private getAssetTypeFromUrl(url: string): 'script' | 'stylesheet' | 'image' | 'font' | 'other' {
     const lowerUrl = url.toLowerCase();
-    if (lowerUrl.endsWith('.js')) return 'script';
-    if (lowerUrl.endsWith('.css')) return 'stylesheet';
+    if (lowerUrl.includes('.js')) return 'script';
+    if (lowerUrl.includes('.css')) return 'stylesheet';
+    if (lowerUrl.includes('.html')) return 'other';
     if (lowerUrl.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)) return 'image';
     if (lowerUrl.match(/\.(woff|woff2|ttf|otf|eot)$/)) return 'font';
     return 'other';
@@ -350,8 +372,7 @@ export class AssetLoadingLogger {
       if (stats.total > 0) {
         const percentage = ((stats.loaded / stats.total) * 100).toFixed(1);
         console.log(
-          `  ${type.padEnd(12)} : ${stats.loaded}/${stats.total} loaded (${percentage}%)${
-            stats.failed > 0 ? ` ⚠️  ${stats.failed} failed` : ''
+          `  ${type.padEnd(12)} : ${stats.loaded}/${stats.total} loaded (${percentage}%)${stats.failed > 0 ? ` ⚠️  ${stats.failed} failed` : ''
           }`,
         );
       }
