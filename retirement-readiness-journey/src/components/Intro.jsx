@@ -8,7 +8,7 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
     const [showNamePopup, setShowNamePopup] = useState(false);
     const [userName, setUserName] = useState('');
     const [phone, setPhone] = useState('');
-    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [termsAccepted, setTermsAccepted] = useState(true);
     const [showTerms, setShowTerms] = useState(false);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
