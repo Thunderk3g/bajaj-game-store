@@ -118,7 +118,7 @@ export class GamificationStoreService {
 
     const isLocal =
       rawUrl.includes('localhost') ||
-      rawUrl.includes('/assets/games');
+      rawUrl.includes('assets/games');
     const baseUrl = rawUrl.replace(/\/$/, '');
 
     if (isLocal) {

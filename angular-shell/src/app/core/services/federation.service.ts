@@ -31,7 +31,7 @@ export class FederationService {
   constructor(
     private http: HttpClient,
     private store: GamificationStoreService,
-  ) {}
+  ) { }
 
   /**
    * Load the federation manifest from assets.
@@ -135,7 +135,7 @@ export class FederationService {
       0,
       entry.remoteEntry.lastIndexOf('/') + 1,
     );
-    const fallbackUrl = basePath + 'index.html';
+    const fallbackUrl = '/' + basePath + 'index.html';
     console.log(
       `[FederationService] 🔗 Using manifest URL for game "${gameId}": ${fallbackUrl}`,
     );
