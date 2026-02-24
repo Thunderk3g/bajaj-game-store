@@ -54,9 +54,8 @@ const FinancialTetrisPage = () => {
     useEffect(() => {
         if (gameStatus === GAME_STATUS.LINE_CLEARED) {
             setMilestone(getRandomMilestone());
-            addTime(5); // Add 5 seconds bonus
         }
-    }, [gameStatus, addTime]);
+    }, [gameStatus]);
 
     const handleMilestoneDismiss = () => {
         setMilestone(null);
@@ -73,7 +72,7 @@ const FinancialTetrisPage = () => {
     const handleRestart = useCallback(() => {
         resetGame();
         resetTimer();
-        setGameStatus(GAME_STATUS.PLAYING);
+        setGameStatus(GAME_STATUS.IDLE);
     }, [resetGame, resetTimer, setGameStatus]);
 
     const handleBookSlot = useCallback(async (bookingInfo) => {
@@ -82,10 +81,10 @@ const FinancialTetrisPage = () => {
             name: leadData?.name || bookingInfo.name,
             mobile_no: leadData?.phone || bookingInfo.mobile_no,
             summary_dtls: 'Financial Tetris - Slot Booking',
-            param19: `Score: ${score}, Lines: ${linesCleared}`
+            param19: `Milestones: ${linesCleared}`
         });
         return result;
-    }, [leadData, score, linesCleared]);
+    }, [leadData, linesCleared]);
 
     const handleNextFromResults = useCallback(() => {
         setTimeAtCompletion(GAME_DURATION - timeLeft);
@@ -98,10 +97,10 @@ const FinancialTetrisPage = () => {
             const timer = setTimeout(() => {
                 setGameStatus('results');
                 setTimeAtCompletion(GAME_DURATION - timeLeft);
-            }, 3000);
+            }, 2000);
             return () => clearTimeout(timer);
         }
-    }, [gameStatus]);
+    }, [gameStatus, timeLeft, setGameStatus]);
 
     // Touch Handling State
     const touchStartX = useRef(null);
@@ -158,7 +157,7 @@ const FinancialTetrisPage = () => {
                     >
                         <div className="px-3">
                             <ScoreDisplay
-                                score={score}
+                                score={linesCleared}
                                 timeLeft={timeLeft}
                                 formatTime={formatTime}
                                 nextPiece={nextPiece}
@@ -197,8 +196,8 @@ const FinancialTetrisPage = () => {
                 {gameStatus === 'results' && (
                     <ConversionScreen
                         key="results"
-                        score={score}
-                        total={2000}
+                        score={linesCleared}
+                        total={20}
                         leadData={leadData}
                         onRestart={handleRestart}
                         onBookSlot={handleBookSlot}

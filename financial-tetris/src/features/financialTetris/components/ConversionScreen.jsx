@@ -102,97 +102,106 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
         }
     };
 
-    const getResultTitle = (s) => {
-        if (s === 0) return "Learning begins";
-        if (s <= 500) return "Keep going";
-        if (s <= 1000) return "Good attempt";
-        if (s <= 1500) return "Well done";
+    const getResultTitle = (m) => {
+        if (m === 0) return "Learning begins";
+        if (m <= 5) return "Keep going";
+        if (m <= 10) return "Good attempt";
+        if (m <= 15) return "Well done";
         return "Outstanding";
     };
 
-    const getMotivationalMessage = (s) => {
-        if (s === 0) return "No worries — Let’s try again!";
-        if (s <= 500) return "Building a foundation takes time. Keep playing!";
-        if (s <= 1500) return "You’ve secured some great financial lines!";
+    const getMotivationalMessage = (m) => {
+        if (m === 0) return "No worries — Let’s try again!";
+        if (m <= 5) return "Building a foundation takes time. Each milestone counts!";
+        if (m <= 15) return "You’ve secured some great financial milestones!";
         return "Excellent! You are a master of financial planning!";
     };
 
     return (
         <motion.div
-            className="w-full h-full flex flex-col items-center justify-center p-4 text-center relative overflow-hidden bg-slate-950"
+            className="w-full h-[100dvh] flex flex-col items-center bg-slate-950 p-4 sh:p-2 pb-4 sh:pb-1 relative overflow-hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
-            {/* Top Right Share Button */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 p-2 bg-white/10 backdrop-blur-sm rounded-full text-white hover:bg-white/20 shadow-sm transition-all active:scale-95 z-10"
-            >
-                <Share2 className="w-5 h-5" />
-            </button>
+            {/* Header / Top Bar */}
+            <div className="w-full max-w-sm flex items-center justify-center relative py-2 sh:py-0 mb-1 sh:mb-0">
+                <p className="text-gray-400 font-bold text-2xl sm:text-3xl text-center sh:text-lg">
+                    Hi <span className="text-blue-500 font-black">{leadData?.name || 'Friend'}</span>
+                </p>
+                <button
+                    onClick={handleShare}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 sh:p-1 bg-white/5 backdrop-blur-sm rounded-full text-white/70 hover:text-white hover:bg-white/10 border border-white/10 transition-all active:scale-95 z-10"
+                >
+                    <Share2 className="w-5 h-5 sh:w-3.5 sh:h-3.5" />
+                </button>
+            </div>
 
-            <div className="w-full h-full max-w-sm flex flex-col justify-between mx-auto py-2 min-h-0">
-                <div className="flex-1 flex flex-col justify-center space-y-4 w-full min-h-0 py-2">
-                    <p className="text-gray-400 font-bold text-xl sm:text-3xl">
-                        Hi <span className="text-blue-500 font-black">{leadData?.name || 'Friend'}</span>
+            <div className="w-full max-w-sm flex flex-col items-center flex-1 justify-between gap-y-3 sh:gap-y-0.5 min-h-0">
+                {/* Score Section */}
+                <div className="scale-90 sh:scale-[0.75] transform origin-center py-1 sh:py-0 sh:-mt-6 sh:-mb-24 transition-all">
+                    <ScoreCard score={score} total={total} />
+                </div>
+
+                {/* Messaging Section */}
+                <div className="space-y-1 sh:space-y-0 text-center flex flex-col items-center">
+                    <h2 className="text-3xl sm:text-4xl sh:text-lg font-black text-white tracking-tight leading-none">
+                        {getResultTitle(score)}
+                    </h2>
+                    <p className="text-base sm:text-lg sh:text-[10px] text-gray-500 font-bold leading-tight px-4 mt-0.5 sh:mt-0">
+                        {getMotivationalMessage(score)}
+                    </p>
+                </div>
+
+                {/* Primary Action */}
+                <button
+                    onClick={handleShare}
+                    className="flex items-center justify-center gap-2 bg-blue-600 text-white font-black py-4 sh:py-3 px-8 rounded-2xl sh:rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:bg-blue-500 transition-all text-lg sh:text-sm w-full max-w-[280px]"
+                >
+                    <Share2 className="w-5 h-5 sh:w-4 sh:h-4" />
+                    <span>Share</span>
+                </button>
+
+                {/* Action Card Section */}
+                <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[18px] p-5 sh:p-2.5 border border-slate-800 space-y-4 sh:space-y-1 relative overflow-hidden text-center shadow-xl">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600" />
+                    <p className="text-gray-400 text-sm sh:text-[9px] font-bold leading-tight">
+                        To Keep Achieving financial Milestone,<br />Connect with our Relationship Manager
                     </p>
 
-                    <div className="py-1 scale-[0.85] sm:scale-100 flex justify-center origin-center">
-                        <ScoreCard score={score} total={total} />
-                    </div>
+                    <div className="flex flex-col gap-3 sh:gap-1.5">
+                        <motion.a
+                            href="tel:18002097272"
+                            className="bg-slate-900 text-white font-black py-4 sh:py-3 px-6 rounded-2xl sh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-sm border border-slate-700 hover:bg-slate-800"
+                        >
+                            <Phone className="w-6 h-6 sh:w-4 sh:h-4 text-gray-400" />
+                            <span>Call now</span>
+                        </motion.a>
 
-                    <div className="space-y-2">
-                        <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none text-center">
-                            {getResultTitle(score)}
-                        </h2>
-                        <p className="text-base sm:text-lg text-gray-500 font-bold leading-tight px-4 text-center">
-                            {getMotivationalMessage(score)}
-                        </p>
-                    </div>
-
-                    <button
-                        onClick={handleShare}
-                        className="flex items-center justify-center gap-2 bg-blue-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg hover:bg-blue-500 transition-all text-lg w-full max-w-[280px] mx-auto mt-2"
-                    >
-                        <Share2 className="w-4 h-4" />
-                        <span>Share Results</span>
-                    </button>
-                </div>
-
-                <div className="w-full space-y-3 pb-4">
-                    <div className="bg-[#0f172a] rounded-[24px] p-5 shadow-sm border-2 border-slate-800 space-y-4 relative overflow-hidden text-left">
-                        <div className="absolute top-0 left-0 w-2 h-full bg-blue-600" />
-                        <p className="text-gray-400 text-sm font-bold leading-tight pl-2">
-                            Connect with our manager to know more about insurance & savings!
-                        </p>
-
-                        <div className="flex flex-col gap-2 pt-1">
-                            <motion.a
-                                href="tel:18002097272"
-                                className="bg-slate-800 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg border-2 border-slate-700"
-                            >
-                                <Phone className="w-6 h-6" />
-                                <span>Call now</span>
-                            </motion.a>
-                            <motion.button
-                                onClick={() => setIsBookingOpen(true)}
-                                className="bg-green-600 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg"
-                            >
-                                <Calendar className="w-5 h-5" />
-                                <span>Book a slot</span>
-                            </motion.button>
+                        <div className="flex items-center gap-4 py-1 sh:py-0">
+                            <div className="h-[1px] flex-1 bg-slate-800" />
+                            <span className="text-slate-600 font-bold text-[10px] sh:text-[8px] uppercase tracking-widest leading-none">OR</span>
+                            <div className="h-[1px] flex-1 bg-slate-800" />
                         </div>
-                    </div>
 
-                    <button
-                        onClick={onRestart}
-                        className="w-full py-5 rounded-2xl bg-slate-800 text-white font-black text-xl flex items-center justify-center gap-3 hover:bg-slate-700 transition-all"
-                    >
-                        <RotateCcw className="w-6 h-6" />
-                        <span>Play again</span>
-                    </button>
+                        <motion.button
+                            onClick={() => setIsBookingOpen(true)}
+                            className="bg-green-600 text-white font-black py-4 sh:py-3 px-6 rounded-2xl sh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-sm shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
+                        >
+                            <Calendar className="w-5 h-5 sh:w-3.5 sh:h-3.5 opacity-80" />
+                            <span>Book a slot</span>
+                        </motion.button>
+                    </div>
                 </div>
+
+                {/* Restart Action */}
+                <button
+                    onClick={onRestart}
+                    className="w-full py-5 sh:py-3.5 rounded-2xl sh:rounded-xl bg-slate-900 border border-slate-800 text-white font-black text-xl sh:text-base flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-lg"
+                >
+                    <RotateCcw className="w-6 h-6 sh:w-4 sh:h-4 text-gray-400" />
+                    <span>Play again</span>
+                </button>
             </div>
 
             <AnimatePresence>
