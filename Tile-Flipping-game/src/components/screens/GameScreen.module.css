@@ -1,0 +1,127 @@
+.gameScreen {
+    background: linear-gradient(160deg, #0B1E52 0%, #1E3B8A 50%, #1A3070 100%);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* TOP BAR */
+.topbar {
+    width: 100%;
+    max-width: 430px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    flex-shrink: 0;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 56px;
+}
+
+.statLabel {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+.statValue {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+}
+
+.warn {
+    color: #FBBF24 !important;
+    animation: shake 0.4s ease-in-out infinite;
+}
+
+.scoreBadge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 9999px;
+    padding: 10px 22px;
+    gap: 2px;
+    backdrop-filter: blur(8px);
+    min-width: 120px;
+}
+
+/* PROGRESS */
+.progressTrack {
+    width: calc(100% - 40px);
+    max-width: 390px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #F97316, #FFB380);
+    border-radius: 9999px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* HINT */
+.hint {
+    padding: 10px 0 6px;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.hintChip {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(6px);
+    transition: background 0.3s;
+}
+
+/* BOARD WRAPPER */
+.boardWrapper {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px 20px;
+}
+
+.starRack {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.uiStar {
+    font-size: 14px;
+    filter: grayscale(1) opacity(0.3);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.uiStar.lit {
+    filter: grayscale(0) opacity(1);
+    transform: scale(1.1);
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+}

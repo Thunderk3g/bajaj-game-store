@@ -1,0 +1,79 @@
+/* 3D perspective for the tile container */
+.tile {
+    aspect-ratio: 1;
+    perspective: 600px;
+    cursor: pointer;
+    position: relative;
+    border-radius: 14px;
+    transition: transform 0.15s;
+}
+
+.tile:hover:not(.matched) {
+    transform: scale(1.04);
+}
+
+.tile:active:not(.matched) {
+    transform: scale(0.97);
+}
+
+/* Both faces share the same position */
+.face {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* BACK — shows when tile is face-down */
+.back {
+    background: linear-gradient(135deg, #1E4ED8 0%, #3B6EF5 100%);
+    box-shadow: 0 4px 14px rgba(30, 78, 216, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: rotateY(0deg);
+}
+
+
+
+/* FRONT — shows when tile is face-up */
+.front {
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    transform: rotateY(-180deg);
+}
+
+/* FLIPPED state — rotate back out, rotate front in */
+.flipped .back {
+    transform: rotateY(180deg);
+}
+
+.flipped .front {
+    transform: rotateY(0deg);
+}
+
+/* MATCHED state — golden border + glow */
+.matched {
+    cursor: default;
+    animation: matched-glow 1.8s ease-in-out infinite;
+}
+
+.matched .back {
+    transform: rotateY(180deg);
+}
+
+.matched .front {
+    transform: rotateY(0deg);
+    background: linear-gradient(135deg, #FFF7ED, #FFF);
+    border: 2.5px solid var(--accent);
+}
+
+.emoji {
+    font-size: clamp(32px, 8vw, 48px);
+    /* Increased size */
+    line-height: 1;
+    animation: icon-bounce 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
