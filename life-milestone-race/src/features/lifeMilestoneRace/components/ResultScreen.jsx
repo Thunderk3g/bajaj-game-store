@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, CheckCircle, Share2, RefreshCw, ChevronDown, ChevronUp, Calendar, X } from 'lucide-react';
+import { Phone, CheckCircle, Share2, RefreshCw, ChevronDown, ChevronUp, Calendar, X, Check } from 'lucide-react';
 import Confetti from './Confetti';
 import Speedometer from './Speedometer';
 import TimelineSummary from './TimelineSummary';
@@ -37,6 +37,8 @@ const ResultScreen = ({
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
+    const [termsAccepted, setTermsAccepted] = useState(true);
+    const [showTerms, setShowTerms] = useState(false);
 
     // Form logic
     const updateField = (field, val) => {
@@ -194,8 +196,8 @@ const ResultScreen = ({
                     transition={{ delay: 0.3 }}
                     className="bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-3 shrink-0 rounded-sm"
                 >
-                    <p className="text-slate-600 text-[10px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
-                        To know more, connect with our Relationship Manager.
+                    <p className="text-slate-600 text-[12px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
+                        To secure your milestones risk from real life risk, Connect with our relationship manager
                     </p>
 
                     {/* Call Action */}
@@ -309,10 +311,27 @@ const ResultScreen = ({
                                 </div>
                             </div>
 
+                            {/* Terms Checkbox — pre-checked by default */}
+                            <div className="flex items-start space-x-2 pt-1 text-left">
+                                <div className="relative flex items-center shrink-0">
+                                    <input
+                                        id="modal-terms"
+                                        type="checkbox"
+                                        checked={termsAccepted}
+                                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2]"
+                                    />
+                                    <Check className="pointer-events-none absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
+                                </div>
+                                <label htmlFor="modal-terms" className="text-[9px] sm:text-[10px] font-semibold text-slate-500 leading-tight select-none">
+                                    I agree to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] font-bold hover:underline inline">Terms & Conditions</button> and Acknowledge the Privacy Policy.
+                                </label>
+                            </div>
+
                             <button
                                 type="submit"
-                                disabled={isSubmitting}
-                                className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest text-sm mt-2 border-2 border-white/20"
+                                disabled={isSubmitting || !termsAccepted}
+                                className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest text-sm mt-2 border-2 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Confirming...' : 'Book a Slot'}
                             </button>

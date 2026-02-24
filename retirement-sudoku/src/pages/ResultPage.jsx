@@ -1,27 +1,37 @@
-import { useState, useEffect, useRef, memo, useCallback } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, X, Calendar, Star, Phone, Check } from 'lucide-react';
 import { useGame } from '../features/game/context/GameContext.jsx';
 import { GAME_PHASES } from '../features/game/context/gameReducer.js';
-import { GAME_DURATION } from '../constants/game.js';
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SCORING TIERS  (based on seconds remaining when puzzle was completed)
-   Gold   : 90–120 s remaining  →  100 pts
-   Silver : 60–89  s remaining  →   75 pts
-   Bronze : 30–59  s remaining  →   50 pts
-   Pass   :  1–29  s remaining  →   25 pts
+   SCORE SCENARIOS  — exactly 2, based on score value:
+   score === 0  → Zero scenario  (time ran out, no cells filled correctly)
+   score  > 0  → Success scenario (at least some correct placements)
 ───────────────────────────────────────────────────────────────────────────── */
-function getTier(timeAtWin) {
-    // timeAtWin===0  → time ran out before puzzle was solved
-    // timeAtWin===null → shouldn't reach ResultPage, but guard anyway
-    if (timeAtWin === 0) return { label: "Time's Up!", subtext: 'Retirement planning is tricky.\nOur experts are here to help you plan better.', points: 0, tier: 'None', starScore: 1 };
-    const t = timeAtWin ?? 1;
-    if (t >= 90) return { label: 'Excellent', subtext: 'You have learned important\nfinancial and insurance concepts.', points: 100, tier: 'Gold', starScore: 5 };
-    if (t >= 60) return { label: 'Good Job', subtext: 'You have learned important\nfinancial and insurance concepts.', points: 75, tier: 'Silver', starScore: 4 };
-    if (t >= 30) return { label: 'Good', subtext: 'You can do better.', points: 50, tier: 'Bronze', starScore: 3 };
-    return { label: 'Not up to the mark', subtext: 'You can do better.', points: 25, tier: 'Pass', starScore: 2 };
+function getScenario(score) {
+    if (score === 0) {
+        return {
+            subheading: "Time's Up!",
+            message: "You missed your chance to build a balanced retirement portfolio.",
+            points: 0,
+            starScore: 0, // Score is 0, so no stars
+        };
+    }
+
+    // Dynamic stars based on remaining time (max 120s)
+    let dynamicStars = 2; // Finishers get at least 2 stars
+    if (score >= 90) dynamicStars = 5;
+    else if (score >= 60) dynamicStars = 4;
+    else if (score >= 30) dynamicStars = 3;
+
+    return {
+        subheading: 'Congrats!',
+        message: 'You managed to build a balanced retirement portfolio in time.',
+        points: score,
+        starScore: dynamicStars,
+    };
 }
 
 
@@ -149,17 +159,19 @@ function ScoreShield({ tier }) {
                     <span style={{ fontSize: '1.5rem', opacity: 0.9, marginLeft: '2px' }}>pts</span>
                 </div>
 
-                {/* Stars */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                    {[...Array(5)].map((_, i) => (
-                        <Star
-                            key={i}
-                            size={18}
-                            fill={i < starScore ? '#FFB800' : 'rgba(255,255,255,0.2)'}
-                            stroke="none"
-                        />
-                    ))}
-                </div>
+                {/* Stars — only shown when starScore > 0 */}
+                {starScore > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        {[...Array(5)].map((_, i) => (
+                            <Star
+                                key={i}
+                                size={18}
+                                fill={i < starScore ? '#FFB800' : 'rgba(255,255,255,0.2)'}
+                                stroke="none"
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -315,7 +327,13 @@ const ResultPage = memo(function ResultPage() {
     const isWon = state.phase === GAME_PHASES.WON;
     const isTimeUp = state.phase === GAME_PHASES.TIMEUP;
     const isEligible = isWon || isTimeUp;
-    const tier = getTier(state.timeAtWin);
+
+    // ── 2-scenario logic ────────────────────────────────────────────────────
+    // score: number of correctly placed cells (or points from state)
+    // Use timeAtWin: null/0 means time ran out without solving → score = 0
+    const score = (isWon && state.timeAtWin > 0) ? state.timeAtWin : 0;
+    const isZeroScore = score === 0;
+    const scenario = getScenario(score);
 
     // If user refreshes or lands here without finishing, redirect to intro
     useEffect(() => {
@@ -333,7 +351,9 @@ const ResultPage = memo(function ResultPage() {
 
     /* Share handler — Web Share API with clipboard fallback + in-app toast */
     const handleShare = async () => {
-        const text = `🎉 I just solved Retirement Sudoku by Bajaj Life! I scored ${tier.points} points (${tier.tier} tier). Try it yourself: ${window.location.origin}`;
+        const text = isZeroScore
+            ? `I played Retirement Sudoku by Bajaj Life. Try it yourself: ${window.location.origin}`
+            : `🎉 I just played Retirement Sudoku by Bajaj Life and scored ${scenario.points} pts! Try it yourself: ${window.location.origin}`;
         if (navigator.share) {
             try {
                 await navigator.share({ title: 'Retirement Sudoku Score', text, url: window.location.origin });
@@ -397,12 +417,12 @@ const ResultPage = memo(function ResultPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-2xl font-extrabold text-white tracking-widest uppercase leading-none mt-2"
                     >
-                        HI {userName.split(' ')[0].toUpperCase()}!
+                        Hi {userName}!
                     </motion.h1>
 
                     <div className="h-3 shrink-0" />
 
-                    {/* "YOUR SCORE IS" */}
+                    {/* Subheading — "YOUR SCORE IS" row */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -421,23 +441,23 @@ const ResultPage = memo(function ResultPage() {
                             animate={{ scale: 1, rotate: 0 }}
                             transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.25 }}
                         >
-                            <ScoreShield tier={tier} />
+                            <ScoreShield tier={scenario} />
                         </motion.div>
                     </div>
 
                     <div className="h-3 shrink-0" />
 
-                    {/* Tier Heading */}
+                    {/* Subheading (Congrats! / Time's Up!) */}
                     <h2 className="text-xl font-bold text-white tracking-wide leading-tight">
-                        {tier.label}
+                        {scenario.subheading}
                     </h2>
 
                     <div className="h-2 shrink-0" />
 
-                    {/* Subtext */}
+                    {/* Message below shield */}
                     <div className="w-full">
-                        <p className="text-white/80 text-xs leading-tight whitespace-pre-line px-2">
-                            {tier.subtext}
+                        <p className="text-white/80 text-xs leading-tight px-2">
+                            {scenario.message}
                         </p>
                     </div>
 
@@ -460,7 +480,7 @@ const ResultPage = memo(function ResultPage() {
                             </svg>
                         </motion.button>
 
-                        {/* Info box */}
+                        {/* Info card */}
                         <motion.div
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -468,7 +488,7 @@ const ResultPage = memo(function ResultPage() {
                             className="bg-blue-900/30 border border-white/10 rounded-lg p-2.5 mx-1 backdrop-blur-sm"
                         >
                             <p className="text-white/90 text-xs leading-tight font-medium">
-                                "To know more about insurance and savings products, please connect with our relationship manager."
+                                To know more about retirement-focused products, please connect with your relationship manager.
                             </p>
                         </motion.div>
 

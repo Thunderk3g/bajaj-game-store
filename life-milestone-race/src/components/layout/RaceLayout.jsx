@@ -17,11 +17,11 @@ const RaceLayout = memo(function RaceLayout({ children, className = '', fullScre
                 </div>
             )}
 
-            {/* Content */}
+            {/* Content Container — Expanded to fill entire screen to prevent background gaps */}
             <div
                 className={`relative z-10 w-full min-h-[100dvh] flex flex-col ${fullScreen
                     ? ''
-                    : 'max-w-md mx-auto px-4 py-6 items-center justify-center'
+                    : 'items-center justify-center'
                     }`}
             >
                 {children}

@@ -63,6 +63,7 @@ export function useRaceEngine() {
     const [lastFeedback, setLastFeedback] = useState(null);
     const [isTimerActive, setIsTimerActive] = useState(false);
     const [userName, setUserName] = useState('');
+    const [userPhone, setUserPhone] = useState('');
 
     const consecutiveExposedHighRef = useRef(0);
 
@@ -105,7 +106,9 @@ export function useRaceEngine() {
 
     // ── Actions ──
 
-    const startGame = useCallback(() => {
+    const startGame = useCallback((name, phone) => {
+        if (name) setUserName(name);
+        if (phone) setUserPhone(phone);
         setPhase(GAME_PHASES.STAGE_SELECTION);
     }, []);
 
@@ -123,7 +126,6 @@ export function useRaceEngine() {
         setScore(INITIAL_SCORE);
         setTimeline([]);
         setLastFeedback(null);
-        setUserName('');
         consecutiveExposedHighRef.current = 0;
         setPhase(GAME_PHASES.RACING);
         setIsTimerActive(true);
@@ -247,6 +249,7 @@ export function useRaceEngine() {
         riskGaps,
         progressPercent,
         userName,
+        userPhone,
 
         // Actions
         startGame,

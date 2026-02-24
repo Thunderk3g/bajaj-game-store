@@ -216,8 +216,8 @@ const BookingModal = memo(function BookingModal({
                                                             type="button"
                                                             onClick={() => handleChange('preferredSlot', slot)}
                                                             className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${formData.preferredSlot === slot
-                                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                                                                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                                                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
                                                                 }`}
                                                         >
                                                             {slot}
@@ -227,18 +227,22 @@ const BookingModal = memo(function BookingModal({
                                                 {errors.preferredSlot && <p className="text-red-500 text-xs">{errors.preferredSlot}</p>}
                                             </div>
 
-                                            {/* Consent */}
-                                            <label className="flex items-start gap-2 cursor-pointer mt-2">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={formData.consent}
-                                                    onChange={(e) => handleChange('consent', e.target.checked)}
-                                                    className="mt-0.5"
-                                                />
-                                                <span className="text-xs text-slate-500 leading-tight">
-                                                    I authorize Bajaj Allianz Life Insurance to contact me. This overrides my NDNC registration.
-                                                </span>
-                                            </label>
+                                            {/* Terms Checkbox — pre-checked by default */}
+                                            <div className="flex items-start space-x-2 pt-1 text-left">
+                                                <div className="relative flex items-center shrink-0">
+                                                    <input
+                                                        id="modal-booking-terms"
+                                                        type="checkbox"
+                                                        checked={formData.consent}
+                                                        onChange={(e) => handleChange('consent', e.target.checked)}
+                                                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2]"
+                                                    />
+                                                    <Check className="pointer-events-none absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
+                                                </div>
+                                                <label htmlFor="modal-booking-terms" className="text-[10px] sm:text-xs font-semibold text-slate-500 leading-tight select-none">
+                                                    I agree to the <span className="text-[#0066B2] font-bold">Terms & Conditions</span> and Acknowledge the Privacy Policy.
+                                                </label>
+                                            </div>
                                             {errors.consent && <p className="text-red-500 text-xs">{errors.consent}</p>}
 
                                             {/* Error Message */}
@@ -251,7 +255,7 @@ const BookingModal = memo(function BookingModal({
                                                 variant="primary"
                                                 size="lg"
                                                 className="w-full mt-2"
-                                                disabled={isSubmitting}
+                                                disabled={isSubmitting || !formData.consent}
                                                 type="submit"
                                             >
                                                 {isSubmitting ? (
