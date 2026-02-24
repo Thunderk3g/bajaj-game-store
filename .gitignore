@@ -1,21 +1,35 @@
-# Ignore dependencies
-node_modules
-dist
-build
-.cache
-.tmp
+# Ignore dependencies globally
+node_modules/
+dist/
+build/
+.cache/
+.tmp/
 
 # Ignore environment & OS junk
 .env
 .DS_Store
 Thumbs.db
 
-# Allow all project folders
-!angular-shell/**
-!game12/**
-!quiz-game/**
-!Scramble-Words/**
-!scripts/**
+# Allow project folders (but they inherit global ignores)
+!angular-shell/
+!quiz-game/
+!Scramble-Words/
+!Tile-Flipping-game/
+!life-goals/
+!retirement-readiness-journey/
+!financial-match-arena/
+!financial-tetris/
+!life-milestone-race/
+!life-shield-bomber/
+!retirement-sudoku/
+!scripts/
+
+# Explicitly ensure node_modules inside projects are ignored
+**/node_modules/
+**/dist/
+**/build/
+
+# Whitelist project files
 !Dockerfile
 !pnpm-workspace.yaml
 !package.json
@@ -25,3 +39,6 @@ Thumbs.db
 !DEPLOYMENT.md
 !QUICKSTART.md
 !LICENSE
+!start-dev.bat
+!start-dev.sh
+!test-build.bat
