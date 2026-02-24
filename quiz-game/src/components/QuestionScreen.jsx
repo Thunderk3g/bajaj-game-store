@@ -26,7 +26,7 @@ const QuestionScreen = ({ question, currentQuestion, totalQuestions, onAnswerSel
                 </div>
 
                 {/* Answer Options Section */}
-                <div className="flex flex-col gap-3 sm:gap-4 overflow-y-auto custom-scrollbar">
+                <div className="flex flex-col gap-3 sm:gap-4 overflow-y-auto scrollbar-hide overflow-x-hidden">
                     {question.options.map((option, index) => (
                         <motion.button
                             key={index}

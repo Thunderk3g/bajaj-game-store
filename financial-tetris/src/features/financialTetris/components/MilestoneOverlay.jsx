@@ -5,7 +5,7 @@ import { Sparkles } from 'lucide-react';
 const MilestoneOverlay = ({ isVisible, message, onDismiss }) => {
     useEffect(() => {
         if (isVisible) {
-            const timer = setTimeout(onDismiss, 2500);
+            const timer = setTimeout(onDismiss, 4000);
             return () => clearTimeout(timer);
         }
     }, [isVisible, onDismiss]);
@@ -24,7 +24,7 @@ const MilestoneOverlay = ({ isVisible, message, onDismiss }) => {
                             <motion.div
                                 initial={{ width: "0%" }}
                                 animate={{ width: "100%" }}
-                                transition={{ duration: 2.5, ease: "linear" }}
+                                transition={{ duration: 4, ease: "linear" }}
                                 className="h-full bg-white"
                             />
                         </div>
@@ -39,14 +39,7 @@ const MilestoneOverlay = ({ isVisible, message, onDismiss }) => {
 
                         <h2 className="text-white text-xl font-black uppercase tracking-widest mb-1">Milestone Reached!</h2>
 
-                        <motion.div
-                            initial={{ scale: 0, rotate: -10 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                            className="inline-block bg-yellow-400 text-blue-900 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-tight mb-4 shadow-lg"
-                        >
-                            +5 Seconds Added!
-                        </motion.div>
+
 
                         <p className="text-white font-extrabold text-lg leading-tight uppercase italic drop-shadow-sm">
                             {message}

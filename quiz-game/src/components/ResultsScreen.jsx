@@ -153,64 +153,64 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             </button>
 
             {/* Content Wrapper for consistency across heights */}
-            <div className="w-full h-full max-w-sm flex flex-col justify-between mx-auto py-2 sm:py-4 min-h-0">
-                <div className="flex-1 flex flex-col justify-center space-y-2 sm:space-y-4 w-full min-h-0 py-2">
+            <div className="w-full h-full max-w-sm sm:max-w-2xl flex flex-col justify-between mx-auto py-1 min-[410px]:py-4 sm:py-16 min-h-0 origin-center">
+                <div className="flex-1 flex flex-col justify-center space-y-0.5 min-[410px]:space-y-4 sm:space-y-12 w-full min-h-0 py-1">
                     {/* 1. Greeting */}
-                    <p className="text-gray-600 font-bold text-xl sm:text-3xl">
+                    <p className="text-lg min-[410px]:text-2xl sm:text-5xl text-gray-600 font-bold">
                         Hi <span className="text-brand-blue font-black">{leadName || 'Friend'}</span>
                     </p>
 
                     {/* 2. Animated Meter */}
-                    <div className="py-0 sm:py-1 scale-[0.85] sm:scale-100 flex justify-center origin-center">
+                    <div className="py-0 min-[410px]:py-2 sm:py-6 scale-[0.7] min-[410px]:scale-[1] sm:scale-[1.5] flex justify-center origin-center shrink-0">
                         <ScoreCard score={score} total={total} />
                     </div>
 
                     {/* 3. Titles & Feedback */}
-                    <div className="space-y-1 sm:space-y-2">
-                        <h2 className="text-3xl sm:text-4xl font-black text-gray-800 tracking-tight leading-none text-center">
+                    <div className="space-y-0 min-[410px]:space-y-2 sm:space-y-6">
+                        <h2 className="text-xl min-[410px]:text-4xl sm:text-7xl font-black text-gray-800 tracking-tight leading-none text-center">
                             {getResultTitle(score)}
                         </h2>
-                        <p className="text-base sm:text-lg text-gray-500 font-bold leading-tight px-4 text-center">
+                        <p className="text-[13px] min-[410px]:text-lg sm:text-3xl text-gray-500 font-bold leading-tight px-4 text-center">
                             {getMotivationalMessage(score)}
                         </p>
                     </div>
 
-                    {/* 4. Share Button */}
+                    {/* 4. Share Button (Restored) */}
                     <button
                         onClick={handleShare}
-                        className="flex items-center justify-center gap-2 bg-brand-blue text-white font-black py-3 sm:py-4 px-6 sm:px-8 rounded-2xl shadow-lg hover:bg-blue-500 transition-all text-base sm:text-lg w-full max-w-[240px] sm:max-w-[280px] mx-auto mt-2"
+                        className="flex items-center justify-center gap-2 bg-brand-blue text-white font-black py-2.5 min-[410px]:py-4 sm:py-8 px-6 sm:px-14 rounded-[16px] sm:rounded-[28px] shadow-lg hover:bg-blue-500 transition-all text-sm min-[410px]:text-lg sm:text-3xl w-full max-w-[200px] min-[410px]:max-w-[280px] sm:max-w-[500px] mx-auto mt-1 min-[410px]:mt-2 sm:mt-10 shrink-0"
                     >
-                        <Share2 className="w-4 h-4 sm:w-5 h-5" />
+                        <Share2 className="w-4 h-4 min-[410px]:w-6 min-[410px]:h-6 sm:w-10 sm:h-10" />
                         <span>Share</span>
                     </button>
                 </div>
 
-                <div className="w-full space-y-2 sm:space-y-3 pb-2 sm:pb-4">
+                <div className="w-full space-y-1 min-[410px]:space-y-4 sm:space-y-12 pb-2 min-[410px]:pb-4 sm:pb-16 mt-1 min-[410px]:mt-10">
                     {/* Enhanced Action Card */}
-                    <div className="bg-white rounded-[20px] sm:rounded-[24px] p-3 sm:p-5 shadow-sm border-2 border-soft-gray space-y-3 sm:space-y-4 relative overflow-hidden text-center">
+                    <div className="bg-white rounded-[16px] sm:rounded-[40px] p-2 min-[410px]:p-5 sm:p-14 shadow-sm border-2 border-soft-gray space-y-2 min-[410px]:space-y-4 sm:space-y-12 relative overflow-hidden text-center">
                         <div className="absolute top-0 left-0 w-2 h-full bg-brand-blue" />
-                        <p className="text-gray-700 text-sm sm:text-base font-bold leading-tight italic px-2">
+                        <p className="text-gray-700 text-[12px] min-[410px]:text-base sm:text-2xl font-bold leading-tight italic px-2">
                             To Know more about insurance and savings products! Connect with our Relationship Manager to get started.
                         </p>
 
-                        <div className="flex flex-col gap-2 pt-0 sm:pt-1">
+                        <div className="flex flex-col gap-1.5 min-[410px]:gap-3 sm:gap-6 pt-0 min-[410px]:pt-1 sm:pt-6">
                             <motion.a
                                 href="tel:18002097272"
-                                className="bg-gray-100 text-gray-700 font-black py-3 sm:py-4 px-4 sm:px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-base sm:text-lg border-2 border-gray-200"
+                                className="bg-gray-100 text-gray-700 font-black py-2.5 min-[410px]:py-4 sm:py-8 px-4 sm:px-12 rounded-[16px] sm:rounded-[28px] flex items-center justify-center gap-3 transition-all text-base min-[410px]:text-lg sm:text-3xl border-2 border-gray-200"
                             >
-                                <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
+                                <Phone className="w-5 h-5 min-[410px]:w-6 min-[410px]:h-6 sm:w-10 sm:h-10" />
                                 <span>Call now</span>
                             </motion.a>
-                            <div className="flex items-center gap-2 px-4">
+                            <div className="flex items-center gap-2 px-4 scale-90 min-[410px]:scale-100 sm:scale-125">
                                 <div className="h-[1px] flex-1 bg-gray-200" />
-                                <span className="text-gray-400 font-bold text-sm">OR</span>
+                                <span className="text-gray-400 font-bold text-[12px] min-[410px]:text-base sm:text-2xl">OR</span>
                                 <div className="h-[1px] flex-1 bg-gray-200" />
                             </div>
                             <motion.button
                                 onClick={() => setIsBookingOpen(true)}
-                                className="bg-brand-green text-white font-black py-3 sm:py-4 px-4 sm:px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-base sm:text-lg"
+                                className="bg-brand-green text-white font-black py-2.5 min-[410px]:py-4 sm:py-8 px-4 sm:px-12 rounded-[16px] sm:rounded-[28px] flex items-center justify-center gap-3 transition-all text-base min-[410px]:text-lg sm:text-3xl shadow-[0_4px_0_0_#45a049] sm:shadow-[0_10px_0_0_#45a049]"
                             >
-                                <Calendar className="w-4 h-4 sm:w-5 h-5" />
+                                <Calendar className="w-4 h-4 min-[410px]:w-6 min-[410px]:h-6 sm:w-10 sm:h-10" />
                                 <span>Book a slot</span>
                             </motion.button>
                         </div>
@@ -219,9 +219,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                     {/* Large Retake Button */}
                     <button
                         onClick={onRestart}
-                        className="game-btn w-full py-4 sm:py-5 text-lg sm:text-xl flex items-center justify-center gap-3"
+                        className="game-btn w-full py-4 min-[410px]:py-5 sm:py-10 text-lg min-[410px]:text-xl sm:text-4xl flex items-center justify-center gap-3 rounded-[16px] sm:rounded-[28px]"
                     >
-                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <RotateCcw className="w-5 h-5 min-[410px]:w-6 min-[410px]:h-6 sm:w-10 sm:h-10" />
                         <span>Retake quiz</span>
                     </button>
                 </div>
@@ -341,7 +341,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                     </Dialog.Content>
                 </Dialog.Portal>
             </Dialog.Root>
-        </motion.div>
+        </motion.div >
     );
 };
 

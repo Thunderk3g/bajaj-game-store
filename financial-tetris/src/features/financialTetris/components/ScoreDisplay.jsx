@@ -11,7 +11,7 @@ const ScoreDisplay = ({ score, timeLeft, formatTime, nextPiece }) => {
 
             {/* Score Column */}
             <div className="bg-[#050530] border border-blue-900/50 p-2 flex flex-col items-center justify-center shadow-lg rounded-sm">
-                <label className="text-[10px] font-bold uppercase tracking-tighter text-blue-400 leading-tight">Score</label>
+                <label className="text-[10px] font-bold uppercase tracking-tighter text-blue-400 leading-tight text-center w-full">Milestones</label>
                 <span className="text-xl font-black text-white leading-tight mt-0.5 truncate w-full px-1 text-center font-mono">
                     {score.toLocaleString()}
                 </span>

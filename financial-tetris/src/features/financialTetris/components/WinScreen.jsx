@@ -9,7 +9,7 @@ const WinScreen = ({ onNext }) => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 flex items-center justify-center bg-[#0a0a25]/70 z-[60] p-6 text-center"
+            className="absolute inset-0 flex items-center justify-center bg-[#0a0a25]/60 backdrop-blur-sm z-[60] p-6 text-center"
         >
             <motion.div
                 initial={{ scale: 0.9, y: 20 }}
@@ -36,10 +36,6 @@ const WinScreen = ({ onNext }) => {
                             "Build your financial health in real life too."
                         </p>
                     </div>
-
-                    <Button onClick={onNext} className="w-full">
-                        Take the Next Step
-                    </Button>
                 </Card>
             </motion.div>
         </motion.div>

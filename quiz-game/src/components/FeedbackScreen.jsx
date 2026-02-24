@@ -47,7 +47,7 @@ const FeedbackScreen = ({ isCorrect, explanation, onNext }) => {
                         </h3>
 
                         {/* Explanation Area */}
-                        <div className={`p-4 sm:p-6 rounded-2xl mb-4 sm:mb-6 border-2 text-left flex-1 overflow-y-auto min-h-0 custom-scrollbar ${isCorrect ? 'bg-blue-50/50 border-blue-100/50' : 'bg-red-50 border-red-100'}`}>
+                        <div className={`p-4 sm:p-6 rounded-2xl mb-4 sm:mb-6 border-2 text-left flex-1 overflow-y-auto min-h-0 scrollbar-hide overflow-x-hidden ${isCorrect ? 'bg-blue-50/50 border-blue-100/50' : 'bg-red-50 border-red-100'}`}>
                             <p className="text-gray-700 font-bold text-base sm:text-lg leading-snug">
                                 {explanation}
                             </p>

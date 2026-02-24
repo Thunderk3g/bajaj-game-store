@@ -10,7 +10,7 @@ const IntroScreen = ({ onStart }) => {
     const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({ name: '', phone: '' });
-    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+    const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
 
     const validate = () => {

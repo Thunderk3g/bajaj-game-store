@@ -6,6 +6,9 @@ export default {
     ],
     theme: {
         extend: {
+            screens: {
+                'sh': { 'raw': '(max-height: 750px)' },
+            },
             colors: {
                 tetris: {
                     grid: '#1a1a2e',

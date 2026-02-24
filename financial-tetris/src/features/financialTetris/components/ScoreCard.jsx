@@ -11,32 +11,41 @@ const ScoreCard = ({ score, total }) => {
     }, [score, count]);
 
     // Circle properties
-    const radius = 60;
+    const radius = 75;
     const circumference = 2 * Math.PI * radius;
-    const progress = (score / 2000) * circumference; // Assuming 2000 as a benchmark high score
+    const progress = (score / 20) * circumference;
 
     return (
-        <div className="flex justify-center items-center py-1">
-            <div className="relative w-40 h-40 flex items-center justify-center">
+        <div className="flex justify-center items-center py-1 sh:py-0">
+            <div className="relative w-48 h-48 flex items-center justify-center">
                 {/* Background Circle */}
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
                     <circle
-                        cx="80"
-                        cy="80"
+                        cx="100"
+                        cy="100"
                         r={radius}
                         fill="none"
+                        stroke="#0f172a"
+                        strokeWidth="10"
+                    />
+                    {/* Ring Border Decor */}
+                    <circle
+                        cx="100"
+                        cy="100"
+                        r={radius + 6}
+                        fill="none"
                         stroke="#1e293b"
-                        strokeWidth="12"
-                        className="drop-shadow-sm"
+                        strokeWidth="1"
+                        opacity="0.3"
                     />
                     {/* Progress Circle */}
                     <motion.circle
-                        cx="80"
-                        cy="80"
+                        cx="100"
+                        cy="100"
                         r={radius}
                         fill="none"
                         stroke="#3b82f6"
-                        strokeWidth="12"
+                        strokeWidth="10"
                         strokeLinecap="round"
                         initial={{ strokeDasharray: circumference, strokeDashoffset: circumference }}
                         animate={{ strokeDashoffset: circumference - Math.min(progress, circumference) }}
@@ -45,12 +54,12 @@ const ScoreCard = ({ score, total }) => {
                 </svg>
 
                 {/* Score Text */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="uppercase tracking-widest text-[10px] font-black text-gray-400 mb-1">
-                        SCORE
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                    <div className="uppercase tracking-widest text-[8px] font-bold text-gray-500 mb-0.5 leading-tight text-center max-w-[80px]">
+                        MILESTONES ACHIEVED
                     </div>
-                    <div className="flex items-baseline justify-center text-blue-500 gap-0.5">
-                        <motion.span className="text-4xl font-black leading-none">
+                    <div className="flex items-baseline justify-center text-blue-500">
+                        <motion.span className="text-6xl font-black leading-none tracking-tighter">
                             {roundedCount}
                         </motion.span>
                     </div>

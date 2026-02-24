@@ -240,7 +240,7 @@ const WelcomeScreen = ({ onStart }) => {
                                         <Dialog.Title className="text-2xl font-black text-gray-800 mb-6 tracking-tight">
                                             Terms & Conditions
                                         </Dialog.Title>
-                                        <div className="text-base text-gray-500 font-bold space-y-4 max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar">
+                                        <div className="text-base text-gray-500 font-bold space-y-4 max-h-[60vh] overflow-y-auto pr-4 scrollbar-hide overflow-x-hidden">
                                             <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
                                             <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-brand-blue hover:underline font-black">BALIC Privacy Policy</a>.</p>
                                         </div>
