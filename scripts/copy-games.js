@@ -66,6 +66,11 @@ const games = [
     source: path.join(ROOT_DIR, "Tile-Flipping-game", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "tile-flipping-game"),
   },
+  {
+    name: "Snake-Life",
+    source: path.join(ROOT_DIR, "Snake-Life", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "Snake-Life"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -227,6 +232,15 @@ const manifest = {
     displayName: "Tile Flipping Game",
     popular: true,
     gameId: "GAME_010",
+    assets: [],
+  },
+  "Snake-Life": {
+    remoteEntry: "assets/games/Snake-Life/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Snake Life Game",
+    popular: true,
+    gameId: "GAME_011",
     assets: [],
   },
 };

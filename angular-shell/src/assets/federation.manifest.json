@@ -58,11 +58,11 @@
     "gameId": "GAME_005",
     "assets": []
   },
-  "financial-match-arena": {
-    "remoteEntry": "assets/games/financial-match-arena/index.js",
+  "secure-saga": {
+    "remoteEntry": "assets/games/secure-saga/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
-    "displayName": "Financial Match Arena",
+    "displayName": "Secure Saga",
     "popular": true,
     "gameId": "GAME_006",
     "assets": []
@@ -101,6 +101,15 @@
     "displayName": "Tile Flipping Game",
     "popular": true,
     "gameId": "GAME_010",
+    "assets": []
+  },
+  "Snake-Life": {
+    "remoteEntry": "assets/games/Snake-Life/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Snake Life Game",
+    "popular": true,
+    "gameId": "GAME_011",
     "assets": []
   }
 }
