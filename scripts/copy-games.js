@@ -66,6 +66,11 @@ const games = [
     source: path.join(ROOT_DIR, "Tile-Flipping-game", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "tile-flipping-game"),
   },
+  {
+    name: "snake-life",
+    source: path.join(ROOT_DIR, "Snake-Life", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "snake-life"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)

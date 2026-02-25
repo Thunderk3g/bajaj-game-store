@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #005CAB;
+  --color-secondary: #FFD200;
+  --color-success: #22C55E;
+  --color-danger: #EF4444;
+  --color-background: #F8FAFC;
+
+  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-slide-up: slideUp 0.5s ease-out;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    0% {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+@variant sh (@media (max-height: 750px));
+
+:root {
+  font-family: 'Outfit',
+  'Inter',
+  system-ui,
+  Avenir,
+  Helvetica,
+  Arial,
+  sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  background-color: var(--color-background);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#root {
+  width: 100%;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white py-4 px-8 rounded-xl font-bold text-lg transition-all active:scale-95 shadow-lg hover:shadow-xl disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-primary border-2 border-primary py-4 px-8 rounded-xl font-bold text-lg transition-all active:scale-95;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl;
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .h-screen-safe {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
+/* 3-tier scaling system */
+@media (max-height: 640px) {
+  :root {
+    font-size: 14.4px;
+    /* 0.9 * 16px */
+  }
+}
+
+@media (min-height: 641px) and (max-height: 800px) {
+  :root {
+    font-size: 16px;
+    /* 1 * 16px */
+  }
+}
+
+@media (min-height: 801px) {
+  :root {
+    font-size: 17.28px;
+    /* 1.08 * 16px */
+  }
+}
