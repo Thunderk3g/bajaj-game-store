@@ -204,12 +204,6 @@ importers:
         specifier: ~5.4.2
         version: 5.4.5
 
-  financial-match-arena:
-    dependencies:
-      uuid:
-        specifier: ^9.0.0
-        version: 9.0.1
-
   financial-tetris:
     devDependencies:
       eslint:

@@ -15,7 +15,7 @@
     "serve": "pnpm --filter angular-shell serve",
     "serve:prod": "pnpm --filter angular-shell serve:prod",
     "preview": "pnpm --filter angular-shell preview",
-    "clean": "pnpm -r exec rm -rf dist node_modules",
+    "clean": "pnpm -r exec powershell -Command \"Remove-Item -Recurse -Force node_modules, dist, pnpm-lock.yaml, package-lock.yaml -ErrorAction SilentlyContinue\"",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test"
   },
