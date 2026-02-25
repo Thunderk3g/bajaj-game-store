@@ -49,7 +49,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
     };
 
     const goals = [
-        { label: 'Family Plan', color: '#10B981', bg: 'linear-gradient(145deg, #059669 0%, #10B981 100%)', border: '#047857' },
+        { label: 'Family Protection', color: '#10B981', bg: 'linear-gradient(145deg, #059669 0%, #10B981 100%)', border: '#047857' },
         { label: 'Child Education', color: '#3B82F6', bg: 'linear-gradient(145deg, #1D4ED8 0%, #3B82F6 100%)', border: '#1e40af' },
         { label: 'Retirement Plan', color: '#F59E0B', bg: 'linear-gradient(145deg, #D97706 0%, #F59E0B 100%)', border: '#b45309' },
         { label: 'Emergency Fund', color: '#EF4444', bg: 'linear-gradient(145deg, #B91C1C 0%, #EF4444 100%)', border: '#b91c1c' },
@@ -60,7 +60,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="fixed inset-0 z-50 flex flex-col items-center w-full h-full overflow-hidden bg-[#050B14]"
+            className="fixed inset-0 z-[1100] flex flex-col items-center w-full h-[100dvh] overflow-hidden bg-[#050B14]"
             style={{
                 backgroundImage: `
           radial-gradient(circle at 50% 0%, #1e3a8a 0%, #050B14 60%),

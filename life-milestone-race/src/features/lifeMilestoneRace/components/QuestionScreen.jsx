@@ -81,11 +81,10 @@ const QuestionScreen = memo(function QuestionScreen({
 
     return (
         <div
-            className="w-full h-full flex flex-col items-center px-5 pb-6 overflow-y-auto overflow-x-hidden relative font-sans custom-scrollbar"
+            className="absolute inset-0 w-full h-full flex flex-col items-center px-5 pb-6 overflow-y-auto overflow-x-hidden font-sans custom-scrollbar"
             style={{
                 background: "linear-gradient(180deg, rgb(0, 51, 102) 0%, rgb(0, 68, 129) 100%)",
                 fontFamily: "Inter, sans-serif",
-                minHeight: '100dvh'
             }}
         >
             {/* ================= HEADER ================= */}

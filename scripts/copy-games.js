@@ -42,9 +42,9 @@ const games = [
     destination: path.join(SHELL_GAMES_DIR, "retirement-readiness-journey"),
   },
   {
-    name: "financial-match-arena",
-    source: path.join(ROOT_DIR, "financial-match-arena", "dist"),
-    destination: path.join(SHELL_GAMES_DIR, "financial-match-arena"),
+    name: "secure-saga",
+    source: path.join(ROOT_DIR, "secure-saga", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "secure-saga"),
   },
   {
     name: "retirement-sudoku",
@@ -184,11 +184,11 @@ const manifest = {
     gameId: "GAME_005",
     assets: [],
   },
-  "financial-match-arena": {
-    remoteEntry: "assets/games/financial-match-arena/index.js",
+  "secure-saga": {
+    remoteEntry: "assets/games/secure-saga/index.js",
     exposedModule: "./GameEntry",
     type: "react",
-    displayName: "Financial Match Arena",
+    displayName: "Secure Saga",
     popular: true,
     gameId: "GAME_006",
     assets: [],

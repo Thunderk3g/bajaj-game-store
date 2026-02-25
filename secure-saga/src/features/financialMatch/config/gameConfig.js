@@ -1,5 +1,5 @@
 /**
- * Balance Builder — Game Configuration
+ * Secure Saga — Game Configuration
  * Single 2-minute match session with 4-color bucket system.
  * Branding: "Bajaj Life Insurance" (never "Bajaj Allianz Life Insurance").
  */
@@ -10,7 +10,7 @@ export const TILE_TYPES = ['GREEN', 'BLUE', 'YELLOW', 'RED'];
 
 export const TILE_META = {
     GREEN: {
-        label: 'Family Plan',
+        label: 'Family Protection',
         color: '#10B981',
         bg: 'linear-gradient(145deg, #059669 0%, #10B981 50%, #34D399 100%)',
         glow: 'rgba(16, 185, 129, 0.45)',
@@ -18,7 +18,7 @@ export const TILE_META = {
         bucketBorder: 'rgba(16, 185, 129, 0.5)',
     },
     BLUE: {
-        label: 'Child Education Plan',
+        label: 'Child Education',
         color: '#3B82F6',
         bg: 'linear-gradient(145deg, #1D4ED8 0%, #3B82F6 50%, #60A5FA 100%)',
         glow: 'rgba(59, 130, 246, 0.45)',
@@ -26,7 +26,7 @@ export const TILE_META = {
         bucketBorder: 'rgba(59, 130, 246, 0.5)',
     },
     YELLOW: {
-        label: 'Retirement Plan',
+        label: 'Retirement',
         color: '#F59E0B',
         bg: 'linear-gradient(145deg, #D97706 0%, #F59E0B 50%, #FBBF24 100%)',
         glow: 'rgba(245, 158, 11, 0.45)',
@@ -42,6 +42,38 @@ export const TILE_META = {
         bucketBorder: 'rgba(239, 68, 68, 0.5)',
     },
 };
+
+// ── Bucket Alert Messages (shown as popup when a type is burst) ────────
+export const BUCKET_MESSAGES = {
+    GREEN: [
+        '🛡️ Family Protection keeps your loved ones secure!',
+        '👨‍👩‍👧‍👦 Secure your family\'s future today!',
+        '💚 A family protection plan is the foundation of financial security.',
+    ],
+    BLUE: [
+        '🎓 Invest in your child\'s education early!',
+        '📚 A bright future starts with the right education plan.',
+        '👶 Give your child the gift of quality education!',
+    ],
+    YELLOW: [
+        '⏰ Retirement planning today means freedom tomorrow!',
+        '🏖️ Start saving for a comfortable retirement now!',
+        '💰 Your future self will thank you for planning early.',
+    ],
+    RED: [
+        '🚨 An emergency fund is your financial safety net!',
+        '🏥 Be prepared for life\'s unexpected moments.',
+        '⚡ Build your emergency reserves for peace of mind!',
+    ],
+};
+
+export const URGENCY_MESSAGES = [
+    '⚡ Fill the buckets quickly, time is running!',
+    '🔥 Hurry up! Secure your goals faster!',
+    '⏳ Time is ticking! Match more tiles!',
+    '💪 Keep going! Your goals need you!',
+    '🎯 Focus! Fill those buckets before time runs out!',
+];
 
 // ── Bucket Scoring ─────────────────────────────────────────────────────
 

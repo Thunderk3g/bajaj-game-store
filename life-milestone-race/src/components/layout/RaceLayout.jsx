@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
  */
 const RaceLayout = memo(function RaceLayout({ children, className = '', fullScreen = false }) {
     return (
-        <div className={`race-container ${className}`}>
+        <div className={`race-container ${className} bg-[#020617] h-[100dvh] overflow-hidden flex items-center justify-center`}>
             {/* Ambient background particles - only show when not fullScreen */}
             {!fullScreen && (
                 <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -17,12 +17,9 @@ const RaceLayout = memo(function RaceLayout({ children, className = '', fullScre
                 </div>
             )}
 
-            {/* Content Container — Expanded to fill entire screen to prevent background gaps */}
+            {/* Content Container — Mobile Frame for Desktop */}
             <div
-                className={`relative z-10 w-full min-h-[100dvh] flex flex-col ${fullScreen
-                    ? ''
-                    : 'items-center justify-center'
-                    }`}
+                className={`relative z-10 w-full max-w-[480px] h-[100dvh] mx-auto flex flex-col shadow-2xl bg-white overflow-hidden`}
             >
                 {children}
             </div>

@@ -121,7 +121,7 @@ const ResultScreen = ({
     const endOfYear = new Date(new Date().getFullYear(), 11, 31).toISOString().split("T")[0];
 
     // Styling logic - Transparent BG to use game theme, No Border
-    const ghibliCardClass = "relative w-full min-h-[100dvh] flex flex-col overflow-hidden max-w-[600px] mx-auto";
+    const ghibliCardClass = "absolute inset-0 flex flex-col overflow-hidden";
     const ghibliContentClass = "relative z-10 w-full h-full flex flex-col py-4 px-4 sm:px-8 overflow-y-auto overflow-x-hidden custom-scrollbar";
 
     return (

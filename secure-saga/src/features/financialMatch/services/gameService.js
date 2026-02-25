@@ -1,6 +1,6 @@
 /**
  * Game Service — placeholder for game lifecycle API calls.
- * Currently unused in Balance Builder (single-session model).
+ * Currently unused in Secure Saga (single-session model).
  */
 
 /**

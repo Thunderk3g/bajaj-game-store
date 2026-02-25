@@ -29,7 +29,8 @@ const ResultScreen = ({
         name: userName || '',
         mobile: userPhone || '',
         date: '',
-        time: ''
+        time: '',
+        consent: true
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,6 +55,7 @@ const ResultScreen = ({
         else if (!/^\d{10}$/.test(formData.mobile)) errs.mobile = "Invalid Mobile Number";
         if (!formData.date) errs.date = "Required";
         if (!formData.time) errs.time = "Required";
+        if (!formData.consent) errs.consent = "Consent is required";
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -75,9 +77,9 @@ const ResultScreen = ({
     };
 
     const handleShare = async () => {
-        const text = `I scored ${displayScore}/100 in Balance Builder! Check how prepared you are.`;
+        const text = `Check how prepared you are for your financial goals with Secure Saga! Play now at Bajaj Life Insurance.`;
         if (navigator.share) {
-            try { await navigator.share({ title: 'Balance Builder Score', text, url: window.location.href }); } catch { }
+            try { await navigator.share({ title: 'Secure Saga', text, url: window.location.href }); } catch { }
         } else {
             try { await navigator.clipboard.writeText(text + ' ' + window.location.href); } catch { }
         }
@@ -85,7 +87,8 @@ const ResultScreen = ({
 
     // Styling logic — Simplified Scrolling
     // Root is absolute/fixed filling parent. Overflow-y-auto guarantees scroll.
-    const ghibliCardClass = "w-full h-full overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col items-center pt-4 pb-8 px-4";
+    // Root is absolute/fixed filling parent. Overflow-hidden to prevent scroll.
+    const ghibliCardClass = "w-full h-[100dvh] overflow-hidden flex flex-col items-center px-4 py-2 sm:py-4 relative";
 
     return (
         <div className={ghibliCardClass} style={{
@@ -93,90 +96,86 @@ const ResultScreen = ({
         }}>
             <Confetti />
 
-            {/* Top Right Share Icon (Fixed relative to viewport or scrolling container?) 
-                If container scrolls, fixed might be better. 
-            */}
-            <button onClick={handleShare} className="fixed top-4 right-4 z-50 text-white/90 hover:text-white transition-opacity p-2 bg-black/10 rounded-full backdrop-blur-sm">
-                <Share2 className="w-6 h-6 sm:w-7 sm:h-7 drop-shadow-md" strokeWidth={2.5} />
+            {/* Top Right Share Icon */}
+            <button onClick={handleShare} className="absolute top-4 right-4 z-50 text-white/90 hover:text-white transition-opacity p-2 bg-black/10 rounded-full backdrop-blur-sm">
+                <Share2 className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
             </button>
 
-            {/* Background Pattern */}
-            <div className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center opacity-60 mix-blend-overlay"
-                style={{ backgroundImage: 'linear-gradient(radial-gradient, circle at center, rgba(255,255,255,0.2) 0%, transparent 70%)' }}>
-            </div>
-
-            {/* Content Container (Max width for desktop) */}
-            <div className="relative z-10 w-full max-w-[500px] flex flex-col items-center shrink-0">
+            {/* Content Container (Max width for desktop, full flex height) */}
+            <div className="relative z-10 w-full max-w-[500px] flex-1 flex flex-col items-center justify-between py-1 sm:py-2">
 
                 {/* Header Section */}
-                <div className="text-center mb-2 w-full">
-                    <h1 className="text-base sm:text-lg md:text-xl font-medium text-white uppercase tracking-wide italic mb-1">
-                        Hi <span className="ml-1 text-2xl sm:text-3xl md:text-4xl font-black">{userName || 'Player'}!</span>
+                <div className="text-center w-full flex flex-col items-center">
+                    <h1 className="text-sm sm:text-lg font-medium text-white uppercase tracking-wide italic leading-tight">
+                        Hi <span className="ml-1 text-xl sm:text-3xl font-black">{(userName ? userName.charAt(0).toUpperCase() + userName.slice(1) : 'Player')}!</span>
                     </h1>
-                    <h2 className="text-sm sm:text-base md:text-lg text-white uppercase tracking-wide italic mb-2 opacity-90">
-                        Your <span className="font-black text-lg sm:text-xl text-[#FF8C00]">Balance Builder</span> score is
+                    <h2 className="text-[10px] sm:text-base text-white uppercase tracking-wide italic opacity-90 leading-tight">
+                        Your <span className="font-black text-sm sm:text-xl text-[#FF8C00]">Secure Saga</span> score is
                     </h2>
 
-                    {/* Speedometer */}
-                    <div className="transform scale-90 sm:scale-100 mb-1 origin-top">
+                    {/* Speedometer - Adjusted scaling for mobile fit without aggressive overlaps */}
+                    <div className="transform scale-[0.7] xs:scale-[0.85] sm:scale-100 -my-10 sm:-my-4 origin-center">
                         <Speedometer score={displayScore} />
                     </div>
 
-                    {/* View Breakdown Button */}
-                    <div className="flex justify-center -mt-8 mb-4 relative z-20">
+                    {/* Grouping Breakdown button to stay close to score */}
+                    <div className="flex justify-center -mt-2 sm:-mt-4 mb-2 relative z-20">
                         <button
                             onClick={() => setShowBreakdown(true)}
-                            className="text-white/80 hover:text-white text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] flex items-center gap-1 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all shadow-lg"
+                            className="text-white/80 hover:text-white text-[9px] sm:text-xs font-bold uppercase tracking-[0.15em] flex items-center gap-1 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all shadow-lg"
                         >
-                            View Breakdown <ChevronDown size={12} />
-                        </button>
-                    </div>
-
-                    {/* Share Button (Pill - Below Speedometer) */}
-                    <div className="flex justify-center mb-6">
-                        <button
-                            onClick={handleShare}
-                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-3 px-10 shadow-[0_4px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-3 text-sm sm:text-base border-2 border-white/20 uppercase tracking-widest rounded-full"
-                        >
-                            <Share2 className="w-5 h-5" /> SHARE SCORE
+                            View Breakdown <ChevronDown size={11} />
                         </button>
                     </div>
                 </div>
 
-                {/* CTA Card (White) */}
-                <div className="w-full bg-white p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-6 shrink-0 rounded-xl relative z-20">
-                    <p className="text-slate-600 text-[11px] sm:text-sm font-bold text-center mb-4 leading-relaxed uppercase tracking-wide">
-                        To know more, connect with our Relationship Manager.
-                    </p>
-
-                    {/* Call Action */}
-                    <a href="tel:1800209999" className="block w-full mb-4">
-                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-4 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-sm sm:text-lg uppercase tracking-widest border-2 border-white/10 rounded-lg">
-                            <Phone className="w-5 h-5" /> CALL NOW
+                {/* Share Button + CTA Card Container to reduce gap */}
+                <div className="w-full flex-1 flex flex-col items-center justify-center gap-2 sm:gap-3 mt-1 sm:mt-2">
+                    {/* Share Button (Rectangle) */}
+                    <div className="flex justify-center">
+                        <button
+                            onClick={handleShare}
+                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] text-white font-black py-2.5 px-10 sm:py-3 sm:px-12 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 text-[11px] sm:text-sm border-2 border-white/10 tracking-widest rounded-lg"
+                        >
+                            <Share2 className="w-4 h-4 sm:w-5 sm:h-5" /> Share
                         </button>
-                    </a>
-
-                    <div className="relative py-2 mb-4">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-100"></div></div>
-                        <div className="relative flex justify-center text-[10px] sm:text-xs uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
                     </div>
 
-                    {/* Booking Trigger Button */}
-                    <button
-                        onClick={() => setShowBooking(true)}
-                        className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_4px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-sm sm:text-lg uppercase tracking-widest border-2 border-white/10 rounded-lg"
-                    >
-                        <Calendar className="w-5 h-5" /> BOOK A SLOT
-                    </button>
+                    {/* CTA Card (White) */}
+                    <div className="w-full bg-white p-4 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-2 border-white/50 rounded-xl relative z-20 mx-auto">
+                        <p className="text-slate-600 text-[9px] sm:text-[11px] font-bold text-center mb-3 leading-tight tracking-wide">
+                            To know more, connect with our Relationship Manager.
+                        </p>
+
+                        {/* Call Action */}
+                        <a href="tel:1800209999" className="block w-full mb-3">
+                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base tracking-widest border-2 border-white/10 rounded-lg">
+                                <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> Call Now
+                            </button>
+                        </a>
+
+                        <div className="relative py-1 sm:py-2 mb-3">
+                            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
+                            <div className="relative flex justify-center text-[8px] sm:text-[10px] uppercase"><span className="px-3 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
+                        </div>
+
+                        {/* Booking Trigger Button */}
+                        <button
+                            onClick={() => setShowBooking(true)}
+                            className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 sm:py-4 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base tracking-widest border-2 border-white/10 rounded-lg"
+                        >
+                            <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> Book a Slot
+                        </button>
+                    </div>
                 </div>
 
                 {/* Restart Option */}
-                <div className="shrink-0 text-center pb-8">
+                <div className="text-center pb-3 sm:pb-6">
                     <button
                         onClick={onRestart}
-                        className="text-blue-100/60 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md hover:scale-105 active:scale-95"
+                        className="text-blue-100/60 hover:text-white text-[10px] sm:text-sm font-black tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md"
                     >
-                        <RefreshCw className="w-4 h-4" /> RETAKE QUIZ
+                        <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Retake Quiz
                     </button>
                 </div>
 
@@ -297,6 +296,29 @@ const ResultScreen = ({
                                         </select>
                                         {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                     </div>
+                                </div>
+
+                                {/* Consent Checkbox */}
+                                <div className="pt-1">
+                                    <label className="flex items-start gap-2 cursor-pointer group">
+                                        <div className="relative mt-0.5">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.consent}
+                                                onChange={e => updateField('consent', e.target.checked)}
+                                                className="peer sr-only"
+                                            />
+                                            <div className="w-4 h-4 border-2 border-slate-200 rounded bg-slate-50 peer-checked:bg-[#0066B2] peer-checked:border-[#0066B2] transition-all"></div>
+                                            <svg className="absolute top-0 left-0 w-4 h-4 text-white p-0.5 opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                        </div>
+                                        <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight select-none">
+                                            I agree to receive communications from Bajaj Life Insurance regarding my booking and other products.
+                                            <span className="text-[#0066B2] hover:underline ml-1">T&C Apply.</span>
+                                        </span>
+                                    </label>
+                                    {errors.consent && <p className="text-[9px] text-red-500 mt-1 font-bold uppercase">{errors.consent}</p>}
                                 </div>
                                 <button
                                     type="submit"

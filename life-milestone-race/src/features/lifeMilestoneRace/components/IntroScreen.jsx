@@ -146,7 +146,7 @@ const IntroScreen = memo(function IntroScreen({ onStart }) {
             animate="visible"
             style={{
                 backgroundImage: `url(${bgImage})`,
-                backgroundSize: '100% 100%',
+                backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
             }}

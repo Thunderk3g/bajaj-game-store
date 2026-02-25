@@ -15,7 +15,7 @@ export async function submitLead(data) {
         mobile_no: data.mobile || '',
         param4: data.preferredDate || null,
         param19: data.preferredSlot || '',
-        summary_dtls: data.summary || 'Balance Builder — Lead',
+        summary_dtls: data.summary || 'Secure Saga — Lead',
         p_data_source: data.dataSource || 'BALANCE_BUILDER_LEAD',
     });
 }
@@ -26,7 +26,7 @@ export async function submitLead(data) {
 export async function submitEarlyExitLead(data) {
     return submitLead({
         ...data,
-        summary: 'Balance Builder — Early Exit',
+        summary: 'Secure Saga — Early Exit',
         dataSource: 'BALANCE_BUILDER_EXIT',
     });
 }
@@ -37,7 +37,7 @@ export async function submitEarlyExitLead(data) {
 export async function submitBookingLead(data) {
     return submitLead({
         ...data,
-        summary: 'Balance Builder — Slot Booking',
+        summary: 'Secure Saga — Slot Booking',
         dataSource: 'BALANCE_BUILDER_BOOKING',
     });
 }

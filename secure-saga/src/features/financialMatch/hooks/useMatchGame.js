@@ -1,5 +1,5 @@
 /**
- * useMatchGame — Balance Builder orchestration hook.
+ * useMatchGame — Secure Saga orchestration hook.
  * Handles game loop, scoring, buckets, praise timing, and sound triggers.
  */
 import { useReducer, useCallback, useEffect, useRef } from 'react';
@@ -165,7 +165,7 @@ export function useMatchGame() {
                 submitToLMS({
                     name: state.entryDetails.name,
                     mobile_no: state.entryDetails.mobile,
-                    summary_dtls: `Balance Builder - Early Exit - Score: ${score}/100`,
+                    summary_dtls: `Secure Saga - Early Exit - Score: ${score}/100`,
                     p_data_source: 'BALANCE_BUILDER_LEAD',
                 });
             }
@@ -197,7 +197,7 @@ export function useMatchGame() {
             mobile_no: mobile,
             param4: dateStr,
             param19: '09:00 AM',
-            summary_dtls: 'Balance Builder Lead',
+            summary_dtls: 'Secure Saga Lead',
             p_data_source: 'BALANCE_BUILDER_LEAD',
         });
 
@@ -368,7 +368,7 @@ export function useMatchGame() {
                     mobile_no: formData.mobile,
                     param4: formData.date,
                     param19: formData.time,
-                    summary_dtls: 'Balance Builder - Slot Booking',
+                    summary_dtls: 'Secure Saga - Slot Booking',
                     p_data_source: 'BALANCE_BUILDER_BOOKING',
                 });
             } catch (error) {

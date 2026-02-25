@@ -11,12 +11,13 @@ import HowToPlay from './components/HowToPlay.jsx';
 import GameHUD from './components/GameHUD.jsx';
 import GameGrid from './components/GameGrid.jsx';
 import BucketBar from './components/BucketBar.jsx';
+import AlertPopup from './components/AlertPopup.jsx';
 import ResultScreen from './components/ResultScreen.jsx';
 import ThankYou from './components/ThankYou.jsx';
 import Background from './components/Background.jsx';
 
 import { useMatchGame } from './hooks/useMatchGame.js';
-import { GAME_PHASES } from './config/gameConfig.js';
+import { GAME_PHASES, BUCKET_MESSAGES, URGENCY_MESSAGES, TILE_META } from './config/gameConfig.js';
 
 // Import Audio
 import bgmUrl from '../assets/audio/BGAudio.mp3';
@@ -57,6 +58,64 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
     const audioRef = useRef(null);
     const completionAudioRef = useRef(null);
     const [isPlayingBGM, setIsPlayingBGM] = useState(false);
+
+    // Alert popup state
+    const [alertMessage, setAlertMessage] = useState(null);
+    const [alertColor, setAlertColor] = useState(null);
+    const alertTimeoutRef = useRef(null);
+    const prevBucketsRef = useRef(null);
+
+    // 1. Contextual Bucket Alerts (Triggered by Large Bursts / Praise)
+    useEffect(() => {
+        if (!activePraise) return;
+
+        const prev = prevBucketsRef.current || {};
+        const changedTypes = Object.keys(buckets).filter(
+            (type) => (buckets[type] || 0) > (prev[type] || 0)
+        );
+
+        if (changedTypes.length > 0) {
+            const type = changedTypes[0];
+            const msgs = BUCKET_MESSAGES[type];
+            const advice = msgs[Math.floor(Math.random() * msgs.length)];
+            const meta = TILE_META[type];
+
+            // Combine Praise (Excellent!) with Bucket Advice
+            setAlertMessage(`${activePraise} ${advice}`);
+            setAlertColor(`${meta.color}44`);
+
+            if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
+            alertTimeoutRef.current = setTimeout(() => {
+                setAlertMessage(null);
+                setAlertColor(null);
+            }, 4000);
+        }
+        prevBucketsRef.current = { ...buckets };
+    }, [activePraise, buckets]);
+
+    // 2. Idle Urgency Alerts (If user doesn't move for 4 seconds)
+    useEffect(() => {
+        if (gameStatus !== GAME_PHASES.PLAYING) return;
+
+        if (state.idleSeconds >= 4 && !alertMessage) {
+            const msg = URGENCY_MESSAGES[Math.floor(Math.random() * URGENCY_MESSAGES.length)];
+            setAlertMessage(`⚡ ${msg}`);
+            setAlertColor('rgba(239, 68, 68, 0.4)');
+
+            if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
+            alertTimeoutRef.current = setTimeout(() => {
+                setAlertMessage(null);
+                setAlertColor(null);
+            }, 3000);
+        }
+    }, [state.idleSeconds, gameStatus]);
+
+    // 3. Reset bucket tracking ref on restart
+    useEffect(() => {
+        if (gameStatus === GAME_PHASES.LANDING || gameStatus === GAME_PHASES.HOW_TO_PLAY) {
+            prevBucketsRef.current = null;
+        }
+    }, [gameStatus]);
 
     // ── Audio Management ──────────────────────────────────────────
 
@@ -137,7 +196,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
 
     return (
         <div
-            className="min-h-[100dvh] w-full flex flex-col items-center relative overflow-hidden text-white font-sans"
+            className="h-[100dvh] w-full flex flex-col items-center relative overflow-hidden text-white font-sans"
             onClick={handleUserInteraction}
         >
             {/* ── Global Background ── */}
@@ -147,7 +206,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
             <audio ref={audioRef} src={bgmUrl} loop />
             <audio ref={completionAudioRef} src={completionUrl} />
 
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
 
                 {/* ── LANDING (with popup overlay) ── */}
                 {gameStatus === GAME_PHASES.LANDING && (
@@ -191,7 +250,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        className="flex-1 w-full relative z-10"
+                        className="fixed inset-0 z-[1500] w-full h-[100dvh]"
                     >
                         <HowToPlay onStart={startGame} />
                     </motion.div>
@@ -209,10 +268,10 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                     >
                         <GameHUD
                             timeLeft={timeLeft}
-                            onExit={exitGame}
+                            userName={entryDetails?.name}
                         />
 
-                        <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0">
+                        <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0 -mt-2 sm:-mt-4">
                             <GameGrid
                                 grid={grid}
                                 selectedCell={selectedCell}
@@ -221,6 +280,11 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                                 activePraise={activePraise}
                                 onCellTap={handleCellTap}
                             />
+                        </div>
+
+                        {/* Global Alert Area — Fixed at top to prevent bucket bar overlap */}
+                        <div className="fixed top-32 inset-x-0 z-[500] pointer-events-none">
+                            <AlertPopup message={alertMessage} color={alertColor} />
                         </div>
 
                         <BucketBar buckets={buckets} />
@@ -255,11 +319,10 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                 {gameStatus === GAME_PHASES.THANK_YOU && (
                     <motion.div
                         key="thankyou"
-                        variants={pageVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        className="flex-1 w-full relative z-10"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, pointerEvents: 'none' }}
+                        className="fixed inset-0 z-[2000] bg-[#003366] overflow-hidden flex flex-col"
                     >
                         <ThankYou
                             userName={entryDetails?.name}
@@ -268,22 +331,28 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                     </motion.div>
                 )}
 
+                {/* ── RESULT / EXITED ── */}
+                {(gameStatus === GAME_PHASES.RESULT || gameStatus === GAME_PHASES.EXITED) && (
+                    <motion.div
+                        key="result"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, pointerEvents: 'none' }}
+                        className="fixed inset-0 z-[1000] bg-[#003366] overflow-hidden flex flex-col"
+                    >
+                        <ResultScreen
+                            finalScore={finalScore}
+                            buckets={buckets}
+                            userName={entryDetails?.name}
+                            userPhone={entryDetails?.mobile}
+                            onRestart={restartGame}
+                            onBookSlot={handleBookSlot}
+                        />
+                    </motion.div>
+                )}
+
             </AnimatePresence>
 
-            {/* ── RESULT / EXITED (Fixed Overlay) ── */}
-            {/* Moved outside AnimatePresence to guarantee independent rendering */}
-            {(gameStatus === GAME_PHASES.RESULT || gameStatus === GAME_PHASES.EXITED) && (
-                <div className="fixed inset-0 z-[1000] w-full h-full bg-[#003366]">
-                    <ResultScreen
-                        finalScore={finalScore}
-                        buckets={buckets}
-                        userName={entryDetails?.name}
-                        userPhone={entryDetails?.mobile}
-                        onRestart={restartGame}
-                        onBookSlot={handleBookSlot}
-                    />
-                </div>
-            )}
         </div>
     );
 });

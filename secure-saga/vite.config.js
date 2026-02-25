@@ -8,7 +8,7 @@ export default defineConfig({
         outDir: 'dist',
         rollupOptions: {
             output: {
-                name: 'FinancialMatchArena',
+                name: 'SecureSaga',
                 exports: 'named',
                 format: 'es',
             },

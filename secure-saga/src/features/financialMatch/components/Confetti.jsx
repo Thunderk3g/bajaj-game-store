@@ -1,10 +1,10 @@
 /**
- * Confetti — Canvas particle celebration.
- * Replicated from secure-saga.
+ * Confetti — Canvas-based celebration animation.
+ * Replicated from LifeMilestoneRace.
  */
-import { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef } from 'react';
 
-const Confetti = memo(function Confetti() {
+const Confetti = () => {
     const canvasRef = useRef(null);
 
     useEffect(() => {
@@ -23,7 +23,9 @@ const Confetti = memo(function Confetti() {
         const colors = ['#0066B2', '#FF8C00', '#ffffff', '#FFD700', '#00A3E0'];
 
         class ConfettiPiece {
-            constructor() { this.init(); }
+            constructor() {
+                this.init();
+            }
             init() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height - height;
@@ -37,7 +39,10 @@ const Confetti = memo(function Confetti() {
                 this.x += this.vx;
                 this.y += this.vy;
                 this.rotation += 2;
-                if (this.y > height) { this.init(); this.y = -20; }
+                if (this.y > height) {
+                    this.init();
+                    this.y = -20;
+                }
             }
             draw() {
                 ctx.save();
@@ -56,7 +61,10 @@ const Confetti = memo(function Confetti() {
         let animationId;
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
-            pieces.forEach(p => { p.update(); p.draw(); });
+            pieces.forEach((p) => {
+                p.update();
+                p.draw();
+            });
             animationId = requestAnimationFrame(animate);
         };
 
@@ -88,6 +96,6 @@ const Confetti = memo(function Confetti() {
             className="fixed inset-0 pointer-events-none z-[100]"
         />
     );
-});
+};
 
 export default Confetti;

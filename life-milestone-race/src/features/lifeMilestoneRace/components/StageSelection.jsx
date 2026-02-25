@@ -65,7 +65,7 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
     ), []);
 
     return (
-        <div className="fixed inset-0 map-bg flex flex-col overflow-hidden">
+        <div className="absolute inset-0 map-bg flex flex-col overflow-hidden">
             {/* Ray burst background effect */}
             <div className="ray-burst" aria-hidden="true" />
 

@@ -1,6 +1,6 @@
 /**
  * ResultScreen — Displays final score with speedometer, breakdown popup, and CTAs.
- * Follows the financial-match-arena blueprint exactly.
+ * Follows the secure-saga blueprint exactly.
  */
 import { memo, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';

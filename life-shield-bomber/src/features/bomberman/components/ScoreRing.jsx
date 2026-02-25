@@ -1,6 +1,6 @@
 /**
  * ScoreRing — Speedometer-style animated score display.
- * Replicated from financial-match-arena.
+ * Replicated from secure-saga.
  */
 import { useEffect, useRef, useState, memo } from 'react';
 

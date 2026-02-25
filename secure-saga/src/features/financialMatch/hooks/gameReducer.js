@@ -1,5 +1,5 @@
 /**
- * Balance Builder — Game Reducer
+ * Secure Saga — Game Reducer
  * Single-session 2-minute timer with bucket scoring.
  * No stages, no protection meter, no risk tiles.
  */
@@ -66,6 +66,7 @@ export const initialState = {
     maxCombo: 0,
     activeCombo: 0,
     activePraise: null,
+    idleSeconds: 0,
 };
 
 // ── Helpers ────────────────────────────────────────────────────────────
@@ -111,6 +112,7 @@ export function gameReducer(state, action) {
                 floatingScores: [],
                 activePraise: null,
                 isProcessing: false,
+                idleSeconds: 0,
                 gameStatus: GAME_PHASES.PLAYING,
             };
         }
@@ -125,7 +127,11 @@ export function gameReducer(state, action) {
                     isProcessing: false,
                 };
             }
-            return { ...state, timeLeft: newTime };
+            return {
+                ...state,
+                timeLeft: newTime,
+                idleSeconds: state.isProcessing ? 0 : state.idleSeconds + 1
+            };
         }
 
         case A.FINISH_GAME:
@@ -158,7 +164,7 @@ export function gameReducer(state, action) {
         /* ── Grid Interactions ── */
 
         case A.SELECT_CELL:
-            return { ...state, selectedCell: action.payload };
+            return { ...state, selectedCell: action.payload, idleSeconds: 0 };
 
         case A.DESELECT:
             return { ...state, selectedCell: null };
