@@ -37,7 +37,7 @@ export const useSnakeEngine = () => {
     const lastSpeedUpdateTimeRef = useRef(0);
     const timerRef = useRef(GAME_DURATION);
     const gameLoopIdRef = useRef(null);
-    const hasTriggeredGrowthMessage = useRef(false);
+    const triggerTimeoutRef = useRef(null);
 
     // Sound effects
     const foodAudioRef = useRef(null);
@@ -68,6 +68,7 @@ export const useSnakeEngine = () => {
     }, []);
 
     const resetEngine = useCallback(() => {
+        if (triggerTimeoutRef.current) clearTimeout(triggerTimeoutRef.current);
         snakeRef.current = JSON.parse(JSON.stringify(INITIAL_SNAKE));
         previousSnakeRef.current = JSON.parse(JSON.stringify(INITIAL_SNAKE));
         directionRef.current = DIRECTIONS.UP;
@@ -78,7 +79,6 @@ export const useSnakeEngine = () => {
         setTimeLeft(GAME_DURATION);
         lastMoveTimeRef.current = 0;
         lastSpeedUpdateTimeRef.current = performance.now();
-        hasTriggeredGrowthMessage.current = false;
         setTick(0);
         generatePellet();
     }, [generatePellet]);
@@ -151,9 +151,12 @@ export const useSnakeEngine = () => {
             triggerReflection("Your family's dependency just grew. Is your protection growing too?", 2500);
         }
 
-        if (snakeRef.current.length > 10 && !hasTriggeredGrowthMessage.current) {
-            hasTriggeredGrowthMessage.current = true;
-            showToast("Managing growth is harder than starting.", 3000);
+        // Rule 1: Every Pellet Consumed (except 3rd)
+        // Rule 2: Every 3rd Pellet
+        if (milestone % 3 === 0) {
+            showToast("More milestones. More responsibility.", 2000);
+        } else {
+            showToast("Life just grew.", 2000);
         }
     };
 
