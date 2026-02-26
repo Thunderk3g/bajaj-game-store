@@ -75,6 +75,12 @@ const games = [
     name: "life-snakes-ladders",
     source: path.join(ROOT_DIR, "life-snakes-ladders", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "life-snakes-ladders"),
+
+  },
+  {
+    name: "life-flight",
+    source: path.join(ROOT_DIR, "life-flight", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "life-flight"),
   },
 ];
 
@@ -244,6 +250,12 @@ const manifest = {
     exposedModule: "./GameEntry",
     type: "react",
     displayName: "Snake Life Game",
+  },
+  "life-flight": {
+    remoteEntry: "assets/games/life-flight/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Life Flight",
     popular: true,
     gameId: "GAME_011",
     assets: [],
@@ -256,7 +268,7 @@ const manifest = {
     popular: true,
     gameId: "GAME_012",
     assets: [],
-  },
+  }
 };
 
 const manifests = [
