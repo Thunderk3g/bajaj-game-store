@@ -4,6 +4,7 @@ import * as CryptoJS from 'crypto-js';
 import {
   GamificationStoreService,
 } from './gamification-store.service';
+import { FederationService } from './federation.service';
 
 // ── Constants ──────────────────────────────────────────────────
 const AES_KEY_B64 = 'TKgxQ/OeHM6XRXslJ/PbMyOCOu24cH7h4CwpyzQ2T3U=';
@@ -20,6 +21,7 @@ export class SecurityService {
   constructor(
     private router: Router,
     private store: GamificationStoreService,
+    private federationService: FederationService
   ) { }
 
   /**
@@ -67,25 +69,50 @@ export class SecurityService {
       console.log('[SecurityService] Payload decrypted:', this.payload);
 
       // ── Extract required claims ──
-      const salesPerson = this.payload['sales person'];
-      const gameDetails = this.payload.gamedetails;
+      // Based on real payload: { game_id, emp_id, emp_name, emp_mobile, location, zone }
+      const empId = this.payload.emp_id;
+      const gameIdApi = this.payload.game_id;
 
-      if (!salesPerson?.id) {
-        console.error('[SecurityService] Missing "sales person.id" in decrypted payload');
+      if (!empId) {
+        console.error('[SecurityService] Missing "emp_id" in decrypted payload');
         this.clearAuthentication();
         return null;
       }
 
-      if (!gameDetails?.id) {
-        console.error('[SecurityService] Missing "gamedetails.id" in decrypted payload');
+      if (!gameIdApi) {
+        console.error('[SecurityService] Missing "game_id" in decrypted payload');
         this.clearAuthentication();
         return null;
       }
+
+      // Resolve the internal game ID (e.g., GAME_001 -> life-goals)
+      const internalGameId = this.federationService.resolveApiGameId(gameIdApi);
+      const manifest = this.federationService.getGameManifest(internalGameId);
+
+      if (!manifest) {
+        console.error(`[SecurityService] No manifest found for resolved game ID: ${internalGameId}`);
+        this.clearAuthentication();
+        return null;
+      }
+
+      // ── Construct store objects ──
+      const salesPerson = {
+        id: empId,
+        name: this.payload.emp_name || 'User',
+        region: this.payload.location || this.payload.zone || 'NA'
+      };
+
+      const gameDetails = {
+        id: internalGameId,
+        desc: manifest.displayName,
+        url: '/' + manifest.remoteEntry.substring(0, manifest.remoteEntry.lastIndexOf('/') + 1) + 'index.html',
+        thumbnail: ''
+      };
 
       // ── Push to centralized store ──
       this.store.setState(salesPerson, gameDetails, token);
 
-      return gameDetails.id;
+      return internalGameId;
     } catch (error) {
       console.error('[SecurityService] Authentication failed:', error);
       this.clearAuthentication();
@@ -106,7 +133,8 @@ export class SecurityService {
    * Get the game ID from the current session
    */
   getCurrentGameId(): string | null {
-    return this.payload?.gamedetails?.id ?? null;
+    if (!this.payload?.game_id) return null;
+    return this.federationService.resolveApiGameId(this.payload.game_id);
   }
 
   /**
