@@ -534,25 +534,22 @@ export class LobbyComponent implements OnInit {
   }
 
   /**
-   * JWT token flow:
-   * Decode → validate → push to store → navigate to /play/:gameId
+   * Token flow:
+   * Decrypt → validate → push to store → navigate to /play/:gameId
    * URL is scrubbed from browser history (replaceUrl: true)
    *
-   * @param token     Raw JWT string from query parameter
+   * @param token     Encrypted AES string from query parameter
    * @param routeGameId  Optional API game ID from the URL path (e.g., GAME_001)
    */
-  private handleTokenDispatch(token: string, routeGameId?: string) {
+  private async handleTokenDispatch(token: string, routeGameId?: string) {
     this.dispatching = true;
     this.dispatchError = null;
 
     console.log('[Lobby] Token detected, starting dispatch flow');
-    if (routeGameId) {
-      console.log(`[Lobby] Route game ID: ${routeGameId}`);
-    }
 
     // Small timeout to let the spinner render
-    setTimeout(() => {
-      const gameId = this.securityService.authenticateWithToken(token);
+    setTimeout(async () => {
+      const gameId = await this.securityService.authenticateWithToken(token);
 
       if (!gameId) {
         this.dispatchError = 'Invalid or expired token. Redirecting...';

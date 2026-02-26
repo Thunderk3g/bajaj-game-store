@@ -68,11 +68,11 @@ export class AuthComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private securityService: SecurityService,
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Extract token from query parameter
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.subscribe(async (params) => {
       const token = params['token'];
 
       if (!token) {
@@ -81,7 +81,7 @@ export class AuthComponent implements OnInit {
       }
 
       // Authenticate and extract gameId
-      const gameId = this.securityService.authenticateWithToken(token);
+      const gameId = await this.securityService.authenticateWithToken(token);
 
       if (!gameId) {
         this.showError('Invalid or expired authentication token');

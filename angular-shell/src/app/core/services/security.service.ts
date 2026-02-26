@@ -1,21 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { jwtDecode } from 'jwt-decode';
+import * as CryptoJS from 'crypto-js';
 import {
   GamificationStoreService,
-  SalesPerson,
-  GameDetails,
 } from './gamification-store.service';
 
-// ── JWT Payload Interface ───────────────────────────────────────
-
-export interface JWTPayload {
-  'sales person': SalesPerson;
-  gamedetails: GameDetails;
-  exp?: number;
-  iat?: number;
-  [key: string]: any;
-}
+// ── Constants ──────────────────────────────────────────────────
+const AES_KEY_B64 = 'TKgxQ/OeHM6XRXslJ/PbMyOCOu24cH7h4CwpyzQ2T3U=';
 
 // ── Service ─────────────────────────────────────────────────────
 
@@ -24,52 +15,69 @@ export interface JWTPayload {
 })
 export class SecurityService {
   private token: string | null = null;
-  private payload: JWTPayload | null = null;
+  private payload: any | null = null;
 
   constructor(
     private router: Router,
     private store: GamificationStoreService,
-  ) {}
+  ) { }
 
   /**
-   * Decode JWT, validate expiration, extract sales person + game details,
-   * and push into the centralized store.
-   *
-   * @param token  Raw JWT string from query parameter
-   * @returns      gameId if valid, null if invalid/expired
+   * Decrypt AES-256 ECB payload using CryptoJS.
    */
-  authenticateWithToken(token: string): string | null {
+  private decryptAES(encryptedB64: string, keyB64: string): any {
     try {
-      this.token = token;
-      this.payload = jwtDecode<JWTPayload>(token);
-
-      console.log('[SecurityService] JWT decoded:', {
-        salesPerson: this.payload['sales person'],
-        gameDetails: this.payload.gamedetails,
+      const key = CryptoJS.enc.Base64.parse(keyB64);
+      const decrypted = CryptoJS.AES.decrypt(encryptedB64, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7,
       });
 
-      // ── Validate expiration ──
-      if (this.payload.exp) {
-        const nowSec = Math.floor(Date.now() / 1000);
-        if (this.payload.exp < nowSec) {
-          console.error('[SecurityService] JWT expired');
-          this.clearAuthentication();
-          return null;
-        }
+      const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+      if (!decryptedText) {
+        console.error('[SecurityService] Decryption resulted in empty string');
+        return null;
       }
+
+      return JSON.parse(decryptedText);
+    } catch (e) {
+      console.error('[SecurityService] Decryption failed', e);
+      return null;
+    }
+  }
+
+  /**
+   * Authenticate and extract gameId
+   * @param token  Encrypted AES string from query parameter
+   * @returns      gameId if valid, null if invalid/expired
+   */
+  async authenticateWithToken(token: string): Promise<string | null> {
+    try {
+      this.token = token;
+
+      // Real AES decryption
+      this.payload = this.decryptAES(token, AES_KEY_B64);
+
+      if (!this.payload) {
+        console.error('[SecurityService] Payload decryption failed or empty');
+        this.clearAuthentication();
+        return null;
+      }
+
+      console.log('[SecurityService] Payload decrypted:', this.payload);
 
       // ── Extract required claims ──
       const salesPerson = this.payload['sales person'];
       const gameDetails = this.payload.gamedetails;
 
       if (!salesPerson?.id) {
-        console.error('[SecurityService] Missing "sales person.id" claim');
+        console.error('[SecurityService] Missing "sales person.id" in decrypted payload');
         this.clearAuthentication();
         return null;
       }
 
       if (!gameDetails?.id) {
-        console.error('[SecurityService] Missing "gamedetails.id" claim');
+        console.error('[SecurityService] Missing "gamedetails.id" in decrypted payload');
         this.clearAuthentication();
         return null;
       }
@@ -79,7 +87,7 @@ export class SecurityService {
 
       return gameDetails.id;
     } catch (error) {
-      console.error('[SecurityService] JWT decode failed:', error);
+      console.error('[SecurityService] Authentication failed:', error);
       this.clearAuthentication();
       return null;
     }
