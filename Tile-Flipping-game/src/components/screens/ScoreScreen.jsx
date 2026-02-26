@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useGameEngine } from '../../hooks/useGameEngine';
-import { getFlipStars, getScoreMessage, formatTime } from '../../utils/gameUtils';
+import { getFlipStars, getScoreMessage, formatTime, getScoreScenario } from '../../utils/gameUtils';
 import { TOTAL_PAIRS, SCREENS } from '../../constants/game';
 import { ACTION } from '../../context/GameContext';
 import { submitToLMS } from '../../utils/api';
@@ -18,15 +18,15 @@ export default function ScoreScreen({ showToast }) {
     const { game, user } = state;
     const { score, flipsCount, timeRemaining, elapsedSeconds } = game;
 
-    // Calculate score out of 10
-    const scaledScore = Math.round((score / TOTAL_PAIRS) * 10);
-    const scoreVal = scaledScore > 10 ? 10 : scaledScore; // Clamp just in case (though math says it shouldn't exceed)
+    // Calculate score out of 100
+    const scaledScore = Math.round((score / TOTAL_PAIRS) * 100);
+    const scoreVal = scaledScore > 100 ? 100 : scaledScore; // Clamp just in case (though math says it shouldn't exceed)
 
     const [showLeadModal, setShowLeadModal] = useState(false);
     const fillRef = useRef(null);
 
     const stars = getFlipStars(flipsCount);
-    const message = getScoreMessage(score);
+    const scenarioData = getScoreScenario(score);
     const elapsed = elapsedSeconds || (120 - timeRemaining);
 
     // Submission logic for background lead
@@ -70,7 +70,7 @@ export default function ScoreScreen({ showToast }) {
     }
 
     function handleShare() {
-        const text = `I scored ${score}/${TOTAL_PAIRS} in the Life Insurance Memory Game! Can you beat me? 🛡️`;
+        const text = `I scored ${scenarioData.scoreDisplay} in the Life Insurance Memory Game! Can you beat me? 🛡️`;
         if (navigator.share) {
             navigator.share({ title: 'My Game Score', text }).catch(() => { });
         } else {
@@ -91,9 +91,11 @@ export default function ScoreScreen({ showToast }) {
                     </button>
 
                     {/* Header */}
-                    <p className={styles.label}>
-                        {user.name ? `Hi ${user.name.split(' ')[0]}!` : 'Game Over'}
-                    </p>
+                    <div className={styles.header}>
+                        <p className={styles.userName}>{user.name ? `Hi ${user.name.split(' ')[0]}!` : 'Hi there!'}</p>
+                        <p className={styles.headline}>"{scenarioData.headline}"</p>
+                        <p className={styles.scoreDisplay}>Your Score: {scenarioData.scoreDisplay}</p>
+                    </div>
                     {/* <p className={styles.subLabel}>Your Protection Score</p> */}
 
                     {/* Score Ring */}
@@ -116,7 +118,7 @@ export default function ScoreScreen({ showToast }) {
                             </svg>
                             <div className={styles.ringInner}>
                                 <div className={styles.scoreBig}>{scoreVal}</div>
-                                <div className={styles.scoreDenom}>/ 10</div>
+                                <div className={styles.scoreDenom}>/ 100</div>
                                 <div className={styles.scoreLbl}>Score</div>
                             </div>
                         </div>
@@ -138,7 +140,8 @@ export default function ScoreScreen({ showToast }) {
 
                     {/* Message */}
                     <div className={styles.messagebox}>
-                        <p className={styles.message}>{message}</p>
+                        <p className={styles.bodyText}>{scenarioData.body}</p>
+                        <p className={styles.subBodyText}>{scenarioData.subBody}</p>
                     </div>
 
                     {/* Actions */}
@@ -148,7 +151,7 @@ export default function ScoreScreen({ showToast }) {
                         </Button>
 
                         <p className={styles.cta}>
-                            "Real protection is better than matching tiles. Let us secure your future today."
+                            {scenarioData.cta}
                         </p>
 
                         <Button variant="outline" fullWidth onClick={() => window.location.href = 'tel:18001234567'} id="btn-call-now" className={styles.secondaryBtn}>

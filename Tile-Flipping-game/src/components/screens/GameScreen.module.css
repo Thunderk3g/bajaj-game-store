@@ -98,6 +98,22 @@
     transition: background 0.3s;
 }
 
+.boardHeader {
+    width: 100%;
+    text-align: center;
+    padding: 12px 20px 4px;
+    flex-shrink: 0;
+}
+
+.boardHeader h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    opacity: 0.9;
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
 /* BOARD WRAPPER */
 .boardWrapper {
     flex: 1;

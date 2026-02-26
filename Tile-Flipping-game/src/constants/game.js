@@ -5,14 +5,14 @@
 /** All 8 unique insurance icon pairs */
 
 export const ICONS = [
-    { id: 'family', label: 'Life', emoji: '🫂' },      // New: Hug/Family
-    { id: 'shield', label: 'Protect', emoji: '🛡️' },   // Keep: Shield
-    { id: 'heart', label: 'Health', emoji: '🩺' },     // New: Stethoscope
-    { id: 'umbrella', label: 'Cover', emoji: '☂️' },    // Keep: Umbrella
-    { id: 'home', label: 'Home', emoji: '🏡' },        // New: House with Garden
-    { id: 'medical', label: 'Care', emoji: '🏥' },     // New: Hospital
-    { id: 'savings', label: 'Grow', emoji: '💰' },     // Keep: Money Bag
-    { id: 'policy', label: 'Secure', emoji: '📝' },    // New: Memo
+    { id: 'family', label: 'Family Security', emoji: '👨‍👩‍👧‍👦' },
+    { id: 'health', label: 'Health Insurance', emoji: '🏥' },
+    { id: 'income', label: 'Income', emoji: '💼' },
+    { id: 'home', label: 'Home', emoji: '🏠' },
+    { id: 'education', label: 'Education', emoji: '🎓' },
+    { id: 'retirement', label: 'Retirement', emoji: '👴' },
+    { id: 'illness', label: 'Critical Illness', emoji: '💳' },
+    { id: 'emergency', label: 'Emergency', emoji: '🚑' },
 ];
 
 /** Total game duration in seconds */

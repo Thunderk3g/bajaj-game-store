@@ -111,5 +111,14 @@
     "popular": true,
     "gameId": "GAME_011",
     "assets": []
+  },
+  "life-snakes-ladders": {
+    "remoteEntry": "assets/games/life-snakes-ladders/index.js",
+    "exposedModule": "./LifeSnakesLaddersModule",
+    "type": "react",
+    "displayName": "Life Snakes & Ladders",
+    "popular": true,
+    "gameId": "GAME_012",
+    "assets": []
   }
 }

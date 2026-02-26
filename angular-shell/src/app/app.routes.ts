@@ -18,6 +18,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'life-snakes-ladders',
+    loadComponent: () =>
+      import('./shared/components/game-wrapper/game-wrapper.component').then(
+        (m) => m.GameWrapperComponent,
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'session-expired',
     loadComponent: () =>
       import('./shared/components/session-expired/session-expired.component').then(

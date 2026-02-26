@@ -98,6 +98,11 @@ export default function GameScreen({ showToast }) {
                 </div>
             </div>
 
+            {/* Header Message */}
+            <div className={styles.boardHeader}>
+                <h2>Test Your Memory. Don’t Forget What Matters.</h2>
+            </div>
+
             {/* Board */}
             <div className={styles.boardWrapper}>
                 <GameBoard tiles={tiles} onTileClick={handleTileClick} locked={game.isLocked} />

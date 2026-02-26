@@ -25,13 +25,43 @@ export function getStars(score) {
     return 0;
 }
 
+/** Get scenario-specific text for result screen */
+export function getScoreScenario(score) {
+    if (score === TOTAL_PAIRS) {
+        return {
+            scenario: 1,
+            headline: "You remembered what matters the most.",
+            scoreDisplay: "100%",
+            body: "In life, remembering your responsibilities is powerful. Protecting them is even more powerful.",
+            subBody: "Have you protected your responsibilities in real life?",
+            cta: "Connect with our relationship manager to protect your financial responsibilities"
+        };
+    }
+    if (score <= 4) {
+        return {
+            scenario: 2,
+            headline: "Some things slipped away.",
+            scoreDisplay: `${score} / 8`,
+            body: "In a game, it’s okay to forget. In life, forgetting to protect what matters can be costly.",
+            subBody: "Don’t Miss What Matters.",
+            cta: "Connect with our relationship manager to protect your financial responsibilities"
+        };
+    }
+    // Scenario 3: 5-7 pairs
+    return {
+        scenario: 3,
+        headline: "You remembered most of it.",
+        scoreDisplay: `${score} / 8`,
+        body: "Almost complete. But in life, ‘almost protected’ is still exposed.",
+        subBody: "Complete your Protection.",
+        cta: "Connect with our relationship manager to protect your financial responsibilities"
+    };
+}
+
 /** Motivational message based on score */
 export function getScoreMessage(score) {
-    if (score === TOTAL_PAIRS) return '🏆 Perfect! You matched all pairs! Just like a complete insurance portfolio — nothing left uncovered.';
-    if (score >= 6) return '🌟 Excellent! Almost perfect! A few gaps left — just like your insurance needs a quick review.';
-    if (score >= 4) return '👍 Good effort! You\'re on the right track. Let\'s make sure your family stays fully protected.';
-    if (score >= 2) return '💡 Not bad! A little more practice — just like building a strong insurance habit takes time.';
-    return '🎯 Keep trying! Every expert started somewhere. Let\'s help you find the right plan to get started.';
+    const scenario = getScoreScenario(score);
+    return scenario.headline;
 }
 
 /** Dynamic hint based on pairs found */
