@@ -11,16 +11,16 @@
 }
 
 .header {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     text-align: center;
     width: 100%;
 }
 
 .userName {
-    font-size: 14px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 0 0 4px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #F97316;
+    margin: 0 0 8px;
     letter-spacing: 0.05em;
 }
 
@@ -43,7 +43,7 @@
 
 /* ---- RING ---- */
 .ringWrap {
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 }
 
 .ring {
@@ -109,9 +109,9 @@
 /* ---- STATS ---- */
 .statsRow {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .statCard {
@@ -141,27 +141,26 @@
 }
 
 /* ---- MESSAGE ---- */
+.messagebox {
+    margin: 12px 0 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .bodyText {
     font-size: 15px;
     font-weight: 600;
     color: #fff;
     line-height: 1.5;
     text-align: center;
-    margin: 0 0 10px;
-}
-
-.subBodyText {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.5;
-    text-align: center;
     margin: 0;
 }
 
 .cta {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
+    color: #fff;
     text-align: center;
     margin: 12px 0 20px;
     padding: 0 8px;

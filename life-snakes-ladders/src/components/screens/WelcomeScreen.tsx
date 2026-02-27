@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import LeadModal from '../modals/LeadModal';
+import ModeSelectionModal from '../modals/ModeSelectionModal';
 
 interface WelcomeScreenProps {
-    onStart: (leadData: { name: string; mobile: string }) => void;
+    onStart: (data: { name: string; mobile: string; isProtected?: boolean }) => void;
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
-    const [showModal, setShowModal] = useState(false);
+    const [showLeadModal, setShowLeadModal] = useState(false);
+    const [showModeModal, setShowModeModal] = useState(false);
+    const [leadData, setLeadData] = useState<{ name: string, mobile: string } | null>(null);
 
     return (
         <>
@@ -67,7 +70,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
                     }}
                 >
                     <button
-                        onClick={() => setShowModal(true)}
+                        onClick={() => setShowLeadModal(true)}
                         style={{
                             width: '100%',
                             maxWidth: 340,
@@ -95,13 +98,28 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
                 </div>
             </div>
 
-            {/* Lead capture modal */}
-            {showModal && (
+            {/* Lead capture modal - Step 1 */}
+            {showLeadModal && (
                 <LeadModal
-                    onClose={() => setShowModal(false)}
+                    onClose={() => setShowLeadModal(false)}
                     onSubmit={(data) => {
-                        setShowModal(false);
-                        onStart(data);
+                        setLeadData(data);
+                        setShowLeadModal(false);
+                        setShowModeModal(true); // Move to Step 2
+                    }}
+                />
+            )}
+
+            {/* Mode selection modal - Step 2 */}
+            {showModeModal && leadData && (
+                <ModeSelectionModal
+                    onClose={() => setShowModeModal(false)}
+                    onSelect={(isProtected) => {
+                        setShowModeModal(false);
+                        onStart({
+                            ...leadData,
+                            isProtected
+                        });
                     }}
                 />
             )}

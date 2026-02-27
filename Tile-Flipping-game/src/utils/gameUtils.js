@@ -33,8 +33,7 @@ export function getScoreScenario(score) {
             headline: "You remembered what matters the most.",
             scoreDisplay: "100%",
             body: "In life, remembering your responsibilities is powerful. Protecting them is even more powerful.",
-            subBody: "Have you protected your responsibilities in real life?",
-            cta: "Connect with our relationship manager to protect your financial responsibilities"
+            cta: "Do not forget to protect your financial responsibilities, Connect with our relationship manager now"
         };
     }
     if (score <= 4) {
@@ -43,8 +42,7 @@ export function getScoreScenario(score) {
             headline: "Some things slipped away.",
             scoreDisplay: `${score} / 8`,
             body: "In a game, it’s okay to forget. In life, forgetting to protect what matters can be costly.",
-            subBody: "Don’t Miss What Matters.",
-            cta: "Connect with our relationship manager to protect your financial responsibilities"
+            cta: "Do not forget to protect your financial responsibilities, Connect with our relationship manager now"
         };
     }
     // Scenario 3: 5-7 pairs
@@ -53,8 +51,7 @@ export function getScoreScenario(score) {
         headline: "You remembered most of it.",
         scoreDisplay: `${score} / 8`,
         body: "Almost complete. But in life, ‘almost protected’ is still exposed.",
-        subBody: "Complete your Protection.",
-        cta: "Connect with our relationship manager to protect your financial responsibilities"
+        cta: "Do not forget to protect your financial responsibilities, Connect with our relationship manager now"
     };
 }
 
