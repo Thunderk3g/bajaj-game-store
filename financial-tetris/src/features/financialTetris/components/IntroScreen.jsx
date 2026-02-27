@@ -106,7 +106,10 @@ const IntroScreen = ({ onStart }) => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
                             <input
+                                id="intro-name"
+                                name="name"
                                 type="text"
+                                autoComplete="name"
                                 value={formData.name}
                                 onChange={(e) => {
                                     const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
@@ -121,7 +124,10 @@ const IntroScreen = ({ onStart }) => {
 
                         <div className="space-y-2">
                             <input
+                                id="intro-phone"
+                                name="phone"
                                 type="tel"
+                                autoComplete="tel"
                                 value={formData.phone}
                                 onChange={(e) => {
                                     const val = e.target.value.replace(/\D/g, '').slice(0, 10);

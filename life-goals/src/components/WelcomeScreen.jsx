@@ -347,6 +347,7 @@ const WelcomeScreen = ({
                                     </label>
                                     <input
                                         id="userName"
+                                        name="userName"
                                         type="text"
                                         value={userName}
                                         onChange={(e) => {
@@ -364,6 +365,7 @@ const WelcomeScreen = ({
                                         placeholder="Full Name"
                                         className={`w-full px-3 py-2.5 min-[375px]:px-4 min-[375px]:py-3 sm:py-4 border-4 ${errors.name ? 'border-red-400' : 'border-slate-100'} focus:border-[#0066B2] focus:outline-none focus:ring-4 focus:ring-[#0066B2]/10 text-slate-800 font-bold text-sm min-[375px]:text-base sm:text-lg transition-all`}
                                         autoFocus
+                                        autoComplete="name"
                                     />
                                     {errors.name && (
                                         <p className="text-red-500 text-[10px] min-[375px]:text-[11px] font-black uppercase tracking-wider ml-1 mt-1 leading-tight">{errors.name}</p>
@@ -376,6 +378,7 @@ const WelcomeScreen = ({
                                     </label>
                                     <input
                                         id="phone"
+                                        name="phone"
                                         type="tel"
                                         value={phone}
                                         onChange={(e) => {
@@ -397,6 +400,7 @@ const WelcomeScreen = ({
                                         }}
                                         placeholder="9876543210"
                                         className={`w-full px-3 py-2.5 min-[375px]:px-4 min-[375px]:py-3 sm:py-4 border-4 ${errors.phone ? 'border-red-400' : 'border-slate-100'} focus:border-[#0066B2] focus:outline-none focus:ring-4 focus:ring-[#0066B2]/10 text-slate-800 font-bold text-sm min-[375px]:text-base sm:text-lg transition-all`}
+                                        autoComplete="tel"
                                     />
                                     {errors.phone && (
                                         <p className="text-red-500 text-[10px] min-[375px]:text-[11px] font-black uppercase tracking-wider ml-1 mt-1 leading-tight">{errors.phone}</p>

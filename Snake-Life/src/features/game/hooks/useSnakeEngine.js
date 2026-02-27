@@ -44,8 +44,14 @@ export const useSnakeEngine = () => {
     const gameOverAudioRef = useRef(null);
 
     useEffect(() => {
-        foodAudioRef.current = new Audio(foodSound);
-        gameOverAudioRef.current = new Audio(gameOverSound);
+        const setupAudio = (src, ref) => {
+            const audio = new Audio(`${src}?v=${Date.now()}`);
+            audio.preload = 'auto';
+            ref.current = audio;
+        };
+
+        setupAudio(foodSound, foodAudioRef);
+        setupAudio(gameOverSound, gameOverAudioRef);
     }, []);
 
     // Stats for UI

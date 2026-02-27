@@ -1,4 +1,5 @@
 import { ApplicationConfig, APP_INITIALIZER } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common';
 import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -6,6 +7,7 @@ import { routes } from './app.routes';
 import { FederationService } from './core/services/federation.service';
 import { AssetPrefetchService } from './core/services/asset-prefetch.service';
 import { AssetLoadingLogger } from './core/services/asset-loading.logger';
+import { environment } from '../environments/environment';
 
 /**
  * Initialize federation manifest on app startup
@@ -38,7 +40,7 @@ export function initializeApp(
       setTimeout(() => {
         const prefetchStartTime = performance.now();
         console.log('[AppInit] Starting background prefetch of popular games...');
-        
+
         assetPrefetchService
           .prefetchPopularGames()
           .then(() => {
@@ -81,6 +83,10 @@ export const appConfig: ApplicationConfig = {
       enabled: false, // Enable this in production
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    {
+      provide: APP_BASE_HREF,
+      useValue: environment.envName === 'dev' ? '/' : '/gamification/',
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
