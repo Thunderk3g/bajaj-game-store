@@ -4,6 +4,20 @@ import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 const ScoreCard = ({ score, total = 20 }) => {
     const count = useMotionValue(0);
     const roundedCount = useTransform(count, (latest) => Math.round(latest));
+    
+    // Dynamic color transition: Red until 10, then Green
+    const strokeColor = useTransform(
+        count,
+        [0, 10, 10.1, total],
+        ["#ef4444", "#ef4444", "#22c55e", "#22c55e"]
+    );
+
+    // Glow effect (Drop shadow color)
+    const glowColor = useTransform(
+        count,
+        [0, 10, 10.1, total],
+        ["rgba(239, 68, 68, 0.5)", "rgba(239, 68, 68, 0.5)", "rgba(34, 197, 94, 0.5)", "rgba(34, 197, 94, 0.5)"]
+    );
 
     useEffect(() => {
         const controls = animate(count, score, { duration: 2, ease: "easeOut" });
@@ -44,9 +58,12 @@ const ScoreCard = ({ score, total = 20 }) => {
                         cy="100"
                         r={radius}
                         fill="none"
-                        stroke="#3b82f6"
-                        strokeWidth="10"
+                        stroke={strokeColor}
+                        strokeWidth="12"
                         strokeLinecap="round"
+                        style={{ 
+                            filter: `drop-shadow(0 0 8px ${glowColor.get()})`
+                        }}
                         initial={{ strokeDasharray: circumference, strokeDashoffset: circumference }}
                         animate={{ strokeDashoffset: circumference - Math.min(progress, circumference) }}
                         transition={{ duration: 2, ease: "easeOut" }}
@@ -55,13 +72,13 @@ const ScoreCard = ({ score, total = 20 }) => {
 
                 {/* Score Text */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                    <div className="uppercase tracking-widest text-[8px] font-bold text-gray-400 mb-0.5 leading-tight text-center max-w-[80px]">
-                        MILESTONES ACHIEVED
-                    </div>
-                    <div className="flex items-baseline justify-center text-blue-500">
-                        <motion.span className="text-6xl font-black leading-none tracking-tighter">
+                    <div className="flex items-baseline justify-center text-white">
+                        <motion.span className="text-6xl font-black leading-none tracking-tighter drop-shadow-md">
                             {roundedCount}
                         </motion.span>
+                    </div>
+                    <div className="text-xs font-black text-gray-200 mt-1 uppercase tracking-widest text-center drop-shadow-sm">
+                        {score === 1 ? 'Milestone' : 'Milestones'}
                     </div>
                 </div>
             </div>

@@ -132,14 +132,14 @@ const ScoreRing = memo(function ScoreRing({ score }) {
     const scoreColor = getZoneColor(displayScore);
 
     return (
-        <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[21.875rem] mx-auto">
+        <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[240px] sm:max-w-[280px] mx-auto">
             <canvas
                 ref={canvasRef}
                 width={350}
                 height={300}
                 className="w-full h-auto drop-shadow-xl"
             />
-            <div className="text-center pointer-events-none z-10 -mt-10 mb-4">
+            <div className="text-center pointer-events-none z-10 -mt-[12%] pb-2">
                 <div
                     className="text-5xl sm:text-6xl font-black text-white italic tracking-tighter"
                     style={{ textShadow: `0 0 1.25rem ${scoreColor}, 0 0 2.5rem ${scoreColor}` }}

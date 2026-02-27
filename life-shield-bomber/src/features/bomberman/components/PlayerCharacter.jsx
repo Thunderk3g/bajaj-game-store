@@ -16,7 +16,7 @@ const PlayerCharacter = memo(function PlayerCharacter({ isDamaged }) {
                 viewBox="0 0 40 40"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-full h-full drop-shadow-2xl animate-knight-hero-float"
+                className="w-full h-full drop-shadow-2xl animate-knight-hero-float scale-[1.3]"
             >
                 {/* Character Group */}
                 <g>

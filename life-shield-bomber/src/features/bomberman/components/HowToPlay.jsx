@@ -4,7 +4,7 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
-import { Move, Bomb, Shield, Clock, Play } from 'lucide-react';
+import { Move, Shield, Clock, Play } from 'lucide-react';
 
 const HowToPlay = memo(function HowToPlay({ onStart }) {
     const containerVariants = {
@@ -26,24 +26,24 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
             iconBg: 'from-blue-400 to-blue-600',
             iconShadow: '#1e40af',
             glowColor: 'from-blue-500 to-cyan-500',
-            title: 'Move Your Shield',
-            desc: 'Use arrow keys or on-screen controls to navigate the grid.',
+            title: 'Move with Joystick',
+            desc: 'Drag the joystick to move. Walk over risk blocks to claim and secure them.',
         },
         {
-            icon: <Bomb className="text-white w-7 h-7 stroke-[3]" />,
-            iconBg: 'from-red-400 to-red-600',
-            iconShadow: '#991b1b',
-            glowColor: 'from-red-500 to-orange-500',
-            title: 'Plant Bombs',
-            desc: 'Press Space or the bomb button to eliminate risk blocks nearby.',
+            icon: <Shield className="text-white w-7 h-7 stroke-[3]" />,
+            iconBg: 'from-blue-400 to-indigo-600',
+            iconShadow: '#312e81',
+            glowColor: 'from-blue-500 to-indigo-500',
+            title: 'Throw Shield at Threats',
+            desc: 'Tap the shield button to launch it at red monsters approaching you.',
         },
         {
             icon: <Shield className="text-white w-7 h-7 stroke-[3]" />,
             iconBg: 'from-emerald-400 to-emerald-600',
             iconShadow: '#065f46',
             glowColor: 'from-emerald-500 to-teal-500',
-            title: 'Protect Your Health',
-            desc: 'You have 3 lives. Avoid your own explosions to stay alive.',
+            title: 'Guard Your Health',
+            desc: 'Avoid red monsters — they drain your health. You have 3 lives.',
         },
         {
             icon: <Clock className="text-white w-7 h-7 stroke-[3]" />,
@@ -51,7 +51,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
             iconShadow: '#92400e',
             glowColor: 'from-amber-500 to-orange-500',
             title: '90 Seconds',
-            desc: 'Destroy as many financial risks as you can before time runs out.',
+            desc: 'Claim all financial risks to unlock the exit door before time runs out!',
         },
     ];
 
@@ -75,7 +75,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
                         HOW TO PLAY
                     </h1>
                     <p className="text-blue-200/80 text-xs font-semibold tracking-wide mt-2 uppercase">
-                        Plant bombs. Destroy risks. Protect your future.
+                        Claim risks. Defeat monsters. Secure your future.
                     </p>
                 </motion.div>
 
@@ -108,9 +108,9 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
                         </div>
                         <div className="flex justify-between items-center gap-2 pt-2">
                             {[
-                                { label: 'Per Risk', points: '+10', color: 'text-blue-400' },
-                                { label: 'Health ×', points: '+5', color: 'text-emerald-400' },
-                                { label: 'Time ×', points: '+0.5', color: 'text-amber-400' },
+                                { label: 'Claim Risk', points: '+10', color: 'text-blue-400' },
+                                { label: 'Kill Monster', points: '+15', color: 'text-red-400' },
+                                { label: 'Health ×', points: '+10', color: 'text-emerald-400' },
                             ].map((item) => (
                                 <div key={item.label} className="flex-1 flex flex-col items-center gap-1">
                                     <span className={`font-display text-2xl font-extrabold ${item.color}`}>{item.points}</span>
