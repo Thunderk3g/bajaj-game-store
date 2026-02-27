@@ -18,6 +18,7 @@ import { createMatchEngine } from '../../../core/matchEngine/index.js';
 
 export const A = {
     SET_ENTRY: 'SET_ENTRY',
+    SET_LEAD_NO: 'SET_LEAD_NO',
     SHOW_HOW_TO_PLAY: 'SHOW_HOW_TO_PLAY',
     START_GAME: 'START_GAME',
     TICK: 'TICK',
@@ -46,6 +47,7 @@ export const A = {
 
 export const initialState = {
     entryDetails: null,
+    leadNo: null,
     gameStatus: GAME_PHASES.LANDING,
     timeLeft: 120,
 
@@ -89,6 +91,12 @@ export function gameReducer(state, action) {
                 ...state,
                 entryDetails: action.payload,
                 // Stay in LANDING so popup doesn't unmount prematurely
+            };
+
+        case A.SET_LEAD_NO:
+            return {
+                ...state,
+                leadNo: action.payload,
             };
 
         case A.SHOW_HOW_TO_PLAY:

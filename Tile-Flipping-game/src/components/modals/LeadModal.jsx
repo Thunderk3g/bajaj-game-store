@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Loader2 } from 'lucide-react';
 import { useGame, ACTION } from '../../context/GameContext';
 import { useGameEngine } from '../../hooks/useGameEngine';
-import { submitToLMS } from '../../utils/api';
+import { submitToLMS, updateLeadNew } from '../../utils/api';
 import { SCREENS } from '../../constants/game';
 import styles from './LeadModal.module.css';
 
@@ -51,16 +51,30 @@ export default function LeadModal({
 
             if (shouldSubmit) {
                 // Submit to real API
-                const payload = {
-                    name,
-                    mobile_no: phone,
-                    summary_dtls: isBooking
-                        ? `${summaryDtls} | Pref Date: ${preferredDate} | Pref Time: ${preferredTime}`
-                        : summaryDtls
-                };
-                console.log("[LeadModal] Calling submitToLMS with:", payload);
-                await submitToLMS(payload);
-                dispatch({ type: ACTION.MARK_SUBMITTED });
+                if (isBooking && user.leadNo) {
+                    const payload = {
+                        name,
+                        mobile: phone,
+                        date: preferredDate,
+                        time: preferredTime,
+                        remarks: `${summaryDtls} | Pref Date: ${preferredDate} | Pref Time: ${preferredTime}`
+                    };
+                    console.log("[LeadModal] Calling updateLeadNew with:", payload);
+                    await updateLeadNew(user.leadNo, payload);
+                    dispatch({ type: ACTION.MARK_SUBMITTED });
+                } else {
+                    const payload = {
+                        name,
+                        mobile_no: phone,
+                        summary_dtls: summaryDtls
+                    };
+                    console.log("[LeadModal] Calling submitToLMS with:", payload);
+                    const result = await submitToLMS(payload);
+                    if (result && result.success && (result.leadNo || result.LeadNo)) {
+                        setUser({ name, phone, leadNo: result.leadNo || result.LeadNo });
+                    }
+                    dispatch({ type: ACTION.MARK_SUBMITTED });
+                }
             }
 
             if (!isBooking) {

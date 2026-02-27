@@ -20,7 +20,7 @@ import {
     applyGravity,
     refillGrid,
 } from '../../../core/matchEngine/index.js';
-import { submitToLMS } from '../services/apiClient.js';
+import { submitToLMS, updateLeadNew } from '../services/apiClient.js';
 
 // Audio Assets
 import swapSoundUrl from '../../assets/audio/swapping.wav';
@@ -193,7 +193,7 @@ export function useMatchGame() {
         tomorrow.setDate(tomorrow.getDate() + 1);
         const dateStr = tomorrow.toISOString().split('T')[0];
 
-        await submitToLMS({
+        const result = await submitToLMS({
             name: name.trim(),
             mobile_no: mobile,
             param4: dateStr,
@@ -201,6 +201,10 @@ export function useMatchGame() {
             summary_dtls: 'Secure Saga Lead',
             p_data_source: 'BALANCE_BUILDER_LEAD',
         });
+
+        if (result && result.success && (result.leadNo || result.LeadNo)) {
+            dispatch({ type: A.SET_LEAD_NO, payload: result.leadNo || result.LeadNo });
+        }
 
         dispatch({ type: A.SHOW_HOW_TO_PLAY });
     }, []);
@@ -364,22 +368,32 @@ export function useMatchGame() {
     const handleBookSlot = useCallback(
         async (formData) => {
             try {
-                await submitToLMS({
-                    name: formData.name,
-                    mobile_no: formData.mobile,
-                    param4: formData.date,
-                    param19: formData.time,
-                    score: computeFinalScore(state.buckets),
-                    summary_dtls: 'Secure Saga - Slot Booking',
-                    p_data_source: 'BALANCE_BUILDER_BOOKING',
-                });
+                if (state.leadNo) {
+                    await updateLeadNew(state.leadNo, {
+                        firstName: formData.name,
+                        mobile: formData.mobile,
+                        date: formData.date,
+                        time: formData.time,
+                        remarks: `Secure Saga - Slot Booking | Score: ${computeFinalScore(state.buckets)}`
+                    });
+                } else {
+                    await submitToLMS({
+                        name: formData.name,
+                        mobile_no: formData.mobile,
+                        param4: formData.date,
+                        param19: formData.time,
+                        score: computeFinalScore(state.buckets),
+                        summary_dtls: 'Secure Saga - Slot Booking',
+                        p_data_source: 'BALANCE_BUILDER_BOOKING',
+                    });
+                }
             } catch (error) {
                 console.error("Booking failed", error);
             } finally {
                 dispatch({ type: A.SHOW_THANK_YOU });
             }
         },
-        []
+        [state.buckets, state.leadNo]
     );
 
     const finalScore = computeFinalScore(state.buckets);

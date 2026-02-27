@@ -10,7 +10,7 @@ import TutorialOverlay from '../features/game/components/TutorialOverlay';
 import CalculatorForm from '../features/calculator/CalculatorForm';
 import LeadCaptureForm from '../features/leadCapture/LeadCaptureForm';
 import { Shield, Clock, Trophy } from 'lucide-react';
-import { submitToLMS } from '../services/api';
+import { submitToLMS, updateLeadNew } from '../services/api';
 
 const GamePage = () => {
     const { status, setStatus, score, highScore, toast, leadData, setLeadData, startGame, lastEatenMilestone, nextMilestone } = useGame();
@@ -31,15 +31,26 @@ const GamePage = () => {
     };
 
     const handleBookSlot = async (bookingInfo) => {
-        const result = await submitToLMS({
-            ...bookingInfo,
-            name: leadData?.name || bookingInfo.name,
-            mobile_no: leadData?.phone || bookingInfo.mobile_no,
-            score,
-            summary_dtls: 'Snake Life - Appointment',
-            param19: `Milestones: ${score}`
-        });
-        return result;
+        if (leadData?.leadNo) {
+            const payload = {
+                firstName: bookingInfo.name || leadData.name,
+                mobile: bookingInfo.mobile_no || leadData.phone,
+                date: bookingInfo.date,
+                time: bookingInfo.timeSlot,
+                remarks: `Snake Life - Appointment | Milestones: ${score}`
+            };
+            return await updateLeadNew(leadData.leadNo, payload);
+        } else {
+            const result = await submitToLMS({
+                ...bookingInfo,
+                name: leadData?.name || bookingInfo.name,
+                mobile_no: leadData?.phone || bookingInfo.mobile_no,
+                score,
+                summary_dtls: 'Snake Life - Appointment',
+                param19: `Milestones: ${score}`
+            });
+            return result;
+        }
     };
 
     const handleCalculate = (cover) => {

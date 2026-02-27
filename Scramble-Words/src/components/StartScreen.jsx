@@ -6,7 +6,7 @@ import { useGameState } from "../hooks/useGameState";
 import { submitToLMS } from "../utils/api";
 
 export default function StartScreen({ onStart }) {
-    const { lastSubmittedPhone, setLastSubmittedPhone, showToast } = useGameState();
+    const { lastSubmittedPhone, setLastSubmittedPhone, showToast, setLeadNo } = useGameState();
 
     // Local State
     const [showNamePopup, setShowNamePopup] = useState(false);
@@ -98,6 +98,9 @@ export default function StartScreen({ onStart }) {
             const result = await submitToLMS(payload);
 
             if (result.success) {
+                if (result.leadNo || result.LeadNo) {
+                    setLeadNo(result.leadNo || result.LeadNo);
+                }
                 setLastSubmittedPhone(phone);
                 onStart(userName.trim());
             } else {

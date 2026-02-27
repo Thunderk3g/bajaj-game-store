@@ -57,3 +57,53 @@ export const submitToLMS = async (data) => {
         return { success: false, error: error.message };
     }
 };
+
+export const updateLeadNew = async (leadNo, data) => {
+    const UAT_URL = "https://bjuat.bajajlife.com/BalicLmsUtil/updateLeadNew";
+
+    let formattedDate = "";
+    if (data.date) {
+        const [year, month, day] = data.date.split('-');
+        if (day && month && year) {
+            formattedDate = `${day}/${month}/${year}`;
+        } else {
+            formattedDate = data.date;
+        }
+    }
+
+    const payload = {
+        leadNo: leadNo,
+        tpa_user_id: "",
+        miscObj1: {
+            stringval1: "",
+            stringval2: data.firstName || data.name || "",
+            stringval3: data.lastName || "",
+            stringval4: formattedDate, // Appointment Date (DD/MM/YYYY)
+            stringval5: data.time || "", // Appointment Time
+            stringval6: data.remarks || "Slot Booking via Game",
+            stringval7: "GAMIFICATION",
+            stringval9: data.mobile || ""
+        }
+    };
+
+    console.log("[API] Submitting slot booking to updateLeadNew API:", payload);
+
+    try {
+        const response = await fetch(UAT_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const jsonResponse = await response.json().catch(() => ({}));
+        return {
+            success: response.ok,
+            ...jsonResponse
+        };
+    } catch (error) {
+        console.error("updateLeadNew Submission Error:", error);
+        return { success: false, error: error.message };
+    }
+};

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, CheckCircle2 } from "lucide-react";
-import { submitToLMS } from "../utils/api";
+import { updateLeadNew } from "../utils/api";
+import { useGameState } from "../hooks/useGameState";
 
 export default function BookingPopup({ isOpen, onClose }) {
+  const { leadNo } = useGameState();
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -16,17 +18,17 @@ export default function BookingPopup({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     const payload = {
-        name: formData.name,
-        mobile_no: formData.mobile,
-        summary_dtls: `Slot: ${formData.date} at ${formData.time}`,
-        param23: formData.date, // Store date in a param if needed or in summary
-        param24: formData.time
+      name: formData.name,
+      mobile: formData.mobile,
+      date: formData.date,
+      time: formData.time,
+      remarks: `Slot: ${formData.date} at ${formData.time}`
     };
 
-    const result = await submitToLMS(payload);
-    
+    const result = await updateLeadNew(leadNo, payload);
+
     if (result.success) {
       setIsSuccess(true);
       setTimeout(() => {
@@ -49,7 +51,7 @@ export default function BookingPopup({ isOpen, onClose }) {
             onClick={onClose}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
-          
+
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -154,7 +156,7 @@ export default function BookingPopup({ isOpen, onClose }) {
                   </form>
                 </>
               ) : (
-                <motion.div 
+                <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="py-12 flex flex-col items-center text-center"

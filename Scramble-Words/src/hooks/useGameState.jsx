@@ -8,11 +8,17 @@ export function GameProvider({ children }) {
         return sessionStorage.getItem('lastSubmittedPhone') || null;
     });
 
+    const [leadNo, setLeadNo] = useState(() => {
+        return sessionStorage.getItem('gameLeadNo') || null;
+    });
     useEffect(() => {
         if (lastSubmittedPhone) {
             sessionStorage.setItem('lastSubmittedPhone', lastSubmittedPhone);
         }
-    }, [lastSubmittedPhone]);
+        if (leadNo) {
+            sessionStorage.setItem('gameLeadNo', leadNo);
+        }
+    }, [lastSubmittedPhone, leadNo]);
 
     // Global Toast State
     const [toast, setToast] = useState(null);
@@ -26,6 +32,8 @@ export function GameProvider({ children }) {
         <GameContext.Provider value={{
             lastSubmittedPhone,
             setLastSubmittedPhone,
+            leadNo,
+            setLeadNo,
             toast,
             showToast
         }}>

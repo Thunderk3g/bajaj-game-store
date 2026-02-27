@@ -10,6 +10,7 @@ const initialState = {
     user: {
         name: '',
         phone: '',
+        leadNo: null,
     },
 
     game: {
