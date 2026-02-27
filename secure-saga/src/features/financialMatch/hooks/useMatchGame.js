@@ -165,6 +165,7 @@ export function useMatchGame() {
                 submitToLMS({
                     name: state.entryDetails.name,
                     mobile_no: state.entryDetails.mobile,
+                    score,
                     summary_dtls: `Secure Saga - Early Exit - Score: ${score}/100`,
                     p_data_source: 'BALANCE_BUILDER_LEAD',
                 });
@@ -368,6 +369,7 @@ export function useMatchGame() {
                     mobile_no: formData.mobile,
                     param4: formData.date,
                     param19: formData.time,
+                    score: computeFinalScore(state.buckets),
                     summary_dtls: 'Secure Saga - Slot Booking',
                     p_data_source: 'BALANCE_BUILDER_BOOKING',
                 });

@@ -47,7 +47,8 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                 name: formData.name,
                 mobile_no: formData.mobile,
                 date: formData.date,
-                time: formData.time
+                time: formData.time,
+                score: Math.round(score)
             });
         } catch (error) {
             console.error(error);

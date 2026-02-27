@@ -593,7 +593,7 @@ export class LobbyComponent implements OnInit {
     const manifest = this.federationService.getGameManifest(gameId);
     if (manifest) {
       this.store.setState(
-        { id: 'GUEST_USER', name: 'Guest', region: 'Local' },
+        { id: 'GUEST_USER', name: 'Guest', region: 'Local', mobile: '', zone: '' },
         {
           id: gameId,
           desc: manifest.displayName,

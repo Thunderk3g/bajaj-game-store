@@ -24,7 +24,12 @@ export const submitToLMS = async (data) => {
         param25: data.param25 || "",
         param26: data.param26 || "",
         param36: "manual",
-        summary_dtls: data.summary_dtls || `Booking Request`,
+        summary_dtls: (() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameID = urlParams.get('gameId') || 'life-flight';
+            const scorePart = data.score != null ? ` | Score: ${data.score}` : '';
+            return `Game: ${gameID}${scorePart} | ${data.summary_dtls || 'Booking Request'}`;
+        })(),
         p_user_eml: data.email_id || "",
         p_data_source: data.p_data_source || "LIFE_FLIGHT_LEAD",
         p_curr_page_path: "https://www.bajajlifeinsurance.com/etouch/",

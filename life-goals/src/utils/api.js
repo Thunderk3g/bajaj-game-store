@@ -40,7 +40,7 @@ export const submitToLMS = async (data) => {
         utmSource: "",
         userId: userId,
         gameID: gameID,
-        remarks: data.summary_dtls || data.remarks || "Booking Request",
+        remarks: `Game: ${gameID}${data.score != null ? ` | Score: ${data.score}` : ''} | ${data.summary_dtls || data.remarks || "Booking Request"}`,
         appointment_date: appointmentDate,
         appointment_time: data.timeSlot || data.time || ""
     };

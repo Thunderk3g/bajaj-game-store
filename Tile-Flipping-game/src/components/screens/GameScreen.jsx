@@ -38,6 +38,7 @@ export default function GameScreen({ showToast }) {
                 submitToLMS({
                     name: user.name,
                     mobile_no: user.phone,
+                    score: Math.round((game.score / TOTAL_PAIRS) * 100),
                     summary_dtls: "Game Lead (Quit/Interrupted)"
                 }).then(() => {
                     dispatch({ type: ACTION.MARK_SUBMITTED });
