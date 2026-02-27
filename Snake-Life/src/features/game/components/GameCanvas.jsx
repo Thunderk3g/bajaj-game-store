@@ -103,7 +103,7 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
         const pX = state.pellet.x * cellSize + cellSize / 2;
         const pY = state.pellet.y * cellSize + cellSize / 2;
 
-        ctx.font = `${cellSize * 0.8}px Arial`;
+        ctx.font = `${cellSize * 1.3}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(state.nextMilestone.icon, pX, pY);
@@ -303,13 +303,11 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
                     imageRendering: 'auto',
                     backgroundColor: '#B9F84D',
                     backgroundImage: `
-                        linear-gradient(45deg, #A4F231 25%, transparent 25%),
-                        linear-gradient(-45deg, #A4F231 25%, transparent 25%),
-                        linear-gradient(45deg, transparent 75%, #A4F231 75%),
-                        linear-gradient(-45deg, transparent 75%, #A4F231 75%)
+                        radial-gradient(#A4F231 1.5px, transparent 0),
+                        radial-gradient(#A4F231 1.5px, transparent 0)
                     `,
-                    backgroundSize: `calc(var(--cell-size, 20px) * 2) calc(var(--cell-size, 20px) * 2)`,
-                    backgroundPosition: `0 0, 0 var(--cell-size, 20px), var(--cell-size, 20px) var(--cell-size, 20px), var(--cell-size, 20px) 0`,
+                    backgroundSize: '12px 12px',
+                    backgroundPosition: '0 0, 6px 6px',
                     width: 'min(100%, 100%)',
                     height: 'auto'
                 }}

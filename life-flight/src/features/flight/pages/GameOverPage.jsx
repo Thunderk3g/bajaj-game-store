@@ -152,6 +152,10 @@ export default function GameOverPage() {
                 {/* Score Ring */}
                 <div className="flex flex-col items-center mb-6">
                     <ScoreRing score={score} pct={pct} zoneColor={zone.color} />
+                    <p className="text-white mt-5 text-[13px] sm:text-[15px] font-medium tracking-wide opacity-90 px-4 text-center max-w-sm leading-relaxed">
+                        In this game you can restart.<br />
+                        <span className="text-[18px] sm:text-[22px] font-black block mt-1 drop-shadow-md">In life, you can't!</span>
+                    </p>
                 </div>
 
                 {/* Insurance Dropdown Accordion */}
@@ -226,8 +230,8 @@ export default function GameOverPage() {
                     transition={{ delay: 0.3 }}
                     className="bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-6 shrink-0 rounded-sm"
                 >
-                    <p className="text-slate-600 text-[12px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
-                        To know more connect with our relationship manager
+                    <p className="text-slate-600 text-[17px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
+                        Let us prepare your life flight before the next hurdle appears.
                     </p>
 
                     {/* Call Action */}
@@ -239,7 +243,7 @@ export default function GameOverPage() {
 
                     <div className="relative py-1 mb-3">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-50"></div></div>
-                        <div className="relative flex justify-center text-[8px] sm:text-xs uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
+                        <div className="relative flex justify-center text-[15px] sm:text-xs uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
                     </div>
 
                     {/* Booking Trigger Button */}

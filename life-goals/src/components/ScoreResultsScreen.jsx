@@ -203,8 +203,10 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
 
                         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your Name</label>
+                                <label htmlFor="booking-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your Name</label>
                                 <Input
+                                    id="booking-name"
+                                    name="name"
                                     value={formData.name}
                                     onChange={e => {
                                         const val = e.target.value.replace(/[^A-Za-z\s]/g, '');
@@ -217,12 +219,15 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     }}
                                     className={`bg-slate-50 h-11 border-2 ${errors.name ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
                                     placeholder="Full Name"
+                                    autoComplete="name"
                                 />
                                 {errors.name && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.name}</span>}
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
+                                <label htmlFor="booking-mobile" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
                                 <Input
+                                    id="booking-mobile"
+                                    name="mobile"
                                     value={formData.mobile}
                                     onChange={e => {
                                         const val = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -241,13 +246,16 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     type="tel"
                                     className={`bg-slate-50 h-11 border-2 ${errors.mobile ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
                                     placeholder="9876543210"
+                                    autoComplete="tel"
                                 />
                                 {errors.mobile && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.mobile}</span>}
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
+                                    <label htmlFor="booking-date" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                     <Input
+                                        id="booking-date"
+                                        name="date"
                                         type="date"
                                         min={today}
                                         max={maxDate}
@@ -257,8 +265,10 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Time</label>
+                                    <label htmlFor="booking-time" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Time</label>
                                     <select
+                                        id="booking-time"
+                                        name="time"
                                         value={formData.time}
                                         onChange={e => updateField('time', e.target.value)}
                                         className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus-visible:ring-blue-100 text-xs font-bold px-4 appearance-none"
@@ -281,8 +291,10 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                             </div>
 
                             {/* Consent Checkbox - pre-checked */}
-                            <label className="flex items-start gap-2 cursor-pointer mt-1">
+                            <label htmlFor="booking-consent" className="flex items-start gap-2 cursor-pointer mt-1">
                                 <input
+                                    id="booking-consent"
+                                    name="consent"
                                     type="checkbox"
                                     checked={formData.consent}
                                     onChange={e => updateField('consent', e.target.checked)}

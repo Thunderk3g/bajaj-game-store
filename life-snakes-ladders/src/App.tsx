@@ -205,9 +205,21 @@ const App: React.FC<AppProps> = ({
         case 'welcome':
             return (
                 <WelcomeScreen
-                    onStart={(leadData) => {
-                        if (onLeadSubmitted) onLeadSubmitted({ ...leadData, stage: 'pre-game' });
-                        setGameState(prev => ({ ...prev, currentScreen: 'shield-choice' }));
+                    onStart={(data) => {
+                        if (onLeadSubmitted) onLeadSubmitted({ ...data, stage: 'pre-game' });
+
+                        // If the mode choice was made in the popup itself
+                        if (data.isProtected !== undefined) {
+                            setGameState(prev => ({
+                                ...prev,
+                                hasShield: data.isProtected!,
+                                currentScreen: 'game'
+                            }));
+                            if (onGameStart) onGameStart();
+                        } else {
+                            // Fallback to old behavior
+                            setGameState(prev => ({ ...prev, currentScreen: 'shield-choice' }));
+                        }
                     }}
                 />
             );

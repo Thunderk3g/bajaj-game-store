@@ -26,11 +26,11 @@ const ThankYouScreen = ({ leadName, onRestart }) => {
                 </motion.div>
 
                 {/* Thank You Message */}
-                <div className="space-y-4 px-4 overflow-hidden">
-                    <h2 className="text-3xl font-black text-white uppercase tracking-tight leading-[1.1] flex flex-col items-center">
-                        <span className="whitespace-nowrap">THANK YOU</span>
-                        <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)] break-words max-w-full italic">{leadName ? leadName : ''}</span>
-                        <span className="whitespace-nowrap">FOR SHARING YOUR DETAILS</span>
+                <div className="space-y-4 px-4">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight leading-[1.1] flex flex-col items-center gap-1">
+                        <span>THANK YOU</span>
+                        <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)] break-words max-w-full italic px-2">{leadName ? leadName : ''}</span>
+                        <span className="text-center">FOR SHARING YOUR DETAILS</span>
                     </h2>
                     <p className="text-base text-gray-500 font-bold uppercase tracking-wide max-w-[280px] mx-auto leading-relaxed">
                         Our Relationship Manager will reach out to you

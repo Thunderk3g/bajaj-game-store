@@ -68,13 +68,9 @@ export default function GameScreen({ showToast }) {
                 </div>
                 <div className={styles.stat}>
                     <span className={styles.statLabel}>Flip Tries</span>
-                    <div className={styles.starRack}>
-                        {[1, 2, 3, 4, 5].map((n) => (
-                            <span key={n} className={`${styles.uiStar} ${n <= currentStars ? styles.lit : ''}`}>
-                                ⭐
-                            </span>
-                        ))}
-                    </div>
+                    <span className={styles.statValue}>
+                        {flipsCount} / {MAX_FLIPS}
+                    </span>
                 </div>
             </div>
 

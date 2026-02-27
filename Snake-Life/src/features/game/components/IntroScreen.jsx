@@ -116,6 +116,9 @@ const IntroScreen = ({ onStart }) => {
                                         setErrors(prev => ({ ...prev, name: null }));
                                     }
                                 }}
+                                id="name"
+                                name="name"
+                                autoComplete="name"
                                 placeholder="Your name"
                                 className={`w-full bg-gray-50 border-2 rounded-2xl px-5 py-4 text-gray-800 placeholder:text-gray-400 font-bold focus:outline-none focus:border-primary transition-all ${errors.name ? 'border-red-500' : 'border-slate-100'}`}
                             />
@@ -139,6 +142,9 @@ const IntroScreen = ({ onStart }) => {
                                         setErrors(prev => ({ ...prev, phone: null }));
                                     }
                                 }}
+                                id="phone"
+                                name="phone"
+                                autoComplete="tel"
                                 placeholder="Mobile number"
                                 className={`w-full bg-gray-50 border-2 rounded-2xl px-5 py-4 text-gray-800 placeholder:text-gray-400 font-bold focus:outline-none focus:border-primary transition-all ${errors.phone ? 'border-red-500' : 'border-slate-100'}`}
                             />

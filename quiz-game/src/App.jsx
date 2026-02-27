@@ -28,7 +28,7 @@ const QuizGame = () => {
         <div className="w-screen h-screen flex flex-col font-sans transition-colors duration-300 overflow-hidden">
             {/* Main Content */}
             <main className="w-full h-full flex flex-col items-center overflow-hidden">
-                <div className="w-full h-full max-w-[600px] flex flex-col items-center p-4 relative overflow-y-auto scrollbar-hide">
+                <div className="w-full h-full max-w-[600px] flex flex-col items-center relative overflow-y-auto scrollbar-hide">
                     <AnimatePresence mode="wait">
                         {currentScreen === SCREENS.WELCOME && (
                             <WelcomeScreen key="welcome" onStart={startQuiz} />

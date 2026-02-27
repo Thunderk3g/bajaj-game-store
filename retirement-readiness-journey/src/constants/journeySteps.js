@@ -11,7 +11,7 @@ export const JOURNEY_STEPS = {
 export const STEPS_DATA = [
     {
         id: JOURNEY_STEPS.SCENARIO,
-        title: "Time to Retirement",
+        title: "Time for Retirement",
         description: " How much time do you have to prepare and grow your retirement savings?",
         options: [
             { id: 'retired', label: 'Fully Retired', sublabel: 'Already retired or retiring very soon', icon: '🏖️', points: 4, image: 'https://emojicdn.elk.sh/🏖️' },

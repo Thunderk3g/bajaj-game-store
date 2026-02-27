@@ -70,14 +70,14 @@ const Results = ({ score, onReset, userInfo }) => {
                 </div>
 
                 <div className="space-y-4 max-w-[320px]">
-                    <h1 className="text-slate-900 text-3xl font-black leading-tight uppercase tracking-tight">
+                    <h1 className="text-slate-900 text-3xl font-extrabold leading-tight uppercase tracking-tight">
                         THANK YOU<br />
                         <span className="text-primary-500 truncate block max-w-full">{userInfo?.name || 'USER'}</span><br />
                         FOR<br />
                         SHARING YOUR<br />
                         DETAILS
                     </h1>
-                    <p className="text-slate-500 font-bold text-sm tracking-wide uppercase">
+                    <p className="text-slate-500 font-semibold text-sm tracking-wide uppercase">
                         OUR RELATIONSHIP MANAGER<br />
                         WILL REACH OUT TO YOU
                     </p>
@@ -85,7 +85,7 @@ const Results = ({ score, onReset, userInfo }) => {
 
                 <button
                     onClick={onReset}
-                    className="w-full max-w-[280px] h-[4.5rem] bg-[#ff6600] hover:bg-[#ff7711] text-white font-black rounded-2xl shadow-[0_6px_0_#993d00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xl uppercase tracking-wider"
+                    className="w-full max-w-[280px] h-[4.5rem] bg-[#ff6600] hover:bg-[#ff7711] text-white font-extrabold rounded-2xl shadow-[0_6px_0_#993d00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xl uppercase tracking-wider"
                 >
                     <RotateCcw className="w-6 h-6" />
                     RETAKE
@@ -105,12 +105,12 @@ const Results = ({ score, onReset, userInfo }) => {
             max-[640px]:h-[92dvh] max-[640px]:overflow-hidden max-[640px]:p-2 max-[640px]:space-y-4 max-[640px]:pt-[3.4rem]">
 
             {/* Score Card Section */}
-            <div className="text-center space-y-4 sm:space-y-6 bg-[#3b82f6] rounded-[2rem] p-6 sm:p-10 text-white shadow-2xl shadow-blue-500/20 relative flex-shrink-0
+            <div className="text-center space-y-4 sm:space-y-6 bg-[#63a4ff] rounded-[2rem] p-6 sm:p-10 text-white shadow-2xl shadow-blue-400/30 relative flex-shrink-0
                 max-[640px]:p-4 max-[640px]:space-y-2 max-[640px]:rounded-[1.5rem]">
 
                 {/* Centered Greeting Header */}
                 <div className="flex justify-center items-center relative pt-2 max-[640px]:pt-1">
-                    <h2 className="text-white text-base font-black uppercase tracking-widest text-center truncate px-10 max-[640px]:text-[0.75rem]">
+                    <h2 className="text-white text-base font-bold uppercase tracking-wider text-center truncate px-10 max-[640px]:text-[0.8rem] opacity-95">
                         HI {userInfo?.name?.toUpperCase() || 'THERE'}
                     </h2>
                     <button
@@ -145,26 +145,26 @@ const Results = ({ score, onReset, userInfo }) => {
                             />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <p className="text-[0.75rem] font-black uppercase tracking-[0.2em] opacity-70 mb-1 max-[640px]:text-[0.6rem]">YOUR SCORE</p>
+                            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.15em] opacity-80 mb-1 max-[640px]:text-[0.65rem]">YOUR SCORE</p>
                             <div className="flex flex-col items-center justify-center">
-                                <span className="text-[3.5rem] font-black leading-none max-[640px]:text-[2.5rem]">
+                                <span className="text-[3.5rem] font-bold leading-none max-[640px]:text-[2.75rem]">
                                     {displayScore}
                                 </span>
-                                <span className="text-[1.25rem] font-bold opacity-60 max-[640px]:text-[1rem]">/ 100</span>
+                                <span className="text-[1.25rem] font-medium opacity-70 max-[640px]:text-[1rem]">/ 100</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Large Band Text with Emoji */}
-                <div className="space-y-4 max-[640px]:space-y-1">
+                <div className="space-y-4 max-[640px]:space-y-2">
                     <div className="flex items-center justify-center gap-3">
-                        <span className="text-[2.5rem] sm:text-[3.5rem] drop-shadow-md">{band.icon}</span>
-                        <h2 className="text-[3rem] sm:text-[4rem] font-black tracking-tight text-[#ff6600] uppercase italic drop-shadow-lg leading-none">
+                        <span className="text-[2.5rem] sm:text-[3.5rem] drop-shadow-sm">{band.icon}</span>
+                        <h2 className="text-[2.8rem] sm:text-[3.8rem] font-extrabold tracking-wide text-[#ff6600] uppercase drop-shadow-md leading-none">
                             {band.label}
                         </h2>
                     </div>
-                    <p className="text-[1.125rem] font-bold leading-tight max-w-[22rem] mx-auto text-white drop-shadow-sm max-[640px]:text-[0.875rem]">
+                    <p className="text-[1.125rem] font-medium leading-relaxed max-w-[22rem] mx-auto text-white/95 drop-shadow-sm max-[640px]:text-[0.9rem]">
                         {band.description}
                     </p>
                 </div>
@@ -173,7 +173,7 @@ const Results = ({ score, onReset, userInfo }) => {
             {/* Large Share Button */}
             <button
                 onClick={handleShare}
-                className="w-full h-[4.5rem] bg-[#ff6600] hover:bg-[#ff7711] text-white font-black rounded-2xl shadow-[0_6px_0_#993d00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xl uppercase tracking-wider flex-shrink-0
+                className="w-full h-[4.5rem] bg-[#ff6600] hover:bg-[#ff7711] text-white font-extrabold rounded-2xl shadow-[0_6px_0_#993d00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xl uppercase tracking-wider flex-shrink-0
                     max-[640px]:h-[3.5rem] max-[640px]:rounded-xl max-[640px]:text-lg max-[640px]:shadow-[0_4px_0_#993d00]"
             >
                 <Share2 className="w-6 h-6 max-[640px]:w-5 max-[640px]:h-5" />
@@ -192,7 +192,7 @@ const Results = ({ score, onReset, userInfo }) => {
                 <div className="space-y-4 max-[640px]:space-y-2">
                     <Button
                         onClick={() => window.location.href = "tel:18002099999"}
-                        className="w-full h-[3.5rem] sm:h-[4rem] bg-[#ff6600] hover:bg-[#ff7711] text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 rounded-xl shadow-lg shadow-orange-500/20"
+                        className="w-full h-[3.5rem] sm:h-[4rem] bg-[#ff6600] hover:bg-[#ff7711] text-white font-bold text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 rounded-xl shadow-lg shadow-orange-500/20"
                     >
                         <Phone className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                         CALL NOW
@@ -200,13 +200,13 @@ const Results = ({ score, onReset, userInfo }) => {
 
                     <div className="flex items-center gap-4 py-1 max-[640px]:py-0">
                         <div className="flex-1 h-px bg-slate-200" />
-                        <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">OR</span>
+                        <span className="text-slate-400 text-[10px] font-semibold uppercase tracking-widest">OR</span>
                         <div className="flex-1 h-px bg-slate-200" />
                     </div>
 
                     <Button
                         onClick={() => setIsModalOpen(true)}
-                        className="w-full h-[3.5rem] sm:h-[4rem] bg-[#0066B2] hover:bg-[#005596] text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 rounded-xl shadow-lg shadow-blue-500/20"
+                        className="w-full h-[3.5rem] sm:h-[4rem] bg-[#0066B2] hover:bg-[#005596] text-white font-bold text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 rounded-xl shadow-lg shadow-blue-500/20"
                     >
                         <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                         BOOK A CONVENIENT SLOT
@@ -215,7 +215,7 @@ const Results = ({ score, onReset, userInfo }) => {
 
                 <button
                     onClick={onReset}
-                    className="w-full flex items-center justify-center gap-2 text-slate-400 text-[0.75rem] font-bold uppercase tracking-widest hover:text-blue-500 transition-colors pt-4 max-[640px]:pt-2 max-[640px]:text-[0.65rem]"
+                    className="w-full flex items-center justify-center gap-2 text-slate-400 text-[0.75rem] font-semibold uppercase tracking-widest hover:text-blue-500 transition-colors pt-4 max-[640px]:pt-2 max-[640px]:text-[0.65rem]"
                 >
                     <RotateCcw className="w-4 h-4" />
                     RETAKE ASSESSMENT

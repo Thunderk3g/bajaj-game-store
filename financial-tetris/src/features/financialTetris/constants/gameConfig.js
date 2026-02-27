@@ -5,6 +5,7 @@ export const GAME_DURATION = 120; // 2 minutes in seconds
 
 export const GAME_STATUS = {
     IDLE: 'idle',
+    TUTORIAL: 'tutorial',
     PLAYING: 'playing',
     PAUSED: 'paused',
     LOST: 'lost',
