@@ -101,6 +101,9 @@ const IntroPage = memo(function IntroPage() {
                 setLastSubmittedPhone(phone);
                 sessionStorage.setItem('sudokuUserName', userName.trim());
                 sessionStorage.setItem('lastSubmittedPhone', phone);
+                if (result.leadNo || result.LeadNo) {
+                    sessionStorage.setItem('sudokuLeadNo', result.leadNo || result.LeadNo);
+                }
                 startGame();
                 navigate('/game');
             } else {

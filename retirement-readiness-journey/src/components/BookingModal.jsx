@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar } from 'lucide-react';
-import { submitToLMS } from '../utils/api';
+import { submitToLMS, updateLeadNew } from '../utils/api';
 
-export default function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile }) {
+export default function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile, leadNo, score }) {
     const [formData, setFormData] = useState({ name: initialName || '', mobile: initialMobile || '', date: '', time: '' });
     const [termsAccepted, setTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
@@ -61,16 +61,28 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
         setIsSubmitting(true);
 
         try {
-            const payload = {
-                name: formData.name.trim(),
-                mobile_no: formData.mobile,
-                param4: formData.date,
-                param19: formData.time,
-                summary_dtls: "Retirement Game Slot Booking",
-                p_data_source: "RETIREMENT_GAME_BOOKING"
-            };
-
-            const result = await submitToLMS(payload);
+            let result;
+            if (leadNo) {
+                const payload = {
+                    firstName: formData.name.trim(),
+                    mobile: formData.mobile,
+                    date: formData.date,
+                    time: formData.time,
+                    remarks: `Retirement Game Slot Booking | Score: ${score}`
+                };
+                result = await updateLeadNew(leadNo, payload);
+            } else {
+                const payload = {
+                    name: formData.name.trim(),
+                    mobile_no: formData.mobile,
+                    param4: formData.date,
+                    param19: formData.time,
+                    score: score || null,
+                    summary_dtls: "Retirement Game Slot Booking",
+                    p_data_source: "RETIREMENT_GAME_BOOKING"
+                };
+                result = await submitToLMS(payload);
+            }
 
             if (result.success) {
                 if (onSubmit) onSubmit(formData);

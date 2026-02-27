@@ -228,6 +228,8 @@ const Results = ({ score, onReset, userInfo }) => {
                 onSubmit={handleBookingSubmit}
                 initialName={userInfo?.name}
                 initialMobile={userInfo?.mobile}
+                leadNo={userInfo?.leadNo}
+                score={score}
             />
         </div>
     );

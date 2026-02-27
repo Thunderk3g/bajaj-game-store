@@ -54,7 +54,12 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
             const result = await submitToLMS(payload);
 
             if (result.success) {
-                setUserInfo({ name: userName.trim(), mobile: phone, termsAccepted: true });
+                setUserInfo({
+                    name: userName.trim(),
+                    mobile: phone,
+                    termsAccepted: true,
+                    leadNo: result.leadNo || result.LeadNo
+                });
                 onStart();
             } else {
                 alert("Submission failed. Please try again.");
