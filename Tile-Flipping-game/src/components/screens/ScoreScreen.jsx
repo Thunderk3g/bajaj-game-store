@@ -94,8 +94,7 @@ export default function ScoreScreen({ showToast }) {
                     {/* Header */}
                     <div className={styles.header}>
                         <p className={styles.userName}>{user.name ? `Hi ${user.name.split(' ')[0]}!` : 'Hi there!'}</p>
-                        <p className={styles.headline}>"{scenarioData.headline}"</p>
-                        <p className={styles.scoreDisplay}>Your Score: {scenarioData.scoreDisplay}</p>
+                        <p className={styles.headline}>{scenarioData.headline}</p>
                     </div>
                     {/* <p className={styles.subLabel}>Your Protection Score</p> */}
 
@@ -142,13 +141,12 @@ export default function ScoreScreen({ showToast }) {
                     {/* Message */}
                     <div className={styles.messagebox}>
                         <p className={styles.bodyText}>{scenarioData.body}</p>
-                        <p className={styles.subBodyText}>{scenarioData.subBody}</p>
                     </div>
 
                     {/* Actions */}
                     <div className={styles.actions}>
                         <Button variant="primary" fullWidth onClick={handleShare} id="btn-share-main">
-                            &nbsp; Share Your Score
+                            &nbsp; Share
                         </Button>
 
                         <p className={styles.cta}>

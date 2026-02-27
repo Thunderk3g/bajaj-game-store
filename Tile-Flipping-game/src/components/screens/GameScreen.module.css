@@ -101,7 +101,7 @@
 .boardHeader {
     width: 100%;
     text-align: center;
-    padding: 12px 20px 4px;
+    padding: 24px 20px 0px;
     flex-shrink: 0;
 }
 
@@ -110,7 +110,7 @@
     font-weight: 700;
     color: #fff;
     opacity: 0.9;
-    margin: 0;
+    margin: 40px 0 -16px;
     letter-spacing: 0.02em;
 }
 
