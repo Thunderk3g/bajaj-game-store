@@ -206,7 +206,7 @@ const GamePage = memo(function GamePage() {
                             Retirement Sudoku
                         </h1>
                         <p style={{ margin: '0.2rem 0 0', fontSize: '0.65rem', color: 'rgba(147,197,253,0.7)', fontWeight: 500 }}>
-                            Balance your income pillars
+                            Balance Your Retirement Pillars
                         </p>
                     </div>
                     <div style={{ display: 'flex', gap: '0.35rem', fontSize: 'clamp(1rem, 4vw, 1.25rem)', opacity: 0.9 }}>

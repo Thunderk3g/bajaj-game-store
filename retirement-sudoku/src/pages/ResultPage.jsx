@@ -14,7 +14,7 @@ function getScenario(score) {
     if (score === 0) {
         return {
             subheading: "Time's Up!",
-            message: "You missed your chance to build a balanced retirement portfolio.",
+            message: "You missed your chance to balance your Retirement Pillars",
             points: 0,
             starScore: 0, // Score is 0, so no stars
         };
@@ -28,7 +28,7 @@ function getScenario(score) {
 
     return {
         subheading: 'Congrats!',
-        message: 'You managed to build a balanced retirement portfolio in time.',
+        message: 'You managed to balance your Retirement Pillars in time',
         points: score,
         starScore: dynamicStars,
     };
@@ -480,15 +480,15 @@ const ResultPage = memo(function ResultPage() {
                             </svg>
                         </motion.button>
 
-                        {/* Info card */}
+                        {/* Info text */}
                         <motion.div
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="bg-blue-900/30 border border-white/10 rounded-lg p-2.5 mx-1 backdrop-blur-sm"
+                            className="pt-1 pb-2"
                         >
-                            <p className="text-white/90 text-xs leading-tight font-medium">
-                                To know more about retirement-focused products, please connect with your relationship manager.
+                            <p className="text-white text-[16px] sm:text-[18px] leading-tight font-bold drop-shadow-md">
+                                Plan Your Happy Retirement With Us!
                             </p>
                         </motion.div>
 
