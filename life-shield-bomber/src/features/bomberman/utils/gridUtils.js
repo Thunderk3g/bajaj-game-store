@@ -56,7 +56,7 @@ export function generateGrid() {
                 !safeZone.has(key) &&
                 !exitZone.has(key)
             ) {
-                if (Math.random() < 0.4) {
+                if (Math.random() < 0.2) {
                     const risk = RISK_TYPES[Math.floor(Math.random() * RISK_TYPES.length)];
                     grid[r][c] = createCell(r, c, CELL_TYPES.RISK, risk);
                 }
@@ -141,14 +141,21 @@ export function countRisks(grid) {
 
 /**
  * Calculate normalized score (0–100).
+ * Scoring:
+ *   Risk Block claimed (walk over): +10 each
+ *   Monster defeated (shield hit):  +15 each
+ *   Remaining health:               +10 per heart
+ *   Time bonus:                     scaled
  */
-export function computeFinalScore(risksDestroyed, healthRemaining, timeRemaining) {
-    const rawScore = risksDestroyed * 10;
-    const healthBonus = healthRemaining * 5;
+export function computeFinalScore(risksDestroyed, monstersDefeated = 0, healthRemaining, timeRemaining) {
+    const riskScore = risksDestroyed * 10;
+    const monsterScore = monstersDefeated * 15;
+    const healthBonus = healthRemaining * 10;
     const timeBonus = Math.floor(timeRemaining * 0.5);
-    const totalRaw = rawScore + healthBonus + timeBonus;
+    const totalRaw = riskScore + monsterScore + healthBonus + timeBonus;
 
-    const maxPossible = 200;
+    // Max theoretical: ~15 risks * 10 + 5 monsters * 15 + 3 hearts * 10 + 90 * 0.5 = 150 + 75 + 30 + 45 = 300
+    const maxPossible = 300;
     const normalized = Math.round(Math.min((totalRaw / maxPossible) * 100, 100));
 
     return Math.max(0, normalized);

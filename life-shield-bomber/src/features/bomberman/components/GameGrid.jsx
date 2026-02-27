@@ -1,31 +1,29 @@
 /**
- * GameGrid — Renders the 9x9 Bomberman grid.
- * Memoized to prevent full grid re-renders on small updates.
+ * GameGrid — Renders the 9x9 Shield Guardian grid.
+ * Shields, monsters, and powerups are overlaid using the grid container ref
+ * so they never escape the grid boundary.
  */
-import { memo, useMemo } from 'react';
+import { memo, useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { CELL_TYPES, GRID_SIZE } from '../constants/gameConstants.js';
+import { POWERUP_TYPES } from '../hooks/usePowerupSystem.js';
 import PlayerCharacter from './PlayerCharacter.jsx';
+import { Shield, Zap, Heart, Snowflake } from 'lucide-react';
 
-const CellContent = memo(function CellContent({ cell, isPlayer, isExploding }) {
-    if (isExploding) {
-        return <div className="explosion-effect" />;
-    }
-
+const CellContent = memo(function CellContent({ cell, isPlayer, isInvulnerable }) {
     if (isPlayer) {
         return (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className={`absolute inset-0 flex items-center justify-center z-10 transition-opacity ${isInvulnerable ? 'opacity-50 animate-pulse' : 'opacity-100'}`}>
                 <PlayerCharacter />
-            </div>
-        );
-    }
-
-    if (cell.hasBomb) {
-        return (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-                <div className="animate-bomb-pulse flex items-center justify-center">
-                    <span className="text-[1rem] drop-shadow-xl">💣</span>
-                </div>
+                {/* Spotlight under player */}
+                <div
+                    className="absolute rounded-full pointer-events-none"
+                    style={{
+                        width: '150%', height: '150%',
+                        background: 'radial-gradient(circle, rgba(30,94,255,0.25) 0%, transparent 70%)',
+                        zIndex: -1,
+                    }}
+                />
             </div>
         );
     }
@@ -33,17 +31,13 @@ const CellContent = memo(function CellContent({ cell, isPlayer, isExploding }) {
     if (cell.type === CELL_TYPES.RISK && cell.riskData) {
         return (
             <div className="absolute inset-0 flex items-center justify-center">
-                <div
-                    className="w-[11px] h-[11px] flex items-center justify-center overflow-hidden"
+                <span
+                    className="select-none pointer-events-none drop-shadow-lg"
+                    style={{ fontSize: '2rem', lineHeight: 1 }}
                     title={cell.riskData.label}
                 >
-                    <span
-                        className="text-[11px] leading-none select-none pointer-events-none display-block"
-                        style={{ fontSize: '11px', width: '11px', height: '11px', textAlign: 'center' }}
-                    >
-                        {cell.riskData.icon}
-                    </span>
-                </div>
+                    {cell.riskData.icon}
+                </span>
             </div>
         );
     }
@@ -51,7 +45,7 @@ const CellContent = memo(function CellContent({ cell, isPlayer, isExploding }) {
     if (cell.type === CELL_TYPES.EXIT) {
         return (
             <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[1rem] animate-pulse drop-shadow-lg">🚪</span>
+                <span className="text-[1.2rem] animate-pulse drop-shadow-lg">🚪</span>
             </div>
         );
     }
@@ -73,23 +67,34 @@ const CellContent = memo(function CellContent({ cell, isPlayer, isExploding }) {
 CellContent.propTypes = {
     cell: PropTypes.object.isRequired,
     isPlayer: PropTypes.bool.isRequired,
-    isExploding: PropTypes.bool.isRequired,
+    isInvulnerable: PropTypes.bool,
 };
 
 const GameGrid = memo(function GameGrid({
     grid,
     playerPos,
-    explosionCells,
+    shields = [],
+    monsters = [],
+    activePowerup,
     floatingScores,
     activePraise,
+    isInvulnerable,
 }) {
-    const explosionSet = useMemo(() => {
-        const set = new Set();
-        if (explosionCells) {
-            explosionCells.forEach(c => set.add(`${c.row},${c.col}`));
-        }
-        return set;
-    }, [explosionCells]);
+    const gridContainerRef = useRef(null);
+    const [gridRect, setGridRect] = useState(null);
+
+    // Measure the actual grid container so overlays stay inside it
+    useEffect(() => {
+        const measure = () => {
+            if (gridContainerRef.current) {
+                const rect = gridContainerRef.current.getBoundingClientRect();
+                setGridRect({ width: rect.width, height: rect.height });
+            }
+        };
+        measure();
+        window.addEventListener('resize', measure);
+        return () => window.removeEventListener('resize', measure);
+    }, []);
 
     const getCellClass = (cell) => {
         switch (cell.type) {
@@ -99,6 +104,8 @@ const GameGrid = memo(function GameGrid({
             default: return 'cell-floor';
         }
     };
+
+    const cellSize = gridRect ? gridRect.width / GRID_SIZE : 0;
 
     return (
         <div className="relative w-full max-w-[30rem] mx-auto px-4 py-6">
@@ -111,8 +118,10 @@ const GameGrid = memo(function GameGrid({
                 }}
             />
 
+            {/* Grid Container — all overlays are relative to this */}
             <div
-                className="bomber-grid border-2 border-white/10 shadow-lg"
+                ref={gridContainerRef}
+                className="bomber-grid border-2 border-white/10 shadow-lg relative overflow-hidden"
                 style={{
                     gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
                     aspectRatio: '1',
@@ -121,7 +130,6 @@ const GameGrid = memo(function GameGrid({
                 {grid.map((row, r) =>
                     row.map((cell, c) => {
                         const isPlayer = playerPos.row === r && playerPos.col === c;
-                        const isExploding = explosionSet.has(`${r},${c}`);
 
                         return (
                             <div
@@ -134,38 +142,117 @@ const GameGrid = memo(function GameGrid({
                                 <CellContent
                                     cell={cell}
                                     isPlayer={isPlayer}
-                                    isExploding={isExploding}
+                                    isInvulnerable={isInvulnerable}
                                 />
                             </div>
                         );
                     })
                 )}
-            </div>
 
-            {/* Floating Scores */}
-            {floatingScores.map(fs => (
-                <div
-                    key={fs.id}
-                    className="float-point"
-                    style={{
-                        top: `${(fs.row / GRID_SIZE) * 100}%`,
-                        left: `${(fs.col / GRID_SIZE) * 100}%`,
-                    }}
-                >
-                    {fs.value}
-                </div>
-            ))}
+                {/* ── Overlay layers positioned INSIDE the grid ── */}
 
-            {/* Praise Overlay */}
-            {activePraise && (
-                <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-                    <div className="animate-pop-in px-8 py-3 rounded-xl bg-[#0F2A55]/95 backdrop-blur-md border-2 border-bb-accent shadow-[0_0_30px_rgba(59,130,246,0.5)]">
-                        <span className="font-display text-xl font-black text-white uppercase tracking-tighter drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-300">
-                            {activePraise}
-                        </span>
+                {/* Shields */}
+                {cellSize > 0 && shields.map(sh => (
+                    <div
+                        key={sh.id}
+                        className="absolute z-30 pointer-events-none"
+                        style={{
+                            width: cellSize,
+                            height: cellSize,
+                            top: sh.row * cellSize,
+                            left: sh.col * cellSize,
+                        }}
+                    >
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div
+                                className="rounded-full animate-pulse"
+                                style={{
+                                    width: '60%',
+                                    height: '60%',
+                                    background: 'radial-gradient(circle, rgba(30,94,255,0.9) 0%, rgba(59,130,246,0.4) 100%)',
+                                    boxShadow: '0 0 12px rgba(30,94,255,0.8), 0 0 24px rgba(59,130,246,0.4)',
+                                    border: '2px solid rgba(255,255,255,0.6)',
+                                }}
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
+                ))}
+
+                {/* Powerup */}
+                {cellSize > 0 && activePowerup && (
+                    <div
+                        className="absolute z-20 pointer-events-none"
+                        style={{
+                            width: cellSize,
+                            height: cellSize,
+                            top: activePowerup.row * cellSize,
+                            left: activePowerup.col * cellSize,
+                        }}
+                    >
+                        <div className="absolute inset-0 flex items-center justify-center animate-bounce">
+                            <div
+                                className="flex items-center justify-center rounded-full"
+                                style={{
+                                    width: '70%',
+                                    height: '70%',
+                                    background: 'radial-gradient(circle, rgba(34,211,238,0.25) 0%, transparent 100%)',
+                                    boxShadow: '0 0 15px rgba(34,211,238,0.5)',
+                                    border: '1.5px solid rgba(34,211,238,0.6)',
+                                }}
+                            >
+                                {activePowerup.type === POWERUP_TYPES.MULTI_SHIELD && <Shield className="w-4 h-4 text-cyan-200" />}
+                                {activePowerup.type === POWERUP_TYPES.SHIELD_PENETRATION && <Zap className="w-4 h-4 text-yellow-200" />}
+                                {activePowerup.type === POWERUP_TYPES.TIME_FREEZE && <Snowflake className="w-4 h-4 text-blue-200" />}
+                                {activePowerup.type === POWERUP_TYPES.HEALTH_RESTORE && <Heart className="w-4 h-4 text-red-400" />}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Monsters */}
+                {cellSize > 0 && monsters.map(monster => (
+                    <div
+                        key={monster.id}
+                        className="absolute z-20 pointer-events-none transition-all duration-300"
+                        style={{
+                            width: cellSize,
+                            height: cellSize,
+                            top: monster.row * cellSize,
+                            left: monster.col * cellSize,
+                        }}
+                    >
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div
+                                className="rotate-45 flex items-center justify-center overflow-hidden"
+                                style={{
+                                    width: '65%',
+                                    height: '65%',
+                                    background: 'rgba(0,0,0,0.5)',
+                                    border: '2px solid #EF4444',
+                                    boxShadow: 'inset 0 0 10px rgba(239,68,68,0.8), 0 0 12px rgba(239,68,68,0.5)',
+                                }}
+                            >
+                                <div className="w-1/2 h-1/2 bg-red-500/60 rounded-full animate-pulse blur-[2px]" />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {/* Floating Scores — inside grid */}
+                {floatingScores.map(fs => (
+                    <div
+                        key={fs.id}
+                        className="float-point absolute z-50 pointer-events-none"
+                        style={{
+                            top: `${(fs.row / GRID_SIZE) * 100}%`,
+                            left: `${(fs.col / GRID_SIZE) * 100}%`,
+                        }}
+                    >
+                        {fs.value}
+                    </div>
+                ))}
+
+            </div>
         </div>
     );
 });
@@ -173,9 +260,12 @@ const GameGrid = memo(function GameGrid({
 GameGrid.propTypes = {
     grid: PropTypes.array.isRequired,
     playerPos: PropTypes.object.isRequired,
-    explosionCells: PropTypes.array.isRequired,
+    shields: PropTypes.array,
+    monsters: PropTypes.array,
+    activePowerup: PropTypes.object,
     floatingScores: PropTypes.array.isRequired,
     activePraise: PropTypes.string,
+    isInvulnerable: PropTypes.bool,
 };
 
 export default GameGrid;

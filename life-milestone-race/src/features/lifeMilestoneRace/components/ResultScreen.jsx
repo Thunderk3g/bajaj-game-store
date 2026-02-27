@@ -1,9 +1,8 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, CheckCircle, Share2, RefreshCw, ChevronDown, ChevronUp, Calendar, X, Check } from 'lucide-react';
+import { Phone, CheckCircle, Share2, RefreshCw, Calendar, X, Check } from 'lucide-react';
 import Confetti from './Confetti';
 import Speedometer from './Speedometer';
-import TimelineSummary from './TimelineSummary';
 import { submitToLMS } from '../../../utils/api';
 
 const ResultScreen = ({
@@ -21,7 +20,8 @@ const ResultScreen = ({
     // Score handling
     const displayScore = finalScore || score || 0;
 
-    const [isTimelineOpen, setIsTimelineOpen] = useState(false);
+
+    const [showExposedModal, setShowExposedModal] = useState(false);
     const [showBooking, setShowBooking] = useState(false);
 
     // Autofill Logic: If userPhone/userName changes, update form state? 
@@ -146,43 +146,45 @@ const ResultScreen = ({
             <div className={ghibliContentClass + " justify-between sm:justify-start"}>
 
                 {/* Header Section */}
-                <div className="text-center mb-1 shrink-0 mt-4">
-                    <h1 className="text-base sm:text-lg md:text-xl font-medium text-white uppercase tracking-wide italic mb-1">
-                        Hi <span className="ml-1 text-2xl sm:text-3xl md:text-4xl font-black">{userName || 'Player'}!</span>
+                <div className="text-center shrink-0 mt-2">
+                    <h1 className="text-sm sm:text-base md:text-lg font-medium text-white uppercase tracking-wide italic mb-0.5">
+                        Hi <span className="ml-1 text-xl sm:text-2xl md:text-3xl font-black">{userName || 'Player'}!</span>
                     </h1>
-                    <h2 className="text-base sm:text-lg md:text-xl text-white uppercase tracking-wide italic mb-2">
-                        Your <span className="font-black text-lg sm:text-xl md:text-2xl text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.8)]">Life Milestone</span> score is
+                    <h2 className="text-sm sm:text-base md:text-lg text-white uppercase tracking-wide italic mb-1">
+                        Your <span className="font-black text-base sm:text-lg md:text-xl text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.8)]">Life Milestone</span> score is
                     </h2>
 
                     {/* Speedometer */}
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="inline-block transform scale-90 sm:scale-100 mb-2"
+                        className="inline-block transform scale-[0.85] origin-top sm:scale-90 mb-0"
                     >
                         <Speedometer score={displayScore} />
                     </motion.div>
 
-                    {/* View Journey Button - Opens Popup */}
-                    <div className="flex justify-center mt-2 mb-4 relative z-20">
-                        <button
-                            onClick={() => setIsTimelineOpen(true)}
-                            className="text-white/80 hover:text-white text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all"
-                        >
-                            View Journey <ChevronDown size={12} />
-                        </button>
-                    </div>
+                    {/* View Exposed Areas Button */}
+                    {timeline && timeline.filter(e => e.decision === 'exposed').length > 0 && (
+                        <div className="flex justify-center mt-0 mb-2 relative z-20">
+                            <button
+                                onClick={() => setShowExposedModal(true)}
+                                className="bg-red-500/20 hover:bg-red-500/30 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 px-6 py-2.5 rounded-full backdrop-blur-sm border border-red-500/30 transition-all shadow-[0_4px_0_rgba(239,68,68,0.3)] active:translate-y-1 active:shadow-none"
+                            >
+                                View your exposed areas
+                            </button>
+                        </div>
+                    )}
 
                     {/* Share Button (Below Speedometer) */}
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="flex justify-center mt-1 sm:mt-2 mb-4"
+                        className="flex justify-center mt-1 mb-2"
                     >
                         <button
                             onClick={handleShare}
-                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-2.5 px-8 shadow-[0_4px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-3 text-sm sm:text-base border-2 border-white/20 uppercase tracking-widest"
+                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-2 px-8 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-3 text-sm sm:text-base border-2 border-white/20 uppercase tracking-widest"
                         >
                             <Share2 className="w-5 h-5" /> SHARE
                         </button>
@@ -194,30 +196,30 @@ const ResultScreen = ({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-3 shrink-0 rounded-sm"
+                    className="bg-white p-3 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-2 shrink-0 rounded-sm"
                 >
-                    <p className="text-slate-600 text-[12px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
+                    <p className="text-slate-600 text-[11px] sm:text-sm font-bold text-center mb-2 leading-relaxed">
                         To secure your milestones risk from real life risk, Connect with our relationship manager
                     </p>
 
                     {/* Call Action */}
-                    <a href="tel:1800209999" className="block w-full mb-4">
-                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20">
+                    <a href="tel:1800209999" className="block w-full mb-2">
+                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2.5 sm:py-3 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/20">
                             <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
                         </button>
                     </a>
 
-                    <div className="relative py-1 mb-3">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-50"></div></div>
-                        <div className="relative flex justify-center text-[8px] sm:text-xs uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
+                    <div className="relative py-1 mb-2">
+                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
+                        <div className="relative flex justify-center text-[8px] sm:text-xs uppercase"><span className="px-3 bg-white text-slate-300 font-black tracking-widest">Or</span></div>
                     </div>
 
                     {/* Booking Trigger Button */}
                     <button
                         onClick={() => setShowBooking(true)}
-                        className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20"
+                        className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-2.5 sm:py-3 shadow-[0_4px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/20"
                     >
-                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> BOOK A CONVENIENT SLOT
+                        <Calendar className="w-4 h-4 sm:w-4 sm:h-4" /> BOOK A CONVENIENT SLOT
                     </button>
                 </motion.div>
 
@@ -340,37 +342,48 @@ const ResultScreen = ({
                 </div>
             )}
 
-            {/* Journey Details Popup Modal */}
+            {/* Exposed Areas Modal */}
             <AnimatePresence>
-                {isTimelineOpen && (
+                {showExposedModal && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-                        onClick={() => setIsTimelineOpen(false)}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setShowExposedModal(false)}
                     >
                         <motion.div
                             initial={{ scale: 0.9, y: 20, opacity: 0 }}
                             animate={{ scale: 1, y: 0, opacity: 1 }}
                             exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                            className="bg-white w-full max-w-md max-h-[80vh] overflow-hidden rounded-2xl shadow-2xl relative flex flex-col"
-                            onClick={e => e.stopPropagation()}
+                            className="bg-white p-6 sm:p-8 w-full max-w-sm sm:max-w-md shadow-2xl relative border-[6px] border-red-300 rounded-2xl flex flex-col max-h-[80vh]"
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="bg-[#0066B2] p-4 flex items-center justify-between shrink-0">
-                                <h3 className="text-white font-black text-lg uppercase tracking-wider">Your Journey</h3>
-                                <button onClick={() => setIsTimelineOpen(false)} className="text-white/80 hover:text-white transition-colors">
-                                    <X size={24} />
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => setShowExposedModal(false)}
+                                className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition-colors bg-slate-50 hover:bg-slate-100 p-1.5 rounded"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
 
-                            <div className="overflow-y-auto p-4 custom-scrollbar bg-slate-50 h-[450px]">
-                                <TimelineSummary timeline={timeline} onContinue={() => { }} />
+                            <h2 className="text-[#DF2C2C] font-black text-center mb-6 text-sm sm:text-base uppercase tracking-tight pt-2 border-b-[1.5px] border-red-100 pb-4 px-6 mt-1">
+                                Your Exposed Areas
+                            </h2>
+
+                            <div className="overflow-y-auto custom-scrollbar flex-1 space-y-3 px-1 pb-4">
+                                {timeline.filter(e => e.decision === 'exposed').map((entry, index) => (
+                                    <div key={index} className="bg-[#FFF5F5] border border-red-100 px-4 py-3.5 rounded-xl shadow-[0_2px_4px_rgba(255,0,0,0.03)] text-center">
+                                        <p className="text-[#1A2E44] text-[11px] sm:text-[12px] font-black uppercase tracking-wider">
+                                            {entry.title}
+                                        </p>
+                                    </div>
+                                ))}
                             </div>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
         </div>
     );
 };

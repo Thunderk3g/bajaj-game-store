@@ -105,7 +105,7 @@ const ResultScreen = memo(function ResultScreen({
 
     return (
         <div
-            className="w-full h-full overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col items-center pt-4 pb-8 px-4"
+            className="w-full h-[100dvh] overflow-hidden flex flex-col items-center px-4 pt-3 pb-4"
             style={{ background: 'linear-gradient(180deg, #00509E 0%, #003366 100%)' }}
         >
             <Confetti />
@@ -119,24 +119,24 @@ const ResultScreen = memo(function ResultScreen({
             </button>
 
             {/* Content Container */}
-            <div className="relative z-10 w-full max-w-[500px] flex flex-col items-center shrink-0">
+            <div className="relative z-10 w-full max-w-[500px] flex flex-col items-center flex-1 min-h-0">
 
                 {/* Header — Hi {Name} */}
-                <div className="text-center mb-2 w-full">
+                <div className="text-center w-full">
                     <motion.h1
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className="text-base sm:text-lg md:text-xl font-medium text-white uppercase tracking-wide italic mb-1"
+                        className="text-sm sm:text-base font-medium text-white uppercase tracking-wide italic"
                     >
-                        Hi <span className="ml-1 text-2xl sm:text-3xl md:text-4xl font-black">{userName}!</span>
+                        Hi <span className="ml-1 text-xl sm:text-2xl font-black">{userName}!</span>
                     </motion.h1>
                     <motion.h2
                         initial={{ y: -10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.1 }}
-                        className="text-sm sm:text-base md:text-lg text-white uppercase tracking-wide italic mb-2 opacity-90"
+                        className="text-xs sm:text-sm text-white uppercase tracking-wide italic opacity-90"
                     >
-                        Your <span className="font-black text-lg sm:text-xl text-[#FF8C00]">Life Shield</span> score is
+                        Your <span className="font-black text-base sm:text-lg text-[#FF8C00]">Life Shield</span> score is
                     </motion.h2>
 
                     {/* Speedometer */}
@@ -144,28 +144,28 @@ const ResultScreen = memo(function ResultScreen({
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="transform scale-90 sm:scale-100 mb-1 origin-top"
+                        className="w-full mb-3"
                     >
                         <ScoreRing score={displayScore} />
                     </motion.div>
 
-                    {/* View Breakdown Button (opens popup) */}
-                    <div className="flex justify-center -mt-4 mb-4 relative z-20">
+                    {/* View Breakdown Button */}
+                    <div className="flex justify-center mb-2 relative z-20">
                         <button
                             onClick={() => setShowBreakdown(true)}
-                            className="text-white/80 hover:text-white text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] flex items-center gap-1 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all shadow-lg"
+                            className="text-white/80 hover:text-white text-[10px] font-bold uppercase tracking-[0.15em] flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all shadow-lg"
                         >
                             Score Breakdown <ChevronDown size={12} />
                         </button>
                     </div>
 
-                    {/* Share Button — Small Orange Pill */}
-                    <div className="flex justify-center mb-6">
+                    {/* Share Button */}
+                    <div className="flex justify-center mb-3">
                         <button
                             onClick={handleShare}
-                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-2.5 px-8 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 text-xs border-2 border-white/20 uppercase tracking-widest rounded-full"
+                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-2 px-6 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 text-[10px] border-2 border-white/20 uppercase tracking-widest rounded-full"
                         >
-                            <Share2 className="w-4 h-4" /> Share
+                            <Share2 className="w-3.5 h-3.5" /> Share
                         </button>
                     </div>
                 </div>
@@ -175,42 +175,42 @@ const ResultScreen = memo(function ResultScreen({
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
-                    className="w-full bg-white p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-6 shrink-0 rounded-xl relative z-20"
+                    className="w-full bg-white p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 rounded-xl relative z-20"
                 >
-                    <p className="text-slate-600 text-[11px] sm:text-sm font-bold text-center mb-4 leading-relaxed uppercase tracking-wide">
+                    <p className="text-slate-600 text-[10px] sm:text-xs font-bold text-center mb-3 leading-relaxed uppercase tracking-wide">
                         To know more, connect with our Relationship Manager.
                     </p>
 
-                    {/* Call Now — Blue, no number visible */}
+                    {/* Call Now */}
                     <button
                         onClick={() => window.open('tel:18002099999', '_self')}
-                        className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-4 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-sm sm:text-lg uppercase tracking-widest border-2 border-white/10 rounded-lg mb-4"
+                        className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/10 rounded-lg mb-3"
                     >
-                        <Phone className="w-5 h-5" /> Call Now
+                        <Phone className="w-4 h-4" /> Call Now
                     </button>
 
                     {/* Divider */}
-                    <div className="relative py-2 mb-4">
+                    <div className="relative py-1.5 mb-3">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-100"></div></div>
-                        <div className="relative flex justify-center text-[10px] sm:text-xs uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
+                        <div className="relative flex justify-center text-[10px] uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
                     </div>
 
-                    {/* Book a Slot — Orange */}
+                    {/* Book a Slot */}
                     <button
                         onClick={() => setShowBooking(true)}
-                        className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_4px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-sm sm:text-lg uppercase tracking-widest border-2 border-white/10 rounded-lg"
+                        className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/10 rounded-lg"
                     >
-                        <Calendar className="w-5 h-5" /> Book a Slot
+                        <Calendar className="w-4 h-4" /> Book a Slot
                     </button>
                 </motion.div>
 
-                {/* Try Again — small, at bottom */}
-                <div className="shrink-0 text-center pb-8">
+                {/* Try Again */}
+                <div className="shrink-0 text-center mt-3">
                     <button
                         onClick={onRestart}
-                        className="text-blue-100/60 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md hover:scale-105 active:scale-95"
+                        className="text-blue-100/60 hover:text-white text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md hover:scale-105 active:scale-95"
                     >
-                        <RotateCcw className="w-4 h-4" /> Try Again
+                        <RotateCcw className="w-3.5 h-3.5" /> Try Again
                     </button>
                 </div>
             </div>

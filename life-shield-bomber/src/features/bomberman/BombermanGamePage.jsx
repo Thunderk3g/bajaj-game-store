@@ -28,12 +28,16 @@ function BombermanGamePage() {
         score,
         risksDestroyed,
         timeLeft,
-        explosionCells,
         activePraise,
         floatingScores,
         entryDetails,
         shakeScreen,
         finalScore,
+        isInvulnerable,
+        shields,
+        monsters,
+        activePowerup,
+        getCooldownProgress,
 
         movePlayer,
         placeBomb,
@@ -110,6 +114,11 @@ function BombermanGamePage() {
                     exit={{ opacity: 0 }}
                     className={`relative z-10 flex flex-col h-full ${shakeScreen ? 'animate-shake' : ''}`}
                 >
+                    {/* Low health vignette */}
+                    {health === 1 && (
+                        <div className="pointer-events-none absolute inset-0 z-40 bg-[radial-gradient(circle_at_center,transparent_50%,rgba(239,68,68,0.2)_100%)] animate-pulse" />
+                    )}
+
                     <GameHUD
                         timeLeft={timeLeft}
                         health={health}
@@ -117,20 +126,35 @@ function BombermanGamePage() {
                         onExit={exitGame}
                     />
 
+                    {/* Praise Popup Area (Fixed between HUD and Grid) */}
+                    <div className="w-full h-0 flex items-center justify-center relative z-20 pointer-events-none overflow-visible">
+                        {activePraise && (
+                            <div className="absolute -top-3 animate-pop-in px-6 py-2 rounded-full bg-[#1e40af]/95 backdrop-blur-md border border-[#60A5FA] shadow-[0_0_15px_rgba(59,130,246,0.4)] whitespace-nowrap">
+                                <span className="font-display text-[0.65rem] sm:text-xs font-black text-white uppercase tracking-widest drop-shadow-[0_2px_1px_rgba(0,0,0,0.8)]">
+                                    {activePraise}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex-1 flex items-center justify-center overflow-hidden">
                         <GameGrid
                             grid={grid}
                             playerPos={playerPos}
-                            explosionCells={explosionCells}
+                            shields={shields}
+                            monsters={monsters}
+                            activePowerup={activePowerup}
                             floatingScores={floatingScores}
                             activePraise={activePraise}
+                            isInvulnerable={isInvulnerable}
                         />
                     </div>
 
                     {gamePhase === GAME_PHASES.PLAYING && (
                         <MobileControls
                             onMove={movePlayer}
-                            onBomb={placeBomb}
+                            onAction={placeBomb}
+                            getCooldownProgress={getCooldownProgress}
                         />
                     )}
 

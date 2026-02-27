@@ -1,109 +1,229 @@
 /**
- * MobileControls — On-screen D-pad and bomb button for mobile.
- * Fixed: prevents double-fire from touchStart + mouseDown on mobile.
+ * MobileControls — Analog joystick (drag-based like Mini Militia) + Shield button.
+ * The joystick fires continuous movement while dragging.
+ * Shield button is blue themed with cooldown radial indicator.
  */
-import { memo, useRef, useCallback } from 'react';
+import { memo, useRef, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
-const MobileControls = memo(function MobileControls({ onMove, onBomb }) {
-    const isTouchRef = useRef(false);
+const JOYSTICK_RADIUS = 50; // Max drag distance in px
+const DEAD_ZONE = 12; // Minimum drag to register
+const MOVE_INTERVAL = 250; // ms between repeated moves while held (increased to slow down movement)
 
-    const handleTouch = useCallback((direction) => (e) => {
-        e.preventDefault();
-        isTouchRef.current = true;
-        onMove(direction);
+const MobileControls = memo(function MobileControls({ onMove, onAction, getCooldownProgress }) {
+    const joystickRef = useRef(null);
+    const knobRef = useRef(null);
+    const isTouchingRef = useRef(false);
+    const originRef = useRef({ x: 0, y: 0 });
+    const currentDirRef = useRef(null);
+    const moveIntervalRef = useRef(null);
+    const [knobPos, setKnobPos] = useState({ x: 0, y: 0 });
+    const [isActive, setIsActive] = useState(false);
+    const [cooldown, setCooldown] = useState(1);
+
+    // Smooth cooldown updates
+    useEffect(() => {
+        let frame;
+        const updateCooldown = () => {
+            if (getCooldownProgress) {
+                setCooldown(getCooldownProgress());
+            }
+            frame = requestAnimationFrame(updateCooldown);
+        };
+        frame = requestAnimationFrame(updateCooldown);
+        return () => cancelAnimationFrame(frame);
+    }, [getCooldownProgress]);
+
+    const getDirection = useCallback((dx, dy) => {
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < DEAD_ZONE) return null;
+
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        // -45 to 45 = RIGHT, 45 to 135 = DOWN, 135/-135 = LEFT, -135 to -45 = UP
+        if (angle >= -45 && angle < 45) return 'RIGHT';
+        if (angle >= 45 && angle < 135) return 'DOWN';
+        if (angle >= -135 && angle < -45) return 'UP';
+        return 'LEFT';
+    }, []);
+
+    const startContinuousMove = useCallback((direction) => {
+        if (moveIntervalRef.current) clearInterval(moveIntervalRef.current);
+        currentDirRef.current = direction;
+        onMove(direction); // Fire immediately
+        moveIntervalRef.current = setInterval(() => {
+            if (currentDirRef.current) {
+                onMove(currentDirRef.current);
+            }
+        }, MOVE_INTERVAL);
     }, [onMove]);
 
-    const handleMouse = useCallback((direction) => () => {
-        if (isTouchRef.current) {
-            isTouchRef.current = false;
-            return;
+    const stopContinuousMove = useCallback(() => {
+        currentDirRef.current = null;
+        if (moveIntervalRef.current) {
+            clearInterval(moveIntervalRef.current);
+            moveIntervalRef.current = null;
         }
-        onMove(direction);
-    }, [onMove]);
+    }, []);
 
-    const handleBombTouch = useCallback((e) => {
+    const handlePointerDown = useCallback((e) => {
         e.preventDefault();
-        isTouchRef.current = true;
-        onBomb();
-    }, [onBomb]);
+        isTouchingRef.current = true;
+        setIsActive(true);
 
-    const handleBombMouse = useCallback(() => {
-        if (isTouchRef.current) {
-            isTouchRef.current = false;
-            return;
+        const rect = joystickRef.current.getBoundingClientRect();
+        originRef.current = {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+        };
+    }, []);
+
+    const handlePointerMove = useCallback((e) => {
+        if (!isTouchingRef.current) return;
+        e.preventDefault();
+
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        let dx = clientX - originRef.current.x;
+        let dy = clientY - originRef.current.y;
+
+        // Clamp to joystick radius
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > JOYSTICK_RADIUS) {
+            dx = (dx / dist) * JOYSTICK_RADIUS;
+            dy = (dy / dist) * JOYSTICK_RADIUS;
         }
-        onBomb();
-    }, [onBomb]);
+
+        setKnobPos({ x: dx, y: dy });
+
+        const dir = getDirection(dx, dy);
+        if (dir && dir !== currentDirRef.current) {
+            startContinuousMove(dir);
+        } else if (!dir) {
+            stopContinuousMove();
+        }
+    }, [getDirection, startContinuousMove, stopContinuousMove]);
+
+    const handlePointerUp = useCallback(() => {
+        isTouchingRef.current = false;
+        setIsActive(false);
+        setKnobPos({ x: 0, y: 0 });
+        stopContinuousMove();
+    }, [stopContinuousMove]);
+
+    // Attach global pointer events for smooth dragging outside the joystick area
+    useEffect(() => {
+        const onMove = (e) => handlePointerMove(e);
+        const onUp = () => handlePointerUp();
+
+        window.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onUp);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+
+        return () => {
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onUp);
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+            if (moveIntervalRef.current) clearInterval(moveIntervalRef.current);
+        };
+    }, [handlePointerMove, handlePointerUp]);
+
+    const handleShieldTouch = useCallback((e) => {
+        e.preventDefault();
+        onAction();
+    }, [onAction]);
+
+    const handleShieldMouse = useCallback(() => {
+        onAction();
+    }, [onAction]);
 
     return (
-        <div className="w-full flex items-center justify-between px-8 py-6 relative z-20 pb-10">
-            {/* D-Pad */}
-            <div className="relative w-[10rem] h-[10rem] bg-white/5 rounded-full border border-white/10 shadow-2xl overflow-hidden backdrop-blur-sm">
-                {/* Visual Center */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-                    <div className="w-full h-[0.0625rem] bg-white" />
-                    <div className="h-full w-[0.0625rem] bg-white absolute" />
+        <div className="w-full flex items-center justify-between px-6 py-4 relative z-20 pb-8">
+            {/* Analog Joystick */}
+            <div
+                ref={joystickRef}
+                className="relative flex items-center justify-center touch-none select-none"
+                style={{ width: '9rem', height: '9rem' }}
+                onTouchStart={handlePointerDown}
+                onMouseDown={handlePointerDown}
+            >
+                {/* Outer ring */}
+                <div
+                    className="absolute rounded-full border border-white/15"
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        background: isActive
+                            ? 'radial-gradient(circle, rgba(30,94,255,0.08) 0%, rgba(30,94,255,0.02) 100%)'
+                            : 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 100%)',
+                        transition: 'background 0.2s',
+                    }}
+                />
+
+                {/* Direction indicators */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-15">
+                    <div className="w-[80%] h-[1px] bg-white" />
+                    <div className="h-[80%] w-[1px] bg-white absolute" />
                 </div>
 
-                {/* Up */}
-                <button
-                    onTouchStart={handleTouch('UP')}
-                    onMouseDown={handleMouse('UP')}
-                    className="dpad-btn absolute top-2 left-1/2 -translate-x-1/2 shadow-lg"
-                    aria-label="Move Up"
-                >
-                    <ChevronUp className="w-7 h-7" strokeWidth={3} />
-                </button>
-
-                {/* Down */}
-                <button
-                    onTouchStart={handleTouch('DOWN')}
-                    onMouseDown={handleMouse('DOWN')}
-                    className="dpad-btn absolute bottom-2 left-1/2 -translate-x-1/2 shadow-lg"
-                    aria-label="Move Down"
-                >
-                    <ChevronDown className="w-7 h-7" strokeWidth={3} />
-                </button>
-
-                {/* Left */}
-                <button
-                    onTouchStart={handleTouch('LEFT')}
-                    onMouseDown={handleMouse('LEFT')}
-                    className="dpad-btn absolute left-2 top-1/2 -translate-y-1/2 shadow-lg"
-                    aria-label="Move Left"
-                >
-                    <ChevronLeft className="w-7 h-7" strokeWidth={3} />
-                </button>
-
-                {/* Right */}
-                <button
-                    onTouchStart={handleTouch('RIGHT')}
-                    onMouseDown={handleMouse('RIGHT')}
-                    className="dpad-btn absolute right-2 top-1/2 -translate-y-1/2 shadow-lg"
-                    aria-label="Move Right"
-                >
-                    <ChevronRight className="w-7 h-7" strokeWidth={3} />
-                </button>
-
-                {/* Center dot */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-4 h-4 rounded-full bg-bb-accent/40 blur-[2px] border border-white/20 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                </div>
+                {/* Knob */}
+                <div
+                    ref={knobRef}
+                    className="absolute rounded-full pointer-events-none"
+                    style={{
+                        width: '3.2rem',
+                        height: '3.2rem',
+                        transform: `translate(${knobPos.x}px, ${knobPos.y}px)`,
+                        background: isActive
+                            ? 'radial-gradient(circle, rgba(30,94,255,0.7) 0%, rgba(30,94,255,0.3) 100%)'
+                            : 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%)',
+                        border: isActive ? '2px solid rgba(59,130,246,0.6)' : '2px solid rgba(255,255,255,0.15)',
+                        boxShadow: isActive
+                            ? '0 0 20px rgba(30,94,255,0.4), inset 0 0 10px rgba(30,94,255,0.2)'
+                            : '0 0 8px rgba(0,0,0,0.3)',
+                        transition: isTouchingRef.current ? 'none' : 'transform 0.15s ease-out, background 0.2s, border 0.2s',
+                    }}
+                />
             </div>
 
-            {/* Bomb Button */}
+            {/* Shield Button */}
             <div className="flex flex-col items-center gap-2">
                 <button
-                    onTouchStart={handleBombTouch}
-                    onMouseDown={handleBombMouse}
-                    className="bomb-btn w-[4.5rem] h-[4.5rem] flex items-center justify-center border-4 shadow-2xl active:translate-y-1 transition-all"
-                    aria-label="Place Bomb"
+                    onTouchStart={handleShieldTouch}
+                    onMouseDown={handleShieldMouse}
+                    className="relative w-[4.5rem] h-[4.5rem] flex items-center justify-center rounded-full overflow-hidden transition-transform active:scale-95"
+                    aria-label="Throw Shield"
+                    style={{
+                        background: cooldown >= 1
+                            ? 'linear-gradient(135deg, rgba(30,94,255,0.5) 0%, rgba(59,130,246,0.3) 100%)'
+                            : 'rgba(30,94,255,0.15)',
+                        border: cooldown >= 1
+                            ? '3px solid rgba(59,130,246,0.9)'
+                            : '3px solid rgba(59,130,246,0.3)',
+                        boxShadow: cooldown >= 1
+                            ? '0 0 20px rgba(30,94,255,0.5), inset 0 0 15px rgba(30,94,255,0.2)'
+                            : 'none',
+                    }}
                 >
-                    <span className="text-2xl drop-shadow-md">💣</span>
+                    {/* Cooldown fill from bottom */}
+                    <div
+                        className="absolute bottom-0 left-0 w-full"
+                        style={{
+                            height: `${(1 - cooldown) * 100}%`,
+                            background: 'rgba(30,94,255,0.15)',
+                            backdropFilter: 'blur(4px)',
+                        }}
+                    />
+                    <Shield
+                        className={`z-10 ${cooldown >= 1 ? 'text-blue-300 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]' : 'text-blue-400/40'}`}
+                        style={{ width: '2rem', height: '2rem' }}
+                        strokeWidth={2.5}
+                    />
                 </button>
-                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Bomb</span>
+                <span className="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest">Shield</span>
             </div>
         </div>
     );
@@ -111,7 +231,8 @@ const MobileControls = memo(function MobileControls({ onMove, onBomb }) {
 
 MobileControls.propTypes = {
     onMove: PropTypes.func.isRequired,
-    onBomb: PropTypes.func.isRequired,
+    onAction: PropTypes.func.isRequired,
+    getCooldownProgress: PropTypes.func,
 };
 
 export default MobileControls;
