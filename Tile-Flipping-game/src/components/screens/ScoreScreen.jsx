@@ -94,7 +94,7 @@ export default function ScoreScreen({ showToast }) {
                     {/* Header */}
                     <div className={styles.header}>
                         <p className={styles.userName}>{user.name ? `Hi ${user.name.split(' ')[0]}!` : 'Hi there!'}</p>
-                        <p className={styles.headline}>"{scenarioData.headline}"</p>
+                        <p className={styles.headline}>{scenarioData.headline}</p>
                     </div>
                     {/* <p className={styles.subLabel}>Your Protection Score</p> */}
 
