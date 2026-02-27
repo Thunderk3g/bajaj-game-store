@@ -5,7 +5,7 @@ import { PhoneCall, RotateCcw, X, Calendar, Share, Share2 } from "lucide-react";
 import Confetti from './Confetti';
 import { isValidPhone } from '../utils/helpers';
 import Speedometer from './Speedometer';
-import { submitToLMS } from '../utils/api';
+import { submitToLMS, updateLeadNew } from '../utils/api';
 
 const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart }) => {
     const today = new Date().toISOString().split("T")[0];
@@ -43,13 +43,24 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
         setIsSubmitting(true);
 
         try {
-            await submitToLMS({
-                name: formData.name,
-                mobile_no: formData.mobile,
-                date: formData.date,
-                time: formData.time,
-                score: Math.round(score)
-            });
+            const leadNo = sessionStorage.getItem('lifeGoalsLeadNo');
+            if (leadNo) {
+                await updateLeadNew(leadNo, {
+                    firstName: formData.name,
+                    mobile: formData.mobile,
+                    date: formData.date,
+                    time: formData.time,
+                    remarks: `Life Goals Game Slot Booking | Score: ${Math.round(score)}`
+                });
+            } else {
+                await submitToLMS({
+                    name: formData.name,
+                    mobile_no: formData.mobile,
+                    date: formData.date,
+                    time: formData.time,
+                    score: Math.round(score)
+                });
+            }
         } catch (error) {
             console.error(error);
         } finally {

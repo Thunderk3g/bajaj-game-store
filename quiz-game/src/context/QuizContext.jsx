@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import { getShuffledQuestions } from '../data/questions';
 import { useSound } from '../hooks/useSound';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { submitToLMS } from '../utils/api';
+import { submitToLMS, updateLeadNew } from '../utils/api';
 
 // Screen constants
 export const SCREENS = {
@@ -32,6 +32,7 @@ export const QuizProvider = ({ children }) => {
     const [leadPhone, setLeadPhone] = useState('');
     const [isLeadSubmitted, setIsLeadSubmitted] = useState(false);
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
+    const [leadNo, setLeadNo] = useState(() => sessionStorage.getItem('quizLeadNo') || null);
 
     // Hooks
     const { playSound } = useSound();
@@ -111,6 +112,8 @@ export const QuizProvider = ({ children }) => {
         setLeadName('');
         setLeadPhone('');
         setIsTermsAccepted(true);
+        setLeadNo(null);
+        sessionStorage.removeItem('quizLeadNo');
     }, []);
 
     const retakeQuiz = useCallback(() => {
@@ -125,6 +128,8 @@ export const QuizProvider = ({ children }) => {
         setLeadName('');
         setLeadPhone('');
         setIsTermsAccepted(true);
+        setLeadNo(null);
+        sessionStorage.removeItem('quizLeadNo');
     }, []);
 
     const onLeadSubmit = useCallback(async (name, phone) => {
@@ -151,23 +156,38 @@ export const QuizProvider = ({ children }) => {
             setLeadName(name);
             setLeadPhone(phone);
             setIsLeadSubmitted(true);
+            if (result.leadNo || result.LeadNo) {
+                const ln = result.leadNo || result.LeadNo;
+                setLeadNo(ln);
+                sessionStorage.setItem('quizLeadNo', ln);
+            }
         }
 
         return result;
     }, [setLeadName, setLeadPhone]);
 
     const handleBookingSubmit = useCallback(async (bookingData) => {
-        // bookingData includes potentially edited name and phone
-        const result = await submitToLMS({
-            name: bookingData.name,
-            mobile_no: bookingData.mobile_no,
-            goal_name: 'Quiz Booking',
-            param4: bookingData.booking_timestamp || new Date().toISOString(),
-            param19: bookingData.date,
-            param23: bookingData.timeSlot,
-            score,
-            summary_dtls: 'Booking Request'
-        });
+        let result;
+        if (leadNo) {
+            result = await updateLeadNew(leadNo, {
+                firstName: bookingData.name,
+                mobile: bookingData.mobile_no,
+                date: bookingData.date,
+                time: bookingData.timeSlot,
+                remarks: `Quiz Booking | Score: ${score}`
+            });
+        } else {
+            result = await submitToLMS({
+                name: bookingData.name,
+                mobile_no: bookingData.mobile_no,
+                goal_name: 'Quiz Booking',
+                param4: bookingData.booking_timestamp || new Date().toISOString(),
+                param19: bookingData.date,
+                param23: bookingData.timeSlot,
+                score,
+                summary_dtls: 'Booking Request'
+            });
+        }
 
         if (result.success) {
             // Update local storage if they edited their details during booking
@@ -197,6 +217,7 @@ export const QuizProvider = ({ children }) => {
         isLeadSubmitted,
         isTermsAccepted,
         highScore,
+        leadNo,
         setIsTermsAccepted,
 
         // Actions

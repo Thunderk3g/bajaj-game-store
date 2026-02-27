@@ -126,6 +126,9 @@ const IntroScreen = memo(function IntroScreen({ onStart }) {
 
             if (result.success) {
                 setLastSubmittedPhone(phone);
+                if (result.leadNo || result.LeadNo) {
+                    sessionStorage.setItem('lifeMilestoneRaceLeadNo', result.leadNo || result.LeadNo);
+                }
                 onStart(userName.trim(), phone);
             } else {
                 showToastMessage("Submission failed. Please try again.");

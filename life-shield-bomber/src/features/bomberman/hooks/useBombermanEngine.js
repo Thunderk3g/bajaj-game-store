@@ -31,7 +31,7 @@ import {
     cloneGrid,
     computeFinalScore,
 } from '../utils/gridUtils.js';
-import { submitToLMS } from '../services/apiClient.js';
+import { submitToLMS, updateLeadNew } from '../services/apiClient.js';
 import { useShieldSystem } from './useShieldSystem.js';
 import { useMonsterSystem } from './useMonsterSystem.js';
 import { usePowerupSystem, POWERUP_TYPES } from './usePowerupSystem.js';
@@ -361,7 +361,7 @@ export function useBombermanEngine() {
         tomorrow.setDate(tomorrow.getDate() + 1);
         const dateStr = tomorrow.toISOString().split('T')[0];
 
-        await submitToLMS({
+        const result = await submitToLMS({
             name: name.trim(),
             mobile_no: mobile,
             param4: dateStr,
@@ -369,6 +369,10 @@ export function useBombermanEngine() {
             summary_dtls: 'Life Shield Bomber Lead',
             p_data_source: 'LIFE_SHIELD_BOMBER_LEAD',
         });
+
+        if (result && result.success && (result.leadNo || result.LeadNo)) {
+            sessionStorage.setItem('lifeShieldBomberLeadNo', result.leadNo || result.LeadNo);
+        }
 
         setGamePhase(GAME_PHASES.HOW_TO_PLAY);
     }, []);
@@ -447,15 +451,26 @@ export function useBombermanEngine() {
 
     const handleBookSlot = useCallback(async (formData) => {
         try {
-            await submitToLMS({
-                name: formData.name,
-                mobile_no: formData.mobile,
-                param4: formData.date,
-                param19: formData.time,
-                score: computeFinalScore(risksDestroyed, health, timeLeft),
-                summary_dtls: 'Life Shield Bomber - Slot Booking',
-                p_data_source: 'LIFE_SHIELD_BOMBER_BOOKING',
-            });
+            const leadNo = sessionStorage.getItem('lifeShieldBomberLeadNo');
+            if (leadNo) {
+                await updateLeadNew(leadNo, {
+                    firstName: formData.name,
+                    mobile: formData.mobile,
+                    date: formData.date,
+                    time: formData.time,
+                    remarks: `Life Shield Bomber Slot Booking | Score: ${computeFinalScore(risksDestroyed, health, timeLeft)}`
+                });
+            } else {
+                await submitToLMS({
+                    name: formData.name,
+                    mobile_no: formData.mobile,
+                    param4: formData.date,
+                    param19: formData.time,
+                    score: computeFinalScore(risksDestroyed, health, timeLeft),
+                    summary_dtls: 'Life Shield Bomber - Slot Booking',
+                    p_data_source: 'LIFE_SHIELD_BOMBER_BOOKING',
+                });
+            }
         } catch {
             // Fail gracefully
         } finally {

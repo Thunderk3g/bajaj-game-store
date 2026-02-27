@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, CheckCircle, Share2, RefreshCw, Calendar, X, Check } from 'lucide-react';
 import Confetti from './Confetti';
 import Speedometer from './Speedometer';
-import { submitToLMS } from '../../../utils/api';
+import { submitToLMS, updateLeadNew } from '../../../utils/api';
 
 const ResultScreen = ({
     score,
@@ -67,17 +67,29 @@ const ResultScreen = ({
         setIsSubmitting(true);
 
         try {
-            const payload = {
-                name: formData.name,
-                mobile_no: formData.mobile,
-                param4: formData.date,
-                param19: formData.time,
-                score: displayScore,
-                summary_dtls: "Life Milestone Race - Slot Booking",
-                p_data_source: "LIFE_MILESTONE_RACE_BOOKING"
-            };
+            const leadNo = sessionStorage.getItem('lifeMilestoneRaceLeadNo');
+            let result;
 
-            const result = await submitToLMS(payload);
+            if (leadNo) {
+                result = await updateLeadNew(leadNo, {
+                    firstName: formData.name,
+                    mobile: formData.mobile,
+                    date: formData.date,
+                    time: formData.time,
+                    remarks: `Life Milestone Race Slot Booking | Score: ${displayScore}`
+                });
+            } else {
+                const payload = {
+                    name: formData.name,
+                    mobile_no: formData.mobile,
+                    param4: formData.date,
+                    param19: formData.time,
+                    score: displayScore,
+                    summary_dtls: "Life Milestone Race - Slot Booking",
+                    p_data_source: "LIFE_MILESTONE_RACE_BOOKING"
+                };
+                result = await submitToLMS(payload);
+            }
 
             if (result.success) {
                 setShowBooking(false);

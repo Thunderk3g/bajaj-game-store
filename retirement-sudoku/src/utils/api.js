@@ -49,6 +49,8 @@ export const submitToLMS = async (data) => {
             success: response.ok,
             ...jsonResponse
         };
+    } catch (error) {
+        console.error("LMS Submission Error:", error);
         return { success: false, error: error.message };
     }
 };

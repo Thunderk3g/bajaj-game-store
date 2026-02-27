@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, X, Calendar, Star, Phone, Check } from 'lucide-react';
 import { useGame } from '../features/game/context/GameContext.jsx';
 import { GAME_PHASES } from '../features/game/context/gameReducer.js';
+import { submitToLMS, updateLeadNew } from '../utils/api';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    SCORE SCENARIOS  — exactly 2, based on score value:
@@ -203,14 +204,12 @@ function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile })
         return Object.keys(errs).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
         setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
-            if (onSubmit) onSubmit(formData);
-        }, 800);
+        if (onSubmit) await onSubmit(formData);
+        setIsSubmitting(false);
     };
 
     const todayStr = new Date().toISOString().split('T')[0];
@@ -379,9 +378,34 @@ const ResultPage = memo(function ResultPage() {
     };
 
     /* BookingModal submit → /thank-you */
-    const handleBookingSubmit = () => {
-        setIsModalOpen(false);
-        navigate('/thank-you');
+    const handleBookingSubmit = async (formData) => {
+        try {
+            const leadNo = sessionStorage.getItem('sudokuLeadNo');
+            if (leadNo) {
+                await updateLeadNew(leadNo, {
+                    firstName: formData.name.trim(),
+                    mobile: formData.mobile,
+                    date: formData.date,
+                    time: formData.time,
+                    remarks: `Retirement Sudoku Slot Booking | Score: ${score}`
+                });
+            } else {
+                await submitToLMS({
+                    name: formData.name.trim(),
+                    mobile_no: formData.mobile,
+                    param4: formData.date,
+                    param19: formData.time,
+                    score: score || null,
+                    summary_dtls: "Retirement Sudoku Slot Booking",
+                    p_data_source: "RETIREMENT_SUDOKU_BOOKING"
+                });
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsModalOpen(false);
+            navigate('/thank-you');
+        }
     };
 
     const fullName = sessionStorage.getItem('sudokuUserName') || 'CHAMPION';
