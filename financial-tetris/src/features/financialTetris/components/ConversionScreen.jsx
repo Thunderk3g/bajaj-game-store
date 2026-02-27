@@ -114,7 +114,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
         if (m === 0) return "No worries — Let’s try again!";
         if (m <= 5) return "Building a foundation takes time. Each milestone counts!";
         if (m <= 15) return "You’ve secured some great financial milestones!";
-        return "Excellent! You are a master of financial planning!";
+        return "Excellent! You have Secured all financial milestones!";
     };
 
     return (
@@ -125,9 +125,12 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
             transition={{ duration: 0.5 }}
         >
             {/* Header / Top Bar */}
-            <div className="w-full max-w-sm flex items-center justify-center relative py-2 sh:py-0 mb-1 sh:mb-0">
+            <div className="w-full max-w-sm flex flex-col items-center justify-center relative py-2 sh:py-0 mb-1 sh:mb-0">
                 <p className="text-gray-400 font-bold text-2xl sm:text-3xl text-center sh:text-lg">
                     Hi <span className="text-blue-500 font-black">{leadData?.name || 'Friend'}</span>
+                </p>
+                <p className="text-white font-black text-2xl sm:text-3xl text-center sh:text-lg mt-1">
+                    You Achieved
                 </p>
                 <button
                     onClick={handleShare}
@@ -144,11 +147,8 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                 </div>
 
                 {/* Messaging Section */}
-                <div className="space-y-1 sh:space-y-0 text-center flex flex-col items-center">
-                    <h2 className="text-3xl sm:text-4xl sh:text-lg font-black text-white tracking-tight leading-none">
-                        {getResultTitle(score)}
-                    </h2>
-                    <p className="text-base sm:text-lg sh:text-[10px] text-gray-500 font-bold leading-tight px-4 mt-0.5 sh:mt-0">
+                <div className="text-center flex flex-col items-center">
+                    <p className="text-xl sm:text-2xl sh:text-[12px] text-white font-black leading-tight px-4">
                         {getMotivationalMessage(score)}
                     </p>
                 </div>
@@ -164,22 +164,22 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
 
                 {/* Action Card Section */}
                 <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[18px] p-5 sh:p-2.5 border border-slate-800 space-y-4 sh:space-y-1 relative overflow-hidden text-center shadow-xl">
-                    <p className="text-gray-400 text-sm sh:text-[9px] font-bold leading-tight">
-                        To Keep Achieving financial Milestone,<br />Connect with our Relationship Manager
+                    <p className="text-white text-md sh:text-[9px] font-bold leading-tight">
+                        To build a strong financial foundation,<br />Connect with our Relationship Manager now!
                     </p>
 
                     <div className="flex flex-col gap-3 sh:gap-1.5">
                         <motion.a
                             href="tel:18002097272"
-                            className="bg-slate-900 text-white font-black py-4 sh:py-3 px-6 rounded-2xl sh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-sm border border-slate-700 hover:bg-slate-800"
+                            className="bg-amber-600 text-white font-black py-4 sh:py-3 px-6 rounded-2xl sh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-sm border border-amber-500/20 hover:bg-amber-500 active:scale-95"
                         >
-                            <Phone className="w-6 h-6 sh:w-4 sh:h-4 text-gray-400" />
+                            <Phone className="w-6 h-6 sh:w-4 sh:h-4 text-white/80" />
                             <span>Call now</span>
                         </motion.a>
 
                         <div className="flex items-center gap-4 py-1 sh:py-0">
                             <div className="h-[1px] flex-1 bg-slate-800" />
-                            <span className="text-slate-600 font-bold text-[10px] sh:text-[8px] uppercase tracking-widest leading-none">OR</span>
+                            <span className="text-slate-600 font-bold text-[14px] sh:text-[10px] uppercase tracking-widest leading-none">OR</span>
                             <div className="h-[1px] flex-1 bg-slate-800" />
                         </div>
 
@@ -196,9 +196,9 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                 {/* Restart Action */}
                 <button
                     onClick={onRestart}
-                    className="w-full py-5 sh:py-3.5 rounded-2xl sh:rounded-xl bg-slate-900 border border-slate-800 text-white font-black text-xl sh:text-base flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-lg"
+                    className="w-full py-2 sh:py-1.5 text-gray-400 font-black text-xl sh:text-base flex items-center justify-center gap-3 hover:text-white transition-all uppercase tracking-widest"
                 >
-                    <RotateCcw className="w-6 h-6 sh:w-4 sh:h-4 text-gray-400" />
+                    <RotateCcw className="w-6 h-6 sh:w-4 sh:h-4 text-gray-500" />
                     <span>Play again</span>
                 </button>
             </div>

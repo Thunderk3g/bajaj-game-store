@@ -107,7 +107,7 @@ const FinancialTetrisPage = () => {
             const timer = setTimeout(() => {
                 setGameStatus('results');
                 setTimeAtCompletion(GAME_DURATION - timeLeft);
-            }, 2000);
+            }, 6000);
             return () => clearTimeout(timer);
         }
     }, [gameStatus, timeLeft, setGameStatus]);
