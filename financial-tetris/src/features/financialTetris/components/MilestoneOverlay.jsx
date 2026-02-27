@@ -68,10 +68,8 @@ const MilestoneOverlay = ({ isVisible, message, onDismiss }) => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
+                                className="mb-2"
                             >
-                                <span className="text-blue-400 text-xs font-bold uppercase tracking-[0.3em] mb-2 block">
-                                    Financial Insight Unlocked
-                                </span>
                                 <h2 className="text-white text-3xl font-black mb-4 leading-tight tracking-tight">
                                     Milestone <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Reached!</span>
                                 </h2>

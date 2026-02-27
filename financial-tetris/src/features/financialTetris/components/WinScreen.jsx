@@ -94,7 +94,6 @@ const WinScreen = ({ onNext }) => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="bg-white/5 border border-white/5 p-4 rounded-2xl"
                         >
                             <p className="text-blue-100/90 font-medium text-lg leading-relaxed italic">
                                 "You successfully built your financial health in this game."
@@ -105,8 +104,9 @@ const WinScreen = ({ onNext }) => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.5 }}
+                            className="pt-6 border-t border-white/10"
                         >
-                            <p className="text-cyan-400 font-bold uppercase tracking-[0.2em] text-xs">
+                            <p className="text-cyan-400 font-bold uppercase tracking-[0.2em] text-sm leading-relaxed">
                                 Build your financial health in real life too.
                             </p>
                         </motion.div>
