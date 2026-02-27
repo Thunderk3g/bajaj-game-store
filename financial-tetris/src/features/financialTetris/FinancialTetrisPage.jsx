@@ -8,6 +8,7 @@ import MilestoneOverlay from './components/MilestoneOverlay';
 import GameOverScreen from './components/GameOverScreen';
 import WinScreen from './components/WinScreen';
 import ConversionScreen from './components/ConversionScreen';
+import TutorialOverlay from './components/TutorialOverlay';
 
 import { useTetrisEngine } from './hooks/useTetrisEngine';
 import { useGameTimer } from './hooks/useGameTimer';
@@ -39,6 +40,7 @@ const FinancialTetrisPage = () => {
     const [milestone, setMilestone] = useState(null);
     const [timeAtCompletion, setTimeAtCompletion] = useState(0);
     const [leadData, setLeadData] = useState(null);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     const handleTimeUp = useCallback(() => {
         if (gameStatus === GAME_STATUS.PLAYING) {
@@ -65,8 +67,15 @@ const FinancialTetrisPage = () => {
 
     const handleStart = (userData) => {
         setLeadData(userData);
+        startGame(); // Initialize board and pieces
+        setGameStatus(GAME_STATUS.TUTORIAL); // Override to pause engine
+        setShowTutorial(true);
+    };
+
+    const handleTutorialComplete = () => {
+        setShowTutorial(false);
         resetTimer();
-        startGame();
+        setGameStatus(GAME_STATUS.PLAYING);
     };
 
     const handleRestart = useCallback(() => {
@@ -182,10 +191,15 @@ const FinancialTetrisPage = () => {
                             onDismiss={handleMilestoneDismiss}
                         />
 
+                        <TutorialOverlay
+                            isVisible={showTutorial}
+                            onStart={handleTutorialComplete}
+                        />
+
                         {/* Game Over / Win Overlays */}
                         <AnimatePresence>
                             {gameStatus === GAME_STATUS.LOST && (
-                                <GameOverScreen key="game-over" onNext={handleNextFromResults} />
+                                <GameOverScreen key="game-over" score={linesCleared} onNext={handleNextFromResults} />
                             )}
                             {gameStatus === GAME_STATUS.WON && (
                                 <WinScreen key="win" onNext={handleNextFromResults} />

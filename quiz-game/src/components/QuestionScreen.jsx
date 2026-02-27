@@ -6,7 +6,7 @@ const QuestionScreen = ({ question, currentQuestion, totalQuestions, onAnswerSel
 
     return (
         <motion.div
-            className="w-full h-[100dvh] flex flex-col pt-2 pb-4 px-2 overflow-hidden"
+            className="w-full h-[100dvh] flex flex-col pt-4 pb-4 px-4 overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}

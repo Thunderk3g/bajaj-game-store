@@ -164,7 +164,6 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
 
                 {/* Action Card Section */}
                 <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[18px] p-5 sh:p-2.5 border border-slate-800 space-y-4 sh:space-y-1 relative overflow-hidden text-center shadow-xl">
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600" />
                     <p className="text-gray-400 text-sm sh:text-[9px] font-bold leading-tight">
                         To Keep Achieving financial Milestone,<br />Connect with our Relationship Manager
                     </p>
@@ -236,7 +235,10 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                         <div className="grid grid-cols-1 gap-4">
                             <div>
                                 <input
+                                    id="booking-name"
+                                    name="name"
                                     type="text"
+                                    autoComplete="name"
                                     value={bookingData.name}
                                     onChange={(e) => {
                                         const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
@@ -252,7 +254,10 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
 
                             <div>
                                 <input
+                                    id="booking-mobile"
+                                    name="mobile_no"
                                     type="text"
+                                    autoComplete="tel"
                                     value={bookingData.mobile_no}
                                     onChange={(e) => {
                                         const val = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -273,6 +278,8 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                             <div className="relative flex-1">
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
                                 <input
+                                    id="booking-date"
+                                    name="date"
                                     type="date"
                                     value={bookingData.date}
                                     min={today}
@@ -290,6 +297,8 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                         <div className="relative">
                             <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
                             <select
+                                id="booking-slot"
+                                name="timeSlot"
                                 value={bookingData.timeSlot}
                                 onChange={(e) => {
                                     setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));

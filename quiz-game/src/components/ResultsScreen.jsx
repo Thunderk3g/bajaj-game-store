@@ -188,7 +188,6 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                 <div className="w-full space-y-1 min-[410px]:space-y-4 sm:space-y-12 pb-2 min-[410px]:pb-4 sm:pb-16 mt-1 min-[410px]:mt-10">
                     {/* Enhanced Action Card */}
                     <div className="bg-white rounded-[16px] sm:rounded-[40px] p-2 min-[410px]:p-5 sm:p-14 shadow-sm border-2 border-soft-gray space-y-2 min-[410px]:space-y-4 sm:space-y-12 relative overflow-hidden text-center">
-                        <div className="absolute top-0 left-0 w-2 h-full bg-brand-blue" />
                         <p className="text-gray-700 text-[12px] min-[410px]:text-base sm:text-2xl font-bold leading-tight italic px-2">
                             To Know more about insurance and savings products! Connect with our Relationship Manager to get started.
                         </p>
@@ -231,7 +230,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             <Dialog.Root open={isBookingOpen} onOpenChange={setIsBookingOpen}>
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-[#B9E6FE]/80 backdrop-blur-md z-50" />
-                    <Dialog.Content asChild>
+                    <Dialog.Content asChild aria-describedby={undefined}>
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
@@ -256,6 +255,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     <div className="grid grid-cols-1 gap-4">
                                         <input
                                             type="text"
+                                            id="booking-name"
+                                            name="name"
+                                            autoComplete="name"
                                             value={bookingData.name}
                                             onChange={(e) => {
                                                 const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
@@ -268,6 +270,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                         />
                                         <input
                                             type="text"
+                                            id="booking-phone"
+                                            name="mobile_no"
+                                            autoComplete="tel"
                                             value={bookingData.mobile_no}
                                             onChange={(e) => {
                                                 const val = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -287,6 +292,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-blue pointer-events-none" />
                                             <input
                                                 type="date"
+                                                id="booking-date"
+                                                name="date"
                                                 value={bookingData.date}
                                                 min={today}
                                                 max={maxDate}
@@ -302,6 +309,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     <div className="relative">
                                         <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-blue pointer-events-none" />
                                         <select
+                                            id="booking-slot"
+                                            name="timeSlot"
                                             value={bookingData.timeSlot}
                                             onChange={(e) => {
                                                 setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));

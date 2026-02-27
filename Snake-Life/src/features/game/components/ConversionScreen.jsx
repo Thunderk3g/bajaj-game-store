@@ -25,10 +25,18 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
     const [errors, setErrors] = useState({});
 
     const timeSlots = [
-        "10:00 AM - 12:00 PM",
-        "12:00 PM - 02:00 PM",
-        "02:00 PM - 04:00 PM",
-        "04:00 PM - 06:00 PM"
+        "9:00 AM - 10:00 AM",
+        "10:00 AM - 11:00 AM",
+        "11:00 AM - 12:00 PM",
+        "12:00 PM - 1:00 PM",
+        "1:00 PM - 2:00 PM",
+        "2:00 PM - 3:00 PM",
+        "3:00 PM - 4:00 PM",
+        "4:00 PM - 5:00 PM",
+        "5:00 PM - 6:00 PM",
+        "6:00 PM - 7:00 PM",
+        "7:00 PM - 8:00 PM",
+        "8:00 PM - 9:00 PM"
     ];
 
     const handleShare = async () => {
@@ -120,7 +128,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
     return (
         <motion.div
-            className="w-full h-[100dvh] flex flex-col items-center bg-blue-950 p-4 sh:p-2 pb-4 sh:pb-6 relative overflow-hidden"
+            className="w-full h-[100dvh] flex flex-col items-center bg-blue-950 p-4 sh:p-2 mh:p-3 pb-4 sh:pb-6 mh:pb-3 relative overflow-hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -151,7 +159,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
             <div className="w-full max-w-sm flex flex-col items-center flex-1 justify-between gap-y-3 sh:gap-y-0.5 min-h-0 z-10">
                 {/* Score Section */}
-                <div className="scale-90 sh:scale-[0.85] transform origin-center py-1 sh:py-0 sh:-mt-4 sh:-mb-12 transition-all">
+                <div className="scale-90 sh:scale-[0.85] mh:scale-[0.88] transform origin-center py-1 sh:py-0 sh:-mt-4 sh:-mb-12 mh:-mt-2 mh:-mb-8 transition-all">
                     <ScoreCard score={score} total={total} />
                 </div>
 
@@ -165,15 +173,14 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                 {/* Primary Action */}
                 <button
                     onClick={handleShare}
-                    className="flex items-center justify-center gap-2 bg-[#1d4ed8] text-white font-black py-4 sh:py-3.5 px-8 rounded-2xl sh:rounded-xl shadow-[0_4px_20px_rgba(29,78,216,0.6)] hover:bg-blue-600 transition-all text-lg sh:text-base w-full max-w-[280px] active:scale-[0.98]"
+                    className="flex items-center justify-center gap-2 bg-[#1d4ed8] text-white font-black py-4 sh:py-3.5 mh:py-3 px-8 rounded-2xl sh:rounded-xl mh:rounded-xl shadow-[0_4px_20px_rgba(29,78,216,0.6)] hover:bg-blue-600 transition-all text-lg sh:text-base w-full max-w-[280px] active:scale-[0.98]"
                 >
                     <Share2 className="w-5 h-5 sh:w-4 sh:h-4" />
                     <span>Share</span>
                 </button>
 
                 {/* Action Card Section */}
-                <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[20px] p-5 sh:p-3 border border-slate-800 space-y-4 sh:space-y-2 relative overflow-hidden text-center shadow-xl">
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600" />
+                <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[20px] mh:rounded-[24px] p-5 sh:p-3 mh:p-4 border border-slate-800 space-y-4 sh:space-y-2 mh:space-y-3 relative overflow-hidden text-center shadow-xl">
                     <p className="text-white text-sm sh:text-xs font-bold leading-tight">
                         A simple conversation can protect everything you're building,<br />
                         <span className="text-white font-bold">Connect with our Relationship Manager now</span>
@@ -182,7 +189,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                     <div className="flex flex-col gap-3 sh:gap-2">
                         <motion.a
                             href="tel:18002097272"
-                            className="bg-slate-900 text-white font-black py-4 sh:py-3.5 px-6 rounded-2xl sh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base border border-slate-700 hover:bg-slate-800"
+                            className="bg-slate-900 text-white font-black py-4 sh:py-3.5 mh:py-3 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base border border-slate-700 hover:bg-slate-800"
                         >
                             <Phone className="w-6 h-6 sh:w-5 sh:h-5 text-gray-400" />
                             <span>Call now</span>
@@ -196,7 +203,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
                         <motion.button
                             onClick={() => setIsBookingOpen(true)}
-                            className="bg-green-600 text-white font-black py-4 sh:py-3.5 px-6 rounded-2xl sh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
+                            className="bg-green-600 text-white font-black py-4 sh:py-3.5 mh:py-3 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
                         >
                             <Calendar className="w-5 h-5 sh:w-4 sh:h-4 opacity-80" />
                             <span>Book a slot</span>
@@ -207,7 +214,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                 {/* Restart Action */}
                 <button
                     onClick={onRestart}
-                    className="w-full py-5 sh:py-4 rounded-2xl sh:rounded-xl bg-slate-900 border border-slate-800 text-white font-black text-xl sh:text-lg flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-lg"
+                    className="w-full py-5 sh:py-4 mh:py-3.5 rounded-2xl sh:rounded-xl mh:rounded-xl bg-slate-900 border border-slate-800 text-white font-black text-xl sh:text-lg flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-lg"
                 >
                     <RotateCcw className="w-6 h-6 sh:w-5 sh:h-5 text-gray-400" />
                     <span>Play again</span>
@@ -254,6 +261,9 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                         if (!val.trim()) setErrors(prev => ({ ...prev, name: "Name is required" }));
                                         else setErrors(prev => ({ ...prev, name: null }));
                                     }}
+                                    id="name"
+                                    name="name"
+                                    autoComplete="name"
                                     placeholder="Your name"
                                     className={`w-full bg-slate-900 border-2 rounded-2xl px-5 py-3 text-white font-bold focus:outline-none focus:border-blue-500 transition-colors ${errors.name ? 'border-red-500' : 'border-slate-800'}`}
                                 />
@@ -272,6 +282,9 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                         else if (val.length === 10 && !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Must start 6-9" }));
                                         else setErrors(prev => ({ ...prev, mobile_no: null }));
                                     }}
+                                    id="mobile"
+                                    name="mobile"
+                                    autoComplete="tel"
                                     placeholder="Mobile number"
                                     className={`w-full bg-slate-900 border-2 rounded-2xl px-5 py-3 text-white font-bold focus:outline-none focus:border-blue-500 transition-colors ${errors.mobile_no ? 'border-red-500' : 'border-slate-800'}`}
                                 />
@@ -291,6 +304,8 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                         setBookingData(prev => ({ ...prev, date: e.target.value }));
                                         setErrors(prev => ({ ...prev, date: null }));
                                     }}
+                                    id="date"
+                                    name="date"
                                     className={`w-full bg-slate-900 border-2 rounded-2xl pl-11 pr-4 py-3 text-white font-bold focus:outline-none focus:border-blue-500 transition-colors ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
                                 />
                                 {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
@@ -305,6 +320,8 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                     setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
                                     setErrors(prev => ({ ...prev, timeSlot: null }));
                                 }}
+                                id="timeSlot"
+                                name="timeSlot"
                                 className={`w-full bg-slate-900 border-2 rounded-2xl pl-11 pr-10 py-3 text-white font-bold focus:outline-none focus:border-blue-500 appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-800'}`}
                             >
                                 <option value="" className="bg-slate-950 text-white">Choose a slot</option>

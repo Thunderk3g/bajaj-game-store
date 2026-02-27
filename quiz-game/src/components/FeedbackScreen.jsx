@@ -21,8 +21,6 @@ const FeedbackScreen = ({ isCorrect, explanation, onNext }) => {
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
             >
                 <div className="bg-white rounded-[32px] p-5 sm:p-8 shadow-2xl border-2 border-soft-gray relative overflow-hidden flex flex-col h-full">
-                    {/* Top Accent Bar */}
-                    <div className={`absolute top-0 left-0 w-full h-2 ${isCorrect ? 'bg-brand-blue' : 'bg-red-500'}`} />
 
                     <div className="text-center flex flex-col h-full min-h-0">
                         {/* Icon */}

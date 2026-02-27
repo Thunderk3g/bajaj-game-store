@@ -25,7 +25,7 @@ const GameBoard = ({ grid, currentPiece, ghostPiece, onBoardClick }) => {
                         return (
                             <div
                                 key={`settled-${x}-${y}`}
-                                className={`absolute tetris-block rounded-[1px] bg-${cell.color}`}
+                                className={`absolute tetris-block rounded-[1px] bg-${cell.color} ${cell.bursting ? 'animate-burst z-10' : ''}`}
                                 style={{
                                     width: `${100 / GRID_WIDTH}%`,
                                     height: `${100 / GRID_HEIGHT}%`,
