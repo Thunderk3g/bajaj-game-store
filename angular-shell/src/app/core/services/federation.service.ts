@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { GamificationStoreService } from './gamification-store.service';
@@ -31,6 +32,7 @@ export class FederationService {
   constructor(
     private http: HttpClient,
     private store: GamificationStoreService,
+    @Inject(APP_BASE_HREF) private baseHref: string,
   ) { }
 
   /**
@@ -130,12 +132,15 @@ export class FederationService {
     }
 
     // Extract base path from remoteEntry
-    // e.g., "/assets/games/scramble-words/index.js" → "/assets/games/scramble-words/"
+    // e.g., "assets/games/scramble-words/index.js" → "assets/games/scramble-words/"
     const basePath = entry.remoteEntry.substring(
       0,
       entry.remoteEntry.lastIndexOf('/') + 1,
     );
-    const fallbackUrl = '/' + basePath + 'index.html';
+
+    // Prepend base href (e.g. /gamification/) and append query params
+    const salesPersonId = this.store.getSalesPersonId() || 'GUEST_USER';
+    const fallbackUrl = `${this.baseHref}${basePath}index.html?salesPersonId=${encodeURIComponent(salesPersonId)}&gameId=${encodeURIComponent(gameId)}`;
     console.log(
       `[FederationService] 🔗 Using manifest URL for game "${gameId}": ${fallbackUrl}`,
     );
