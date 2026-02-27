@@ -107,7 +107,13 @@
     "remoteEntry": "assets/games/Snake-Life/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
-    "displayName": "Snake Life Game",
+    "displayName": "Snake Life Game"
+  },
+  "life-flight": {
+    "remoteEntry": "assets/games/life-flight/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Life Flight",
     "popular": true,
     "gameId": "GAME_011",
     "assets": []

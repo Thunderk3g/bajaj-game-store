@@ -28,7 +28,7 @@ export const submitToLMS = async (data) => {
         utmSource: "",
         userId: userId,
         gameID: gameID,
-        remarks: data.summary_dtls || "Life Milestone Race Lead",
+        remarks: `Game: ${gameID}${data.score != null ? ` | Score: ${data.score}` : ''} | ${data.summary_dtls || "Life Milestone Race Lead"}`,
         appointment_date: "",
         appointment_time: ""
     };

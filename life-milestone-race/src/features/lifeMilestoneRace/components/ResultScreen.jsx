@@ -72,6 +72,7 @@ const ResultScreen = ({
                 mobile_no: formData.mobile,
                 param4: formData.date,
                 param19: formData.time,
+                score: displayScore,
                 summary_dtls: "Life Milestone Race - Slot Booking",
                 p_data_source: "LIFE_MILESTONE_RACE_BOOKING"
             };

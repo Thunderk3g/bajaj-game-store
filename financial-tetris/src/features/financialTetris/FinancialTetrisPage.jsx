@@ -80,6 +80,7 @@ const FinancialTetrisPage = () => {
             ...bookingInfo,
             name: leadData?.name || bookingInfo.name,
             mobile_no: leadData?.phone || bookingInfo.mobile_no,
+            score: linesCleared,
             summary_dtls: 'Financial Tetris - Slot Booking',
             param19: `Milestones: ${linesCleared}`
         });

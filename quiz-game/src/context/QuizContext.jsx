@@ -143,6 +143,7 @@ export const QuizProvider = ({ children }) => {
             param4: new Date().toISOString(),
             param19: preferredDate,
             param23: preferredTime,
+            score,
             summary_dtls: 'Lead Submission'
         });
 
@@ -164,6 +165,7 @@ export const QuizProvider = ({ children }) => {
             param4: bookingData.booking_timestamp || new Date().toISOString(),
             param19: bookingData.date,
             param23: bookingData.timeSlot,
+            score,
             summary_dtls: 'Booking Request'
         });
 

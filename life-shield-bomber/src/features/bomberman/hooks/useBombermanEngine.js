@@ -336,6 +336,7 @@ export function useBombermanEngine() {
             submitToLMS({
                 name: entryDetails.name,
                 mobile_no: entryDetails.mobile,
+                score: finalScoreVal,
                 summary_dtls: `Life Shield Bomber - Early Exit - Score: ${finalScoreVal}/100`,
                 p_data_source: 'LIFE_SHIELD_BOMBER_LEAD',
             });
@@ -365,6 +366,7 @@ export function useBombermanEngine() {
                 mobile_no: formData.mobile,
                 param4: formData.date,
                 param19: formData.time,
+                score: computeFinalScore(risksDestroyed, health, timeLeft),
                 summary_dtls: 'Life Shield Bomber - Slot Booking',
                 p_data_source: 'LIFE_SHIELD_BOMBER_BOOKING',
             });

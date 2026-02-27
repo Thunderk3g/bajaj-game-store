@@ -35,6 +35,7 @@ const GamePage = () => {
             ...bookingInfo,
             name: leadData?.name || bookingInfo.name,
             mobile_no: leadData?.phone || bookingInfo.mobile_no,
+            score,
             summary_dtls: 'Snake Life - Appointment',
             param19: `Milestones: ${score}`
         });

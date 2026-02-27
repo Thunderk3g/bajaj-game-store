@@ -99,7 +99,9 @@ export class SecurityService {
       const salesPerson = {
         id: empId,
         name: this.payload.emp_name || 'User',
-        region: this.payload.location || this.payload.zone || 'NA'
+        region: this.payload.location || 'NA',
+        mobile: this.payload.emp_mobile || '',
+        zone: this.payload.zone || '',
       };
 
       const gameDetails = {

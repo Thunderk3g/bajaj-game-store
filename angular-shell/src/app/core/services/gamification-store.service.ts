@@ -7,6 +7,8 @@ export interface SalesPerson {
   id: string;
   name: string;
   region: string;
+  mobile: string;
+  zone: string;
   [key: string]: any;
 }
 
@@ -123,7 +125,15 @@ export class GamificationStoreService {
 
     if (isLocal) {
       // Local static files need index.html + query params to avoid 404 recursion
-      return `${baseUrl}/index.html?salesPersonId=${encodeURIComponent(salesPerson.id)}&gameId=${encodeURIComponent(gameDetails.id)}`;
+      const params = new URLSearchParams({
+        userId: salesPerson.id,
+        gameId: gameDetails.id,
+        empName: salesPerson.name || '',
+        empMobile: salesPerson.mobile || '',
+        location: salesPerson.region || '',
+        zone: salesPerson.zone || '',
+      });
+      return `${baseUrl}/index.html?${params.toString()}`;
     } else {
       // Remote apps handle path parameters as requested
       return `${baseUrl}/${encodeURIComponent(salesPerson.id)}/${encodeURIComponent(gameDetails.id)}`;

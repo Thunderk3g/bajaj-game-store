@@ -43,6 +43,7 @@ export default function ScoreScreen({ showToast }) {
                 submitToLMS({
                     name: user.name,
                     mobile_no: user.phone,
+                    score: scaledScore,
                     summary_dtls: "Game Lead (Completed)"
                 }).then(() => {
                     dispatch({ type: ACTION.MARK_SUBMITTED });
