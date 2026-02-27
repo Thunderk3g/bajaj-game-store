@@ -34,25 +34,13 @@ const GameOverScreen = ({ score, onNext }) => {
                         Game Over
                     </h2>
 
-                    {/* Stats Section */}
-                    <div className="grid grid-cols-1 gap-4 mb-8">
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                            <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Total Rows Crushed</p>
-                            <div className="flex items-center justify-center gap-2">
-                                <Trophy className="w-4 h-4 text-yellow-400" />
-                                <p className="text-3xl font-black text-white">{score}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* User's Original Content with Better Layout */}
                     <div className="space-y-6 mb-10">
                         <p className="text-white font-medium text-lg leading-snug tracking-tight">
-                            "No worries. You did well — this is just a game."
+                            "No worries — this is just a game"
                         </p>
                         <div className="pt-6 border-t border-white/10">
-                            <p className="text-blue-300 font-bold text-xs uppercase tracking-[0.15em] leading-relaxed">
-                                "Real life doesn’t give many chances. Planning ahead matters."
+                            <p className="text-blue-300 font-bold text-sm uppercase tracking-[0.15em] leading-relaxed">
+                                "Real life doesn’t give many chances. Planning ahead matters"
                             </p>
                         </div>
                     </div>

@@ -124,8 +124,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
         if (currentScore === 0) return "No worries — Let’s try again!";
         if (currentScore <= 2) return "Not quite there yet — You can do better!";
         if (currentScore <= 3) return "Good effort — You can do better!";
-        if (currentScore === 4) return "You’ve learned important financial concepts.";
-        return "Excellent! You are a GST expert!";
+        if (currentScore === 4) return "You’ve learned important financial concepts";
+        return "Excellent! You aced the GST Quiz!";
     };
 
     const getAchievementIcon = (currentScore) => {
@@ -189,7 +189,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                     {/* Enhanced Action Card */}
                     <div className="bg-white rounded-[16px] sm:rounded-[40px] p-2 min-[410px]:p-5 sm:p-14 shadow-sm border-2 border-soft-gray space-y-2 min-[410px]:space-y-4 sm:space-y-12 relative overflow-hidden text-center">
                         <p className="text-gray-700 text-[12px] min-[410px]:text-base sm:text-2xl font-bold leading-tight italic px-2">
-                            To Know more about insurance and savings products! Connect with our Relationship Manager to get started.
+                            To know more about insurance and savings products, connect with our Relationship Manager
                         </p>
 
                         <div className="flex flex-col gap-1.5 min-[410px]:gap-3 sm:gap-6 pt-0 min-[410px]:pt-1 sm:pt-6">

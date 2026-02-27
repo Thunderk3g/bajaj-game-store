@@ -55,13 +55,13 @@ const ScoreCard = ({ score, total }) => {
 
                 {/* Score Text */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                    <div className="uppercase tracking-widest text-[8px] font-bold text-gray-500 mb-0.5 leading-tight text-center max-w-[80px]">
-                        MILESTONES ACHIEVED
-                    </div>
-                    <div className="flex items-baseline justify-center text-blue-500">
+                    <div className="flex flex-col items-center justify-center text-blue-500">
                         <motion.span className="text-6xl font-black leading-none tracking-tighter">
                             {roundedCount}
                         </motion.span>
+                        <div className="uppercase tracking-widest text-[10px] font-black text-blue-400 mt-1">
+                            {score === 1 ? 'Milestone' : 'Milestones'}
+                        </div>
                     </div>
                 </div>
             </div>
