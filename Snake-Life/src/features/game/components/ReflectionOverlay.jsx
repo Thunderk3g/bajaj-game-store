@@ -10,13 +10,12 @@ const ReflectionOverlay = () => {
         if (status === GAME_STATUS.GAMEOVER) {
             // Phaser logic for Game Over Sequence
             const timers = [
-                setTimeout(() => setPhase(1), 300),   // Phase 1 (starts at 0.3s)
-                setTimeout(() => setPhase(2), 3300),  // Phase 2 (starts after 3s)
-                setTimeout(() => setPhase(3), 6300),  // Phase 3 (starts after another 3s)
+                setTimeout(() => setPhase(1), 500),   // Phase 1 (starts at 0.5s)
+                setTimeout(() => setPhase(2), 3000),  // Phase 2 (starts after 2.5s)
                 setTimeout(() => {
                     setStatus(GAME_STATUS.CTA);
                     setPhase(0);
-                }, 9300) // Auto transition to CTA (starts after another 3s)
+                }, 8000) // Auto transition to CTA (starts after 5s)
             ];
             return () => timers.forEach(clearTimeout);
         }
@@ -61,57 +60,39 @@ const ReflectionOverlay = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 bg-primary/95 backdrop-blur-md text-white text-center cursor-pointer"
+                className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 bg-black text-white text-center cursor-pointer"
                 onClick={() => setStatus(GAME_STATUS.CTA)}
             >
-                <div className="max-w-[300px] w-full">
-                    <AnimatePresence mode="wait">
-                        {phase === 1 && (
-                            <motion.div
-                                key="phase1"
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                                className="sh:space-y-2"
-                            >
-                                <h2 className="text-xl opacity-80 mb-2">You built a life of</h2>
-                                <div className="text-7xl font-black text-secondary drop-shadow-lg">{score}</div>
-                                <p className="text-xl mt-2">milestones</p>
-                            </motion.div>
-                        )}
+                <div className="max-w-[300px] w-full space-y-12 sh:space-y-6">
+                    {phase >= 1 && (
+                        <motion.div
+                            key="phase1"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                            className="sh:space-y-2"
+                        >
+                            <h2 className="text-xl opacity-80 mb-2 font-medium">You built a life of</h2>
+                            <div className="text-8xl font-black text-secondary drop-shadow-2xl">{score}</div>
+                            <p className="text-xl mt-2 font-bold tracking-wide">{score === 1 ? 'milestone' : 'milestones'}</p>
+                        </motion.div>
+                    )}
 
-                        {phase === 2 && (
-                            <motion.div
-                                key="phase2"
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                                className="space-y-6 sh:space-y-4"
-                            >
-                                <h2 className="text-3xl font-bold leading-tight">If life stopped here…</h2>
-                                <p className="text-xl opacity-90">Would your family be financially okay?</p>
-                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                                    <p className="text-secondary font-black text-lg">The bigger your life grows… The stronger your protection should be.</p>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {phase === 3 && (
-                            <motion.div
-                                key="phase3"
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                                className="space-y-6 sh:space-y-4"
-                            >
-                                <h2 className="text-3xl font-bold italic">"Growth brings joy."</h2>
-                                <p className="text-xl opacity-90">But also responsibility.</p>
-                                <div className="bg-secondary text-primary p-4 rounded-2xl font-black text-lg">
-                                    One wrong turn shouldn’t end everything.
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    {phase >= 2 && (
+                        <motion.div
+                            key="phase2"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className="space-y-6 sh:space-y-4 pt-4 border-t border-white/10"
+                        >
+                            <h2 className="text-3xl font-bold leading-tight">If life stopped here…</h2>
+                            <p className="text-xl opacity-90 text-gray-300">Would your family be financially okay?</p>
+                            <div className="bg-white/5 p-5 rounded-3xl backdrop-blur-md border border-white/10 shadow-xl">
+                                <p className="text-secondary font-black text-lg leading-relaxed text-balance">The bigger your life grows… The stronger your protection should be.</p>
+                            </div>
+                        </motion.div>
+                    )}
                 </div>
 
                 <motion.div

@@ -120,31 +120,36 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
     return (
         <motion.div
-            className="w-full h-[100dvh] flex flex-col items-center bg-slate-950 p-4 sh:p-2 pb-4 sh:pb-6 relative overflow-hidden"
+            className="w-full h-[100dvh] flex flex-col items-center bg-blue-950 p-4 sh:p-2 pb-4 sh:pb-6 relative overflow-hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
+            {/* Bluish-white Frosty Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-transparent to-white/10 z-0 pointer-events-none" />
+            <div className="absolute inset-0 bg-white/5 backdrop-blur-[1px] z-0 pointer-events-none" />
+
             {/* Background Image */}
             <div
-                className="absolute inset-0 bg-[length:100%_100%] bg-center bg-no-repeat opacity-30 blur-md scale-110 pointer-events-none"
+                className="absolute inset-0 bg-[length:100%_100%] bg-center bg-no-repeat opacity-40 blur-md scale-110 pointer-events-none"
                 style={{ backgroundImage: `url("${bgImage}")` }}
             />
 
             {/* Header / Top Bar */}
-            <div className="w-full max-w-sm flex items-center justify-center relative py-2 sh:py-0 mb-1 sh:mb-0">
-                <p className="text-gray-400 font-bold text-2xl sm:text-3xl sh:text-lg text-center">
-                    Hi <span className="text-blue-500 font-black">{leadData?.name || 'Friend'}</span>
+            <div className="w-full max-w-sm flex items-center justify-center relative py-2 sh:py-0 mb-1 sh:mb-0 z-10">
+                <p className="text-gray-200 font-bold text-2xl sm:text-3xl sh:text-lg text-center drop-shadow-md">
+                    Hi <span className="text-blue-400 font-black">{leadData?.name || 'Friend'}!</span><br />
+                    <span>You Built a Life of</span>
                 </p>
                 <button
                     onClick={handleShare}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 sh:p-1 bg-white/5 backdrop-blur-sm rounded-full text-white/70 hover:text-white hover:bg-white/10 border border-white/10 transition-all active:scale-95 z-10"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2.5 sh:p-1.5 bg-blue-600 rounded-full text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-95 z-20"
                 >
                     <Share2 className="w-5 h-5 sh:w-3.5 sh:h-3.5" />
                 </button>
             </div>
 
-            <div className="w-full max-w-sm flex flex-col items-center flex-1 justify-between gap-y-3 sh:gap-y-0.5 min-h-0">
+            <div className="w-full max-w-sm flex flex-col items-center flex-1 justify-between gap-y-3 sh:gap-y-0.5 min-h-0 z-10">
                 {/* Score Section */}
                 <div className="scale-90 sh:scale-[0.85] transform origin-center py-1 sh:py-0 sh:-mt-4 sh:-mb-12 transition-all">
                     <ScoreCard score={score} total={total} />
@@ -152,18 +157,15 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
                 {/* Messaging Section */}
                 <div className="space-y-1 sh:space-y-0.5 text-center flex flex-col items-center">
-                    <h2 className="text-3xl sm:text-4xl sh:text-2xl font-black text-white tracking-tight leading-none">
-                        {getResultTitle(score)}
+                    <h2 className="text-xl sm:text-2xl sh:text-lg font-black text-white tracking-tight leading-tight px-4 drop-shadow-lg">
+                        Calculate what your family actually needs to continue this life
                     </h2>
-                    <p className="text-base sm:text-lg sh:text-xs text-gray-500 font-bold leading-tight px-4 mt-0.5 sh:mt-1">
-                        {getMotivationalMessage(score)}
-                    </p>
                 </div>
 
                 {/* Primary Action */}
                 <button
                     onClick={handleShare}
-                    className="flex items-center justify-center gap-2 bg-blue-600 text-white font-black py-4 sh:py-3.5 px-8 rounded-2xl sh:rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:bg-blue-500 transition-all text-lg sh:text-base w-full max-w-[280px]"
+                    className="flex items-center justify-center gap-2 bg-[#1d4ed8] text-white font-black py-4 sh:py-3.5 px-8 rounded-2xl sh:rounded-xl shadow-[0_4px_20px_rgba(29,78,216,0.6)] hover:bg-blue-600 transition-all text-lg sh:text-base w-full max-w-[280px] active:scale-[0.98]"
                 >
                     <Share2 className="w-5 h-5 sh:w-4 sh:h-4" />
                     <span>Share</span>
@@ -172,8 +174,9 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                 {/* Action Card Section */}
                 <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[20px] p-5 sh:p-3 border border-slate-800 space-y-4 sh:space-y-2 relative overflow-hidden text-center shadow-xl">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600" />
-                    <p className="text-gray-400 text-sm sh:text-xs font-bold leading-tight">
-                        To Keep Achieving Life Milestones,<br />Connect with our Relationship Manager
+                    <p className="text-white text-sm sh:text-xs font-bold leading-tight">
+                        A simple conversation can protect everything you're building,<br />
+                        <span className="text-white font-bold">Connect with our Relationship Manager now</span>
                     </p>
 
                     <div className="flex flex-col gap-3 sh:gap-2">
