@@ -1,5 +1,4 @@
-import React from 'react';
-import { Trophy, Shield, AlertTriangle } from 'lucide-react';
+import { Trophy, Shield, AlertTriangle, Share2 } from 'lucide-react';
 
 interface EndScreenProps {
     hasShield: boolean;
@@ -23,63 +22,132 @@ const T = {
 
 const EndScreen: React.FC<EndScreenProps> = ({ hasShield, onCTA }) => {
     return (
-        <div style={{ width: '100%', height: '100%', background: T.bgPage, display: 'flex', flexDirection: 'column', overflow: 'auto', alignItems: 'stretch' }}>
-            {/* Header band */}
-            <div style={{ background: `linear-gradient(135deg, ${T.blue} 0%, ${T.blueDark} 100%)`, padding: '28px 24px 56px', color: '#fff', textAlign: 'center', flexShrink: 0 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.7, marginBottom: 8 }}>Bajaj Allianz Life</p>
-                <p style={{ fontSize: 13, fontWeight: 600, opacity: 0.8, margin: 0 }}>You've reached Square 100!</p>
+        <div style={{
+            width: '100%', height: '100%',
+            background: 'linear-gradient(to bottom, #192b5e 0%, #11204a 100%)',
+            display: 'flex', flexDirection: 'column',
+            overflowX: 'hidden', overflowY: 'auto',
+            alignItems: 'center', padding: '24px 20px 40px',
+            color: T.white, position: 'relative'
+        }}>
+            {/* Top Right Share Icon */}
+            <button style={{
+                position: 'absolute', top: 20, right: 20,
+                width: 36, height: 36, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: T.white, cursor: 'pointer', zIndex: 10
+            }}>
+                <Share2 size={16} />
+            </button>
+
+            {/* Header */}
+            <div style={{ textAlign: 'center', marginBottom: 24, marginTop: 8 }}>
+                <p style={{ fontSize: 16, fontWeight: 900, color: '#FF7B00', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>
+                    Bajaj Allianz Life
+                </p>
+                <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>
+                    "{hasShield ? 'You Finished Strong — Because You Planned.' : 'You Made It on Luck Alone.'}"
+                </h1>
             </div>
 
-            {/* Main card — pulled over the header */}
-            <div style={{ margin: '-32px 16px 0', background: T.white, borderRadius: 22, boxShadow: '0 6px 32px rgba(0,102,178,0.12)', border: `1px solid ${T.border}`, padding: '28px 22px', textAlign: 'center' }}>
-                {/* Icon */}
-                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 88, height: 88, borderRadius: '50%', marginBottom: 18, background: hasShield ? T.goldLight : T.orangeLight, position: 'relative' }}>
+            {/* Circular Graphic (resembling the score ring) */}
+            <div style={{
+                width: 140, height: 140,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.03)',
+                border: '8px solid rgba(255,123,0,0.15)',
+                borderRightColor: '#FF7B00', // Creating a ring effect
+                borderBottomColor: '#FF7B00',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 28px', position: 'relative',
+                transform: 'rotate(-45deg)', // Rotate the ring so the orange is on bottom right
+            }}>
+                <div style={{ transform: 'rotate(45deg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     {hasShield ? (
-                        <>
-                            <Trophy size={46} color={T.gold} />
-                            <div style={{ position: 'absolute', bottom: 0, right: 0, background: T.blueLight, borderRadius: '50%', padding: 4, border: `2px solid ${T.white}` }}>
-                                <Shield size={18} color={T.blue} />
-                            </div>
-                        </>
+                        <Trophy size={54} color={T.white} />
                     ) : (
-                        <AlertTriangle size={46} color={T.orange} />
+                        <AlertTriangle size={54} color="#FF7B00" />
                     )}
                 </div>
-
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: T.text, margin: '0 0 12px', lineHeight: 1.3 }}>
-                    {hasShield ? 'You Finished Strong — Because You Planned.' : 'You Made It on Luck Alone.'}
-                </h2>
-                <p style={{ fontSize: 13, color: T.muted, margin: '0 0 24px', lineHeight: 1.65 }}>
-                    {hasShield
-                        ? "You can't avoid life's snakes. But with the right protection, they won't define your family's future."
-                        : "In real life, you don't get unlimited retries. Most families fall behind because they lack protection."}
-                </p>
-
-                {/* Stat strip */}
-                <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-                    {[
-                        { label: 'Protection', value: hasShield ? 'Active ✅' : 'None ❌', accent: hasShield ? '#059669' : T.orange },
-                        { label: 'Journey', value: 'Complete', accent: T.blue },
-                    ].map(s => (
-                        <div key={s.label} style={{ flex: 1, background: T.bgPage, borderRadius: 12, padding: '12px 8px', border: `1px solid ${T.border}` }}>
-                            <p style={{ fontSize: 16, fontWeight: 800, color: s.accent, margin: '0 0 2px' }}>{s.value}</p>
-                            <p style={{ fontSize: 10, color: T.muted, margin: 0, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.label}</p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* CTA */}
-                <button onClick={onCTA} style={{ width: '100%', padding: '15px 24px', background: `linear-gradient(135deg, ${T.orange} 0%, #FF8533 100%)`, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', border: 'none', borderRadius: 14, cursor: 'pointer', boxShadow: '0 4px 20px rgba(255,102,0,0.35)' }}>
-                    {hasShield ? 'Speak to a Protection Expert' : 'Protect My Family Now'}
-                </button>
-
-                <p style={{ fontSize: 11, color: T.muted, marginTop: 14, lineHeight: 1.5 }}>
-                    Real protection is better than luck. Get your term plan today.
-                </p>
             </div>
 
-            <div style={{ textAlign: 'center', padding: '20px 0 16px', fontSize: 9, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', color: T.muted, opacity: 0.4 }}>
-                Bajaj Allianz Life Insurance
+            {/* Stat strip (dark translucent boxes) */}
+            <div style={{ display: 'flex', gap: 12, width: '100%', marginBottom: 28, maxWidth: 400 }}>
+                {[
+                    { label: 'Protection', value: hasShield ? 'Active ✅' : 'None ❌' },
+                    { label: 'Journey', value: 'Complete' },
+                ].map(s => (
+                    <div key={s.label} style={{
+                        flex: 1,
+                        background: 'rgba(255,255,255,0.06)',
+                        borderRadius: 12,
+                        padding: '16px 10px',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        textAlign: 'center'
+                    }}>
+                        <p style={{ fontSize: 18, fontWeight: 900, color: T.white, margin: '0 0 4px' }}>{s.value}</p>
+                        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>{s.label}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Message Paragraph */}
+            <p style={{ fontSize: 14, color: T.white, margin: '0 0 24px', lineHeight: 1.5, textAlign: 'center', maxWidth: 400, fontWeight: 600 }}>
+                {hasShield
+                    ? "You can't avoid life's snakes. But with the right protection, they won't define your family's future."
+                    : "In real life, you don't get unlimited retries. Most families fall behind because they lack protection."}
+            </p>
+
+            {/* Buttons Area */}
+            <div style={{ width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* New Share Button replacing original CTA */}
+                <button onClick={onCTA} style={{
+                    width: '100%', padding: '15px 24px',
+                    background: 'linear-gradient(135deg, #FF6600 0%, #E65C00 100%)',
+                    color: '#fff', fontSize: 16, fontWeight: 800,
+                    borderRadius: '999px', border: 'none', cursor: 'pointer',
+                    boxShadow: '0 4px 20px rgba(255,102,0,0.3)',
+                }}>
+                    Share
+                </button>
+
+                {/* Subtext */}
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', textAlign: 'center', margin: '4px 0 8px', lineHeight: 1.5 }}>
+                    Real protection is better than luck. Get your term plan today.
+                    <br />Connect with our relationship manager now!
+                </p>
+
+                {/* Call Now Button */}
+                <button style={{
+                    width: '100%', padding: '15px 24px',
+                    background: '#b8c2d1', // silver/light gray
+                    color: '#1A2340', fontSize: 16, fontWeight: 800,
+                    borderRadius: '999px', border: 'none', cursor: 'pointer',
+                }}>
+                    Call Now
+                </button>
+
+                {/* Book a Slot Button */}
+                <button style={{
+                    width: '100%', padding: '15px 24px',
+                    background: '#1942b3', // dark blue
+                    color: '#fff', fontSize: 15, fontWeight: 800,
+                    borderRadius: '999px', border: 'none', cursor: 'pointer',
+                }}>
+                    Book a Slot
+                </button>
+
+                {/* Play Again text link */}
+                <div style={{ textAlign: 'center', marginTop: 16 }}>
+                    <button style={{
+                        background: 'none', border: 'none', color: '#fff',
+                        fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                        textDecoration: 'none'
+                    }}>
+                        Play Again
+                    </button>
+                </div>
             </div>
         </div>
     );

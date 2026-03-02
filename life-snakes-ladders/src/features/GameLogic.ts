@@ -39,29 +39,31 @@ export const BOARD_SIZE = 100;
 
 export const SNAKES: Record<number, Partial<Cell>> = {
     // Head position → tail position (matching the board image)
-    99: { target: 6, label: 'Sudden Hospitalization', category: 'health', description: 'High medical expenses drain savings.', impactMsg: 'Savings drained. Financial plans disrupted.', shieldMsg: 'Insurance rider cushions the shock. Family savings stay protected.' },
-    92: { target: 88, label: 'Accidental Injury', category: 'health', description: 'Unexpected accident sets you back.', impactMsg: 'Recovery costs mount.', shieldMsg: 'Accident Cover ensures quick recovery without financial stress.' },
-    87: { target: 24, label: 'Critical Illness', category: 'health', description: 'Serious diagnosis hits at peak career.', impactMsg: 'Treatment costs rise. Investments liquidated.', shieldMsg: 'Critical Illness Cover absorbs treatment costs. Core wealth stays intact.' },
-    73: { target: 19, label: 'Permanent Disability', category: 'life', description: 'Income stops unexpectedly.', impactMsg: 'Income stops. Responsibilities continue.', shieldMsg: 'Accident Disability Rider ensures continued income support.' },
-    63: { target: 60, label: 'Job Loss', category: 'wealth', description: 'Sudden unemployment impacts finances.', impactMsg: 'Savings dip. EMIs continue.', shieldMsg: 'Income Protection Rider bridges the gap.' },
-    58: { target: 42, label: 'Market Crash', category: 'wealth', description: 'Wipes out equity savings.', impactMsg: 'Years of savings evaporate overnight.', shieldMsg: 'Guaranteed Savings Plan absorbs the shock.' },
-    54: { target: 34, label: 'Spouse Health Emergency', category: 'life', description: 'Spouse diagnosed with critical illness.', impactMsg: 'Second income gone. Medical bills mount.', shieldMsg: 'Critical Illness Rider covers treatment costs.' },
-    47: { target: 16, label: 'Accidental Death', category: 'life', description: 'One moment changes everything.', impactMsg: 'Your family\'s journey resets to the start.', shieldMsg: 'Term Insurance ensures your family continues forward.' },
-    32: { target: 12, label: 'Major Loan Burden', category: 'wealth', description: 'Unpaid loan traps the family.', impactMsg: 'Family forced to sell assets.', shieldMsg: 'Life Insurance helps clear liabilities. Assets protected.' },
-    16: { target: 6, label: 'Health Emergency at 30s', category: 'health', description: 'Early health event disrupts plans.', impactMsg: 'High costs derail savings goals.', shieldMsg: 'Health Cover + Income Protection keeps lifestyle secure.' },
+    99: { target: 80, label: 'Unexpected Death Before Retirement', category: 'life', description: 'Your family must restart financially.', impactMsg: 'Income stops. Family struggles.', shieldMsg: 'Term Insurance secures their future. Your journey continues through them.' },
+    95: { target: 75, label: 'Market Crash Before Retirement', category: 'wealth', description: 'Portfolio value crashes. Retirement delayed.', impactMsg: 'Years of savings evaporate.', shieldMsg: 'Guaranteed return product stabilizes future income.' },
+    92: { target: 88, label: 'Minor Stroke / Recovery Period', category: 'health', description: 'Temporary income pause. Lifestyle downgraded.', impactMsg: 'Treatment costs mount. Income paused.', shieldMsg: 'Income rider maintains household stability.' },
+    89: { target: 68, label: 'Spouse Critical Illness', category: 'life', description: 'Dual income collapses. Children’s plans disrupted.', impactMsg: 'Medical bills rise. Second income gone.', shieldMsg: 'Family protection ensures continuity.' },
+    74: { target: 53, label: 'Health Crisis at 50', category: 'health', description: 'Medical bills drain retirement corpus.', impactMsg: 'Savings drained.', shieldMsg: 'Health + Term rider safeguards savings.' },
+    64: { target: 60, label: 'Sudden Family Emergency', category: 'wealth', description: 'Unplanned expenses disrupt momentum.', impactMsg: 'Unplanned costs absorb cash flows.', shieldMsg: 'Emergency cover cushions the shock.' },
+    62: { target: 19, label: 'Major Financial Collapse', category: 'wealth', description: 'Business failure or debt crisis. Years of hard work erased.', impactMsg: 'Back to square one financially.', shieldMsg: 'Life + Liability cover protects assets. You recover without starting from zero.' },
+    49: { target: 11, label: 'Critical Illness Diagnosis', category: 'health', description: 'Treatment expenses skyrocket. Investments liquidated. Goals delayed.', impactMsg: 'Goals derailed.', shieldMsg: 'Critical Illness Cover pays lump sum. Your life plans stay intact.' },
+    46: { target: 25, label: 'Job Loss During EMIs', category: 'wealth', description: 'Income stops. Loans continue. EMIs pile up. Progress slows.', impactMsg: 'Stress mounts. EMIs default.', shieldMsg: 'Income Protection Rider provides stability. You stay financially afloat.' },
+    16: { target: 6, label: 'Early Career Medical Emergency', category: 'health', description: 'Unexpected hospitalization. Savings wiped before they even begin. Your financial journey restarts.', impactMsg: 'Savings gone.', shieldMsg: 'Health rider absorbs treatment costs. Your savings remain untouched.' },
 };
 
 export const LADDERS: Record<number, Partial<Cell>> = {
     // Bottom rung → top rung (matching the board image)
-    2: { target: 23, label: 'First ULIP Started', category: 'wealth', description: 'Early investing builds momentum.' },
-    7: { target: 14, label: 'Got Health Check-up', category: 'health', description: 'Preventive care leads to better outcomes.' },
-    15: { target: 25, label: 'Built Emergency Fund', category: 'wealth', description: 'Safety net keeps you moving forward.' },
-    22: { target: 37, label: 'Got Married', category: 'life', description: 'New beginnings. Plan together, grow together.' },
-    36: { target: 44, label: 'Career Promotion!', category: 'wealth', description: 'Hard work pays off - income doubles.' },
-    46: { target: 67, label: 'Bought Second Home', category: 'wealth', description: 'Financially growing deeper roots.' },
-    65: { target: 85, label: 'Child Education Plan', category: 'retirement', description: 'Investing early secures your child\'s future.' },
-    72: { target: 91, label: 'Business Milestone', category: 'wealth', description: 'Smart planning accelerates wealth building.' },
-    83: { target: 97, label: 'Retirement Corpus Ready', category: 'retirement', description: 'Disciplined saving reaches its peak.' },
+    2: { target: 38, label: 'Started Early Investment Plan', category: 'wealth', description: 'Time in the market builds wealth.' },
+    7: { target: 14, label: 'First Salary Increase', category: 'wealth', description: 'Momentum begins.' },
+    8: { target: 31, label: 'Marriage & Financial Planning', category: 'life', description: 'Shared dreams grow faster.' },
+    15: { target: 26, label: 'Emergency Fund Built', category: 'wealth', description: 'Preparedness reduces stress.' },
+    21: { target: 42, label: 'Career Promotion', category: 'wealth', description: 'Income grows. Responsibility grows.' },
+    28: { target: 84, label: 'Major Career Breakthrough', category: 'wealth', description: 'Leadership level achieved.' },
+    //36: { target: 44, label: '', category: '', description: '' },
+    51: { target: 67, label: 'Bought a Home', category: 'wealth', description: 'Stability established.' },
+    71: { target: 91, label: 'Child’s Education Secured', category: 'retirement', description: 'Future protected.' },
+    78: { target: 98, label: 'Retirement Planning Success', category: 'retirement', description: 'Freedom ahead.' },
+    //87:{target:94,label:'',category:'',description:''}
 };
 
 export const getCellData = (id: number): Cell => {
@@ -92,11 +94,3 @@ export const getCellXY = (id: number) => {
     };
 };
 
-export const getSVGCoords = (id: number) => {
-    const { x, y } = getCellXY(id);
-    // Center of cell in 0-100 viewBox
-    return {
-        cx: x + 5,
-        cy: y + 5
-    };
-};
