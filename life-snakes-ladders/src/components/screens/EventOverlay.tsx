@@ -24,7 +24,7 @@ const EventOverlay: React.FC<EventOverlayProps> = ({
 
             {/* Event Card */}
             <div className={`lsl-relative lsl-w-full lsl-max-w-xs lsl-p-6 lsl-rounded-3xl lsl-border lsl-text-center lsl-animate-in lsl-fade-in lsl-zoom-in lsl-duration-300 ${isProtected ? 'lsl-bg-shield-blue/20 lsl-border-shield-glow' :
-                isSnake ? 'lsl-bg-snake-red/20 lsl-border-snake-red lsl-shake' :
+                isSnake ? 'lsl-bg-snake-red/20 lsl-border-snake-red' :
                     'lsl-bg-ladder-gold/20 lsl-border-ladder-gold'
                 }`}>
 

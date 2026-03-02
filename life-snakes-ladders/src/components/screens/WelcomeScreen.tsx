@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import LeadModal from '../modals/LeadModal';
-import ModeSelectionModal from '../modals/ModeSelectionModal';
 
 interface WelcomeScreenProps {
     onStart: (data: { name: string; mobile: string; isProtected?: boolean }) => void;
@@ -8,8 +7,6 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
     const [showLeadModal, setShowLeadModal] = useState(false);
-    const [showModeModal, setShowModeModal] = useState(false);
-    const [leadData, setLeadData] = useState<{ name: string, mobile: string } | null>(null);
 
     return (
         <>
@@ -103,26 +100,16 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
                 <LeadModal
                     onClose={() => setShowLeadModal(false)}
                     onSubmit={(data) => {
-                        setLeadData(data);
                         setShowLeadModal(false);
-                        setShowModeModal(true); // Move to Step 2
-                    }}
-                />
-            )}
-
-            {/* Mode selection modal - Step 2 */}
-            {showModeModal && leadData && (
-                <ModeSelectionModal
-                    onClose={() => setShowModeModal(false)}
-                    onSelect={(isProtected) => {
-                        setShowModeModal(false);
                         onStart({
-                            ...leadData,
-                            isProtected
+                            ...data,
+                            isProtected: false
                         });
                     }}
                 />
             )}
+
+
         </>
     );
 };

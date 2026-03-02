@@ -10,7 +10,7 @@ import { audioService } from './services/AudioService';
 
 // Screens
 import WelcomeScreen from './components/screens/WelcomeScreen';
-import ShieldChoiceScreen from './components/screens/ShieldChoiceScreen';
+
 import GameScreen from './components/screens/GameScreen';
 import EventOverlay from './components/screens/EventOverlay';
 import EndScreen from './components/screens/EndScreen';
@@ -56,6 +56,16 @@ const App: React.FC<AppProps> = ({
 
         audioService.playDiceRoll();
         const dice = Math.floor(Math.random() * 6) + 1;
+        const requiredToWin = BOARD_SIZE - gameState.playerPosition;
+
+        if (dice > requiredToWin) {
+            setGameState(prev => ({
+                ...prev,
+                lastDiceValue: dice,
+                message: `You rolled a ${dice}. You need exactly a ${requiredToWin} to finish!`
+            }));
+            return; // Don't move
+        }
 
         setGameState(prev => ({
             ...prev,
@@ -224,15 +234,7 @@ const App: React.FC<AppProps> = ({
                 />
             );
 
-        case 'shield-choice':
-            return (
-                <ShieldChoiceScreen
-                    onChoice={(choice) => {
-                        setGameState(prev => ({ ...prev, hasShield: choice, currentScreen: 'game' }));
-                        if (onGameStart) onGameStart();
-                    }}
-                />
-            );
+
 
         case 'game':
         case 'event':
