@@ -131,9 +131,7 @@ export class SecurityService {
   secureNavigateToGame(gameId: string): void {
     const url = this.federationService.getGameUrl(gameId);
     if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-      // Navigate back to lobby and scrub token from history
-      this.router.navigate(['/'], { replaceUrl: true });
+      window.location.href = url;
     } else {
       console.error(`[SecurityService] No URL found for game: ${gameId}`);
       this.router.navigate(['/play', gameId], {

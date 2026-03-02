@@ -607,7 +607,7 @@ export class LobbyComponent implements OnInit {
     // ── Open game in a new tab to avoid CSP frame-ancestors issues ──
     const url = this.federationService.getGameUrl(gameId);
     if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
+      window.location.href = url;
     } else {
       console.error(`[Lobby] No URL found for game: ${gameId}`);
     }
