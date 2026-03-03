@@ -124,8 +124,8 @@ export default function GameOverPage() {
     };
 
     const handlePlayAgain = () => {
-        dispatch({ type: ACTIONS.RESTART });
-        navigate('/');
+        dispatch({ type: ACTIONS.START_GAME });
+        navigate('/game');
     };
 
     return (
@@ -135,7 +135,7 @@ export default function GameOverPage() {
         >
             {/* Background Pattern */}
             <div className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center opacity-60 mix-blend-overlay"
-                style={{ backgroundImage: 'linear-gradient(radial-gradient, circle at center, rgba(255,255,255,0.2) 0%, transparent 70%)' }}>
+                style={{ backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 70%)' }}>
             </div>
 
             <div className="relative z-10 px-5 pt-8 pb-4">
@@ -165,7 +165,7 @@ export default function GameOverPage() {
                         className="w-full py-4 px-6 rounded-full shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95 z-20"
                         style={{ backgroundColor: '#07325F', border: '1px solid rgba(255,255,255,0.15)' }}
                     >
-                        <span className="text-sm font-black tracking-wide text-white font-sans">WHAT COULD HAVE PROTECTED YOU</span>
+                        <span className="text-sm font-black tracking-wide text-white font-sans">WHAT COULD PROTECT YOU</span>
                         {showInsurancePopup ? <ChevronUp className="w-5 h-5 text-white" /> : <ChevronDown className="w-5 h-5 text-white" />}
                     </button>
 
@@ -194,7 +194,7 @@ export default function GameOverPage() {
                                             <td className="p-3 px-4 font-medium">Pays lump sum when treatment costs skyrocket</td>
                                         </tr>
                                         <tr className="bg-white border-b border-slate-200">
-                                            <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Accident Rider</td>
+                                            <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Accidental Disability Rider</td>
                                             <td className="p-3 px-4 font-medium">Income continues even when you physically cannot work</td>
                                         </tr>
                                         <tr style={{ backgroundColor: '#F8FAFC' }}>

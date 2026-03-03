@@ -179,7 +179,7 @@ export default function GamePage() {
                             <span className="font-black" style={{ fontSize: 42, color: '#ffffff', lineHeight: 1 }}>
                                 {scoreDisplay}
                             </span>
-                            <span className="font-black uppercase" style={{ fontSize: 14, color: '#00B4D8' }}>
+                            <span className="font-black uppercase" style={{ fontSize: 12, color: '#00B4D8' }}>
                                 {pct}% Prepared
                             </span>
                         </div>

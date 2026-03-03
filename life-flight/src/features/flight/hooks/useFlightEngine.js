@@ -142,7 +142,8 @@ export function useFlightEngine({
         ctx.globalAlpha = 1;
         ctx.translate(pipe.x + PIPE_WIDTH / 2, pipe.topH / 2);
         ctx.rotate(-Math.PI / 2);
-        ctx.fillText(pipe.hurdle.name, 0, 5);
+        // Use maxWidth to prevent text from going outside the pipe vertically (which is horizontal in rotated space)
+        ctx.fillText(pipe.hurdle.name, 0, 5, pipe.topH - 25);
         ctx.restore();
 
         // ── Hurdle label on BOTTOM pipe ─
@@ -154,7 +155,8 @@ export function useFlightEngine({
         const bottomContentHeight = CANVAS_H - pipe.bottomY - GROUND_HEIGHT;
         ctx.translate(pipe.x + PIPE_WIDTH / 2, pipe.bottomY + bottomContentHeight / 2);
         ctx.rotate(-Math.PI / 2);
-        ctx.fillText(pipe.hurdle.name, 0, 5);
+        // Use maxWidth to prevent text from going outside the pipe
+        ctx.fillText(pipe.hurdle.name, 0, 5, bottomContentHeight - 25);
         ctx.restore();
     };
 

@@ -39,10 +39,10 @@ export default function ScoreRing({ score, pct, zoneColor }) {
                     className="absolute inset-0 flex flex-col items-center justify-center"
                     style={{ top: 0 }}
                 >
-                    <span className="font-black" style={{ fontSize: 38, color: '#ffffff', lineHeight: 1 }}>
+                    <span className="font-black" style={{ fontSize: 28, color: '#ffffff', lineHeight: 1 }}>
                         {pct}%
                     </span>
-                    <span style={{ fontSize: 11, color: '#90E0EF', fontWeight: 600, letterSpacing: '0.05em', marginTop: 4 }}>
+                    <span style={{ fontSize: 9, color: '#90E0EF', fontWeight: 600, letterSpacing: '0.05em', marginTop: 3 }}>
                         PREPARED
                     </span>
                 </div>

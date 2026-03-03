@@ -195,7 +195,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit }) => {
                         style={{
                             width: '100%',
                             padding: '14px',
-                            background: T.blueSoft,
+                            background: (!name.trim() || mobile.length !== 10 || !termsAccepted || isSubmitting) ? T.blueSoft : T.blue,
                             opacity: (!name.trim() || mobile.length !== 10 || !termsAccepted || isSubmitting) ? 0.6 : 1,
                             color: '#fff',
                             fontFamily: 'inherit',
@@ -205,7 +205,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit }) => {
                             borderRadius: 12,
                             cursor: (!name.trim() || mobile.length !== 10 || !termsAccepted) ? 'not-allowed' : 'pointer',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                            transition: 'opacity 0.2s',
+                            transition: 'background 0.2s, opacity 0.2s',
                             marginTop: 8,
                         }}
                     >

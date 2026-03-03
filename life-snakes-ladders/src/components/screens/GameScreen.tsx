@@ -32,6 +32,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
         }, 600);
     };
 
+
+
     // getCellXY returns: x = left%, y = bottom% (each cell is 10% × 10%)
     // Add 5% to center the token within its cell
     const { x, y } = getCellXY(playerPosition);
@@ -192,86 +194,105 @@ const GameScreen: React.FC<GameScreenProps> = ({
                 padding: '10px 16px',
                 paddingBottom: 'max(14px, env(safe-area-inset-bottom, 14px))',
                 background: 'linear-gradient(to top, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.70) 100%)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
             }}>
+                {/* 2D Premium Dice Wrapper */}
+                <div style={{
+                    width: 68,
+                    height: 68,
+                    background: '#fff',
+                    borderRadius: 16,
+                    marginBottom: 16,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 -5px 0 rgba(226,232,240,1)',
+                    border: '1px solid #e2e8f0',
+                    transformOrigin: 'bottom center',
+                    animation: isRolling ? 'shakeDice 0.4s ease-in-out infinite' : 'bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                }}>
+                    {lastDice > 0 && !isRolling ? (
+                        <span style={{ fontSize: 56, lineHeight: 1, color: '#1A56DB', marginTop: '-6px' }}>
+                            {DICE_FACES[lastDice]}
+                        </span>
+                    ) : (
+                        <Dice5 size={34} color={isRolling ? '#94a3b8' : '#1A56DB'} style={{
+                            animation: isRolling ? 'spinDice 0.6s linear infinite' : 'none'
+                        }} />
+                    )}
+                </div>
+
                 {/* Message */}
                 <div style={{
+                    width: '100%',
                     background: 'rgba(255,255,255,0.06)',
                     borderRadius: 12,
                     padding: '8px 14px',
-                    marginBottom: 10,
+                    marginBottom: 12,
                     textAlign: 'center',
                     border: '1px solid rgba(255,255,255,0.07)',
                 }}>
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', margin: 0, fontStyle: 'italic' }}>"{message}"</p>
+                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: 0, fontStyle: 'italic', fontWeight: 600 }}>
+                        {lastDice === 0 ? "Ready to roll!" : `"${message}"`}
+                    </p>
                 </div>
 
-                {/* Dice + Roll */}
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                    {/* Dice display */}
-                    <div style={{
-                        width: 56,
+                {/* Roll button */}
+                <button
+                    onClick={handleRoll}
+                    disabled={isMoving || isRolling}
+                    style={{
+                        width: '100%',
                         height: 56,
-                        background: 'rgba(255,255,255,0.07)',
-                        border: '1.5px solid rgba(255,255,255,0.14)',
+                        background: (isMoving || isRolling)
+                            ? 'rgba(255,255,255,0.08)'
+                            : 'linear-gradient(135deg, #0066B2 0%, #1A56DB 100%)',
+                        color: '#fff',
+                        fontFamily: 'inherit',
+                        fontSize: 16,
+                        fontWeight: 900,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        border: 'none',
                         borderRadius: 14,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        animation: isRolling ? 'spinDice 0.5s linear infinite' : 'none',
-                    }}>
-                        {lastDice > 0 && !isRolling
-                            ? <span style={{ fontSize: 32, lineHeight: 1 }}>{DICE_FACES[lastDice]}</span>
-                            : <Dice5 size={26} color="rgba(255,255,255,0.18)" />
-                        }
-                    </div>
-
-                    {/* Roll button */}
-                    <button
-                        onClick={handleRoll}
-                        disabled={isMoving || isRolling}
-                        style={{
-                            flex: 1,
-                            height: 56,
-                            background: (isMoving || isRolling)
-                                ? 'rgba(255,255,255,0.08)'
-                                : 'linear-gradient(135deg, #0066B2 0%, #1A56DB 100%)',
-                            color: '#fff',
-                            fontFamily: 'inherit',
-                            fontSize: 16,
-                            fontWeight: 900,
-                            letterSpacing: '0.12em',
-                            textTransform: 'uppercase',
-                            border: 'none',
-                            borderRadius: 14,
-                            cursor: (isMoving || isRolling) ? 'not-allowed' : 'pointer',
-                            opacity: (isMoving || isRolling) ? 0.5 : 1,
-                            boxShadow: (isMoving || isRolling) ? 'none' : '0 4px 20px rgba(0,102,178,0.4)',
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        {isRolling ? 'ROLLING…' : isMoving ? 'MOVING…' : '🎲 ROLL DICE'}
-                    </button>
-                </div>
+                        cursor: (isMoving || isRolling) ? 'not-allowed' : 'pointer',
+                        opacity: (isMoving || isRolling) ? 0.5 : 1,
+                        boxShadow: (isMoving || isRolling) ? 'none' : '0 4px 20px rgba(0,102,178,0.4)',
+                        transition: 'all 0.2s',
+                    }}
+                >
+                    {isRolling ? 'ROLLING…' : isMoving ? 'MOVING…' : '🎲 ROLL DICE'}
+                </button>
             </div>
 
             {/* Branding */}
             <div style={{
                 textAlign: 'center',
                 padding: '6px 0',
-                fontSize: 8,
-                fontWeight: 800,
-                letterSpacing: '0.28em',
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: '2px',
                 textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.2)',
+                color: 'rgba(255,255,255,0.7)',
             }}>
-                Bajaj Allianz Life
+                Bajaj Life Insurance
             </div>
 
             <style>{`
                 @keyframes tokenPulse {
                     0%, 100% { box-shadow: ${hasShield ? '0 0 12px 4px rgba(96,165,250,0.85)' : '0 0 12px 4px rgba(255,102,0,0.85)'}, 0 2px 6px rgba(0,0,0,0.5); }
                     50%       { box-shadow: ${hasShield ? '0 0 20px 8px rgba(96,165,250,0.6)' : '0 0 20px 8px rgba(255,102,0,0.6)'}, 0 2px 6px rgba(0,0,0,0.5); }
+                }
+                @keyframes bounceIn {
+                    0% { transform: scale(0.8) translateY(10px); opacity: 0; }
+                    100% { transform: scale(1) translateY(0); opacity: 1; }
+                }
+                @keyframes shakeDice {
+                    0%, 100% { transform: rotate(0deg) translateY(0); }
+                    25% { transform: rotate(-8deg) translateY(-4px); }
+                    75% { transform: rotate(8deg) translateY(-4px); }
                 }
                 @keyframes spinDice {
                     from { transform: rotate(0deg); }
