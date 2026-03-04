@@ -197,7 +197,15 @@ function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile })
         if (!formData.name.trim()) errs.name = 'Name is required';
         else if (!/^[A-Za-z\s]+$/.test(formData.name.trim())) errs.name = 'Letters only';
         if (!/^\d{10}$/.test(formData.mobile)) errs.mobile = 'Enter valid 10-digit number';
-        if (!formData.date) errs.date = 'Date is required';
+        if (!formData.date) {
+            errs.date = 'Date is required';
+        } else {
+            // Prevent back-dated bookings — iOS Safari ignores HTML min attribute
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selected = new Date(formData.date + 'T00:00:00');
+            if (selected < today) errs.date = 'Select today or a future date';
+        }
         if (!formData.time) errs.time = 'Time is required';
         if (!termsAccepted) errs.terms = 'Please accept the terms';
         setErrors(errs);
@@ -265,19 +273,19 @@ function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile })
                         {errors.mobile && <span style={{ fontSize: '0.625rem', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase' }}>{errors.mobile}</span>}
                     </div>
 
-                    {/* Date & Time */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    {/* Date & Time — stacked on mobile to prevent iOS overflow/overlap */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         <div>
-                            <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>Date</label>
+                            <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>Preferred Date</label>
                             <input type="date" min={todayStr} value={formData.date} onChange={e => updateField('date', e.target.value)}
-                                style={{ width: '100%', height: '2.75rem', border: `2px solid ${errors.date ? '#f87171' : '#e2e8f0'}`, background: '#f8fafc', padding: '0 0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#1e293b', outline: 'none', boxSizing: 'border-box' }}
+                                style={{ width: '100%', height: '2.75rem', border: `2px solid ${errors.date ? '#f87171' : '#e2e8f0'}`, background: '#f8fafc', padding: '0 0.75rem', fontSize: '0.85rem', fontWeight: 700, color: '#1e293b', outline: 'none', boxSizing: 'border-box', colorScheme: 'light' }}
                             />
                             {errors.date && <span style={{ fontSize: '0.6rem', color: '#ef4444', fontWeight: 700 }}>{errors.date}</span>}
                         </div>
                         <div>
-                            <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>Time</label>
+                            <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>Preferred Time</label>
                             <select value={formData.time} onChange={e => updateField('time', e.target.value)}
-                                style={{ width: '100%', height: '2.75rem', border: `2px solid ${errors.time ? '#f87171' : '#e2e8f0'}`, background: '#f8fafc', padding: '0 0.5rem', fontSize: '0.7rem', fontWeight: 700, color: '#1e293b', outline: 'none', boxSizing: 'border-box', appearance: 'none' }}
+                                style={{ width: '100%', height: '2.75rem', border: `2px solid ${errors.time ? '#f87171' : '#e2e8f0'}`, background: '#f8fafc', padding: '0 0.75rem', fontSize: '0.85rem', fontWeight: 700, color: '#1e293b', outline: 'none', boxSizing: 'border-box' }}
                             >
                                 <option value="">Select Slot</option>
                                 {[...Array(12)].map((_, i) => {
@@ -414,11 +422,11 @@ const ResultPage = memo(function ResultPage() {
 
     return (
         <div
-            style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 55%, #0c1a2e 100%)' }}
+            style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 55%, #0c1a2e 100%)', overflowY: 'auto' }}
         >
             <div
-                className="w-full flex flex-col items-center justify-center px-4 py-2 text-center overflow-y-auto font-sans relative"
-                style={{ maxWidth: '430px', minHeight: '100dvh' }}
+                className="w-full flex flex-col items-center justify-center px-4 py-6 text-center font-sans relative"
+                style={{ width: '100%', maxWidth: '430px', minHeight: '100%', flex: 1 }}
             >
                 {/* Confetti */}
                 <Confetti />
@@ -480,7 +488,7 @@ const ResultPage = memo(function ResultPage() {
 
                     {/* Message below shield */}
                     <div className="w-full">
-                        <p className="text-white/80 text-xs leading-tight px-2">
+                        <p className="text-white/90 text-base font-medium leading-snug px-2">
                             {scenario.message}
                         </p>
                     </div>
@@ -541,6 +549,11 @@ const ResultPage = memo(function ResultPage() {
                         >
                             Try Again
                         </button>
+
+                        {/* Legal Disclaimer */}
+                        <p className="text-white/40 text-[0.6rem] leading-relaxed text-center px-1 mt-2">
+                            The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                        </p>
                     </div>
                 </div>
 

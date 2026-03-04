@@ -94,8 +94,8 @@ const LeadForm = memo(function LeadForm({ title, subtitle }) {
                 <FieldError message={errors.mobile} />
             </div>
 
-            {/* Date & Time Row */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Date & Time — stacked on mobile to prevent iOS overflow/overlap */}
+            <div className="flex flex-col gap-3">
                 {/* Preferred Date */}
                 <div>
                     <label htmlFor="lead-preferredDate" className="label">
@@ -109,7 +109,8 @@ const LeadForm = memo(function LeadForm({ title, subtitle }) {
                         value={form.preferredDate}
                         onChange={handleChange}
                         disabled={loading || submitted}
-                        className={`input-field ${errors.preferredDate ? 'border-sudoku-danger' : ''}`}
+                        style={{ colorScheme: 'light', color: 'inherit' }}
+                        className={`input-field w-full ${errors.preferredDate ? 'border-sudoku-danger' : ''}`}
                         aria-invalid={!!errors.preferredDate}
                     />
                     <FieldError message={errors.preferredDate} />
@@ -126,7 +127,7 @@ const LeadForm = memo(function LeadForm({ title, subtitle }) {
                         value={form.preferredTime}
                         onChange={handleChange}
                         disabled={loading || submitted}
-                        className={`input-field ${errors.preferredTime ? 'border-sudoku-danger' : ''}`}
+                        className={`input-field w-full ${errors.preferredTime ? 'border-sudoku-danger' : ''}`}
                         aria-invalid={!!errors.preferredTime}
                     >
                         <option value="">Select time</option>
