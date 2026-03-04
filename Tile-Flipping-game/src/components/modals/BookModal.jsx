@@ -3,7 +3,7 @@ import Modal from '../ui/Modal';
 import { FormInput, Checkbox } from '../ui/FormFields';
 import Button from '../ui/Button';
 import { useGame } from '../../context/GameContext';
-import { bookSlot } from '../../services/api';
+import { submitToLMS, updateLeadNew } from '../../utils/api';
 import { SCREENS } from '../../constants/game';
 
 function validate(name, phone, date, time, agreed) {
@@ -41,7 +41,25 @@ export default function BookModal({ onClose, showToast }) {
 
         setLoading(true);
         try {
-            await bookSlot({ name, phone, preferredDate: date, preferredTime: time });
+            const leadNo = user.leadNo;
+            if (leadNo) {
+                await updateLeadNew(leadNo, {
+                    firstName: name,
+                    mobile: phone,
+                    date: date,
+                    time: time,
+                    remarks: `Tile Flipping Game Slot Booking`
+                });
+            } else {
+                await submitToLMS({
+                    name: name,
+                    mobile_no: phone,
+                    param4: date,
+                    param19: time,
+                    summary_dtls: 'Tile Flipping Game - Slot Booking',
+                    p_data_source: 'TILE_FLIPPING_BOOKING',
+                });
+            }
             setBooking({ preferredDate: date, preferredTime: time });
             navigate(SCREENS.THANK_YOU);
         } catch {
