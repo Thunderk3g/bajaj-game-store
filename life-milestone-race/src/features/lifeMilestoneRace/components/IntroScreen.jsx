@@ -126,8 +126,9 @@ const IntroScreen = memo(function IntroScreen({ onStart }) {
 
             if (result.success) {
                 setLastSubmittedPhone(phone);
-                if (result.leadNo || result.LeadNo) {
-                    sessionStorage.setItem('lifeMilestoneRaceLeadNo', result.leadNo || result.LeadNo);
+                const responseData = result.data || result;
+                if (responseData.leadNo || responseData.LeadNo) {
+                    sessionStorage.setItem('lifeMilestoneRaceLeadNo', responseData.leadNo || responseData.LeadNo);
                 }
                 onStart(userName.trim(), phone);
             } else {

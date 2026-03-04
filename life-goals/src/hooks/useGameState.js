@@ -143,8 +143,9 @@ export const useGameState = () => {
             setLastSubmittedPhone(userData.phone);
             setLeadName(userData.name);
             setLeadPhone(userData.phone);
-            if (result.leadNo || result.LeadNo) {
-                sessionStorage.setItem('lifeGoalsLeadNo', result.leadNo || result.LeadNo);
+            const responseData = result.data || result;
+            if (responseData.leadNo || responseData.LeadNo) {
+                sessionStorage.setItem('lifeGoalsLeadNo', responseData.leadNo || responseData.LeadNo);
             }
             return { success: true };
         } else {

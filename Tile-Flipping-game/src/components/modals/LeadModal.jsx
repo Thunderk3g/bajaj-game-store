@@ -70,8 +70,9 @@ export default function LeadModal({
                     };
                     console.log("[LeadModal] Calling submitToLMS with:", payload);
                     const result = await submitToLMS(payload);
-                    if (result && result.success && (result.leadNo || result.LeadNo)) {
-                        setUser({ name, phone, leadNo: result.leadNo || result.LeadNo });
+                    const responseData = result?.data || result;
+                    if (result && result.success && (responseData.leadNo || responseData.LeadNo)) {
+                        setUser({ name, phone, leadNo: responseData.leadNo || responseData.LeadNo });
                     }
                     dispatch({ type: ACTION.MARK_SUBMITTED });
                 }

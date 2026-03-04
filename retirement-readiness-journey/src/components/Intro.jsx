@@ -54,11 +54,12 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
             const result = await submitToLMS(payload);
 
             if (result.success) {
+                const responseData = result.data || result;
                 setUserInfo({
                     name: userName.trim(),
                     mobile: phone,
                     termsAccepted: true,
-                    leadNo: result.leadNo || result.LeadNo
+                    leadNo: responseData.leadNo || responseData.LeadNo
                 });
                 onStart();
             } else {

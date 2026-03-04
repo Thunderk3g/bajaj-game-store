@@ -156,18 +156,24 @@ export const QuizProvider = ({ children }) => {
             setLeadName(name);
             setLeadPhone(phone);
             setIsLeadSubmitted(true);
-            if (result.leadNo || result.LeadNo) {
-                const ln = result.leadNo || result.LeadNo;
+            // leadNo comes nested inside result.data (the raw API JSON response)
+            const responseData = result.data || result;
+            const ln = responseData.leadNo || responseData.LeadNo;
+            if (ln) {
+                console.log('[QuizContext] Captured leadNo:', ln);
                 setLeadNo(ln);
                 sessionStorage.setItem('quizLeadNo', ln);
+            } else {
+                console.warn('[QuizContext] No leadNo found in API response:', result);
             }
         }
 
         return result;
-    }, [setLeadName, setLeadPhone]);
+    }, [score, setLeadName, setLeadPhone]);
 
     const handleBookingSubmit = useCallback(async (bookingData) => {
         let result;
+        console.log('[QuizContext] handleBookingSubmit called. leadNo:', leadNo);
         if (leadNo) {
             result = await updateLeadNew(leadNo, {
                 firstName: bookingData.name,
@@ -198,7 +204,7 @@ export const QuizProvider = ({ children }) => {
         }
 
         return result;
-    }, [setLeadName, setLeadPhone]);
+    }, [leadNo, score, setLeadName, setLeadPhone]);
 
     // Context value
     const value = {

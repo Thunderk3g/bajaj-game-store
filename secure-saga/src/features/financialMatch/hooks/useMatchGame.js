@@ -202,8 +202,9 @@ export function useMatchGame() {
             p_data_source: 'BALANCE_BUILDER_LEAD',
         });
 
-        if (result && result.success && (result.leadNo || result.LeadNo)) {
-            dispatch({ type: A.SET_LEAD_NO, payload: result.leadNo || result.LeadNo });
+        const responseData = result?.data || result;
+        if (result && result.success && (responseData.leadNo || responseData.LeadNo)) {
+            dispatch({ type: A.SET_LEAD_NO, payload: responseData.leadNo || responseData.LeadNo });
         }
 
         dispatch({ type: A.SHOW_HOW_TO_PLAY });

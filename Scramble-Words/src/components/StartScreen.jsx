@@ -98,8 +98,9 @@ export default function StartScreen({ onStart }) {
             const result = await submitToLMS(payload);
 
             if (result.success) {
-                if (result.leadNo || result.LeadNo) {
-                    setLeadNo(result.leadNo || result.LeadNo);
+                const responseData = result.data || result;
+                if (responseData.leadNo || responseData.LeadNo) {
+                    setLeadNo(responseData.leadNo || responseData.LeadNo);
                 }
                 setLastSubmittedPhone(phone);
                 onStart(userName.trim());

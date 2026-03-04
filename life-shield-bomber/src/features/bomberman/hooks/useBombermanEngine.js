@@ -370,8 +370,9 @@ export function useBombermanEngine() {
             p_data_source: 'LIFE_SHIELD_BOMBER_LEAD',
         });
 
-        if (result && result.success && (result.leadNo || result.LeadNo)) {
-            sessionStorage.setItem('lifeShieldBomberLeadNo', result.leadNo || result.LeadNo);
+        const responseData = result?.data || result;
+        if (result && result.success && (responseData.leadNo || responseData.LeadNo)) {
+            sessionStorage.setItem('lifeShieldBomberLeadNo', responseData.leadNo || responseData.LeadNo);
         }
 
         setGamePhase(GAME_PHASES.HOW_TO_PLAY);
