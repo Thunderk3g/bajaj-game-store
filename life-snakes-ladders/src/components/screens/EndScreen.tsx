@@ -1,5 +1,6 @@
+import React, { useState } from 'react';
 import { Trophy, Shield, AlertTriangle, Share2 } from 'lucide-react';
-
+import LeadModal from '../modals/LeadModal';
 interface EndScreenProps {
     hasShield: boolean;
     onCTA: () => void;
@@ -21,6 +22,8 @@ const T = {
 };
 
 const EndScreen: React.FC<EndScreenProps> = ({ hasShield, onCTA }) => {
+    const [showBookingModal, setShowBookingModal] = useState(false);
+
     return (
         <div style={{
             width: '100%', height: '100%',
@@ -44,59 +47,31 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, onCTA }) => {
             {/* Header */}
             <div style={{ textAlign: 'center', marginBottom: 24, marginTop: 8 }}>
                 <p style={{ fontSize: 16, fontWeight: 900, color: '#FF7B00', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>
-                    Bajaj Allianz Life
+                    Hi Username
                 </p>
                 <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>
-                    "{hasShield ? 'You Finished Strong — Because You Planned.' : 'You Made It on Luck Alone.'}"
+                    "{hasShield ? 'You Finished Strong — Because You Planned.' : 'You Made It But it was Pure luck'}"
                 </h1>
             </div>
 
-            {/* Circular Graphic (resembling the score ring) */}
+            {/* Icon Graphic */}
             <div style={{
-                width: 140, height: 140,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.03)',
-                border: '8px solid rgba(255,123,0,0.15)',
-                borderRightColor: '#FF7B00', // Creating a ring effect
-                borderBottomColor: '#FF7B00',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 28px', position: 'relative',
-                transform: 'rotate(-45deg)', // Rotate the ring so the orange is on bottom right
+                margin: '0 auto 28px'
             }}>
-                <div style={{ transform: 'rotate(45deg)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    {hasShield ? (
-                        <Trophy size={54} color={T.white} />
-                    ) : (
-                        <AlertTriangle size={54} color="#FF7B00" />
-                    )}
-                </div>
+                {hasShield ? (
+                    <Trophy size={64} color={T.white} />
+                ) : (
+                    <AlertTriangle size={64} color="#FF7B00" />
+                )}
             </div>
 
-            {/* Stat strip (dark translucent boxes) */}
-            <div style={{ display: 'flex', gap: 12, width: '100%', marginBottom: 28, maxWidth: 400 }}>
-                {[
-                    { label: 'Protection', value: hasShield ? 'Active ✅' : 'None ❌' },
-                    { label: 'Journey', value: 'Complete' },
-                ].map(s => (
-                    <div key={s.label} style={{
-                        flex: 1,
-                        background: 'rgba(255,255,255,0.06)',
-                        borderRadius: 12,
-                        padding: '16px 10px',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        textAlign: 'center'
-                    }}>
-                        <p style={{ fontSize: 18, fontWeight: 900, color: T.white, margin: '0 0 4px' }}>{s.value}</p>
-                        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>{s.label}</p>
-                    </div>
-                ))}
-            </div>
 
             {/* Message Paragraph */}
             <p style={{ fontSize: 14, color: T.white, margin: '0 0 24px', lineHeight: 1.5, textAlign: 'center', maxWidth: 400, fontWeight: 600 }}>
                 {hasShield
                     ? "You can't avoid life's snakes. But with the right protection, they won't define your family's future."
-                    : "In real life, you don't get unlimited retries. Most families fall behind because they lack protection."}
+                    : "In real life, luck doesn't always show up. Families fall behind when they lack protection"}
             </p>
 
             {/* Buttons Area */}
@@ -113,9 +88,8 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, onCTA }) => {
                 </button>
 
                 {/* Subtext */}
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', textAlign: 'center', margin: '4px 0 8px', lineHeight: 1.5 }}>
-                    Real protection is better than luck. Get your term plan today.
-                    <br />Connect with our relationship manager now!
+                <p style={{ fontSize: 15, color: T.white, textAlign: 'center', margin: '4px 0 8px', lineHeight: 1.5, fontWeight: 600 }}>
+                    Your family deserves protection that doesn’t depend on luck, talk to our Relationship Manager today to ensure your risks are covered.
                 </p>
 
                 {/* Call Now Button */}
@@ -129,7 +103,7 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, onCTA }) => {
                 </button>
 
                 {/* Book a Slot Button */}
-                <button style={{
+                <button onClick={() => setShowBookingModal(true)} style={{
                     width: '100%', padding: '15px 24px',
                     background: '#1942b3', // dark blue
                     color: '#fff', fontSize: 15, fontWeight: 800,
@@ -149,6 +123,19 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, onCTA }) => {
                     </button>
                 </div>
             </div>
+
+            {showBookingModal && (
+                <LeadModal
+                    isBooking
+                    onClose={() => setShowBookingModal(false)}
+                    onSubmit={(data) => {
+                        console.log("Booking submitted with data:", data);
+                        setShowBookingModal(false);
+                        // Can integrate proper LMS submission here similar to normal lead flow
+                        // For now just close the modal.
+                    }}
+                />
+            )}
         </div>
     );
 };

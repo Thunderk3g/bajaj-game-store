@@ -75,7 +75,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
                         HOW TO PLAY
                     </h1>
                     <p className="text-blue-200/80 text-xs font-semibold tracking-wide mt-2 uppercase">
-                        Claim risks. Defeat monsters. Secure your future.
+                        Plan for your risk to save yourself from monsters
                     </p>
                 </motion.div>
 
@@ -123,13 +123,13 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
 
                 {/* Risk Types Legend */}
                 <motion.div variants={itemVariants} className="w-full mt-2">
-                    <h3 className="text-center text-blue-200/80 text-[0.625rem] font-bold uppercase tracking-[0.2em] mb-4">Financial Risks</h3>
-                    <div className="grid grid-cols-2 gap-3 bg-[#0a1529]/50 p-4 rounded-md border border-white/5">
+                    <h3 className="text-center text-blue-200/80 text-[0.825rem] font-bold uppercase tracking-[0.2em] mb-4">Risks to plan for</h3>
+                    <div className="grid grid-cols-2 gap-2 bg-[#0a1529]/50 p-4 rounded-md border border-white/5">
                         {[
                             { icon: '🏥', label: 'Medical Risk', color: '#EF4444' },
-                            { icon: '💳', label: 'Debt Trap', color: '#F59E0B' },
-                            { icon: '📈', label: 'Inflation', color: '#8B5CF6' },
-                            { icon: '⚡', label: 'Emergency', color: '#F97316' },
+
+                            { icon: '📈', label: 'Financial Risk', color: '#8B5CF6' },
+
                         ].map((g) => (
                             <div key={g.label} className="flex items-center gap-3">
                                 <div
@@ -162,7 +162,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
                         <div className="absolute inset-x-0 top-0 h-[0.125rem] bg-white/60" />
                         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/10 to-transparent" />
                         <div className="relative flex items-center justify-center gap-3 drop-shadow-md">
-                            <span>START PLAYING</span>
+                            <span>START</span>
                             <Play className="w-6 h-6 fill-white" strokeWidth={3} />
                         </div>
                     </button>

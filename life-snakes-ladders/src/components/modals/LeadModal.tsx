@@ -3,7 +3,8 @@ import { X, Check, Loader2 } from 'lucide-react';
 
 interface LeadModalProps {
     onClose: () => void;
-    onSubmit: (data: { name: string; mobile: string }) => void;
+    onSubmit: (data: { name: string; mobile: string; preferredTime?: string }) => void;
+    isBooking?: boolean;
 }
 
 const T = {
@@ -18,9 +19,10 @@ const T = {
     errorLight: '#FEF2F2',
 };
 
-const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit }) => {
+const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = false }) => {
     const [name, setName] = useState('');
     const [mobile, setMobile] = useState('');
+    const [preferredTime, setPreferredTime] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(true);
     const [errors, setErrors] = useState<{ name?: string; mobile?: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +43,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit }) => {
         // Small delay for UX feel
         await new Promise(r => setTimeout(r, 400));
         setIsSubmitting(false);
-        onSubmit({ name: name.trim(), mobile });
+        onSubmit({ name: name.trim(), mobile, preferredTime: isBooking ? preferredTime : undefined });
     };
 
     const inputStyle = (hasError?: boolean): React.CSSProperties => ({
@@ -116,10 +118,10 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit }) => {
                 {/* Header Text */}
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
                     <h2 style={{ fontSize: 26, fontWeight: 900, color: T.blue, margin: '0 0 8px', letterSpacing: '-0.02em' }}>
-                        Welcome!
+                        {isBooking ? 'Book a Slot' : 'Welcome!'}
                     </h2>
                     <p style={{ fontSize: 16, color: T.muted, margin: 0, fontWeight: 500 }}>
-                        Enter your details to start.
+                        {isBooking ? 'Select a time for our advisor to connect with you.' : 'Enter your details to start.'}
                     </p>
                 </div>
 
@@ -166,6 +168,36 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit }) => {
                         {errors.mobile && <p style={{ fontSize: 12, color: T.error, margin: 0 }}>{errors.mobile}</p>}
                     </div>
 
+                    {/* Preferred Time (Booking mode only) */}
+                    {isBooking && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <label style={{ fontSize: 12, fontWeight: 800, color: T.textBold, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Preferred Time Slot
+                            </label>
+                            <div>
+                                <select
+                                    value={preferredTime}
+                                    onChange={(e) => setPreferredTime(e.target.value)}
+                                    style={inputStyle(false)}
+                                >
+                                    <option value="">Select Slot</option>
+                                    <option value="08:00 AM - 09:00 AM">08:00 AM - 09:00 AM</option>
+                                    <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
+                                    <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                                    <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                                    <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM</option>
+                                    <option value="01:00 PM - 02:00 PM">01:00 PM - 02:00 PM</option>
+                                    <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
+                                    <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
+                                    <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
+                                    <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM</option>
+                                    <option value="06:00 PM - 07:00 PM">06:00 PM - 07:00 PM</option>
+                                    <option value="07:00 PM - 08:00 PM">07:00 PM - 08:00 PM</option>
+                                </select>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Terms */}
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginTop: 4 }}>
                         <div
@@ -191,27 +223,27 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit }) => {
                     {/* Submit */}
                     <button
                         type="submit"
-                        disabled={!name.trim() || mobile.length !== 10 || !termsAccepted || isSubmitting}
+                        disabled={!name.trim() || mobile.length !== 10 || !termsAccepted || isSubmitting || (isBooking && !preferredTime)}
                         style={{
                             width: '100%',
                             padding: '14px',
-                            background: (!name.trim() || mobile.length !== 10 || !termsAccepted || isSubmitting) ? T.blueSoft : T.blue,
-                            opacity: (!name.trim() || mobile.length !== 10 || !termsAccepted || isSubmitting) ? 0.6 : 1,
+                            background: (!name.trim() || mobile.length !== 10 || !termsAccepted || isSubmitting || (isBooking && !preferredTime)) ? T.blueSoft : T.blue,
+                            opacity: (!name.trim() || mobile.length !== 10 || !termsAccepted || isSubmitting || (isBooking && !preferredTime)) ? 0.6 : 1,
                             color: '#fff',
                             fontFamily: 'inherit',
                             fontSize: 16,
                             fontWeight: 700,
                             border: 'none',
                             borderRadius: 12,
-                            cursor: (!name.trim() || mobile.length !== 10 || !termsAccepted) ? 'not-allowed' : 'pointer',
+                            cursor: (!name.trim() || mobile.length !== 10 || !termsAccepted || (isBooking && !preferredTime)) ? 'not-allowed' : 'pointer',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                             transition: 'background 0.2s, opacity 0.2s',
                             marginTop: 8,
                         }}
                     >
                         {isSubmitting
-                            ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /><span>Starting…</span></>
-                            : "Let's Go!"}
+                            ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /><span>{isBooking ? 'Submitting...' : 'Starting…'}</span></>
+                            : (isBooking ? "Confirm Booking" : "Let's Go!")}
                     </button>
                 </form>
             </div>

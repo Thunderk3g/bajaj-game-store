@@ -54,14 +54,15 @@ const EventOverlay: React.FC<EventOverlayProps> = ({
                 </p>
 
                 {!isShielded && isSnake && onAddShield && (
-                    <div className="lsl-bg-white/5 lsl-p-4 lsl-rounded-2xl lsl-mb-6 lsl-border lsl-border-white/10">
-                        <p className="lsl-text-[10px] lsl-font-bold lsl-uppercase lsl-text-text-muted lsl-mb-2">Protection Offer</p>
-                        <p className="lsl-text-[11px] lsl-text-white/80 lsl-mb-4">Want to add a Term Shield to protect your family from future setbacks?</p>
+                    <div className="lsl-mb-6 lsl-flex lsl-flex-col lsl-items-center">
+                        <p className="lsl-text-lg lsl-font-bold lsl-text-shield-glow lsl-mb-6 lsl-text-center lsl-leading-tight">
+                            {event.shieldMsg}
+                        </p>
                         <button
                             onClick={(e) => { e.stopPropagation(); onAddShield(); }}
-                            className="lsl-btn lsl-btn-primary lsl-w-full lsl-py-2 lsl-text-xs"
+                            className="lsl-btn lsl-btn-primary lsl-w-full lsl-flex lsl-items-center lsl-justify-center lsl-gap-2 lsl-py-3 lsl-text-sm"
                         >
-                            <Plus className="lsl-w-3 lsl-h-3" />
+                            <Plus className="lsl-w-4 lsl-h-4" />
                             ADD TERM SHIELD
                         </button>
                     </div>
@@ -69,12 +70,12 @@ const EventOverlay: React.FC<EventOverlayProps> = ({
 
                 <button
                     onClick={onContinue}
-                    className={`lsl-btn lsl-w-full ${isProtected ? 'lsl-bg-shield-blue' :
-                        isSnake ? 'lsl-bg-snake-red' :
+                    className={`lsl-btn lsl-w-full lsl-flex lsl-items-center lsl-justify-center lsl-py-3 lsl-text-sm ${isProtected ? 'lsl-bg-shield-blue' :
+                        isSnake ? 'lsl-bg-orange-500 hover:lsl-bg-orange-600 lsl-border-none' :
                             'lsl-bg-ladder-gold'
                         } lsl-text-white`}
                 >
-                    {isSnake ? 'CONTINUE' : 'CLIMB UP!'}
+                    {isSnake ? 'CONTINUE Without Shield' : 'CLIMB UP!'}
                 </button>
             </div>
 

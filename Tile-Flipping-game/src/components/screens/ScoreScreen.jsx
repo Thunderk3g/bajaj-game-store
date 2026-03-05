@@ -70,14 +70,34 @@ export default function ScoreScreen({ showToast }) {
         navigate(SCREENS.GAME);
     }
 
-    function handleShare() {
-        const text = `I scored ${scenarioData.scoreDisplay} in the Life Insurance Memory Game! Can you beat me? 🛡️`;
+    const handleShare = async () => {
+        // compute app base URL dynamically so share link works under any deployment subpath
+        const appBaseUrl = (typeof window !== 'undefined')
+            ? new URL(import.meta.env.BASE_URL || './', window.location.href).href
+            : '/';
+
+        const shareData = {
+            title: 'Insurance Match',
+            text: 'Check your Insurance match! Take the Insurance match memory game and discover how prepared you are for your insurance.',
+            url: appBaseUrl
+        };
+
         if (navigator.share) {
-            navigator.share({ title: 'My Game Score', text }).catch(() => { });
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.log('Error sharing:', err);
+            }
         } else {
-            navigator.clipboard.writeText(text).then(() => showToast?.('Score copied to clipboard!', 'success'));
+            // Fallback
+            try {
+                await navigator.clipboard.writeText(shareData.url);
+                showToast?.('Link copied to clipboard!', 'success');
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
         }
-    }
+    };
 
     return (
         <>

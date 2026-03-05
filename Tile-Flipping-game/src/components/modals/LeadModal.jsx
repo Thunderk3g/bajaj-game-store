@@ -62,6 +62,9 @@ export default function LeadModal({
                     console.log("[LeadModal] Calling updateLeadNew with:", payload);
                     await updateLeadNew(user.leadNo, payload);
                     dispatch({ type: ACTION.MARK_SUBMITTED });
+
+                    // Navigate to Thank You screen
+                    navigate(SCREENS.THANK_YOU);
                 } else {
                     const payload = {
                         name,
@@ -199,13 +202,26 @@ export default function LeadModal({
                                     <label className={styles.label} htmlFor="preferredTime">
                                         Preferred Time
                                     </label>
-                                    <input
+                                    <select
                                         id="preferredTime"
-                                        type="time"
                                         value={preferredTime}
                                         onChange={(e) => setPreferredTime(e.target.value)}
                                         className={styles.input}
-                                    />
+                                    >
+                                        <option value="">Select Slot</option>
+                                        <option value="08:00 AM - 09:00 AM">08:00 AM - 09:00 AM</option>
+                                        <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
+                                        <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                                        <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                                        <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM</option>
+                                        <option value="01:00 PM - 02:00 PM">01:00 PM - 02:00 PM</option>
+                                        <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
+                                        <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
+                                        <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
+                                        <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM</option>
+                                        <option value="06:00 PM - 07:00 PM">06:00 PM - 07:00 PM</option>
+                                        <option value="07:00 PM - 08:00 PM">07:00 PM - 08:00 PM</option>
+                                    </select>
                                 </div>
                             </div>
                         )}
@@ -235,10 +251,10 @@ export default function LeadModal({
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className={styles.spinner} />
-                                    <span>Starting...</span>
+                                    <span>{isBooking ? "Booking..." : "Starting..."}</span>
                                 </>
                             ) : (
-                                "Let's Go!"
+                                isBooking ? "Book a Slot" : "Let's Go!"
                             )}
                         </button>
                     </form>

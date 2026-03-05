@@ -57,7 +57,7 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({ onReplay }) => {
             </div>
 
             <div style={{ textAlign: 'center', padding: '20px 0 16px', fontSize: 9, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', color: T.muted, opacity: 0.4 }}>
-                Bajaj Allianz Life Insurance
+                Bajaj Life Insurance
             </div>
         </div>
     );

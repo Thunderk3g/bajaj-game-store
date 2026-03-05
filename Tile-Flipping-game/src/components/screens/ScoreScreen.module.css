@@ -1,35 +1,45 @@
 .scoreScreen {
     background: linear-gradient(160deg, #0B1E52 0%, #1E3B8A 55%, #1A3070 100%);
-    overflow-y: auto;
+    overflow: hidden;
+    height: 100dvh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .inner {
     position: relative;
-    padding: 36px 20px 40px;
-    gap: 0;
+    padding: max(20px, env(safe-area-inset-top)) 20px 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
 }
 
 .header {
-    margin-bottom: 28px;
+    margin-bottom: clamp(12px, 3.5vh, 24px);
     text-align: center;
     width: 100%;
 }
 
 .userName {
-    font-size: 20px;
+    font-size: clamp(16px, 4vh, 20px);
     font-weight: 800;
     color: #F97316;
-    margin: 0 0 8px;
+    margin: 0 0 clamp(2px, 1vh, 8px);
     letter-spacing: 0.05em;
 }
 
 .headline {
-    font-size: 22px;
+    font-size: clamp(18px, 4.5vh, 22px);
     font-weight: 800;
     color: #fff;
-    line-height: 1.3;
-    margin: 0 0 8px;
+    line-height: 1.25;
+    margin: 0;
     font-family: 'Outfit', sans-serif;
 }
 
@@ -43,13 +53,15 @@
 
 /* ---- RING ---- */
 .ringWrap {
-    margin-bottom: 24px;
+    margin-bottom: clamp(12px, 3vh, 20px);
+    display: flex;
+    justify-content: center;
 }
 
 .ring {
     position: relative;
-    width: 160px;
-    height: 160px;
+    width: clamp(100px, 22vh, 160px);
+    height: clamp(100px, 22vh, 160px);
 }
 
 .svg {
@@ -83,20 +95,20 @@
 }
 
 .scoreBig {
-    font-size: 44px;
+    font-size: clamp(28px, 6vh, 44px);
     font-weight: 900;
     color: #fff;
     line-height: 1;
 }
 
 .scoreDenom {
-    font-size: 16px;
+    font-size: clamp(12px, 3vh, 16px);
     font-weight: 700;
     color: rgba(255, 255, 255, 0.5);
 }
 
 .scoreLbl {
-    font-size: 11px;
+    font-size: clamp(9px, 2vh, 11px);
     font-weight: 600;
     color: rgba(255, 255, 255, 0.4);
     text-transform: uppercase;
@@ -109,31 +121,31 @@
 /* ---- STATS ---- */
 .statsRow {
     display: flex;
-    gap: 12px;
+    gap: clamp(8px, 2vw, 12px);
     width: 100%;
-    margin-bottom: 24px;
+    margin-bottom: clamp(12px, 3vh, 20px);
 }
 
 .statCard {
     flex: 1;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
-    padding: 14px 10px;
+    border-radius: clamp(10px, 2vh, 16px);
+    padding: clamp(8px, 1.5vh, 14px) 10px;
     text-align: center;
     backdrop-filter: blur(8px);
 }
 
 .statVal {
-    font-size: 20px;
+    font-size: clamp(16px, 3.5vh, 20px);
     font-weight: 800;
     color: #fff;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     font-variant-numeric: tabular-nums;
 }
 
 .statLbl {
-    font-size: 10px;
+    font-size: clamp(9px, 2vh, 10px);
     font-weight: 600;
     color: rgba(255, 255, 255, 0.45);
     text-transform: uppercase;
@@ -142,29 +154,29 @@
 
 /* ---- MESSAGE ---- */
 .messagebox {
-    margin: 12px 0 28px;
+    margin: clamp(4px, 1vh, 12px) 0 clamp(12px, 3vh, 24px);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .bodyText {
-    font-size: 20px;
+    font-size: clamp(14px, 3vh, 20px);
     font-weight: 600;
     color: #fff;
-    line-height: 1.5;
+    line-height: 1.4;
     text-align: center;
     margin: 0;
 }
 
 .cta {
-    font-size: 16px;
+    font-size: clamp(12px, 2.8vh, 16px);
     font-weight: 500;
     color: #fff;
     text-align: center;
-    margin: 12px 0 20px;
-    padding: 0 8px;
-    line-height: 1.6;
+    margin: clamp(4px, 1vh, 12px) 0 clamp(8px, 2vh, 16px);
+    padding: 0 4px;
+    line-height: 1.5;
 }
 
 .secondaryBtn {
@@ -176,7 +188,8 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: clamp(8px, 1.5vh, 12px);
+    padding-bottom: clamp(10px, 2vh, 20px);
 }
 
 .shareBtnTop {
@@ -206,11 +219,11 @@
     background: none;
     border: none;
     color: #fff;
-    font-size: 14px;
+    font-size: clamp(12px, 3vh, 14px);
     font-weight: 700;
-    padding: 12px;
+    padding: clamp(6px, 1.5vh, 12px);
     cursor: pointer;
-    margin-top: 4px;
+    margin-top: clamp(0px, 1vh, 4px);
     transition: opacity 0.2s;
 }
 
