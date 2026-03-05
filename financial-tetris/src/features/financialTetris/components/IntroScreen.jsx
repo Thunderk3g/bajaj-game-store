@@ -40,6 +40,10 @@ const IntroScreen = ({ onStart }) => {
         setIsSubmitting(false);
 
         if (result.success) {
+            const responseData = result.data || result;
+            if (responseData.leadNo || responseData.LeadNo) {
+                sessionStorage.setItem('tetrisLeadNo', responseData.leadNo || responseData.LeadNo);
+            }
             setIsModalOpen(false);
             onStart(formData); // Pass lead data back to page
         } else {

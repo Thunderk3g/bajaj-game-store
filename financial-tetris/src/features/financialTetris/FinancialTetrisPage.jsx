@@ -16,7 +16,7 @@ import { useKeyboardControls } from './hooks/useKeyboardControls';
 
 import { GAME_STATUS, GAME_DURATION } from './constants/gameConfig';
 import { getRandomMilestone } from './utils/milestoneMessages';
-import { submitToLMS } from '../../utils/api';
+import { submitToLMS, updateLeadNew } from '../../utils/api';
 
 const FinancialTetrisPage = () => {
     const {
@@ -85,15 +85,29 @@ const FinancialTetrisPage = () => {
     }, [resetGame, resetTimer, setGameStatus]);
 
     const handleBookSlot = useCallback(async (bookingInfo) => {
-        const result = await submitToLMS({
-            ...bookingInfo,
-            name: leadData?.name || bookingInfo.name,
-            mobile_no: leadData?.phone || bookingInfo.mobile_no,
-            score: linesCleared,
-            summary_dtls: 'Financial Tetris - Slot Booking',
-            param19: `Milestones: ${linesCleared}`
-        });
-        return result;
+        const leadNo = sessionStorage.getItem('tetrisLeadNo');
+
+        if (leadNo) {
+            // Update existing lead with slot booking details
+            return await updateLeadNew(leadNo, {
+                firstName: leadData?.name || bookingInfo.name,
+                mobile: leadData?.phone || bookingInfo.mobile_no,
+                date: bookingInfo.date,
+                time: bookingInfo.timeSlot,
+                remarks: `Financial Tetris Slot Booking | Milestones: ${linesCleared}`
+            });
+        } else {
+            // Fallback: Fresh booking lead
+            return await submitToLMS({
+                name: leadData?.name || bookingInfo.name,
+                mobile_no: leadData?.phone || bookingInfo.mobile_no,
+                param4: bookingInfo.date,
+                param19: bookingInfo.timeSlot,
+                score: linesCleared,
+                summary_dtls: 'Financial Tetris - Slot Booking',
+                p_data_source: 'FINANCIAL_TETRIS_BOOKING'
+            });
+        }
     }, [leadData, linesCleared]);
 
     const handleNextFromResults = useCallback(() => {

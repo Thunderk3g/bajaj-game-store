@@ -132,6 +132,10 @@ export default function LandingPage() {
             const result = await submitToLMS(payload);
 
             if (result.success) {
+                // Store leadNo so GameOverPage can use updateLeadNew for slot booking
+                if (result.leadNo || result.lead_no) {
+                    sessionStorage.setItem('lifeFlightLeadNo', result.leadNo || result.lead_no);
+                }
                 setLastSubmittedPhone(phone);
                 setLastSubmittedName(userName.trim());
                 sessionStorage.setItem('lastSubmittedPhone', phone);

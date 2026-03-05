@@ -243,3 +243,18 @@
 .shareBtn:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
+/* ---- DISCLAIMER ---- */
+.disclaimer {
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    margin-top: 16px;
+    padding: 0 8px;
+    line-height: 1.3;
+}
+
+.disclaimer strong {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+}

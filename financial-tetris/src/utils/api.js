@@ -69,3 +69,41 @@ export const submitToLMS = async (data) => {
         return { success: false, error: error.message };
     }
 };
+
+export const updateLeadNew = async (leadNo, data) => {
+    const UAT_URL = `${__LMS_BASE_URL__}/updateLeadNew`;
+
+    const payload = {
+        leadNo: leadNo,
+        tpa_user_id: "",
+        miscObj1: {
+            stringval1: "",
+            stringval2: data.name || data.firstName || "",
+            stringval3: data.lastName || "",
+            stringval4: data.date || "",
+            stringval5: data.time || "",
+            stringval6: data.remarks || "Slot Booking via Game",
+            stringval7: "GAMIFICATION",
+            stringval9: data.mobile || ""
+        }
+    };
+
+    try {
+        const response = await fetch(UAT_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const jsonResponse = await response.json().catch(() => ({}));
+        return {
+            success: response.ok,
+            ...jsonResponse
+        };
+    } catch (error) {
+        console.error("updateLeadNew Submission Error:", error);
+        return { success: false, error: error.message };
+    }
+};

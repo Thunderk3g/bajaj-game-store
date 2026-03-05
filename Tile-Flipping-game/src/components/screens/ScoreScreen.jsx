@@ -162,6 +162,10 @@ export default function ScoreScreen({ showToast }) {
                         <button className={styles.btnPlayAgainText} onClick={handlePlayAgain} id="btn-play-again">
                             Play Again
                         </button>
+
+                        <div className={styles.disclaimer}>
+                            <strong>Disclaimer:</strong> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                        </div>
                     </div>
 
                 </div>

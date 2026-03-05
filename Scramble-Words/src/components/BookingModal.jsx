@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar } from 'lucide-react';
+import { updateLeadNew, submitToLMS } from '../utils/api';
 
 export default function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile }) {
     const [formData, setFormData] = useState({ name: initialName || '', mobile: initialMobile || '', date: '', time: '' });
@@ -59,17 +60,40 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
 
         setIsSubmitting(true);
 
-        // Simulate API call or just pass data up
-        // In a real scenario, you might await an API call here
-        setTimeout(() => {
+        try {
+            // Exact same pattern as retirement-sudoku's handleBookingSubmit
+            const leadNo = sessionStorage.getItem('gameLeadNo');
+            if (leadNo) {
+                // Update existing lead with slot booking details
+                await updateLeadNew(leadNo, {
+                    firstName: formData.name.trim(),
+                    mobile: formData.mobile,
+                    date: formData.date,
+                    time: formData.time,
+                    remarks: `Scramble Words Slot Booking | ${formData.date} at ${formData.time}`
+                });
+            } else {
+                // No leadNo — submit fresh slot booking via whatsappInhouse API
+                await submitToLMS({
+                    name: formData.name.trim(),
+                    mobile_no: formData.mobile,
+                    param4: formData.date,
+                    param19: formData.time,
+                    summary_dtls: 'Scramble Words Slot Booking',
+                    p_data_source: 'SCRAMBLE_GAME_BOOKING'
+                });
+            }
+        } catch (error) {
+            console.error('Booking error:', error);
+        } finally {
             setIsSubmitting(false);
+            // Navigate to thank-you regardless of API result (same as retirement-sudoku)
             if (onSubmit) onSubmit(formData);
             onClose();
-            // Reset form
             setFormData({ name: '', mobile: '', date: '', time: '' });
-            setTermsAccepted(false);
+            setTermsAccepted(true);
             setErrors({});
-        }, 1000);
+        }
     };
 
     // Get today's date string for min attribute

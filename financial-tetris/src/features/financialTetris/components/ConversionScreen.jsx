@@ -71,6 +71,13 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
 
         if (!bookingData.date) {
             errs.date = "Select a date";
+        } else {
+            const selectedDate = new Date(bookingData.date);
+            const t = new Date();
+            t.setHours(0, 0, 0, 0);
+            if (selectedDate < t) {
+                errs.date = "Cannot be in the past";
+            }
         }
         if (!bookingData.timeSlot) {
             errs.timeSlot = "Select a slot";
@@ -119,28 +126,28 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
 
     return (
         <motion.div
-            className="w-full h-[100dvh] flex flex-col items-center bg-slate-950 p-4 sh:p-2 pb-4 sh:pb-1 relative overflow-hidden"
+            className="w-full min-h-[100dvh] flex flex-col items-center bg-slate-950 p-4 relative overflow-y-auto overflow-x-hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
             {/* Header / Top Bar */}
-            <div className="w-full max-w-sm flex flex-col items-center justify-center relative py-2 sh:py-0 mb-1 sh:mb-0">
-                <p className="text-gray-400 font-bold text-2xl sm:text-3xl text-center sh:text-lg">
+            <div className="w-full max-w-sm flex flex-col items-center justify-center relative py-2 mb-2 px-10">
+                <p className="text-gray-400 font-bold text-xl sm:text-2xl text-center leading-tight">
                     Hi <span className="text-blue-500 font-black">{leadData?.name || 'Friend'}</span>
                 </p>
-                <p className="text-white font-black text-2xl sm:text-3xl text-center sh:text-lg mt-1">
+                <p className="text-white font-black text-2xl sm:text-3xl text-center mt-1">
                     You Achieved
                 </p>
                 <button
                     onClick={handleShare}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 sh:p-1 bg-white/5 backdrop-blur-sm rounded-full text-white/70 hover:text-white hover:bg-white/10 border border-white/10 transition-all active:scale-95 z-10"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 bg-white/5 backdrop-blur-sm rounded-full text-white/70 hover:text-white hover:bg-white/10 border border-white/10 transition-all active:scale-95 z-10"
                 >
-                    <Share2 className="w-5 h-5 sh:w-3.5 sh:h-3.5" />
+                    <Share2 className="w-5 h-5" />
                 </button>
             </div>
 
-            <div className="w-full max-w-sm flex flex-col items-center flex-1 justify-between gap-y-3 sh:gap-y-0.5 min-h-0">
+            <div className="w-full max-w-sm flex flex-col items-center flex-1 justify-between gap-y-3 min-h-0 pb-4">
                 {/* Score Section */}
                 <div className="scale-90 sh:scale-[0.75] transform origin-center py-1 sh:py-0 sh:-mt-6 sh:-mb-24 transition-all">
                     <ScoreCard score={score} total={total} />
@@ -163,31 +170,31 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                 </button>
 
                 {/* Action Card Section */}
-                <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[18px] p-5 sh:p-2.5 border border-slate-800 space-y-4 sh:space-y-1 relative overflow-hidden text-center shadow-xl">
-                    <p className="text-white text-md sh:text-[9px] font-bold leading-tight">
+                <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[24px] p-4 border border-slate-800 space-y-4 relative overflow-hidden text-center shadow-xl mt-2">
+                    <p className="text-white text-sm font-bold leading-tight">
                         To build a strong financial foundation,<br />Connect with our Relationship Manager now!
                     </p>
 
-                    <div className="flex flex-col gap-3 sh:gap-1.5">
+                    <div className="flex flex-col gap-3">
                         <motion.a
                             href="tel:18002097272"
-                            className="bg-amber-600 text-white font-black py-4 sh:py-3 px-6 rounded-2xl sh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-sm border border-amber-500/20 hover:bg-amber-500 active:scale-95"
+                            className="bg-amber-600 text-white font-black py-3 px-6 rounded-xl flex items-center justify-center gap-3 transition-all text-sm border border-amber-500/20 hover:bg-amber-500 active:scale-95"
                         >
-                            <Phone className="w-6 h-6 sh:w-4 sh:h-4 text-white/80" />
+                            <Phone className="w-5 h-5 text-white/80" />
                             <span>Call now</span>
                         </motion.a>
 
-                        <div className="flex items-center gap-4 py-1 sh:py-0">
+                        <div className="flex items-center gap-4 py-1">
                             <div className="h-[1px] flex-1 bg-slate-800" />
-                            <span className="text-slate-600 font-bold text-[14px] sh:text-[10px] uppercase tracking-widest leading-none">OR</span>
+                            <span className="text-slate-600 font-bold text-[12px] uppercase tracking-widest leading-none">OR</span>
                             <div className="h-[1px] flex-1 bg-slate-800" />
                         </div>
 
                         <motion.button
                             onClick={() => setIsBookingOpen(true)}
-                            className="bg-green-600 text-white font-black py-4 sh:py-3 px-6 rounded-2xl sh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-sm shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
+                            className="bg-green-600 text-white font-black py-3 px-6 rounded-xl flex items-center justify-center gap-3 transition-all text-sm shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
                         >
-                            <Calendar className="w-5 h-5 sh:w-3.5 sh:h-3.5 opacity-80" />
+                            <Calendar className="w-5 h-5 opacity-80" />
                             <span>Book a slot</span>
                         </motion.button>
                     </div>
@@ -201,6 +208,13 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                     <RotateCcw className="w-6 h-6 sh:w-4 sh:h-4 text-gray-500" />
                     <span>Play again</span>
                 </button>
+
+                {/* Disclaimer */}
+                <div className="w-full px-4 mb-2 mt-auto">
+                    <p className="text-[9px] sh:text-[8px] text-gray-500/80 leading-tight text-center font-medium">
+                        <span className="font-bold">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                    </p>
+                </div>
             </div>
 
             <AnimatePresence>
