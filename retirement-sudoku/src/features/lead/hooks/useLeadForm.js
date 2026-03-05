@@ -39,6 +39,15 @@ function validate(fields) {
     if (!fields.preferredDate) {
         errors.preferredDate = 'Please select a preferred date';
         valid = false;
+    } else {
+        // Prevent back-dated bookings (iOS Safari ignores HTML min attribute)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selected = new Date(fields.preferredDate + 'T00:00:00');
+        if (selected < today) {
+            errors.preferredDate = 'Please select today or a future date';
+            valid = false;
+        }
     }
 
     if (!fields.preferredTime) {

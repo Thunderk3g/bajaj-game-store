@@ -8,9 +8,9 @@ export const PLAYER_SPEED = 8;
 export const PLAYER_LANE_PADDING = 24;
 
 export const MAX_LIVES = 3;
-export const LIFE_REGEN_TIME = 5000;
+// Life regen removed — lives only decrease
 
-export const RISK_SIZE = 52;
+export const RISK_SIZE = 62;
 export const RISK_INITIAL_SPEED = 2.5;
 export const RISK_MAX_SPEED = 7;
 export const RISK_SPAWN_INTERVAL_INITIAL = 1200;
@@ -18,12 +18,11 @@ export const RISK_SPAWN_INTERVAL_MIN = 600;
 
 export const PHASE_1_END = 20;
 export const PHASE_2_END = 40;
-export const CRASH_TRIGGER_MIN = 40;
-export const CRASH_TRIGGER_MAX = 50;
+export const CRASH_TRIGGER_TIME = 30; // Car always at 30s
 
 export const CAR_WIDTH = 180;
 export const CAR_HEIGHT = 90;
-export const CAR_SPEED = 90;
+export const CAR_SPEED = 25;
 
 export const SCORE_PER_SECOND = 10;
 export const DODGE_BONUS = 25;

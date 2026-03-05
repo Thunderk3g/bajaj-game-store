@@ -3,10 +3,10 @@ import { useGame, GAME_STATUS } from '../context/GameContext';
 import {
     CANVAS_WIDTH, CANVAS_HEIGHT,
     PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_Y, PLAYER_SPEED, PLAYER_LANE_PADDING,
-    MAX_LIVES, LIFE_REGEN_TIME,
+    MAX_LIVES,
     RISK_SIZE, RISK_INITIAL_SPEED, RISK_MAX_SPEED,
     RISK_SPAWN_INTERVAL_INITIAL, RISK_SPAWN_INTERVAL_MIN,
-    PHASE_1_END, PHASE_2_END, CRASH_TRIGGER_MIN, CRASH_TRIGGER_MAX,
+    PHASE_1_END, PHASE_2_END, CRASH_TRIGGER_TIME,
     CAR_WIDTH, CAR_HEIGHT, CAR_SPEED,
     SCORE_PER_SECOND, RISK_TYPES, COLORS,
 } from '../constants/constants';
@@ -99,12 +99,15 @@ export const useGameEngine = () => {
     const crashTriggeredRef = useRef(false);
     const isPausedRef = useRef(false);
 
+    // Ragdoll physics for crash animation
+    const ragdollRef = useRef(null); // { x, y, vx, vy, rotation, rotSpeed, grounded, bounces }
+
     // Parallax
     const bgScrollRef = useRef([0, 0, 0, 0, 0]); // sky, mid, fore, lane, clouds
     const glowTimeRef = useRef(0);
     const lastHitTimeRef = useRef(0);
     const lastHeartbeatTimeRef = useRef(0);
-    const crashTimeRef = useRef(CRASH_TRIGGER_MIN + Math.random() * (CRASH_TRIGGER_MAX - CRASH_TRIGGER_MIN));
+    const crashTimeRef = useRef(CRASH_TRIGGER_TIME);
 
     const moveDirectionRef = useRef(0);
     const touchStartRef = useRef(null);
@@ -113,6 +116,9 @@ export const useGameEngine = () => {
     const [heartShake, setHeartShake] = useState(false);
     const [isCrashing, setIsCrashing] = useState(false);
     const [screenShake, setScreenShake] = useState(0);
+    // Popup state for life-lost messages
+    const [lifeLostPopup, setLifeLostPopup] = useState(null); // { message, type: 'lost'|'gameover' }
+    const popupTimerRef = useRef(null);
 
     // Audio Context for Heartbeat
     const audioCtxRef = useRef(null);
@@ -415,46 +421,115 @@ export const useGameEngine = () => {
         ctx.restore();
     }, []);
 
-    const drawRiskCoin = useCallback((ctx, r, drawCustomSymbol) => {
+    const drawRiskIcon = useCallback((ctx, r) => {
         const cx = r.x + r.width / 2;
         const cy = r.y + r.height / 2;
         const rad = r.width / 2;
         // Soft floating animation
         const floatY = cy + Math.sin(glowTimeRef.current * 3 + r.floatAnim) * 6;
         const pulse = 1 + Math.sin(glowTimeRef.current * 5 + r.floatAnim) * 0.08;
+        const iconSize = rad * pulse * 1.6;
 
         ctx.save();
 
-        // Inner intense light bloom
+        // Subtle danger glow behind icon
         ctx.globalCompositeOperation = 'hard-light';
-        const aGlow = ctx.createRadialGradient(cx, floatY, rad * 0.2, cx, floatY, rad * 3);
-        aGlow.addColorStop(0, r.type.aura);
-        aGlow.addColorStop(0.5, r.type.aura + '66');
+        const aGlow = ctx.createRadialGradient(cx, floatY, iconSize * 0.2, cx, floatY, iconSize * 2);
+        aGlow.addColorStop(0, 'rgba(255, 60, 60, 0.5)');
+        aGlow.addColorStop(0.5, 'rgba(255, 60, 60, 0.15)');
         aGlow.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = aGlow;
-        ctx.beginPath(); ctx.arc(cx, floatY, rad * 3.5 * pulse, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, floatY, iconSize * 2.5, 0, Math.PI * 2); ctx.fill();
         ctx.globalCompositeOperation = 'source-over';
 
-        // Drop shadow directly below
+        // Drop shadow
         ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.beginPath(); ctx.ellipse(cx, floatY + rad + 8, rad * 0.6, 4, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx, floatY + iconSize + 6, iconSize * 0.5, 4, 0, 0, Math.PI * 2); ctx.fill();
 
-        // Glossy Inner Body
-        const orbGrad = ctx.createRadialGradient(cx - rad * 0.3, floatY - rad * 0.3, rad * 0.1, cx, floatY, rad);
-        orbGrad.addColorStop(0, '#FFFFFF');
-        orbGrad.addColorStop(0.3, r.type.color);
-        orbGrad.addColorStop(1, shadeColor(r.type.color, -40));
+        // Draw the danger icon based on type
+        const s = iconSize;
+        ctx.translate(cx, floatY);
 
-        ctx.beginPath(); ctx.arc(cx, floatY, rad * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = orbGrad; ctx.fill();
+        if (r.type.id === 'medical') {
+            // Biohazard / Skull style — danger cross
+            // Red circle with white cross
+            ctx.fillStyle = '#E53935';
+            ctx.shadowColor = '#E53935'; ctx.shadowBlur = 12;
+            ctx.beginPath(); ctx.arc(0, 0, s * 0.85, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+            // Dark inner ring
+            ctx.strokeStyle = '#B71C1C'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(0, 0, s * 0.72, 0, Math.PI * 2); ctx.stroke();
+            // White cross
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath(); ctx.roundRect(-s * 0.15, -s * 0.55, s * 0.3, s * 1.1, 4); ctx.fill();
+            ctx.beginPath(); ctx.roundRect(-s * 0.55, -s * 0.15, s * 1.1, s * 0.3, 4); ctx.fill();
 
-        // Pulsating glowing ring
-        ctx.strokeStyle = '#FFFFFF99';
-        ctx.lineWidth = 2 + pulse * 2;
-        ctx.beginPath(); ctx.arc(cx, floatY, rad * pulse * 1.1, 0, Math.PI * 2); ctx.stroke();
+        } else if (r.type.id === 'loan') {
+            // Exclamation in circle — alert danger
+            ctx.fillStyle = '#FF6F00';
+            ctx.shadowColor = '#FF6F00'; ctx.shadowBlur = 12;
+            ctx.beginPath(); ctx.arc(0, 0, s * 0.85, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#E65100'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(0, 0, s * 0.72, 0, Math.PI * 2); ctx.stroke();
+            // Exclamation mark
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath(); ctx.roundRect(-s * 0.1, -s * 0.5, s * 0.2, s * 0.6, 3); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, s * 0.35, s * 0.1, 0, Math.PI * 2); ctx.fill();
 
-        // Draw Premium Symbol
-        drawCustomSymbol(ctx, r.type.id, cx, floatY, rad * pulse);
+        } else if (r.type.id === 'accident') {
+            // ⚠️ Warning triangle — classic danger
+            ctx.fillStyle = '#FFD600';
+            ctx.shadowColor = '#FFD600'; ctx.shadowBlur = 14;
+            ctx.beginPath();
+            ctx.moveTo(0, -s * 0.85);
+            ctx.lineTo(s * 0.9, s * 0.65);
+            ctx.lineTo(-s * 0.9, s * 0.65);
+            ctx.closePath();
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#F9A825'; ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, -s * 0.7);
+            ctx.lineTo(s * 0.72, s * 0.55);
+            ctx.lineTo(-s * 0.72, s * 0.55);
+            ctx.closePath();
+            ctx.stroke();
+            // Exclamation inside triangle
+            ctx.fillStyle = '#212121';
+            ctx.beginPath(); ctx.roundRect(-s * 0.08, -s * 0.35, s * 0.16, s * 0.5, 3); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, s * 0.35, s * 0.09, 0, Math.PI * 2); ctx.fill();
+
+        } else if (r.type.id === 'illness') {
+            // Skull & Crossbones style — toxic/danger
+            ctx.fillStyle = '#AB47BC';
+            ctx.shadowColor = '#AB47BC'; ctx.shadowBlur = 12;
+            ctx.beginPath(); ctx.arc(0, 0, s * 0.85, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#7B1FA2'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(0, 0, s * 0.72, 0, Math.PI * 2); ctx.stroke();
+            // Skull shape
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath(); ctx.arc(0, -s * 0.12, s * 0.38, 0, Math.PI * 2); ctx.fill();
+            // Eyes
+            ctx.fillStyle = '#AB47BC';
+            ctx.beginPath(); ctx.arc(-s * 0.14, -s * 0.18, s * 0.1, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(s * 0.14, -s * 0.18, s * 0.1, 0, Math.PI * 2); ctx.fill();
+            // Nose
+            ctx.beginPath(); ctx.moveTo(0, -s * 0.06); ctx.lineTo(-s * 0.04, s * 0.02); ctx.lineTo(s * 0.04, s * 0.02); ctx.fill();
+            // Mouth / teeth
+            ctx.fillStyle = '#FFF';
+            ctx.fillRect(-s * 0.2, s * 0.12, s * 0.4, s * 0.06);
+            ctx.fillStyle = '#AB47BC';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(-s * 0.16 + i * s * 0.1, s * 0.12, s * 0.03, s * 0.06);
+            }
+            // Crossbones
+            ctx.strokeStyle = '#FFF'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(-s * 0.45, s * 0.35); ctx.lineTo(s * 0.45, s * 0.6); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(s * 0.45, s * 0.35); ctx.lineTo(-s * 0.45, s * 0.6); ctx.stroke();
+        }
 
         ctx.restore();
     }, []);
@@ -622,12 +697,24 @@ export const useGameEngine = () => {
             r.y += r.speed * dt * 60;
             if (!r.dodged && r.y > playerRef.current.y + PLAYER_HEIGHT) { r.dodged = true; incrementDodgeStreak(); }
 
+            // Skip collision checks during car crash sequence
+            if (isCrashingRef.current || carRef.current) return r.y < H + 60;
+
             const pHit = playerRef.current;
             if (r.x < pHit.x + PLAYER_WIDTH - 12 && r.x + r.width > pHit.x + 12 && r.y < pHit.y + PLAYER_HEIGHT - 12 && r.y + r.height > pHit.y + 12) {
-                // Minimum lives is bounded to 1 during standard phase!
-                livesRef.current = Math.max(1, livesRef.current - 1); setLives(livesRef.current); resetDodgeStreak(); comboRef.current = 1;
+                livesRef.current = Math.max(0, livesRef.current - 1); setLives(livesRef.current); resetDodgeStreak(); comboRef.current = 1;
                 spawnImpactParticles(r.x + r.width / 2, r.y + r.height / 2, r.type.color);
                 lastHitTimeRef.current = elapsed; setHeartShake(true); setTimeout(() => setHeartShake(false), 500);
+
+                if (livesRef.current <= 0) {
+                    // All lives lost — show game over popup
+                    isPausedRef.current = true;
+                    setLifeLostPopup({ message: 'You lost all your lives! But you can try again.', type: 'gameover' });
+                } else {
+                    // Still has lives — pause and show continue popup
+                    isPausedRef.current = true;
+                    setLifeLostPopup({ message: `You lost a life! But you can continue the game.`, type: 'lost' });
+                }
 
                 return false;
             }
@@ -639,8 +726,7 @@ export const useGameEngine = () => {
             playHeartbeat();
             lastHeartbeatTimeRef.current = elapsed;
         }
-
-        if (elapsed < 40 && livesRef.current < MAX_LIVES && elapsed - lastHitTimeRef.current > LIFE_REGEN_TIME / 1000) { livesRef.current++; setLives(livesRef.current); lastHitTimeRef.current = elapsed; }
+        // Life regen completely removed — lives only go down
 
         if (ts - lastScoreTimeRef.current > 1000 && !carRef.current) { scoreRef.current += Math.floor(SCORE_PER_SECOND * comboRef.current); setScore(scoreRef.current); lastScoreTimeRef.current = ts; }
 
@@ -653,12 +739,36 @@ export const useGameEngine = () => {
 
         if (carRef.current) {
             carRef.current.x -= carRef.current.speed * dt * 60;
-            if (carRef.current.x < playerRef.current.x + PLAYER_WIDTH && carRef.current.x + carRef.current.width > playerRef.current.x) {
+
+            // Detect collision — car hits the player (only once)
+            if (!isCrashingRef.current && carRef.current.x < playerRef.current.x + PLAYER_WIDTH && carRef.current.x + carRef.current.width > playerRef.current.x) {
                 isCrashingRef.current = true; setIsCrashing(true); screenShakeRef.current = 35; setScreenShake(35);
-                livesRef.current = 0; setLives(0); spawnImpactParticles(playerRef.current.x + 20, playerRef.current.y + 20, '#FF1133');
-                // Quick transition to game over overlay
-                setTimeout(() => { screenShakeRef.current = 0; setScreenShake(0); triggerCrash(); }, 600);
-                carRef.current = null; cancelAnimationFrame(animFrameRef.current); setScore(scoreRef.current); setElapsedTime(elapsed); return;
+                livesRef.current = 0; setLives(0);
+                setLifeLostPopup(null); // Ensure no "Try Again" popup during car crash
+                spawnImpactParticles(playerRef.current.x + 20, playerRef.current.y + 20, '#FF1133');
+                spawnImpactParticles(playerRef.current.x + 30, playerRef.current.y + 40, '#FFD700');
+                spawnImpactParticles(playerRef.current.x + 10, playerRef.current.y + 10, '#FF6633');
+                setScore(scoreRef.current); setElapsedTime(elapsed);
+
+                // Launch the ragdoll — character flies up but stays on screen
+                ragdollRef.current = {
+                    x: playerRef.current.x,
+                    y: playerRef.current.y,
+                    vx: -3,     // very gentle knock to the left
+                    vy: -16,    // launched upward
+                    rotation: 0,
+                    rotSpeed: 8, // tumble spin speed
+                    grounded: false,
+                    bounces: 0,
+                };
+
+                // Longer delay for the ragdoll animation to play out before showing 3 messages
+                setTimeout(() => { screenShakeRef.current = 0; setScreenShake(0); triggerCrash(); cancelAnimationFrame(animFrameRef.current); }, 2200);
+            }
+
+            // Remove car only after it exits off the left side
+            if (carRef.current && carRef.current.x + carRef.current.width < -50) {
+                carRef.current = null;
             }
         }
 
@@ -673,8 +783,116 @@ export const useGameEngine = () => {
 
         drawRoad(ctx, livesRef.current, glowTimeRef.current);
 
-        risksRef.current.forEach(r => drawRiskCoin(ctx, r, drawCustomSymbol));
-        if (!isCrashingRef.current) drawPlayer(ctx, playerRef.current);
+        risksRef.current.forEach(r => drawRiskIcon(ctx, r));
+
+        // Draw player — or ragdoll if crashing
+        if (isCrashingRef.current && ragdollRef.current) {
+            const rd = ragdollRef.current;
+
+            // Update ragdoll physics
+            rd.vy += 0.8; // gravity
+            rd.x += rd.vx;
+            rd.y += rd.vy;
+            rd.rotation += rd.rotSpeed * dt;
+
+            // Clamp x to stay on screen
+            if (rd.x < 10) { rd.x = 10; rd.vx = Math.abs(rd.vx) * 0.3; }
+            if (rd.x > W - PLAYER_WIDTH - 10) { rd.x = W - PLAYER_WIDTH - 10; rd.vx = -Math.abs(rd.vx) * 0.3; }
+
+            // Ground bounce
+            const groundY = PLAYER_Y;
+            if (rd.y >= groundY && !rd.grounded) {
+                rd.y = groundY;
+                rd.vy = -rd.vy * 0.3; // bounce with energy loss
+                rd.vx *= 0.5;
+                rd.rotSpeed *= 0.5;
+                rd.bounces++;
+                if (rd.bounces >= 3 || Math.abs(rd.vy) < 2) {
+                    rd.grounded = true;
+                    rd.vy = 0;
+                    rd.vx = 0;
+                    rd.rotSpeed = 0;
+                }
+                // Spawn ground impact particles on bounce
+                spawnImpactParticles(rd.x + PLAYER_WIDTH / 2, rd.y + PLAYER_HEIGHT, '#888888');
+            }
+
+            // Draw ragdoll player — rotated and tumbling
+            ctx.save();
+            ctx.translate(rd.x + PLAYER_WIDTH / 2, rd.y + PLAYER_HEIGHT / 2);
+            ctx.rotate(rd.rotation);
+            ctx.globalAlpha = rd.grounded ? 0.7 : 1;
+
+            // Simplified ragdoll body
+            const w = PLAYER_WIDTH, h = PLAYER_HEIGHT;
+
+            // Shadow on ground (only when airborne)
+            if (!rd.grounded) {
+                ctx.save();
+                ctx.rotate(-rd.rotation); // un-rotate the shadow
+                const shadowScale = Math.max(0.2, 1 - Math.abs(rd.y - groundY) / 200);
+                ctx.fillStyle = `rgba(0,0,0,${0.3 * shadowScale})`;
+                ctx.beginPath();
+                ctx.ellipse(0, groundY - rd.y + h / 2 + 8, w * 0.3 * shadowScale, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // Legs (flailing)
+            ctx.fillStyle = '#1A2A40';
+            ctx.fillRect(-8 + Math.sin(rd.rotation * 3) * 6, h / 2 - 22, 9, 18);
+            ctx.fillRect(3 - Math.sin(rd.rotation * 3) * 6, h / 2 - 22, 9, 18);
+            // Shoes
+            ctx.fillStyle = COLORS.PLAYER_SHOES;
+            ctx.beginPath(); ctx.roundRect(-10 + Math.sin(rd.rotation * 3) * 6, h / 2 - 6, 14, 8, 4); ctx.fill();
+            ctx.beginPath(); ctx.roundRect(1 - Math.sin(rd.rotation * 3) * 6, h / 2 - 6, 14, 8, 4); ctx.fill();
+
+            // Hoodie body
+            const bodyG = ctx.createLinearGradient(0, -h / 2 + 15, 0, h / 2 - 10);
+            bodyG.addColorStop(0, COLORS.PLAYER_HOODIE);
+            bodyG.addColorStop(1, COLORS.PLAYER_HOODIE_DARK);
+            ctx.fillStyle = bodyG;
+            ctx.beginPath(); ctx.roundRect(-w / 2 + 10, -h / 2 + 25, w - 20, h - 38, [12, 12, 8, 8]); ctx.fill();
+
+            // Arms flailing
+            ctx.fillStyle = COLORS.PLAYER_HOODIE;
+            ctx.save();
+            ctx.rotate(Math.sin(rd.rotation * 4) * 0.8);
+            ctx.fillRect(-w / 2 + 2, -h / 2 + 30, 10, 30);
+            ctx.restore();
+            ctx.save();
+            ctx.rotate(-Math.sin(rd.rotation * 4) * 0.8);
+            ctx.fillRect(w / 2 - 12, -h / 2 + 30, 10, 30);
+            ctx.restore();
+
+            // Head
+            ctx.fillStyle = COLORS.PLAYER_FACE;
+            ctx.beginPath(); ctx.roundRect(-12, -h / 2 + 4, 24, 20, 8); ctx.fill();
+            // Hair
+            ctx.fillStyle = '#2A1B14';
+            ctx.beginPath();
+            ctx.moveTo(-14, -h / 2 + 10);
+            ctx.bezierCurveTo(-12, -h / 2 - 4, 12, -h / 2 - 6, 14, -h / 2 + 10);
+            ctx.lineTo(10, -h / 2 + 2);
+            ctx.lineTo(0, -h / 2 - 2);
+            ctx.lineTo(-10, -h / 2 + 4);
+            ctx.closePath();
+            ctx.fill();
+            // X eyes (knocked out)
+            ctx.strokeStyle = '#111'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(-10, -h / 2 + 11); ctx.lineTo(-5, -h / 2 + 15); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-5, -h / 2 + 11); ctx.lineTo(-10, -h / 2 + 15); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(5, -h / 2 + 11); ctx.lineTo(10, -h / 2 + 15); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(10, -h / 2 + 11); ctx.lineTo(5, -h / 2 + 15); ctx.stroke();
+            // Open mouth (shock)
+            ctx.fillStyle = '#4A2B29';
+            ctx.beginPath(); ctx.ellipse(0, -h / 2 + 20, 4, 3, 0, 0, Math.PI * 2); ctx.fill();
+
+            ctx.globalAlpha = 1;
+            ctx.restore();
+        } else if (!isCrashingRef.current) {
+            drawPlayer(ctx, playerRef.current);
+        }
 
         // Premium Modern Car & Motion Blur
         if (carRef.current) {
@@ -780,12 +998,14 @@ export const useGameEngine = () => {
         if (isCrashingRef.current) { ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, W, H); }
 
         animFrameRef.current = requestAnimationFrame(gameLoop);
-    }, [drawBackgroundLayers, drawCityLayer, drawRoad, drawRiskCoin, drawCustomSymbol, drawPlayer, drawOrnateHUD, incrementDodgeStreak, resetDodgeStreak, setLives, setScore, triggerCrash, setElapsedTime, setPhase]);
+    }, [drawBackgroundLayers, drawCityLayer, drawRoad, drawRiskIcon, drawPlayer, drawOrnateHUD, incrementDodgeStreak, resetDodgeStreak, setLives, setScore, triggerCrash, setElapsedTime, setPhase, playHeartbeat, spawnRisk, spawnImpactParticles]);
 
     const startEngine = useCallback(() => {
         lastTimeRef.current = 0; elapsedRef.current = 0; glowTimeRef.current = 0; scoreRef.current = 0; livesRef.current = MAX_LIVES; comboRef.current = 1;
-        crashTimeRef.current = CRASH_TRIGGER_MIN + Math.random() * (CRASH_TRIGGER_MAX - CRASH_TRIGGER_MIN);
+        crashTimeRef.current = CRASH_TRIGGER_TIME;
         crashTriggeredRef.current = false; slowMoRef.current = false; isCrashingRef.current = false; setIsCrashing(false);
+        isPausedRef.current = false; setLifeLostPopup(null);
+        ragdollRef.current = null;
         risksRef.current = []; particlesRef.current = []; sparkRef.current = []; carRef.current = null;
         bgScrollRef.current = [0, 0, 0, 0, 0];
         playerRef.current = { x: W / 2 - PLAYER_WIDTH / 2, y: PLAYER_Y, width: PLAYER_WIDTH, height: PLAYER_HEIGHT, animPhase: 0, bounce: 0 };
@@ -803,5 +1023,21 @@ export const useGameEngine = () => {
     useEffect(() => { return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); if (canvasRef.current) { canvasRef.current.removeEventListener('touchstart', handleTouchStart); canvasRef.current.removeEventListener('touchend', handleTouchEnd); canvasRef.current.removeEventListener('touchmove', handleTouchMove); } }; }, []);
     useEffect(() => { comboRef.current = comboMultiplier; }, [comboMultiplier]);
 
-    return { canvasRef, startEngine, stopEngine, heartShake, isCrashing, screenShake, canvasWidth: W, canvasHeight: H };
+    // Callback to dismiss the life-lost popup and resume game
+    const dismissLifeLostPopup = useCallback(() => {
+        setLifeLostPopup(null);
+        isPausedRef.current = false;
+        lastTimeRef.current = 0; // reset delta time so no jump
+        animFrameRef.current = requestAnimationFrame(gameLoop);
+    }, [gameLoop]);
+
+    // Callback for game over popup — restart
+    const handleGameOverFromPopup = useCallback(() => {
+        setLifeLostPopup(null);
+        isPausedRef.current = false;
+        // Trigger game over status
+        setStatus(GAME_STATUS.GAME_OVER);
+    }, [setStatus]);
+
+    return { canvasRef, startEngine, stopEngine, heartShake, isCrashing, screenShake, canvasWidth: W, canvasHeight: H, lifeLostPopup, dismissLifeLostPopup, handleGameOverFromPopup };
 };

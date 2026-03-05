@@ -8,6 +8,7 @@ import ConversionScreen from '../features/game/components/ConversionScreen';
 import IntroScreen from '../features/game/components/IntroScreen';
 import TutorialOverlay from '../features/game/components/TutorialOverlay';
 import ThankYouScreen from '../features/game/components/ThankYouScreen';
+import LifeLostPopup from '../features/game/components/LifeLostPopup';
 import { submitToLMS } from '../services/api';
 
 const GamePage = () => {
@@ -20,6 +21,7 @@ const GamePage = () => {
         canvasRef, startEngine, stopEngine,
         heartShake, isCrashing, screenShake,
         canvasWidth, canvasHeight,
+        lifeLostPopup, dismissLifeLostPopup, handleGameOverFromPopup,
     } = useGameEngine();
 
     const [showTutorial, setShowTutorial] = useState(false);
@@ -52,6 +54,16 @@ const GamePage = () => {
         return result;
     };
 
+    // When GAME_OVER (lives lost), go to CTA after short delay
+    useEffect(() => {
+        if (status === GAME_STATUS.GAME_OVER) {
+            const timer = setTimeout(() => {
+                setStatus(GAME_STATUS.CTA);
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [status, setStatus]);
+
     // Track analytics events
     useEffect(() => {
         const trackEvent = (event) => {
@@ -69,9 +81,6 @@ const GamePage = () => {
     return (
         <div className="w-full min-h-screen flex justify-center items-center bg-[#0B1221] overflow-hidden">
             <div className="relative w-full max-w-md h-[100dvh] mx-auto bg-[#0B1221] flex flex-col shadow-2xl overflow-hidden pt-safe md:h-[850px] md:max-h-[95dvh] md:rounded-3xl border border-white/5">
-                {/* HUD overlay during gameplay */}
-                {/* HUD is drawn on canvas directly for a cleaner look */}
-
                 {/* Main Area */}
                 <div className="flex-1 relative overflow-hidden flex flex-col">
                     <AnimatePresence mode="wait">
@@ -98,7 +107,20 @@ const GamePage = () => {
                                     )}
                                 </div>
 
-                                {/* Game Over Overlay */}
+                                {/* Life Lost Popup Overlay */}
+                                <AnimatePresence>
+                                    {lifeLostPopup && (
+                                        <LifeLostPopup
+                                            message={lifeLostPopup.message}
+                                            type={lifeLostPopup.type}
+                                            onContinue={dismissLifeLostPopup}
+                                            onGameOver={handleGameOverFromPopup}
+                                            onRestart={handleRestart}
+                                        />
+                                    )}
+                                </AnimatePresence>
+
+                                {/* Game Over Overlay (car crash) */}
                                 <GameOverOverlay />
                             </motion.div>
                         )}

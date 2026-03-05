@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Check } from 'lucide-react';
 import { submitToLMS } from '../../../services/api';
 import bgImage from '../assets/images/TN_Expect_The_Unexpected-thumbnail.png';
 

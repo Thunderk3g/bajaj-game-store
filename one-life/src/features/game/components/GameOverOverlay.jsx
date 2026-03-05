@@ -32,7 +32,7 @@ const GameOverOverlay = () => {
         const lastMsg = GAME_OVER_MESSAGES[GAME_OVER_MESSAGES.length - 1];
         const autoTransition = setTimeout(() => {
             setStatus(GAME_STATUS.CTA);
-        }, lastMsg.delay + 800 + 2500); // last msg delay + initial wait + 2.5s hold
+        }, lastMsg.delay + 800 + 4000); // last msg delay + initial wait + 4s pause as requested
         timers.push(autoTransition);
 
         return () => {

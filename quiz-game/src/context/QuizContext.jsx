@@ -90,10 +90,10 @@ export const QuizProvider = ({ children }) => {
             setCurrentQuestionIndex(prev => prev + 1);
             setCurrentScreen(SCREENS.QUESTION);
         } else {
-            const finalScore = userAnswers.filter(a => a.isCorrect).length +
-                (currentQuestion.options[selectedAnswer] === currentQuestion.correctAnswer ? 1 : 0);
-            if (finalScore > highScore) {
-                setHighScore(finalScore);
+            // Fix: Score is already updated in handleAnswerSelect.
+            // Just use the current score state for the high score check.
+            if (score > highScore) {
+                setHighScore(score);
             }
             setCurrentScreen(SCREENS.RESULTS);
             playSound('complete');
@@ -101,36 +101,30 @@ export const QuizProvider = ({ children }) => {
     }, [currentQuestionIndex, totalQuestions, userAnswers, currentQuestion, selectedAnswer, highScore, setHighScore, playSound]);
 
     const handleRestart = useCallback(() => {
-        setCurrentScreen(SCREENS.WELCOME);
+        const shuffled = getShuffledQuestions();
+        setQuestions(shuffled);
+        setCurrentScreen(SCREENS.QUESTION);
         setCurrentQuestionIndex(0);
         setScore(0);
         setUserAnswers([]);
         setSelectedAnswer(null);
         setShowFeedback(false);
-        // Reset lead state for a fresh start
-        setIsLeadSubmitted(false);
-        setLeadName('');
-        setLeadPhone('');
-        setIsTermsAccepted(true);
-        setLeadNo(null);
-        sessionStorage.removeItem('quizLeadNo');
-    }, []);
+        playSound('start');
+        // Note: we do NOT reset leadName/Phone here to allow direct replay as the same user
+    }, [playSound]);
 
     const retakeQuiz = useCallback(() => {
-        setCurrentScreen(SCREENS.WELCOME);
+        const shuffled = getShuffledQuestions();
+        setQuestions(shuffled);
+        setCurrentScreen(SCREENS.QUESTION);
         setCurrentQuestionIndex(0);
         setScore(0);
         setUserAnswers([]);
         setSelectedAnswer(null);
         setShowFeedback(false);
-        // Reset lead state for a fresh start
-        setIsLeadSubmitted(false);
-        setLeadName('');
-        setLeadPhone('');
-        setIsTermsAccepted(true);
-        setLeadNo(null);
-        sessionStorage.removeItem('quizLeadNo');
-    }, []);
+        playSound('start');
+        // Note: we do NOT reset leadName/Phone here to allow direct replay as the same user
+    }, [playSound]);
 
     const onLeadSubmit = useCallback(async (name, phone) => {
         // Automatic Preferred Callback Logic

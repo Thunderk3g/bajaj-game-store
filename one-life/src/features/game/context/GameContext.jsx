@@ -8,6 +8,7 @@ export const GAME_STATUS = {
     PAUSED: 'PAUSED',
     CRASH: 'CRASH',
     GAME_OVER: 'GAME_OVER',
+    LIVES_LOST: 'LIVES_LOST',
     CTA: 'CTA',
     THANK_YOU: 'THANK_YOU',
 };

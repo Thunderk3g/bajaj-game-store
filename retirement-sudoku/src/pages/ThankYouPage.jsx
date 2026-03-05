@@ -73,7 +73,7 @@ const ThankYouPage = memo(function ThankYouPage() {
                     whileTap={{ scale: 0.95 }}
                     className="mt-4 px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm uppercase tracking-widest rounded-xl shadow-lg transition-all border-2 border-white/10"
                 >
-                    🔄 Play Again
+                     Play Again
                 </motion.button>
             </div>
         </motion.div>

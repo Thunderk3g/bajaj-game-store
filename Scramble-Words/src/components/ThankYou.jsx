@@ -46,7 +46,7 @@ export default function ThankYou({ onHome, onReplay, firstName }) {
                     whileTap={{ scale: 0.95 }}
                     className="mt-4 px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm uppercase tracking-widest rounded-xl shadow-lg transition-all border-2 border-white/10"
                 >
-                    🔄 Play Again
+                    PLAY AGAIN
                 </motion.button>
             </div>
         </motion.div>

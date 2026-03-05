@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, CheckCircle2 } from "lucide-react";
-import { updateLeadNew } from "../utils/api";
+import { updateLeadNew, submitToLMS } from "../utils/api";
 import { useGameState } from "../hooks/useGameState";
 
 export default function BookingPopup({ isOpen, onClose }) {
@@ -19,17 +19,31 @@ export default function BookingPopup({ isOpen, onClose }) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const payload = {
-      name: formData.name,
-      mobile: formData.mobile,
-      date: formData.date,
-      time: formData.time,
-      remarks: `Slot: ${formData.date} at ${formData.time}`
-    };
-
-    const result = await updateLeadNew(leadNo, payload);
-
-    if (result.success) {
+    try {
+      // Read leadNo from sessionStorage — same pattern as retirement-sudoku
+      const storedLeadNo = sessionStorage.getItem('gameLeadNo');
+      if (storedLeadNo) {
+        await updateLeadNew(storedLeadNo, {
+          firstName: formData.name,
+          mobile: formData.mobile,
+          date: formData.date,
+          time: formData.time,
+          remarks: `Scramble Words Slot Booking | ${formData.date} at ${formData.time}`
+        });
+      } else {
+        await submitToLMS({
+          name: formData.name,
+          mobile_no: formData.mobile,
+          param4: formData.date,
+          param19: formData.time,
+          summary_dtls: 'Scramble Words Slot Booking',
+          p_data_source: 'SCRAMBLE_GAME_BOOKING'
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
       setIsSuccess(true);
       setTimeout(() => {
         onClose();
@@ -37,7 +51,6 @@ export default function BookingPopup({ isOpen, onClose }) {
         setFormData({ name: "", mobile: "", date: "", time: "" });
       }, 2000);
     }
-    setIsSubmitting(false);
   };
 
   return (

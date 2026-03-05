@@ -111,153 +111,213 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                 display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10,
             }}>
                 {/* Greeting */}
-                <motion.h1
-                    initial={{ opacity: 0, y: -10 }}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
+                    style={{ textAlign: 'center', marginBottom: '24px' }}
+                >
+                    <h1 style={{
+                        fontSize: '32px', fontWeight: 900, color: '#ffffff',
+                        letterSpacing: '0.05em', textTransform: 'uppercase',
+                        lineHeight: 1.2, margin: 0,
+                        textShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                    }}>
+                        HI {firstName.toUpperCase()}!
+                    </h1>
+                </motion.div>
+
+                {/* Score Circle Section */}
+                <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', damping: 15, stiffness: 100, delay: 0.2 }}
+                    style={{ textAlign: 'center', marginBottom: '16px' }}
+                >
+                    <p style={{
+                        color: 'rgba(255,255,255,0.7)', fontSize: '14px',
+                        fontWeight: 800, textTransform: 'uppercase',
+                        letterSpacing: '0.15em', marginBottom: '12px'
+                    }}>
+                        You Scored
+                    </p>
+                    <div style={{
+                        position: 'relative', width: '120px', height: '120px',
+                        margin: '0 auto', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', zIndex: 1
+                    }}>
+                        {/* Rotating Outer Glow */}
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+                            style={{
+                                position: 'absolute', inset: '-4px', borderRadius: '50%',
+                                background: 'conic-gradient(from 0deg, transparent, #60A5FA, transparent, #f97316, transparent)',
+                                opacity: 0.6,
+                            }}
+                        />
+                        {/* Main Circle */}
+                        <div style={{
+                            width: '100%', height: '100%', borderRadius: '50%',
+                            backgroundColor: '#0d1b3e', border: '3px solid #ffffff',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center',
+                            justifyContent: 'center', boxShadow: '0 0 30px rgba(96, 165, 250, 0.4)',
+                            position: 'relative', zIndex: 2
+                        }}>
+                            <span style={{
+                                fontSize: '38px', fontWeight: 950, color: '#ffffff',
+                                lineHeight: 1
+                            }}>
+                                {score}
+                            </span>
+                            <span style={{
+                                fontSize: '10px', fontWeight: 800, color: '#60A5FA',
+                                marginTop: '4px', letterSpacing: '0.1em'
+                            }}>
+                                POINTS
+                            </span>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Impact Statement */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    style={{ textAlign: 'center', marginBottom: '20px' }}
+                >
+                    <p style={{
+                        color: '#f87171', fontSize: '15px', fontWeight: 700,
+                        textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0
+                    }}>
+                        But you died unexpectedly, so...
+                    </p>
+                </motion.div>
+
+                {/* Quote Card */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.7 }}
                     style={{
-                        fontSize: '26px', fontWeight: 900, color: '#ffffff',
-                        letterSpacing: '0.12em', textTransform: 'uppercase',
-                        lineHeight: 1, marginTop: '8px',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.4)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '20px', padding: '20px 24px', width: '100%',
+                        marginBottom: '24px', backdropFilter: 'blur(10px)',
+                        textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
                     }}
                 >
-                    HI {firstName.toUpperCase()}!
-                </motion.h1>
-
-                <div style={{ height: '16px' }} />
-
-                {/* Personal message */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    style={{ textAlign: 'center', padding: '0 8px' }}
-                >
                     <p style={{
-                        color: 'rgba(255,255,255,0.9)', fontSize: '15px',
-                        fontWeight: 600, lineHeight: 1.6, marginBottom: '8px',
-                    }}>
-                        You braved the unexpected, but life had other plans.
-                    </p>
-                    <p style={{
-                        color: '#60A5FA', fontSize: '14px', fontWeight: 700,
-                        lineHeight: 1.5, fontStyle: 'italic',
+                        color: '#60A5FA', fontSize: '15px', fontWeight: 600,
+                        lineHeight: 1.5, fontStyle: 'italic', margin: 0,
                     }}>
                         "The best time to protect your family was yesterday. The second best time is now."
                     </p>
                 </motion.div>
 
-                <div style={{ height: '20px' }} />
-
-                {/* SHARE button — above the CTA info */}
+                {/* Primary CTA: SHARE */}
                 <motion.button
                     onClick={handleShare}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     style={{
-                        width: '100%', height: '48px', backgroundColor: '#f97316',
-                        color: '#ffffff', fontWeight: 800, fontSize: '14px',
-                        textTransform: 'uppercase', letterSpacing: '0.1em',
-                        borderRadius: '12px', border: 'none', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                        boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)',
+                        width: '100%', height: '56px', backgroundColor: '#f97316',
+                        color: '#ffffff', fontWeight: 800, fontSize: '16px',
+                        textTransform: 'uppercase', letterSpacing: '0.15em',
+                        borderRadius: '16px', border: 'none', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+                        boxShadow: '0 8px 20px rgba(249, 115, 22, 0.4)',
+                        marginBottom: '24px', transition: 'all 0.2s ease',
                     }}
                 >
                     SHARE
-                    <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '16px', height: '16px' }}>
-                        <path d="M14 5V2L22 9L14 16V13C7 13 4 15 2 20C4 12 7 8 14 8V5Z" />
-                    </svg>
+                    <Share2 style={{ width: '20px', height: '20px' }} />
                 </motion.button>
 
-                <div style={{ height: '16px' }} />
-
-                {/* Info box */}
+                {/* Secondary CTA Section */}
                 <motion.div
-                    initial={{ opacity: 0, y: 5 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
+                    transition={{ delay: 0.9 }}
                     style={{
-                        backgroundColor: 'rgba(30, 58, 138, 0.4)',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        borderRadius: '12px', padding: '14px 16px', width: '100%',
-                        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+                        width: '100%', backgroundColor: 'rgba(30, 58, 138, 0.3)',
+                        borderRadius: '20px', padding: '20px',
+                        border: '1px solid rgba(255,255,255,0.08)',
                     }}
                 >
                     <p style={{
-                        color: 'rgba(255,255,255,0.9)', fontSize: '13px',
-                        lineHeight: 1.5, fontWeight: 600, textAlign: 'center',
+                        color: 'rgba(255,255,255,0.8)', fontSize: '13px',
+                        lineHeight: 1.5, fontWeight: 500, textAlign: 'center',
+                        marginBottom: '16px',
                     }}>
-                        Life is unpredictable. Your family's future doesn't have to be. Connect with our relationship manager to learn more.
+                        Secure your family's future against unexpected accidents. Connect with our relationship manager to learn more.
                     </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <button
+                            onClick={() => window.location.href = "tel:18002099999"}
+                            style={{
+                                width: '100%', height: '48px', backgroundColor: '#2563eb',
+                                color: '#ffffff', fontWeight: 800, fontSize: '14px',
+                                textTransform: 'uppercase', letterSpacing: '0.1em',
+                                borderRadius: '12px', border: 'none',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', gap: '10px',
+                                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                            }}
+                        >
+                            <Phone style={{ width: '18px', height: '18px', fill: 'currentColor' }} />
+                            CALL NOW
+                        </button>
+
+                        <button
+                            onClick={() => setIsBookingOpen(true)}
+                            style={{
+                                width: '100%', height: '48px', backgroundColor: '#d97706',
+                                color: '#ffffff', fontWeight: 800, fontSize: '14px',
+                                textTransform: 'uppercase', letterSpacing: '0.1em',
+                                borderRadius: '12px', border: 'none',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', gap: '10px',
+                                boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)',
+                            }}
+                        >
+                            <Calendar style={{ width: '18px', height: '18px' }} />
+                            BOOK SLOT
+                        </button>
+                    </div>
                 </motion.div>
 
-                <div style={{ height: '16px' }} />
-
-                {/* CTA buttons */}
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {/* CALL NOW */}
+                {/* Footer Controls */}
+                <div style={{ marginTop: '20px', textAlign: 'center' }}>
                     <button
-                        onClick={() => window.location.href = "tel:18002099999"}
+                        onClick={handleTryAgain}
                         style={{
-                            width: '100%', height: '48px', backgroundColor: '#2563eb',
-                            color: '#ffffff', fontWeight: 800, fontSize: '14px',
+                            color: '#60A5FA', fontSize: '14px', fontWeight: 800,
                             textTransform: 'uppercase', letterSpacing: '0.1em',
-                            borderRadius: '12px', border: '2px solid transparent',
-                            cursor: 'pointer', display: 'flex', alignItems: 'center',
-                            justifyContent: 'center', gap: '8px',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            padding: '12px 24px', transition: 'all 0.2s ease',
                         }}
                     >
-                        <Phone style={{ width: '16px', height: '16px', fill: 'currentColor' }} />
-                        CALL NOW
+                        Try Again
                     </button>
 
-                    {/* BOOK SLOT */}
-                    <button
-                        onClick={() => setIsBookingOpen(true)}
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.2 }}
                         style={{
-                            width: '100%', height: '48px', backgroundColor: '#d97706',
-                            color: '#ffffff', fontWeight: 800, fontSize: '14px',
-                            textTransform: 'uppercase', letterSpacing: '0.1em',
-                            borderRadius: '12px', border: '2px solid transparent',
-                            cursor: 'pointer', display: 'flex', alignItems: 'center',
-                            justifyContent: 'center', gap: '8px',
-                            boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)',
+                            color: 'rgba(147, 197, 253, 0.2)', fontSize: '11px',
+                            fontWeight: 800, letterSpacing: '0.25em',
+                            textTransform: 'uppercase', marginTop: '12px',
                         }}
                     >
-                        <Calendar style={{ width: '16px', height: '16px' }} />
-                        BOOK SLOT
-                    </button>
+                        Bajaj Life Insurance
+                    </motion.p>
                 </div>
-
-                {/* TRY AGAIN */}
-                <button
-                    onClick={handleTryAgain}
-                    style={{
-                        color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: 800,
-                        textTransform: 'uppercase', letterSpacing: '0.15em',
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        textDecoration: 'underline', textUnderlineOffset: '4px',
-                        marginTop: '12px', padding: '8px',
-                    }}
-                >
-                    Try Again
-                </button>
-
-                {/* Branding */}
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.5 }}
-                    style={{
-                        color: 'rgba(147, 197, 253, 0.3)', fontSize: '10px',
-                        fontWeight: 800, letterSpacing: '0.2em',
-                        textTransform: 'uppercase', marginTop: '20px',
-                    }}
-                >
-                    Bajaj Life Insurance
-                </motion.p>
             </div>
 
             {/* Thank You Screen */}

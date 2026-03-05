@@ -41,14 +41,16 @@ const MilestoneOverlay = ({ isVisible, message, onDismiss }) => {
                         />
 
                         <div className="relative bg-[#020617]/90 backdrop-blur-xl p-8 rounded-[1.9rem] flex flex-col items-center text-center">
-                            {/* Progress Timer Line */}
-                            <div className="absolute top-0 left-0 w-full h-[2px] bg-white/5">
-                                <motion.div
-                                    initial={{ width: "0%" }}
-                                    animate={{ width: "100%" }}
-                                    transition={{ duration: 4, ease: "linear" }}
-                                    className="h-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 shadow-[0_0_10px_#60a5fa]"
-                                />
+                            {/* Progress Timer Line - Refined with Padding and Rounded Corners */}
+                            <div className="absolute top-2 left-0 w-full px-6">
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: "0%" }}
+                                        animate={{ width: "100%" }}
+                                        transition={{ duration: 4, ease: "linear" }}
+                                        className="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 rounded-full shadow-[0_0_15px_rgba(96,165,250,0.6)]"
+                                    />
+                                </div>
                             </div>
 
                             {/* Icon Container */}
@@ -90,11 +92,20 @@ const MilestoneOverlay = ({ isVisible, message, onDismiss }) => {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.8 }}
-                                className="mt-6 flex items-center gap-2 text-blue-400/60 text-xs uppercase font-bold tracking-widest"
+                                className="mt-6 flex flex-col items-center gap-3"
                             >
-                                <span className="w-8 h-[1px] bg-blue-400/20" />
-                                Resuming Game
-                                <span className="w-8 h-[1px] bg-blue-400/20" />
+                                {/* Animated dots loader */}
+                                <div className="flex items-center gap-1.5">
+                                    {[0, 1, 2].map((i) => (
+                                        <motion.span
+                                            key={i}
+                                            className="w-2 h-2 rounded-full bg-blue-400"
+                                            animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }}
+                                            transition={{ duration: 1, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+                                        />
+                                    ))}
+                                </div>
+                                <span className="text-blue-400/60 text-[10px] uppercase font-bold tracking-[0.2em]">Resuming Game</span>
                             </motion.div>
                         </div>
                     </motion.div>

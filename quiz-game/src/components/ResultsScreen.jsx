@@ -137,7 +137,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
 
     return (
         <motion.div
-            className="w-full h-[100dvh] flex flex-col items-center justify-center p-4 text-center relative overflow-hidden"
+            className="w-full min-h-[100dvh] flex flex-col items-center p-4 pt-10 text-center relative overflow-y-auto"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -147,30 +147,30 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             {/* Top Right Share Button */}
             <button
                 onClick={handleShare}
-                className="absolute top-4 right-4 p-2 sm:p-3 bg-white/50 backdrop-blur-sm rounded-full text-brand-blue hover:bg-white shadow-sm transition-all active:scale-95 z-10"
+                className="absolute top-4 right-4 p-2 bg-white/50 backdrop-blur-sm rounded-full text-brand-blue hover:bg-white shadow-sm transition-all active:scale-95 z-10"
             >
-                <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                <Share2 className="w-5 h-5" />
             </button>
 
             {/* Content Wrapper for consistency across heights */}
-            <div className="w-full h-full max-w-sm sm:max-w-2xl flex flex-col justify-between mx-auto py-1 min-[410px]:py-4 sm:py-16 min-h-0 origin-center">
-                <div className="flex-1 flex flex-col justify-center space-y-0.5 min-[410px]:space-y-4 sm:space-y-12 w-full min-h-0 py-1">
+            <div className="w-full max-w-sm flex flex-col justify-between mx-auto py-4">
+                <div className="flex flex-col space-y-4 w-full">
                     {/* 1. Greeting */}
-                    <p className="text-lg min-[410px]:text-2xl sm:text-5xl text-gray-600 font-bold">
+                    <p className="text-2xl text-gray-600 font-bold">
                         Hi <span className="text-brand-blue font-black">{leadName || 'Friend'}</span>
                     </p>
 
                     {/* 2. Animated Meter */}
-                    <div className="py-0 min-[410px]:py-2 sm:py-6 scale-[0.7] min-[410px]:scale-[1] sm:scale-[1.5] flex justify-center origin-center shrink-0">
+                    <div className="py-2 flex justify-center origin-center">
                         <ScoreCard score={score} total={total} />
                     </div>
 
                     {/* 3. Titles & Feedback */}
-                    <div className="space-y-0 min-[410px]:space-y-2 sm:space-y-6">
-                        <h2 className="text-xl min-[410px]:text-4xl sm:text-7xl font-black text-gray-800 tracking-tight leading-none text-center">
+                    <div className="space-y-2">
+                        <h2 className="text-4xl font-black text-gray-800 tracking-tight leading-none text-center">
                             {getResultTitle(score)}
                         </h2>
-                        <p className="text-[13px] min-[410px]:text-lg sm:text-3xl text-gray-500 font-bold leading-tight px-4 text-center">
+                        <p className="text-lg text-gray-500 font-bold leading-tight px-4 text-center">
                             {getMotivationalMessage(score)}
                         </p>
                     </div>
@@ -178,38 +178,38 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                     {/* 4. Share Button (Restored) */}
                     <button
                         onClick={handleShare}
-                        className="flex items-center justify-center gap-2 bg-brand-blue text-white font-black py-2.5 min-[410px]:py-4 sm:py-8 px-6 sm:px-14 rounded-[16px] sm:rounded-[28px] shadow-lg hover:bg-blue-500 transition-all text-sm min-[410px]:text-lg sm:text-3xl w-full max-w-[200px] min-[410px]:max-w-[280px] sm:max-w-[500px] mx-auto mt-1 min-[410px]:mt-2 sm:mt-10 shrink-0"
+                        className="flex items-center justify-center gap-2 bg-brand-blue text-white font-black py-4 px-6 rounded-[16px] shadow-lg hover:bg-blue-500 transition-all text-lg w-full max-w-[280px] mx-auto mt-2"
                     >
-                        <Share2 className="w-4 h-4 min-[410px]:w-6 min-[410px]:h-6 sm:w-10 sm:h-10" />
+                        <Share2 className="w-6 h-6" />
                         <span>Share</span>
                     </button>
                 </div>
 
-                <div className="w-full space-y-1 min-[410px]:space-y-4 sm:space-y-12 pb-2 min-[410px]:pb-4 sm:pb-16 mt-1 min-[410px]:mt-10">
+                <div className="w-full space-y-4 pb-4 mt-4">
                     {/* Enhanced Action Card */}
-                    <div className="bg-white rounded-[16px] sm:rounded-[40px] p-2 min-[410px]:p-5 sm:p-14 shadow-sm border-2 border-soft-gray space-y-2 min-[410px]:space-y-4 sm:space-y-12 relative overflow-hidden text-center">
-                        <p className="text-gray-700 text-[12px] min-[410px]:text-base sm:text-2xl font-bold leading-tight italic px-2">
+                    <div className="bg-white rounded-[16px] p-5 shadow-sm border-2 border-soft-gray space-y-4 relative overflow-hidden text-center">
+                        <p className="text-gray-700 text-base font-bold leading-tight italic px-2">
                             To know more about insurance and savings products, connect with our Relationship Manager
                         </p>
 
-                        <div className="flex flex-col gap-1.5 min-[410px]:gap-3 sm:gap-6 pt-0 min-[410px]:pt-1 sm:pt-6">
+                        <div className="flex flex-col gap-3 pt-1">
                             <motion.a
                                 href="tel:18002097272"
-                                className="bg-gray-100 text-gray-700 font-black py-2.5 min-[410px]:py-4 sm:py-8 px-4 sm:px-12 rounded-[16px] sm:rounded-[28px] flex items-center justify-center gap-3 transition-all text-base min-[410px]:text-lg sm:text-3xl border-2 border-gray-200"
+                                className="bg-gray-100 text-gray-700 font-black py-4 px-4 rounded-[16px] flex items-center justify-center gap-3 transition-all text-lg border-2 border-gray-200"
                             >
-                                <Phone className="w-5 h-5 min-[410px]:w-6 min-[410px]:h-6 sm:w-10 sm:h-10" />
+                                <Phone className="w-6 h-6" />
                                 <span>Call now</span>
                             </motion.a>
-                            <div className="flex items-center gap-2 px-4 scale-90 min-[410px]:scale-100 sm:scale-125">
+                            <div className="flex items-center gap-2 px-4">
                                 <div className="h-[1px] flex-1 bg-gray-200" />
-                                <span className="text-gray-400 font-bold text-[12px] min-[410px]:text-base sm:text-2xl">OR</span>
+                                <span className="text-gray-400 font-bold text-base">OR</span>
                                 <div className="h-[1px] flex-1 bg-gray-200" />
                             </div>
                             <motion.button
                                 onClick={() => setIsBookingOpen(true)}
-                                className="bg-brand-green text-white font-black py-2.5 min-[410px]:py-4 sm:py-8 px-4 sm:px-12 rounded-[16px] sm:rounded-[28px] flex items-center justify-center gap-3 transition-all text-base min-[410px]:text-lg sm:text-3xl shadow-[0_4px_0_0_#45a049] sm:shadow-[0_10px_0_0_#45a049]"
+                                className="bg-brand-green text-white font-black py-4 px-4 rounded-[16px] flex items-center justify-center gap-3 transition-all text-lg shadow-[0_4px_0_0_#45a049]"
                             >
-                                <Calendar className="w-4 h-4 min-[410px]:w-6 min-[410px]:h-6 sm:w-10 sm:h-10" />
+                                <Calendar className="w-6 h-6" />
                                 <span>Book a slot</span>
                             </motion.button>
                         </div>
@@ -218,9 +218,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                     {/* Large Retake Button */}
                     <button
                         onClick={onRestart}
-                        className="game-btn w-full py-4 min-[410px]:py-5 sm:py-10 text-lg min-[410px]:text-xl sm:text-4xl flex items-center justify-center gap-3 rounded-[16px] sm:rounded-[28px]"
+                        className="game-btn w-full py-4 text-xl flex items-center justify-center gap-3 rounded-[16px]"
                     >
-                        <RotateCcw className="w-5 h-5 min-[410px]:w-6 min-[410px]:h-6 sm:w-10 sm:h-10" />
+                        <RotateCcw className="w-6 h-6" />
                         <span>Retake quiz</span>
                     </button>
                 </div>
@@ -235,7 +235,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-white rounded-[32px] p-8 w-full max-w-md shadow-2xl border-2 border-soft-gray relative overflow-hidden my-auto"
+                                className="bg-white rounded-[32px] p-8 w-full max-w-md shadow-2xl border-2 border-slate-100 relative overflow-hidden my-auto text-left"
                             >
                                 <button
                                     onClick={() => setIsBookingOpen(false)}
@@ -244,52 +244,59 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     <X className="w-6 h-6" />
                                 </button>
 
-                                <Dialog.Title className="text-3xl font-black text-gray-800 text-center mb-2 tracking-tight">
+                                <Dialog.Title className="text-3xl font-black text-gray-800 text-center mb-1 tracking-tight">
                                     Book a slot
                                 </Dialog.Title>
-                                <p className="text-center text-gray-400 font-bold mb-8">
+                                <p className="text-center text-gray-400 font-bold mb-8 text-sm">
                                     Pick your preferred time
                                 </p>
 
                                 <form onSubmit={handleSubmit} className="space-y-5">
                                     <div className="grid grid-cols-1 gap-4">
-                                        <input
-                                            type="text"
-                                            id="booking-name"
-                                            name="name"
-                                            autoComplete="name"
-                                            value={bookingData.name}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                                                setBookingData(prev => ({ ...prev, name: val }));
-                                                if (!val.trim()) setErrors(prev => ({ ...prev, name: "Name is required" }));
-                                                else setErrors(prev => ({ ...prev, name: null }));
-                                            }}
-                                            placeholder="Your name"
-                                            className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl px-5 py-3 text-gray-800 font-bold focus:outline-none focus:border-brand-blue"
-                                        />
-                                        <input
-                                            type="text"
-                                            id="booking-phone"
-                                            name="mobile_no"
-                                            autoComplete="tel"
-                                            value={bookingData.mobile_no}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                                setBookingData(prev => ({ ...prev, mobile_no: val }));
-                                                if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile is required" }));
-                                                else if (val.length > 0 && val.length < 10) setErrors(prev => ({ ...prev, mobile_no: "Enter 10 digits" }));
-                                                else if (val.length === 10 && !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Must start 6-9" }));
-                                                else setErrors(prev => ({ ...prev, mobile_no: null }));
-                                            }}
-                                            placeholder="Mobile number"
-                                            className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl px-5 py-3 text-gray-800 font-bold focus:outline-none focus:border-brand-blue"
-                                        />
+                                        <div className="space-y-1">
+                                            <input
+                                                type="text"
+                                                id="booking-name"
+                                                name="name"
+                                                autoComplete="name"
+                                                value={bookingData.name}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                                    setBookingData(prev => ({ ...prev, name: val }));
+                                                    if (!val.trim()) setErrors(prev => ({ ...prev, name: "Name is required" }));
+                                                    else setErrors(prev => ({ ...prev, name: null }));
+                                                }}
+                                                placeholder="Your name"
+                                                className={`w-full bg-gray-50 border-2 rounded-2xl px-5 py-3 text-gray-800 font-bold focus:outline-none transition-colors ${errors.name ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
+                                            />
+                                            {errors.name && <p className="text-red-500 text-xs font-bold ml-2">{errors.name}</p>}
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <input
+                                                type="text"
+                                                id="booking-phone"
+                                                name="mobile_no"
+                                                autoComplete="tel"
+                                                value={bookingData.mobile_no}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                                    setBookingData(prev => ({ ...prev, mobile_no: val }));
+                                                    if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile is required" }));
+                                                    else if (val.length > 0 && val.length < 10) setErrors(prev => ({ ...prev, mobile_no: "Enter 10 digits" }));
+                                                    else if (val.length === 10 && !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Must start 6-9" }));
+                                                    else setErrors(prev => ({ ...prev, mobile_no: null }));
+                                                }}
+                                                placeholder="Mobile number"
+                                                className={`w-full bg-gray-50 border-2 rounded-2xl px-5 py-3 text-gray-800 font-bold focus:outline-none transition-colors ${errors.mobile_no ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
+                                            />
+                                            {errors.mobile_no && <p className="text-red-500 text-xs font-bold ml-2">{errors.mobile_no}</p>}
+                                        </div>
                                     </div>
 
-                                    <div className="flex gap-2">
-                                        <div className="relative flex-1">
-                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-blue pointer-events-none" />
+                                    <div className="flex flex-col gap-4">
+                                        <div className="relative">
+                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
                                             <input
                                                 type="date"
                                                 id="booking-date"
@@ -301,49 +308,53 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                                     setBookingData(prev => ({ ...prev, date: e.target.value }));
                                                     setErrors(prev => ({ ...prev, date: null }));
                                                 }}
-                                                className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none focus:border-brand-blue"
+                                                className={`w-full bg-gray-50 border-2 rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none transition-colors appearance-none ${errors.date ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
                                             />
+                                            {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
                                         </div>
-                                    </div>
 
-                                    <div className="relative">
-                                        <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-blue pointer-events-none" />
-                                        <select
-                                            id="booking-slot"
-                                            name="timeSlot"
-                                            value={bookingData.timeSlot}
-                                            onChange={(e) => {
-                                                setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
-                                                setErrors(prev => ({ ...prev, timeSlot: null }));
-                                            }}
-                                            className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl pl-11 pr-10 py-3 text-gray-800 font-bold focus:outline-none focus:border-brand-blue appearance-none"
-                                        >
-                                            <option value="">Choose a slot</option>
-                                            {timeSlots.map(slot => (
-                                                <option key={slot} value={slot}>{slot}</option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                                        <div className="relative">
+                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
+                                            <select
+                                                id="booking-timeslot"
+                                                name="timeSlot"
+                                                value={bookingData.timeSlot}
+                                                onChange={(e) => {
+                                                    setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
+                                                    setErrors(prev => ({ ...prev, timeSlot: null }));
+                                                }}
+                                                className={`w-full bg-gray-50 border-2 rounded-2xl pl-11 pr-10 py-3 text-gray-800 font-bold focus:outline-none appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
+                                            >
+                                                <option value="">Choose a slot</option>
+                                                {timeSlots.map(slot => (
+                                                    <option key={slot} value={slot}>{slot}</option>
+                                                ))}
+                                            </select>
+                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                            {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-col gap-2">
                                         <div className="flex items-start gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
-                                            <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : 'border-soft-gray bg-gray-50'}`}>
+                                            <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : 'border-slate-100 bg-gray-50'}`}>
                                                 {bookingTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
                                             </div>
-                                            <div className="text-sm text-gray-500 font-bold leading-tight">
+                                            <div className="text-[11px] text-gray-400 font-bold leading-tight underline underline-offset-2">
                                                 I accept the terms & conditions and acknowledge the privacy policy.
                                             </div>
                                         </div>
+                                        {errors.terms && <p className="text-red-500 text-xs font-bold ml-2">{errors.terms}</p>}
                                     </div>
 
-                                    <button
+                                    <motion.button
+                                        whileTap={{ scale: 0.98 }}
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full game-btn-green text-xl py-4 disabled:opacity-50"
+                                        className={`w-full py-4 rounded-2xl text-xl font-black text-white transition-all ${isSubmitting ? 'opacity-50' : 'bg-brand-green hover:bg-[#45a049] shadow-[0_4px_0_0_#45a049] active:translate-y-1 active:shadow-none'}`}
                                     >
                                         {isSubmitting ? 'Booking...' : 'Confirm booking'}
-                                    </button>
+                                    </motion.button>
                                 </form>
                             </motion.div>
                         </div>

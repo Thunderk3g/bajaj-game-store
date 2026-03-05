@@ -8,7 +8,7 @@ import {
 } from '../constants/gameConstants.js';
 import ScoreRing from '../components/ScoreRing.jsx';
 import InsuranceCards from '../components/InsuranceCards.jsx';
-import { submitToLMS } from '../../../utils/api.js';
+import { submitToLMS, updateLeadNew } from '../../../utils/api.js';
 
 function getZone(pct) {
     return ZONES.find((z) => pct < z.maxPct) || ZONES[ZONES.length - 1];
@@ -64,7 +64,15 @@ export default function GameOverPage() {
         if (!formData.mobile) errs.mobile = "Mobile is required";
         else if (!/^\d{10}$/.test(formData.mobile)) errs.mobile = "Invalid Mobile Number";
 
-        if (!formData.date) errs.date = "Required";
+        if (!formData.date) {
+            errs.date = "Required";
+        } else {
+            // Prevent back-dated bookings — iOS Safari ignores HTML min attribute
+            const todayCheck = new Date();
+            todayCheck.setHours(0, 0, 0, 0);
+            const selected = new Date(formData.date + 'T00:00:00');
+            if (selected < todayCheck) errs.date = "Select today or future";
+        }
         if (!formData.time) errs.time = "Required";
 
         setErrors(errs);
@@ -79,27 +87,35 @@ export default function GameOverPage() {
         setIsSubmitting(true);
 
         try {
-            const payload = {
-                name: formData.name,
-                mobile_no: formData.mobile,
-                param4: formData.date,
-                param19: formData.time,
-                summary_dtls: "Life Flight - Slot Booking",
-                p_data_source: "LIFE_FLIGHT_BOOKING"
-            };
-
-            const result = await submitToLMS(payload);
-
-            if (result.success) {
-                setShowBooking(false);
-                dispatch({ type: ACTIONS.SUBMIT_SUCCESS });
-                navigate('/success');
+            const leadNo = sessionStorage.getItem('lifeFlightLeadNo');
+            if (leadNo) {
+                // Update existing lead with slot booking details
+                await updateLeadNew(leadNo, {
+                    firstName: formData.name.trim(),
+                    mobile: formData.mobile,
+                    date: formData.date,
+                    time: formData.time,
+                    remarks: `Life Flight Slot Booking | Score: ${score}`
+                });
             } else {
-                alert("Submission failed. Please try again.");
+                // Fallback: submit as a fresh lead
+                const payload = {
+                    name: formData.name,
+                    mobile_no: formData.mobile,
+                    param4: formData.date,
+                    param19: formData.time,
+                    summary_dtls: "Life Flight - Slot Booking",
+                    p_data_source: "LIFE_FLIGHT_BOOKING"
+                };
+                await submitToLMS(payload);
             }
+
+            setShowBooking(false);
+            dispatch({ type: ACTIONS.SUBMIT_SUCCESS });
+            navigate('/success');
         } catch (err) {
             console.error(err);
-            alert("Something went wrong.");
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -309,7 +325,8 @@ export default function GameOverPage() {
                                     />
                                     {errors.mobile && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.mobile}</span>}
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
+                                {/* Date & Time — stacked on mobile to prevent iOS overflow/overlap */}
+                                <div className="flex flex-col gap-3">
                                     <div className="space-y-1">
                                         <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Preferred Date</label>
                                         <input
@@ -317,7 +334,8 @@ export default function GameOverPage() {
                                             min={today}
                                             max={endLimit}
                                             value={formData.date} onChange={e => updateField('date', e.target.value)}
-                                            className="w-full bg-slate-50 h-11 border-2 border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#00B4D8] text-xs font-bold px-4 transition-all"
+                                            style={{ colorScheme: 'light' }}
+                                            className="w-full bg-slate-50 h-11 border-2 border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#00B4D8] text-sm font-bold px-4 transition-all"
                                         />
                                         {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                     </div>
@@ -326,7 +344,7 @@ export default function GameOverPage() {
                                         <select
                                             value={formData.time}
                                             onChange={e => updateField('time', e.target.value)}
-                                            className="w-full bg-slate-50 h-11 border-2 border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#00B4D8] text-xs font-bold px-4 appearance-none transition-all"
+                                            className="w-full bg-slate-50 h-11 border-2 border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#00B4D8] text-sm font-bold px-4 transition-all"
                                         >
                                             <option value="">Select</option>
                                             {[...Array(12)].map((_, i) => {

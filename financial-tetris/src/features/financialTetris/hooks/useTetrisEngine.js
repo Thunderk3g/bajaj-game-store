@@ -89,6 +89,9 @@ export const useTetrisEngine = () => {
                 clearedIndices.includes(idx) ? row.map(cell => ({ ...cell, bursting: true })) : row
             );
 
+            // Hide the piece overlay immediately so it crushes with the row visually
+            setCurrentPiece(null);
+            setGhostPiece(null);
             setGrid(burstingGrid);
             setGameStatus(GAME_STATUS.CLEARING);
 
