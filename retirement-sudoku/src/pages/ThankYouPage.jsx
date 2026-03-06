@@ -59,7 +59,7 @@ const ThankYouPage = memo(function ThankYouPage() {
                         Thank you for sharing your details.
                     </p>
                     <p className="text-white/80 text-base sm:text-lg font-normal tracking-wide">
-                        Our Relationship Manager will reach out to you shortly.
+                        Our Relationship Manager will reach out to you shortly
                     </p>
                 </div>
 

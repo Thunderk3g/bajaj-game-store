@@ -213,7 +213,7 @@ export default function LandingPage() {
                                     <span className="text-4xl">🌤️</span>
                                 </div>
                                 <h2 className="text-[#00B4D8] text-2xl font-black mb-1 leading-tight tracking-tight">Ready to Fly?</h2>
-                                <p className="text-slate-500 font-bold text-[13px] leading-tight mt-1">Enter your details to take off.</p>
+                                <p className="text-slate-500 font-bold text-[13px] leading-tight mt-1">Enter your details to take off</p>
                             </div>
 
                             <form onSubmit={handleNameSubmit} className="space-y-4">

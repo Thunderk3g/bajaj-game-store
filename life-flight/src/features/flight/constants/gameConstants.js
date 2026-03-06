@@ -35,18 +35,18 @@ export const HURDLES = [
         name: 'Hospitalization',
         cost: 'Rs.5–10 Lakhs',
         color: '#E63946',
-        tooltip: 'Medical emergencies can drain your savings overnight.',
+        tooltip: 'Medical emergencies can drain your savings overnight',
         hitMessage:
-            'A sudden hospitalization cost your family Rs.5–10 Lakhs. No insurance = full pocket hit.',
+            'A sudden hospitalization cost your family Rs.5–10 Lakhs. No insurance = full pocket hit',
     },
     {
         id: 'critical-illness',
         name: 'Critical Illness',
         cost: 'Rs.15–25 Lakhs',
         color: '#E76F51',
-        tooltip: 'Critical illness treatment costs are rising every year.',
+        tooltip: 'Critical illness treatment costs are rising every year',
         hitMessage:
-            'Critical illness treatment set you back Rs.15–25 Lakhs. Early insurance shields you.',
+            'A Critical illness can set you back by Rs.15–25 Lakhs. Shield your finances with a Critical Illness Rider',
     },
     {
         id: 'accident-disability',
@@ -55,7 +55,7 @@ export const HURDLES = [
         color: '#F4A261',
         tooltip: 'Disability can halt income for months or permanently.',
         hitMessage:
-            'Accident disability cost Rs.8–20 Lakhs + income loss. A cover plan prevents this.',
+            'An accident disability can cost Rs8-20 lacs and lead to loss of income. Protect your future with an Accident Disability rider',
     },
     {
         id: 'child-education',
@@ -64,7 +64,7 @@ export const HURDLES = [
         color: '#457B9D',
         tooltip: 'Education costs are doubling every 8 years.',
         hitMessage:
-            "Your child's education needs Rs.20–50 Lakhs. Start a plan now — every year counts.",
+            "Your child's education may need Rs.20–50 Lakhs tomorrow. Secure it with right investment and protection",
     },
     {
         id: 'dream-home-loan',
@@ -73,7 +73,7 @@ export const HURDLES = [
         color: '#2A9D8F',
         tooltip: 'Home loans leave families exposed without cover.',
         hitMessage:
-            'Your home loan of Rs.40–80 Lakhs is uncovered. A term plan protects your family.',
+            "A Rs. 40-80 Lakh home loan shouldn't become your family's,burden.Protect them with a Term Plan",
     },
     {
         id: 'retirement-gap',
@@ -82,7 +82,7 @@ export const HURDLES = [
         color: '#6A4C93',
         tooltip: 'Most people retire with only 20% of what they need.',
         hitMessage:
-            'You need Rs.1–3 Cr for retirement. Without a pension plan, the gap is enormous.',
+            'Your dream retirement may require Rs.3-5 Cr. Plan today to secure your future independence',
     },
     {
         id: 'loss-of-earner',
@@ -91,7 +91,7 @@ export const HURDLES = [
         color: '#1D3557',
         tooltip: 'Your family depends on your income — protect it.',
         hitMessage:
-            "Loss of earner = loss of future income. Life insurance keeps your family's dreams alive.",
+            "Your absence should not stop your fanily's dreams. Secure them with a Term Plan",
     },
 ];
 

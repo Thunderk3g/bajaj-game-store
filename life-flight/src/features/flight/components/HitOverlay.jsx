@@ -71,12 +71,11 @@ export default function HitOverlay({ hurdle, livesLeft, onRetry }) {
                             boxShadow: '0 6px 20px rgba(2,62,138,0.35)',
                         }}
                     >
-                         Keep Flying
+                        {livesLeft > 0 ? 'Keep Flying' : 'Continue to Results'}
                     </button>
 
                     {/* Reassurance nudge */}
                     <p className="text-center mt-3" style={{ fontSize: 12, color: '#9CA3AF' }}>
-                        Insurance could have absorbed this blow. 
                     </p>
                 </div>
             </div>

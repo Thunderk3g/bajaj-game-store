@@ -291,7 +291,8 @@ export function useFlightEngine({
                 }
 
                 if (hitPipe || s.bird.y + 17 > CANVAS_H - GROUND_HEIGHT || s.bird.y - 17 < 0) {
-                    onHitRef.current(hitPipe ? hitPipe.hurdle : null);
+                    const hitType = hitPipe ? hitPipe.hurdle : (s.bird.y - 17 < 0 ? { isBoundary: true, type: 'top' } : { isBoundary: true, type: 'ground' });
+                    onHitRef.current(hitType);
                     return;
                 }
             }

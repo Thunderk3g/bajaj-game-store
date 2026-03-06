@@ -22,7 +22,8 @@ export const PHASES = {
 // ── Initial State ─────────────────────────────────────────────
 export const initialState = {
     phase: PHASES.LANDING,
-    score: 0,
+    score: 0, // hurdles in current life
+    bestScore: 0, // max hurdles in any life
     lives: 3,
     finalScore: 0,
     leadMode: 'call',
@@ -34,21 +35,37 @@ export function gameReducer(state, action) {
         case ACTIONS.START_GAME:
             return { ...initialState, phase: PHASES.PLAYING };
 
-        case ACTIONS.ADD_SCORE:
-            return { ...state, score: state.score + 1 };
-
-        case ACTIONS.LOSE_LIFE: {
-            const newLives = state.lives - 1;
+        case ACTIONS.ADD_SCORE: {
+            const currentScore = action.payload ?? (state.score + 1);
             return {
                 ...state,
-                lives: newLives,
-                phase: newLives <= 0 ? PHASES.GAMEOVER : PHASES.HIT,
-                finalScore: newLives <= 0 ? state.score : state.finalScore,
+                score: currentScore,
+                bestScore: Math.max(state.bestScore, currentScore),
             };
         }
 
-        case ACTIONS.GAME_OVER:
-            return { ...state, phase: PHASES.GAMEOVER, finalScore: state.score };
+        case ACTIONS.LOSE_LIFE: {
+            const newLives = state.lives - 1;
+            const finalBest = Math.max(state.bestScore, state.score);
+            return {
+                ...state,
+                lives: newLives,
+                phase: PHASES.HIT,
+                score: 0, // Reset current life score in state
+                bestScore: finalBest,
+                finalScore: newLives <= 0 ? finalBest : state.finalScore,
+            };
+        }
+
+        case ACTIONS.GAME_OVER: {
+            const finalBest = Math.max(state.bestScore, state.score);
+            return {
+                ...state,
+                phase: PHASES.GAMEOVER,
+                bestScore: finalBest,
+                finalScore: finalBest,
+            };
+        }
 
         case ACTIONS.OPEN_LEAD:
             return { ...state, phase: PHASES.LEAD, leadMode: action.payload.mode };

@@ -42,7 +42,7 @@ export default function GamePage() {
     const handleScorePoint = useCallback((newScore) => {
         scoreRef.current = newScore;
         setScoreDisplay(newScore);
-        dispatch({ type: ACTIONS.ADD_SCORE });
+        dispatch({ type: ACTIONS.ADD_SCORE, payload: newScore });
     }, [dispatch, ACTIONS]);
 
     const handleHit = useCallback((hurdle) => {
@@ -50,7 +50,36 @@ export default function GamePage() {
         hitLockRef.current = true;
 
         setIsActive(false);
-        setHitHurdle(hurdle);
+
+        // Handle ground/top hits specifically if they are flagged by the engine
+        let activeHurdle = hurdle;
+        if (hurdle?.isBoundary) {
+            if (hurdle.type === 'ground') {
+                activeHurdle = {
+                    name: 'the Ground',
+                    cost: 'Sudden Fall',
+                    color: '#E63946',
+                    hitMessage: 'A sudden fall can halt your progress. In life, there are no safety nets without planning.'
+                };
+            } else {
+                activeHurdle = {
+                    name: 'the Boundary',
+                    cost: 'Off Track',
+                    color: '#E63946',
+                    hitMessage: 'Going off track can be costly. Stay balanced and prepared for the journey ahead.'
+                };
+            }
+        } else if (!hurdle) {
+            // Fallback for safety
+            activeHurdle = {
+                name: 'a Hurdle',
+                cost: 'Unexpected Event',
+                color: '#E63946',
+                hitMessage: 'Life is full of unexpected events. Protection helps you stay airborne.'
+            };
+        }
+
+        setHitHurdle(activeHurdle);
         setShake(true);
         setTimeout(() => setShake(false), 200);
 
@@ -60,21 +89,21 @@ export default function GamePage() {
 
         dispatch({ type: ACTIONS.LOSE_LIFE });
 
-        if (newLives <= 0) {
-            setTimeout(() => navigate('/gameover'), 800);
-        } else {
-            setShowHit(true);
-        }
+        setShowHit(true);
     }, [dispatch, ACTIONS, navigate]);
 
     const handleRetry = useCallback(() => {
+        if (livesRef.current <= 0) {
+            dispatch({ type: ACTIONS.GAME_OVER });
+            return;
+        }
         setShowHit(false);
         setHitHurdle(null);
         hitLockRef.current = false;
         setGameStarted(false);
         setCountdown(3);
         setTimeout(() => setIsActive(true), 100);
-    }, []);
+    }, [dispatch, ACTIONS]);
 
     const { canvasRef, handleFlap, currentHurdle, microMsg } = useFlightEngine({
         isActive,
@@ -235,13 +264,14 @@ export default function GamePage() {
             )}
 
             {/* ── Hit overlay ── */}
-            {showHit && hitHurdle && (
+            {showHit && (
                 <HitOverlay
                     hurdle={hitHurdle}
                     livesLeft={livesDisplay}
                     onRetry={handleRetry}
                 />
             )}
+
         </div>
     );
 }
