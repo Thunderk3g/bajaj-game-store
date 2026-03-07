@@ -730,11 +730,11 @@ export const useGameEngine = () => {
 
         if (ts - lastScoreTimeRef.current > 1000 && !carRef.current) { scoreRef.current += Math.floor(SCORE_PER_SECOND * comboRef.current); setScore(scoreRef.current); lastScoreTimeRef.current = ts; }
 
-        // Crash Event — sudden, no warning
+        // Crash Event — Trigger immediately with no warning for maximum impact
         if (elapsed > crashTimeRef.current && !crashTriggeredRef.current && !carRef.current) {
             crashTriggeredRef.current = true;
-            // No slow-mo — car appears almost instantly for shock value
-            setTimeout(() => { carRef.current = { x: W + 20, y: PLAYER_Y + 10, width: CAR_WIDTH, height: CAR_HEIGHT, speed: CAR_SPEED }; }, 200);
+            // Removed warning rumble and 1s delay to make crash sudden and unexpected
+            carRef.current = { x: W + 100, y: PLAYER_Y + 10, width: CAR_WIDTH, height: CAR_HEIGHT, speed: CAR_SPEED };
         }
 
         if (carRef.current) {
@@ -902,10 +902,10 @@ export const useGameEngine = () => {
             const cw = carRef.current.width;
             const ch = carRef.current.height;
 
-            // Intense dash lines behind car
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            for (let i = 0; i < 15; i++) {
-                ctx.fillRect(cx + cw + Math.random() * 50, cy + Math.random() * ch, 100 + Math.random() * 200, 2);
+            // Subtle dash lines behind car (reduced for slower speed)
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            for (let i = 0; i < 8; i++) {
+                ctx.fillRect(cx + cw + Math.random() * 30, cy + Math.random() * ch, 60 + Math.random() * 100, 1.5);
             }
 
             // Drop shadow

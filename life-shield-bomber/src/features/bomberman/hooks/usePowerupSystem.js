@@ -22,6 +22,8 @@ export function usePowerupSystem(gridRef) {
     const lastSpawnTimeRef = useRef(0);
 
     const checkPowerupSpawn = useCallback((now) => {
+        return; // POWER-UPS DISABLED as per new logic
+
         if (powerupRef.current) {
             // Check if it should disappear
             if (now - powerupRef.current.spawnedAt >= POWERUP_DURATION) {

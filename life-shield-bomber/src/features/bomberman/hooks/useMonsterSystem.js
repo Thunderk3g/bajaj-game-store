@@ -58,23 +58,6 @@ export function useMonsterSystem(gridRef) {
     ) => {
         if (!monstersRef.current.length) return;
 
-        // Check if we need to spawn a new monster
-        if (now - lastSpawnTimeRef.current >= SPAWN_INTERVAL) {
-            lastSpawnTimeRef.current = now;
-            if (monstersRef.current.filter(m => m.active).length < MAX_MONSTERS) {
-                const cell = getRandomFreeCell(gridRef.current, playerPos.row, playerPos.col);
-                if (cell) {
-                    monstersRef.current.push({
-                        id: `monster-${++floatIdRef.current}`,
-                        row: cell.row,
-                        col: cell.col,
-                        active: true,
-                        type: 'base'
-                    });
-                }
-            }
-        }
-
         if (isTimeFrozen) {
             setMonsters([...monstersRef.current]);
             return;

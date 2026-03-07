@@ -1,7 +1,4 @@
-/**
- * GameGrid — Premium glass board container, 6x6 grid, centered praise overlay.
- */
-import { memo, useCallback, useRef, useEffect, useState } from 'react';
+import { memo, useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { GRID_SIZE } from '../../../core/matchEngine/index.js';
 import GameTile from './GameTile.jsx';
@@ -16,134 +13,140 @@ const GameGrid = memo(function GameGrid({
     onCellTap,
 }) {
     const containerRef = useRef(null);
-    const [cellSize, setCellSize] = useState(48);
-
-    // Responsive Cell Sizing
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const observer = new ResizeObserver((entries) => {
-            const width = entries[0].contentRect.width;
-            // Subtract padding (16px total) and gap (3px * 5)
-            const availableW = width - 24;
-            const maxByWidth = Math.floor(availableW / GRID_SIZE);
-            // Clamp size (Mobile small -> Desktop large)
-            setCellSize(Math.max(42, Math.min(64, maxByWidth)));
-        });
-        observer.observe(containerRef.current);
-        return () => observer.disconnect();
-    }, []);
+    // Use a stable, fixed cell size for typical mobile widths to prevent shifting
+    const cellSize = 46;
+    const boardPadding = 12;
+    const gridGap = 4;
+    const boardSize = (cellSize * 6) + (gridGap * 5) + (boardPadding * 2);
 
     const handleTap = useCallback(
         (row, col) => onCellTap(row, col),
         [onCellTap]
     );
 
+    const tiles = useMemo(() => {
+        if (!grid) return null;
+        return grid.map((row, rowIndex) =>
+            row.map((tile, colIndex) => {
+                const key = tile ? tile.id : `empty-${rowIndex}-${colIndex}`;
+
+                if (!tile)
+                    return <div key={key} style={{ width: cellSize, height: cellSize }} />;
+
+                const isSelected = selectedCell?.row === tile.row && selectedCell?.col === tile.col;
+                const isExploding = explodingCells.has(`${tile.row}-${tile.col}`);
+
+                return (
+                    <GameTile
+                        key={key}
+                        tile={tile}
+                        isSelected={isSelected}
+                        isExploding={isExploding}
+                        onTap={handleTap}
+                        cellSize={cellSize}
+                    />
+                );
+            })
+        );
+    }, [grid, selectedCell, explodingCells, handleTap, cellSize]);
+
     if (!grid) return null;
 
     return (
         <div
             ref={containerRef}
-            className="relative flex-1 w-full max-w-[600px] flex items-center justify-center p-4 z-10"
+            className="relative flex items-center justify-center z-10 my-4 h-full"
         >
-            {/* Glass Board Container */}
+            {/* Glass Board Container - Fixed Size to prevent any shifting */}
             <div
-                className="glass-panel relative p-3 rounded-[1rem] shadow-glass border border-bb-glass-border"
+                className="relative rounded-[1.8rem] shadow-2xl border border-white/10 overflow-hidden"
                 style={{
-                    background: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)',
-                    boxShadow: '0 20px 50px -12px rgba(0,0,0,0.5)'
+                    width: `${boardSize}px`,
+                    height: `${boardSize}px`,
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    boxShadow: '0 40px 80px -12px rgba(0,0,0,0.7)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    padding: `${boardPadding}px`
                 }}
             >
-                {/* Inner Glow Mesh */}
-                <div className="absolute inset-0 rounded-[1rem] pointer-events-none shadow-[inset_0_0_20px_rgba(59,130,246,0.1)]" />
+                {/* Board Mesh Background - Static underlying grid for visual stability */}
+                <div
+                    className="absolute pointer-events-none"
+                    style={{
+                        top: `${boardPadding}px`,
+                        left: `${boardPadding}px`,
+                        display: 'grid',
+                        gridTemplateColumns: `repeat(6, ${cellSize}px)`,
+                        gridTemplateRows: `repeat(6, ${cellSize}px)`,
+                        gap: `${gridGap}px`,
+                    }}
+                >
+                    {Array.from({ length: 36 }).map((_, i) => (
+                        <div key={i} className="bg-white/[0.04] rounded-xl border border-white/[0.02]" />
+                    ))}
+                </div>
 
+                {/* Actual Tile Grid - Perfectly positioned over the mesh */}
                 <div
                     style={{
                         display: 'grid',
                         gridTemplateColumns: `repeat(${GRID_SIZE}, ${cellSize}px)`,
                         gridTemplateRows: `repeat(${GRID_SIZE}, ${cellSize}px)`,
-                        gap: '4px',
+                        gap: `${gridGap}px`,
                         position: 'relative',
                         zIndex: 1,
-                        padding: '2px', // Inner padding
                     }}
                 >
-                    {grid.map((row) =>
-                        row.map((tile) => {
-                            if (!tile)
-                                return <div key={Math.random()} style={{ width: cellSize, height: cellSize }} />;
-
-                            const isSelected = selectedCell?.row === tile.row && selectedCell?.col === tile.col;
-                            const isExploding = explodingCells.has(`${tile.row}-${tile.col}`);
-
-                            return (
-                                <GameTile
-                                    key={tile.id}
-                                    tile={tile}
-                                    isSelected={isSelected}
-                                    isExploding={isExploding}
-                                    onTap={handleTap}
-                                    cellSize={cellSize}
-                                />
-                            );
-                        })
-                    )}
+                    <AnimatePresence initial={false}>
+                        {tiles}
+                    </AnimatePresence>
                 </div>
 
                 {/* Floating Scores Overlay */}
-                <AnimatePresence>
-                    {floatingScores.map((fs) => (
-                        <motion.div
-                            key={fs.id}
-                            initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, y: -40, scale: 1.2 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                            className="float-point absolute pointer-events-none z-50 text-center w-full"
-                            style={{
-                                left: 0,
-                                top: `${fs.y}%`, // Use % relative to board? Or absolute px?
-                                // Actually, positioning floating scores relative to the CELL is hard without layout calculation.
-                                // Let's use simple centralized feedback or random position near center if precise cell xy is hard.
-                                // Or better: pass the screen-space coordinates?
-                                // For simplicity in React, passing 'x/y %' relative to board center is easiest if we don't track refs per cell.
-                                // The current implementation uses random x/y. Let's stick to that but constrain it better.
-                                transform: `translateX(${fs.x - 50}px)`, // Offset from center
-                            }}
-                        >
-                            <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-bb-gold">
-                                {fs.value}
-                            </span>
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
+                <div className="absolute inset-0 pointer-events-none z-50 overflow-visible">
+                    <AnimatePresence>
+                        {floatingScores.map((fs) => (
+                            <motion.div
+                                key={fs.id}
+                                initial={{ opacity: 0, scale: 0.5, y: 0 }}
+                                animate={{ opacity: 1, scale: 1.5, y: -80 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                                className="absolute"
+                                style={{
+                                    left: `${fs.x}%`,
+                                    top: `${fs.y}%`,
+                                    transform: 'translateX(-50%)'
+                                }}
+                            >
+                                <span className="font-black text-2xl text-yellow-500 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+                                    {fs.value}
+                                </span>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
 
-                {/* Praise Overlay (Centered) */}
+                {/* Praise Overlay */}
                 <AnimatePresence>
                     {activePraise && (
                         <motion.div
                             key={activePraise}
-                            initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                            animate={{ opacity: 1, scale: 1.2, y: 0 }}
-                            exit={{ opacity: 0, scale: 1.5, y: -20 }}
-                            transition={{ duration: 0.4, type: 'spring', bounce: 0.5 }}
+                            initial={{ opacity: 0, scale: 0.6, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 1.4, y: -20 }}
+                            transition={{ duration: 0.4, type: 'spring', damping: 14 }}
                             className="absolute inset-0 flex items-center justify-center pointer-events-none z-[100]"
                         >
-                            <div className="bg-black/40 backdrop-blur-sm px-6 py-3 rounded-2xl border border-white/20 shadow-2xl">
-                                <span
-                                    className="font-game text-3xl sm:text-4xl text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-orange-400 to-red-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] tracking-wide"
-                                >
+                            <div className="bg-black/40 backdrop-blur-xl px-10 py-5 rounded-[2rem] border border-white/20 shadow-2xl">
+                                <span className="font-black text-4xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 uppercase italic tracking-tight">
                                     {activePraise}
                                 </span>
-                            </div>
-
-                            {/* Sparkles */}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity }} className="w-40 h-40 border-2 border-dashed border-white/10 rounded-full" />
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
-
             </div>
         </div>
     );

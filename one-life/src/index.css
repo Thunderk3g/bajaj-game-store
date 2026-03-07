@@ -108,21 +108,30 @@
     background-color: #0B1221;
 }
 
-* {
-    margin: 0;
-    padding: 0;
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
+    padding: 0;
     display: flex;
     place-items: center;
     min-width: 320px;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     touch-action: none;
     background-color: #0B1221;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 #root {

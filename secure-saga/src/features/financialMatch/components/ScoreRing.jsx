@@ -158,16 +158,19 @@ const ScoreRing = ({ score }) => {
                 className="w-full h-auto drop-shadow-xl"
             />
 
-            {/* Score Text Overlay - Moved below the speedometer via negative margin/positioning to avoid needle cut */}
-            <div className="text-center pointer-events-none z-10 -mt-12 mb-4">
+            {/* Score Text Overlay - Positioned Below the Speedometer Meter */}
+            <div className="flex flex-col items-center justify-center pointer-events-none z-10 -mt-16 mb-2">
                 <div
-                    className="text-5xl sm:text-6xl font-black text-white italic tracking-tighter"
+                    className="text-5xl sm:text-7xl font-black text-white italic tracking-tighter flex items-center"
                     style={{
-                        textShadow: `0 0 20px ${scoreColor}, 0 0 40px ${scoreColor}`
+                        textShadow: `0 0 25px ${scoreColor}, 0 0 50px ${scoreColor}`
                     }}
                 >
                     {displayScore}
-                    <span className="text-2xl sm:text-3xl font-bold not-italic ml-1 text-white/50">/100</span>
+                    <span className="text-3xl sm:text-4xl font-black not-italic ml-1 opacity-90">%</span>
+                </div>
+                <div className="text-[13px] sm:text-[16px] font-black text-white uppercase tracking-[0.25em] mt-1 drop-shadow-lg">
+                    Life Milestone Scored
                 </div>
             </div>
         </div>

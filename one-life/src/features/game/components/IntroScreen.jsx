@@ -125,14 +125,13 @@ const IntroScreen = ({ onStart }) => {
 
     return (
         <motion.div
-            className="absolute inset-0 w-full h-full flex flex-col items-center justify-end pb-12 pt-8 z-[100] overflow-hidden"
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-between z-[100] overflow-hidden"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
             style={{
                 backgroundImage: `url(${bgImage})`,
-                /* Force it to fill exactly without cutting off edges */
-                backgroundSize: '100% 100%',
+                backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
             }}
@@ -400,55 +399,29 @@ const IntroScreen = ({ onStart }) => {
                                     )}
                                 </div>
 
-                                {/* Terms Checkbox */}
-                                <div style={{
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: '10px',
-                                    paddingTop: '4px',
-                                    paddingBottom: '4px',
-                                    textAlign: 'left',
-                                }}>
-                                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexShrink: 0, marginTop: '1px' }}>
-                                        <input
-                                            id="terms"
-                                            type="checkbox"
-                                            checked={termsAccepted}
-                                            onChange={(e) => setTermsAccepted(e.target.checked)}
-                                            style={{
-                                                width: '20px',
-                                                height: '20px',
-                                                cursor: 'pointer',
-                                                accentColor: '#0066B2',
+                                {/* Terms */}
+                                <div className="space-y-2 py-1">
+                                    <div className="flex items-start gap-3">
+                                        <div
+                                            onClick={() => {
+                                                setTermsAccepted(!termsAccepted);
+                                                setErrors(prev => ({ ...prev, terms: null }));
                                             }}
-                                        />
-                                    </div>
-                                    <label htmlFor="terms" style={{
-                                        fontSize: '10px',
-                                        fontWeight: 600,
-                                        color: '#64748b',
-                                        lineHeight: 1.4,
-                                        userSelect: 'none',
-                                    }}>
-                                        I agree to the{' '}
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowTerms(true)}
-                                            style={{
-                                                color: '#0066B2',
-                                                fontWeight: 700,
-                                                background: 'none',
-                                                border: 'none',
-                                                padding: 0,
-                                                cursor: 'pointer',
-                                                textDecoration: 'underline',
-                                                fontSize: 'inherit',
-                                            }}
+                                            className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${termsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-white border-slate-300'}`}
                                         >
-                                            Terms &amp; Conditions
-                                        </button>{' '}
-                                        and Acknowledge the Privacy Policy.
-                                    </label>
+                                            {termsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
+                                        </div>
+                                        <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight text-left">
+                                            I agree to the{' '}
+                                            <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]">
+                                                Terms & Conditions
+                                            </button>{' '}
+                                            and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                        </div>
+                                    </div>
+                                    {errors.terms && (
+                                        <p className="text-red-500 text-[9px] min-[375px]:text-[10px] font-black uppercase tracking-wider ml-1 text-left">{errors.terms}</p>
+                                    )}
                                 </div>
 
                                 {/* Submit Button */}

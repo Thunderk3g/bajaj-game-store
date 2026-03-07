@@ -10,11 +10,11 @@ import { POWERUP_TYPES } from '../hooks/usePowerupSystem.js';
 import PlayerCharacter from './PlayerCharacter.jsx';
 import { Shield, Zap, Heart, Snowflake } from 'lucide-react';
 
-const CellContent = memo(function CellContent({ cell, isPlayer, isInvulnerable }) {
+const CellContent = memo(function CellContent({ cell, isPlayer, isInvulnerable, powerRiderCount }) {
     if (isPlayer) {
         return (
             <div className={`absolute inset-0 flex items-center justify-center z-10 transition-opacity ${isInvulnerable ? 'opacity-50 animate-pulse' : 'opacity-100'}`}>
-                <PlayerCharacter />
+                <PlayerCharacter powerRiderCount={powerRiderCount} />
                 {/* Spotlight under player */}
                 <div
                     className="absolute rounded-full pointer-events-none"
@@ -68,6 +68,7 @@ CellContent.propTypes = {
     cell: PropTypes.object.isRequired,
     isPlayer: PropTypes.bool.isRequired,
     isInvulnerable: PropTypes.bool,
+    powerRiderCount: PropTypes.number,
 };
 
 const GameGrid = memo(function GameGrid({
@@ -79,6 +80,7 @@ const GameGrid = memo(function GameGrid({
     floatingScores,
     activePraise,
     isInvulnerable,
+    powerRiderCount,
 }) {
     const gridContainerRef = useRef(null);
     const [gridRect, setGridRect] = useState(null);
@@ -129,8 +131,6 @@ const GameGrid = memo(function GameGrid({
             >
                 {grid.map((row, r) =>
                     row.map((cell, c) => {
-                        const isPlayer = playerPos.row === r && playerPos.col === c;
-
                         return (
                             <div
                                 key={`${r}-${c}`}
@@ -141,26 +141,49 @@ const GameGrid = memo(function GameGrid({
                             >
                                 <CellContent
                                     cell={cell}
-                                    isPlayer={isPlayer}
-                                    isInvulnerable={isInvulnerable}
+                                    isPlayer={false}
                                 />
                             </div>
                         );
                     })
                 )}
 
-                {/* ── Overlay layers positioned INSIDE the grid ── */}
+                {/* ── Overlay layers positioned INSIDE the grid (Using CSS Transforms) ── */}
+
+                {/* Player Overlay - Independent rendering to prevent unmount flickering */}
+                {cellSize > 0 && (
+                    <div
+                        className="absolute z-40 transition-transform duration-150 ease-out will-change-transform"
+                        style={{
+                            width: cellSize,
+                            height: cellSize,
+                            transform: `translate3d(${playerPos.col * cellSize}px, ${playerPos.row * cellSize}px, 0)`,
+                        }}
+                    >
+                        <div className={`absolute inset-0 flex items-center justify-center z-10 transition-opacity ${isInvulnerable ? 'opacity-50 animate-pulse' : 'opacity-100'}`}>
+                            <PlayerCharacter powerRiderCount={powerRiderCount} />
+                            {/* Spotlight under player */}
+                            <div
+                                className="absolute rounded-full pointer-events-none"
+                                style={{
+                                    width: '150%', height: '150%',
+                                    background: 'radial-gradient(circle, rgba(30,94,255,0.3) 0%, transparent 70%)',
+                                    zIndex: -1,
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {/* Shields */}
                 {cellSize > 0 && shields.map(sh => (
                     <div
                         key={sh.id}
-                        className="absolute z-30 pointer-events-none"
+                        className="absolute z-30 pointer-events-none transition-transform duration-200 ease-out will-change-transform"
                         style={{
                             width: cellSize,
                             height: cellSize,
-                            top: sh.row * cellSize,
-                            left: sh.col * cellSize,
+                            transform: `translate3d(${sh.col * cellSize}px, ${sh.row * cellSize}px, 0)`,
                         }}
                     >
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -181,12 +204,11 @@ const GameGrid = memo(function GameGrid({
                 {/* Powerup */}
                 {cellSize > 0 && activePowerup && (
                     <div
-                        className="absolute z-20 pointer-events-none"
+                        className="absolute z-20 pointer-events-none transition-transform duration-200 ease-out will-change-transform"
                         style={{
                             width: cellSize,
                             height: cellSize,
-                            top: activePowerup.row * cellSize,
-                            left: activePowerup.col * cellSize,
+                            transform: `translate3d(${activePowerup.col * cellSize}px, ${activePowerup.row * cellSize}px, 0)`,
                         }}
                     >
                         <div className="absolute inset-0 flex items-center justify-center animate-bounce">
@@ -213,12 +235,11 @@ const GameGrid = memo(function GameGrid({
                 {cellSize > 0 && monsters.map(monster => (
                     <div
                         key={monster.id}
-                        className="absolute z-20 pointer-events-none transition-all duration-300"
+                        className="absolute z-20 pointer-events-none transition-transform duration-300 ease-out will-change-transform"
                         style={{
                             width: cellSize,
                             height: cellSize,
-                            top: monster.row * cellSize,
-                            left: monster.col * cellSize,
+                            transform: `translate3d(${monster.col * cellSize}px, ${monster.row * cellSize}px, 0)`,
                         }}
                     >
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -266,6 +287,7 @@ GameGrid.propTypes = {
     floatingScores: PropTypes.array.isRequired,
     activePraise: PropTypes.string,
     isInvulnerable: PropTypes.bool,
+    powerRiderCount: PropTypes.number,
 };
 
 export default GameGrid;

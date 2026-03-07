@@ -6,7 +6,6 @@ import { memo, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Calendar, Share2, RotateCcw, X, ChevronDown, Shield, Heart, Clock, Zap, CheckSquare } from 'lucide-react';
-import ScoreRing from './ScoreRing.jsx';
 import Confetti from './Confetti.jsx';
 
 const ResultScreen = memo(function ResultScreen({
@@ -15,13 +14,22 @@ const ResultScreen = memo(function ResultScreen({
     health,
     timeLeft,
     score,
+    isMissionComplete,
     onBookSlot,
     onShowThankYou,
     onRestart,
     entryDetails,
 }) {
+    const outcome = isMissionComplete ? {
+        message: "You defeated life’s risks with the help of Power Riders.",
+        subMessage: "In real life, as well, you can overcome life risks with proper financial planning",
+        ctaText: "Discover the riders that can protect your real-life goals. Talk to a Relationship Manager."
+    } : {
+        message: "You didn’t have enough Power Riders to overcome life’s risks.",
+        subMessage: "In games you get another try — in life you don't.",
+        ctaText: "Protect your life goals. Talk to a Relationship Manager."
+    };
     const [showBooking, setShowBooking] = useState(false);
-    const [showBreakdown, setShowBreakdown] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     const [agreedTerms, setAgreedTerms] = useState(true);
@@ -34,7 +42,6 @@ const ResultScreen = memo(function ResultScreen({
     });
 
     const userName = entryDetails?.name || 'Player';
-    const displayScore = finalScore || 0;
 
     // Date Validation — only future dates allowed (up to 1 month ahead)
     const today = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -84,7 +91,7 @@ const ResultScreen = memo(function ResultScreen({
     };
 
     const handleShare = async () => {
-        const shareText = `I scored ${displayScore}/100 in Life Shield Bomber by Bajaj Life Insurance! Can you beat my score? 🛡️💣`;
+        const shareText = `I completed Life Shield Bomber by Bajaj Life Insurance! 🛡️💣`;
         try {
             if (navigator.share) {
                 await navigator.share({ title: 'Life Shield Bomber', text: shareText, url: window.location.href });
@@ -96,12 +103,7 @@ const ResultScreen = memo(function ResultScreen({
         }
     };
 
-    const breakdownData = [
-        { icon: <Shield className="w-5 h-5 text-blue-400" />, label: `Risks Destroyed: ${risksDestroyed}`, value: `+${risksDestroyed * 10}`, desc: '10 pts each' },
-        { icon: <Heart className="w-5 h-5 text-red-400" />, label: `Health Remaining: ${health}`, value: `+${health * 5}`, desc: '5 pts each' },
-        { icon: <Clock className="w-5 h-5 text-amber-400" />, label: `Time Left: ${timeLeft}s`, value: `+${Math.floor(timeLeft * 0.5)}`, desc: '0.5 pts/sec' },
-        { icon: <Zap className="w-5 h-5 text-yellow-400 fill-yellow-400" />, label: 'Raw Score', value: `${score + health * 5 + Math.floor(timeLeft * 0.5)}`, desc: 'Total raw pts' },
-    ];
+
 
     return (
         <div
@@ -110,154 +112,122 @@ const ResultScreen = memo(function ResultScreen({
         >
             <Confetti />
 
-            {/* Top Right Share Icon */}
-            <button
-                onClick={handleShare}
-                className="fixed top-4 right-4 z-50 text-white/90 hover:text-white transition-opacity p-2 bg-black/10 rounded-full backdrop-blur-sm"
-            >
-                <Share2 className="w-5 h-5 drop-shadow-md" strokeWidth={2.5} />
-            </button>
+
 
             {/* Content Container */}
-            <div className="relative z-10 w-full max-w-[500px] flex flex-col items-center flex-1 min-h-0">
+            <div className="relative z-10 w-full max-w-[500px] h-full flex flex-col items-center justify-center py-4 sm:py-6">
 
-                {/* Header — Hi {Name} */}
-                <div className="text-center w-full">
-                    <motion.h1
+                {/* ─── Header Block ─── */}
+                <div className="w-full flex flex-col items-center mt-2 mb-8">
+                    <motion.div
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className="text-sm sm:text-base font-medium text-white uppercase tracking-wide italic"
+                        className="text-center mb-3 sm:mb-5 flex items-end justify-center gap-1"
                     >
-                        Hi <span className="ml-1 text-xl sm:text-2xl font-black">{userName}!</span>
-                    </motion.h1>
-                    <motion.h2
-                        initial={{ y: -10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-xs sm:text-sm text-white uppercase tracking-wide italic opacity-90"
-                    >
-                        Your <span className="font-black text-base sm:text-lg text-[#FF8C00]">Life Shield</span> score is
-                    </motion.h2>
-
-                    {/* Speedometer */}
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="w-full mb-3"
-                    >
-                        <ScoreRing score={displayScore} />
+                        <span className="text-[12px] sm:text-[14px] font-bold text-white uppercase italic leading-none mb-[3px] sm:mb-[4px]">
+                            HI
+                        </span>
+                        <h1 className="text-xl sm:text-2xl font-black text-white uppercase font-display tracking-tight leading-none drop-shadow-sm">
+                            {userName}!
+                        </h1>
                     </motion.div>
 
-                    {/* View Breakdown Button */}
-                    <div className="flex justify-center mb-2 relative z-20">
-                        <button
-                            onClick={() => setShowBreakdown(true)}
-                            className="text-white/80 hover:text-white text-[10px] font-bold uppercase tracking-[0.15em] flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all shadow-lg"
-                        >
-                            Score Breakdown <ChevronDown size={12} />
-                        </button>
-                    </div>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-center px-4"
+                    >
+                        <h2 className="text-white text-[18px] sm:text-[22px] font-display font-black leading-tight mb-3 uppercase tracking-tight drop-shadow-lg max-w-[340px] mx-auto">
+                            {outcome.message}
+                        </h2>
+                        <p className="text-blue-100 font-display text-[11px] sm:text-[13px] font-medium italic leading-relaxed max-w-[280px] mx-auto opacity-80 border-t border-white/10 pt-3">
+                            {outcome.subMessage}
+                        </p>
+                    </motion.div>
 
-                    {/* Share Button */}
-                    <div className="flex justify-center mb-3">
+                    {/* Share Button Block */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="flex justify-center mt-5"
+                    >
                         <button
                             onClick={handleShare}
-                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-2 px-6 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 text-[10px] border-2 border-white/20 uppercase tracking-widest rounded-full"
+                            className="flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                            style={{
+                                background: '#FF7A00',
+                                color: 'white',
+                                borderRadius: '8px',
+                                padding: '10px 24px',
+                                fontWeight: 800,
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                            }}
                         >
-                            <Share2 className="w-3.5 h-3.5" /> Share
+                            <Share2 className="w-[18px] h-[18px]" strokeWidth={3} />
+                            <span className="uppercase tracking-[0.1em] text-[13px]">SHARE</span>
                         </button>
-                    </div>
+                    </motion.div>
                 </div>
 
-                {/* CTA Card (White Box) */}
+                {/* ─── Middle Block (CTA Card) ─── */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="w-full bg-white p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 rounded-xl relative z-20"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="w-full bg-white p-4 sm:p-5 shadow-[0_20px_60px_rgba(0,0,0,0.6)] border-4 border-white border-opacity-30 rounded-[1.25rem] relative z-20 flex flex-col gap-3 max-w-[90%]"
                 >
-                    <p className="text-slate-600 text-[10px] sm:text-xs font-bold text-center mb-3 leading-relaxed uppercase tracking-wide">
-                        To know more, connect with our Relationship Manager.
+                    <p className="text-[#00509E] text-[10px] sm:text-[11px] font-black text-center mb-1 leading-[1.3] uppercase tracking-wide px-1">
+                        {outcome.ctaText}
                     </p>
 
-                    {/* Call Now */}
-                    <button
-                        onClick={() => window.open('tel:18002099999', '_self')}
-                        className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/10 rounded-lg mb-3"
-                    >
-                        <Phone className="w-4 h-4" /> Call Now
-                    </button>
+                    <div className="flex flex-col gap-2.5">
+                        <button
+                            onClick={() => window.open('tel:18002099999', '_self')}
+                            className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-[14px] flex items-center justify-center gap-2 text-[12px] sm:text-[13px] uppercase tracking-widest rounded-xl transition-all active:scale-[0.98]"
+                        >
+                            <Phone className="w-4 h-4" strokeWidth={2.5} /> CALL NOW
+                        </button>
 
-                    {/* Divider */}
-                    <div className="relative py-1.5 mb-3">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-100"></div></div>
-                        <div className="relative flex justify-center text-[10px] uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
+                        <div className="flex items-center gap-4 py-1">
+                            <div className="flex-1 h-[2px] bg-slate-100" />
+                            <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">OR</span>
+                            <div className="flex-1 h-[2px] bg-slate-100" />
+                        </div>
+
+                        <button
+                            onClick={() => setShowBooking(true)}
+                            className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-[14px] flex items-center justify-center gap-2 text-[12px] sm:text-[13px] uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-[0_4px_0_#CC6B00] active:translate-y-1 active:shadow-none"
+                        >
+                            <Calendar className="w-4 h-4" strokeWidth={2.5} /> BOOK A SLOT
+                        </button>
                     </div>
-
-                    {/* Book a Slot */}
-                    <button
-                        onClick={() => setShowBooking(true)}
-                        className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/10 rounded-lg"
-                    >
-                        <Calendar className="w-4 h-4" /> Book a Slot
-                    </button>
                 </motion.div>
 
-                {/* Try Again */}
-                <div className="shrink-0 text-center mt-3">
+                {/* ─── Bottom Actions Block ─── */}
+                <div className="w-full flex flex-col items-center mt-12 mb-2 gap-8">
+                    {/* Disclaimer */}
+                    <div className="w-full px-6 opacity-40">
+                        <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
+                            <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                        </p>
+                    </div>
+
+                    {/* Try Again */}
                     <button
                         onClick={onRestart}
-                        className="text-blue-100/60 hover:text-white text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md hover:scale-105 active:scale-95"
+                        className="text-white hover:text-white flex items-center gap-3 transition-all group active:scale-95"
                     >
-                        <RotateCcw className="w-3.5 h-3.5" /> Try Again
+                        <div className="p-2 border border-blue-300/30 rounded-full group-hover:bg-white/10 transition-colors">
+                            <RotateCcw className="w-[18px] h-[18px]" strokeWidth={2.5} />
+                        </div>
+                        <span className="text-[12px] sm:text-[14px] font-black uppercase tracking-[0.3em]">TRY AGAIN</span>
                     </button>
                 </div>
             </div>
 
-            {/* ─── Breakdown POPUP Modal ─── */}
-            <AnimatePresence>
-                {showBreakdown && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white p-6 w-full max-w-sm shadow-2xl relative border-4 border-white/50 rounded-xl"
-                        >
-                            <button
-                                onClick={() => setShowBreakdown(false)}
-                                className="absolute right-4 top-4 text-slate-300 hover:text-slate-500 transition-colors bg-slate-100 p-1 rounded-full"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                            <h3 className="text-[#0066B2] font-black text-center mb-6 uppercase tracking-wider text-sm">Score Breakdown</h3>
 
-                            <div className="space-y-3">
-                                {breakdownData.map((item, i) => (
-                                    <div key={i} className="flex items-center justify-between gap-3 py-2 border-b border-slate-100 last:border-b-0">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 shadow-sm">
-                                                {item.icon}
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-700 text-sm font-semibold">{item.label}</p>
-                                                <p className="text-slate-400 text-[10px]">{item.desc}</p>
-                                            </div>
-                                        </div>
-                                        <span className="text-[#FF8C00] font-black text-sm">{item.value}</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="mt-4 pt-3 border-t-2 border-slate-100 flex items-center justify-between">
-                                <span className="text-slate-600 font-bold text-sm uppercase tracking-wider">Final Score</span>
-                                <span className="text-[#0066B2] font-black text-xl">{displayScore}/100</span>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
 
             {/* ─── Booking Modal ─── */}
             <AnimatePresence>
@@ -385,6 +355,7 @@ ResultScreen.propTypes = {
     onBookSlot: PropTypes.func.isRequired,
     onShowThankYou: PropTypes.func.isRequired,
     onRestart: PropTypes.func.isRequired,
+    isMissionComplete: PropTypes.bool,
     entryDetails: PropTypes.object,
 };
 

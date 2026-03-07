@@ -196,7 +196,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
 
     return (
         <div
-            className="h-[100dvh] w-full flex flex-col items-center relative overflow-hidden text-white font-sans"
+            className="fixed inset-0 flex flex-col items-center overflow-hidden text-white font-sans"
             onClick={handleUserInteraction}
         >
             {/* ── Global Background ── */}
@@ -282,10 +282,15 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                             />
                         </div>
 
-                        {/* Global Alert Area — Fixed at top to prevent bucket bar overlap */}
-                        <div className="fixed top-32 inset-x-0 z-[500] pointer-events-none">
-                            <AlertPopup message={alertMessage} color={alertColor} />
-                        </div>
+                        {/* Global Alert Area — Lightweight Floating UI */}
+                        <AlertPopup
+                            message={alertMessage}
+                            color={alertColor}
+                            onClear={() => {
+                                setAlertMessage(null);
+                                setAlertColor(null);
+                            }}
+                        />
 
                         <BucketBar buckets={buckets} />
                     </motion.div>

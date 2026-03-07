@@ -26,7 +26,7 @@ export const TILE_META = {
         bucketBorder: 'rgba(59, 130, 246, 0.5)',
     },
     YELLOW: {
-        label: 'Retirement',
+        label: 'Retirement Fund',
         color: '#F59E0B',
         bg: 'linear-gradient(145deg, #D97706 0%, #F59E0B 50%, #FBBF24 100%)',
         glow: 'rgba(245, 158, 11, 0.45)',
@@ -48,34 +48,34 @@ export const BUCKET_MESSAGES = {
     GREEN: [
         '🛡️ Family Protection keeps your loved ones secure!',
         '👨‍👩‍👧‍👦 Secure your family\'s future today!',
-        '💚 A family protection plan is the foundation of financial security.',
+        '💚 Family protection is the foundation of financial security.',
     ],
     BLUE: [
         '🎓 Invest in your child\'s education early!',
-        '📚 A bright future starts with the right education plan.',
-        '👶 Give your child the gift of quality education!',
+        '📚 Every step brings your child\'s education dream closer.',
+        '👶 Every step strengthens your child\'s future.',
     ],
     YELLOW: [
-        '⏰ Retirement planning today means freedom tomorrow!',
-        '🏖️ Start saving for a comfortable retirement now!',
-        '💰 Your future self will thank you for planning early.',
+        '⏰ Building a Retirement Fund today means freedom tomorrow!',
+        '🏖️ Smart planning today means comfort tomorrow.',
+        '💰 You are getting closer to secure retirement.',
     ],
     RED: [
         '🚨 An emergency fund is your financial safety net!',
-        '🏥 Be prepared for life\'s unexpected moments.',
+        '🏥 Your safety net is getting stronger!',
         '⚡ Build your emergency reserves for peace of mind!',
     ],
 };
 
 export const URGENCY_MESSAGES = [
-    '⚡ Fill the buckets quickly, time is running!',
+    '⚡ Fill the Life Goals buckets quickly, time is running!',
     '🔥 Hurry up! Secure your goals faster!',
     '⏳ Time is ticking! Match more tiles!',
-    '💪 Keep going! Your goals need you!',
-    '🎯 Focus! Fill those buckets before time runs out!',
+    '💪 Keep going! Your Goals need you!',
+    '🎯 Focus! Fill those Life Goals buckets before time runs out!',
 ];
 
-// ── Bucket Scoring ─────────────────────────────────────────────────────
+// ── Bucket Scoring ────────────────────────────────────────────────────
 
 // Increased to 400 to make the game challenging (approx 30-40 matches per bucket)
 export const BUCKET_MAX = 400;

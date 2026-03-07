@@ -54,12 +54,12 @@ export const DIRECTIONS = {
 
 // ── Praise Messages ───────────────────────────────────────────
 export const PRAISE_MESSAGES = [
-    'Risk Eliminated!',
+    'Power Rider Secured!',
     'Well Protected!',
-    'Great Defense!',
+    'Rider Power Active!',
     'Shield Up!',
-    'Outstanding!',
-    'Secured!',
-    'Brilliant!',
-    'Keep Going!',
+    'Risk Mitigated!',
+    'Life Protected!',
+    'Great Defense!',
+    'Stay Safe!',
 ];

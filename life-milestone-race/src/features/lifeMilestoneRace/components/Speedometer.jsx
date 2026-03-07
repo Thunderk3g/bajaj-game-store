@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const Speedometer = ({ score }) => {
+const Speedometer = ({ score, size = 350, height = 300 }) => {
     const canvasRef = useRef(null);
     const [displayScore, setDisplayScore] = useState(0);
 
     // Clamped score logic - ensure it's a number
     const safeScore = isNaN(score) ? 0 : score;
     const clampedScore = Math.min(Math.max(Number(safeScore), 0), 100);
+
+    // Dynamic radius based on size
+    const width = size;
+    const canvasHeight = height;
 
     // Discrete Zone Colors
     const getZoneColor = (val) => {
@@ -27,12 +31,10 @@ const Speedometer = ({ score }) => {
         const totalRotationRange = endAngle - startAngle;
 
         // Canvas dimensions
-        const width = canvas.width;
-        const height = canvas.height;
         const centerX = width / 2;
-        const centerY = height / 2;
-        const radius = Math.min(width, height) / 2 - 20; // Padding
-        const trackWidth = 20;
+        const centerY = canvasHeight / 2;
+        const radius = (Math.min(width, canvasHeight) / 2) - (width * 0.05); // Responsive Padding
+        const trackWidth = size * 0.06;
 
         let animatedValue = 0; // Local var for the loop
 
@@ -48,7 +50,7 @@ const Speedometer = ({ score }) => {
             setDisplayScore(Math.round(animatedValue));
 
             // Clear
-            ctx.clearRect(0, 0, width, height);
+            ctx.clearRect(0, 0, width, canvasHeight);
 
             // 1. Draw Background Track (Dark Arc)
             ctx.beginPath();
@@ -143,30 +145,30 @@ const Speedometer = ({ score }) => {
         return () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
-    }, [clampedScore]);
+    }, [clampedScore, width, canvasHeight, size]);
 
     // Calculate color for text based on score
     const scoreColor = getZoneColor(displayScore);
 
     return (
-        <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[350px] mx-auto">
+        <div className="relative flex flex-col items-center justify-center select-none w-full mx-auto" style={{ maxWidth: size }}>
             <canvas
                 ref={canvasRef}
-                width={350}
-                height={300}
+                width={width}
+                height={canvasHeight}
                 className="w-full h-auto drop-shadow-xl"
             />
 
-            {/* Score Text Overlay - Moved below the speedometer via negative margin/positioning to avoid needle cut */}
-            <div className="text-center pointer-events-none z-10 -mt-12 mb-4">
+            {/* Score Text Overlay */}
+            <div className="text-center pointer-events-none z-10 -mt-8 sm:-mt-12 mb-4">
                 <div
-                    className="text-5xl sm:text-6xl font-black text-white italic tracking-tighter"
+                    className="text-4xl sm:text-6xl font-black text-white italic tracking-tighter"
                     style={{
                         textShadow: `0 0 20px ${scoreColor}, 0 0 40px ${scoreColor}`
                     }}
                 >
                     {displayScore}
-                    <span className="text-2xl sm:text-3xl font-bold not-italic ml-1 text-white/50">/100</span>
+                    <span className="text-xl sm:text-3xl font-bold not-italic ml-1 text-white/50">/100</span>
                 </div>
             </div>
         </div>

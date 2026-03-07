@@ -22,7 +22,7 @@ export const CRASH_TRIGGER_TIME = 30; // Car always at 30s
 
 export const CAR_WIDTH = 180;
 export const CAR_HEIGHT = 90;
-export const CAR_SPEED = 25;
+export const CAR_SPEED = 12;
 
 export const SCORE_PER_SECOND = 10;
 export const DODGE_BONUS = 25;

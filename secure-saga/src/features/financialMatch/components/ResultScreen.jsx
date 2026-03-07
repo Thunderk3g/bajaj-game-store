@@ -22,6 +22,31 @@ const ResultScreen = ({
     // Score handling
     const displayScore = finalScore || 0;
 
+    // Dynamic Content based on score
+    const getResultContent = (score) => {
+        if (score <= 40) {
+            return {
+                headline: "Your Life Goals Need Stronger Planning",
+                message: "“You’ve secured less than half of your life goals. Start planning today to build stronger financial protection.”",
+                cta: "Talk to a Relationship Manager to start building a stronger financial plan for your life goals."
+            };
+        } else if (score <= 70) {
+            return {
+                headline: "You’re On The Right Path",
+                message: "“You’re on your way, but some life goals still need stronger planning.”",
+                cta: "Connect with a Relationship Manager to strengthen your plan and secure your life goals."
+            };
+        } else {
+            return {
+                headline: "You’re On The Right Path",
+                message: "“Great progress! You’re well on track to securing your life goals.”",
+                cta: "Connect with a Relationship Manager to keep your goals protected."
+            };
+        }
+    };
+
+    const resultContent = getResultContent(displayScore);
+
     const [showBooking, setShowBooking] = useState(false);
     const [showBreakdown, setShowBreakdown] = useState(false);
 
@@ -85,9 +110,7 @@ const ResultScreen = ({
         }
     };
 
-    // Styling logic — Simplified Scrolling
-    // Root is absolute/fixed filling parent. Overflow-y-auto guarantees scroll.
-    // Root is absolute/fixed filling parent. Overflow-hidden to prevent scroll.
+    // Styling logic — SINGLE PAGE, NO SCROLL
     const ghibliCardClass = "w-full h-[100dvh] overflow-hidden flex flex-col items-center px-4 py-2 sm:py-4 relative";
 
     return (
@@ -98,84 +121,93 @@ const ResultScreen = ({
 
             {/* Top Right Share Icon */}
             <button onClick={handleShare} className="absolute top-4 right-4 z-50 text-white/90 hover:text-white transition-opacity p-2 bg-black/10 rounded-full backdrop-blur-sm">
-                <Share2 className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
+                <Share2 className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
             </button>
 
-            {/* Content Container (Max width for desktop, full flex height) */}
-            <div className="relative z-10 w-full max-w-[500px] flex-1 flex flex-col items-center justify-between py-1 sm:py-2">
+            {/* Content Container - 3 Block Distribution */}
+            <div className="relative z-10 w-full max-w-[500px] h-full flex flex-col items-center justify-between py-2 sm:py-6">
 
-                {/* Header Section */}
-                <div className="text-center w-full flex flex-col items-center">
-                    <h1 className="text-sm sm:text-lg font-medium text-white uppercase tracking-wide italic leading-tight">
-                        Hi <span className="ml-1 text-xl sm:text-3xl font-black">{(userName ? userName.charAt(0).toUpperCase() + userName.slice(1) : 'Player')}!</span>
-                    </h1>
-                    <h2 className="text-[10px] sm:text-base text-white uppercase tracking-wide italic opacity-90 leading-tight">
-                        Your <span className="font-black text-sm sm:text-xl text-[#FF8C00]">Secure Saga</span> score is
-                    </h2>
-
-                    {/* Speedometer - Adjusted scaling for mobile fit without aggressive overlaps */}
-                    <div className="transform scale-[0.7] xs:scale-[0.85] sm:scale-100 -my-10 sm:-my-4 origin-center">
-                        <Speedometer score={displayScore} />
+                {/* BLOCK 1: Branding & Score */}
+                <div className="w-full flex flex-col items-center">
+                    <div className="text-center mb-1 sm:mb-4">
+                        <h1 className="text-sm sm:text-xl font-black text-white uppercase tracking-widest italic leading-tight">
+                            Hi <span className="ml-[1px] text-xl sm:text-3xl text-white">{(userName ? userName.charAt(0).toUpperCase() + userName.slice(1) : 'Player')}!</span>
+                        </h1>
+                        <h2 className="text-[10px] sm:text-xs text-white uppercase tracking-[0.2em] italic opacity-60 mt-1 ml-1.5">
+                            Your score is
+                        </h2>
                     </div>
 
-                    {/* Grouping Breakdown button to stay close to score */}
-                    <div className="flex justify-center -mt-2 sm:-mt-4 mb-2 relative z-20">
-                        <button
-                            onClick={() => setShowBreakdown(true)}
-                            className="text-white/80 hover:text-white text-[9px] sm:text-xs font-bold uppercase tracking-[0.15em] flex items-center gap-1 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all shadow-lg"
-                        >
-                            View Breakdown <ChevronDown size={11} />
-                        </button>
+                    {/* Speedometer - Better Scaling and Positioning */}
+                    <div className="relative transform scale-[0.55] xs:scale-[0.65] sm:scale-95 -my-14 xs:-my-10 sm:-my-2 origin-center">
+                        <Speedometer score={displayScore} />
                     </div>
                 </div>
 
-                {/* Share Button + CTA Card Container to reduce gap */}
-                <div className="w-full flex-1 flex flex-col items-center justify-center gap-2 sm:gap-3 mt-1 sm:mt-2">
-                    {/* Share Button (Rectangle) */}
-                    <div className="flex justify-center">
+                {/* BLOCK 2: Feedback & Headline (Middle) */}
+                <div className="flex flex-col items-center gap-1 sm:gap-4 px-2 -mt-10 xs:-mt-4 sm:mt-0">
+                    <p className="text-white font-black italic text-[14px] sm:text-[18px] leading-tight px-4 drop-shadow-lg text-center max-w-[360px]">
+                        "{resultContent.headline}"
+                    </p>
+
+                    <div className="relative z-20 mt-1 mb-1">
                         <button
-                            onClick={handleShare}
-                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] text-white font-black py-2.5 px-10 sm:py-3 sm:px-12 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 text-[11px] sm:text-sm border-2 border-white/10 tracking-widest rounded-lg"
+                            onClick={() => setShowBreakdown(true)}
+                            className="text-white/80 hover:text-white text-[8px] sm:text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all shadow-lg active:scale-95"
                         >
-                            <Share2 className="w-4 h-4 sm:w-5 sm:h-5" /> Share
+                            View Breakdown <ChevronDown size={10} />
                         </button>
                     </div>
 
-                    {/* CTA Card (White) */}
-                    <div className="w-full bg-white p-4 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-2 border-white/50 rounded-xl relative z-20 mx-auto">
-                        <p className="text-slate-600 text-[9px] sm:text-[11px] font-bold text-center mb-3 leading-tight tracking-wide">
-                            To know more, connect with our Relationship Manager.
+                    <p className="text-blue-100/90 text-[10px] sm:text-[13px] font-medium italic leading-relaxed max-w-[340px] px-6 opacity-80 text-center">
+                        {resultContent.message}
+                    </p>
+                </div>
+
+                {/* BLOCK 3: Actions & Navigation (Bottom) */}
+                <div className="w-full flex flex-col items-center gap-2 sm:gap-4 px-2 mb-1">
+                    <button
+                        onClick={handleShare}
+                        className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] text-white font-black py-2 px-8 sm:py-3 sm:px-12 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 text-[9px] sm:text-xs border-2 border-white/10 tracking-widest rounded-lg"
+                    >
+                        <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Share
+                    </button>
+
+                    <div className="w-full bg-white p-3 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-2 border-white/50 rounded-xl relative z-20 mx-auto max-w-[360px] sm:max-w-none">
+                        <p className="text-slate-600 text-[11px] sm:text-[15px] font-bold text-center mb-2 leading-tight tracking-wide italic">
+                            {resultContent.cta}
                         </p>
 
-                        {/* Call Action */}
-                        <a href="tel:1800209999" className="block w-full mb-3">
-                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base tracking-widest border-2 border-white/10 rounded-lg">
-                                <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> Call Now
+                        <a href="tel:1800209999" className="block w-full mb-2">
+                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2 sm:py-3 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-[11px] sm:text-sm tracking-widest border-2 border-white/10 rounded-lg">
+                                <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Call Now
                             </button>
                         </a>
 
-                        <div className="relative py-1 sm:py-2 mb-3">
+                        <div className="relative py-0.5 mb-1.5">
                             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
-                            <div className="relative flex justify-center text-[8px] sm:text-[10px] uppercase"><span className="px-3 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
+                            <div className="relative flex justify-center text-[7px] sm:text-[9px] uppercase"><span className="px-2 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
                         </div>
 
-                        {/* Booking Trigger Button */}
                         <button
                             onClick={() => setShowBooking(true)}
-                            className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 sm:py-4 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base tracking-widest border-2 border-white/10 rounded-lg"
+                            className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-2 sm:py-3 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-[11px] sm:text-sm tracking-widest border-2 border-white/10 rounded-lg"
                         >
-                            <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> Book a Slot
+                            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Book a Slot
                         </button>
                     </div>
-                </div>
 
-                {/* Restart Option */}
-                <div className="text-center pb-3 sm:pb-6">
+                    <div className="w-full px-4">
+                        <p className="text-[7.5px] sm:text-[9px] text-white/40 leading-tight text-center font-medium max-w-[420px] mx-auto">
+                            <span className="font-bold whitespace-nowrap">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                        </p>
+                    </div>
+
                     <button
                         onClick={onRestart}
-                        className="text-blue-100/60 hover:text-white text-[10px] sm:text-sm font-black tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md"
+                        className="text-white/30 hover:text-white text-[9px] sm:text-xs font-black tracking-[0.2em] transition-colors flex items-center justify-center gap-1 active:scale-95 py-1"
                     >
-                        <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Retake Quiz
+                        <RefreshCw className="w-3.5 h-3.5" /> Try Again
                     </button>
                 </div>
 

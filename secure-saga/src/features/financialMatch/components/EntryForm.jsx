@@ -115,7 +115,7 @@ const EntryPopup = memo(function EntryPopup({ onSubmit, onClose }) {
                     <form onSubmit={handleSubmit} className="space-y-3 min-[375px]:space-y-4">
                         {/* Name */}
                         <div className="space-y-1 min-[375px]:space-y-1.5 text-left">
-                            <label className="block text-slate-700 text-[9px] min-[375px]:text-[10px] sm:text-xs font-black uppercase tracking-widest ml-1" htmlFor="bb-userName">
+                            <label className="block text-slate-700 text-xs min-[375px]:text-sm sm:text-base font-black uppercase tracking-widest ml-1" htmlFor="bb-userName">
                                 Your Name
                             </label>
                             <input
@@ -146,7 +146,7 @@ const EntryPopup = memo(function EntryPopup({ onSubmit, onClose }) {
 
                         {/* Phone */}
                         <div className="space-y-1 min-[375px]:space-y-1.5 text-left">
-                            <label className="block text-slate-700 text-[9px] min-[375px]:text-[10px] sm:text-xs font-black uppercase tracking-widest ml-1" htmlFor="bb-phone">
+                            <label className="block text-slate-700 text-xs min-[375px]:text-sm sm:text-base font-black uppercase tracking-widest ml-1" htmlFor="bb-phone">
                                 Mobile Number
                             </label>
                             <input

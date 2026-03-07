@@ -26,7 +26,7 @@ const GameHUD = memo(function GameHUD({ timeLeft, userName }) {
                 <span className="font-game text-lg sm:text-xl text-white drop-shadow-md tracking-wide">
                     Hi {(userName ? userName.charAt(0).toUpperCase() + userName.slice(1) : 'Player')} 👋
                 </span>
-                <span className="text-[0.7rem] sm:text-xs text-blue-200/80 font-medium uppercase tracking-widest">
+                <span className="text-sm sm:text-base text-blue-200/80 font-medium uppercase tracking-widest">
                     Fill your life goals buckets
                 </span>
             </div>

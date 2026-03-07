@@ -309,7 +309,7 @@ export function useMatchGame() {
                 const gravitated = applyGravity(removed);
                 currentGrid = refillGrid(gravitated, TILE_TYPES, 0);
 
-                await new Promise((res) => setTimeout(res, 450));
+                await new Promise((res) => setTimeout(res, 350));
             }
 
             // Final Grid Set
