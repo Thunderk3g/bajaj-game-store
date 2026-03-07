@@ -19,20 +19,20 @@ const GameOverOverlay = () => {
             });
         }, 50);
 
-        // Show messages one by one with 2s stagger
+        // Show messages one by one
         const timers = [];
         GAME_OVER_MESSAGES.forEach((msg, index) => {
             const t = setTimeout(() => {
                 setVisibleMessages(prev => [...prev, msg]);
-            }, msg.delay + 800); // +800ms to let grayscale build first
+            }, msg.delay + 800);
             timers.push(t);
         });
 
-        // Auto-transition to result screen 2s after the last message appears
+        // Auto-transition to result screen 2s after last message
         const lastMsg = GAME_OVER_MESSAGES[GAME_OVER_MESSAGES.length - 1];
         const autoTransition = setTimeout(() => {
             setStatus(GAME_STATUS.CTA);
-        }, lastMsg.delay + 800 + 4000); // last msg delay + initial wait + 4s pause as requested
+        }, lastMsg.delay + 800 + 3000);
         timers.push(autoTransition);
 
         return () => {
@@ -45,7 +45,7 @@ const GameOverOverlay = () => {
 
     return (
         <motion.div
-            className="absolute inset-0 z-[90] flex flex-col items-center justify-center"
+            className="absolute inset-0 z-[90] flex flex-col items-center justify-center p-8 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -55,46 +55,27 @@ const GameOverOverlay = () => {
                 style={{
                     position: 'absolute',
                     inset: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
                     transition: 'all 1s ease',
                     backdropFilter: `grayscale(${grayscaleAmount})`,
                     WebkitBackdropFilter: `grayscale(${grayscaleAmount})`,
                 }}
             />
 
-            {/* Message sequence — shown one by one, centered */}
-            <div style={{
-                position: 'relative',
-                zIndex: 10,
-                padding: '0 32px',
-                textAlign: 'center',
-                maxWidth: '380px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '24px',
-            }}>
+            <div className="relative z-10 space-y-8 max-w-[340px]">
                 <AnimatePresence>
                     {visibleMessages.map((msg, index) => (
                         <motion.p
                             key={index}
+                            className="text-white font-black drop-shadow-2xl"
                             style={{
-                                fontFamily: "'Outfit', system-ui, sans-serif",
-                                letterSpacing: '0.02em',
-                                lineHeight: 1.4,
-                                textShadow: '0 2px 12px rgba(0,0,0,0.7)',
-                                // Progressive emphasis: last message is biggest & boldest
-                                fontSize: index === visibleMessages.length - 1 && index === 2
-                                    ? '30px'
-                                    : index >= 1
-                                        ? '26px'
-                                        : '22px',
-                                fontWeight: index === 2 ? 900 : 700,
-                                color: '#ffffff',
+                                fontSize: index === visibleMessages.length - 1 ? '28px' : '22px',
+                                opacity: index === visibleMessages.length - 1 ? 1 : 0.5,
+                                filter: index === visibleMessages.length - 1 ? 'none' : 'blur(1px)',
                             }}
-                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
                         >
                             {msg.text}
                         </motion.p>

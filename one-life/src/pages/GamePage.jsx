@@ -79,8 +79,8 @@ const GamePage = () => {
     }, [status, phase]);
 
     return (
-        <div className="w-full min-h-screen flex justify-center items-center bg-[#0B1221] overflow-hidden">
-            <div className="relative w-full max-w-md h-[100dvh] mx-auto bg-[#0B1221] flex flex-col shadow-2xl overflow-hidden pt-safe md:h-[850px] md:max-h-[95dvh] md:rounded-3xl border border-white/5">
+        <div className="w-full h-[100dvh] flex justify-center items-center bg-[#0B1221] overflow-hidden">
+            <div className="relative w-full max-w-md h-full mx-auto bg-[#0B1221] flex flex-col shadow-2xl overflow-hidden md:h-[850px] md:max-h-[95dvh] md:rounded-3xl border border-white/5">
                 {/* Main Area */}
                 <div className="flex-1 relative overflow-hidden flex flex-col">
                     <AnimatePresence mode="wait">

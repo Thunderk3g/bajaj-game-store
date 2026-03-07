@@ -55,6 +55,8 @@ export function useBombermanEngine() {
     const [entryDetails, setEntryDetails] = useState(null);
     const [shakeScreen, setShakeScreen] = useState(false);
     const [isInvulnerable, setIsInvulnerable] = useState(false);
+    const [isMissionComplete, setIsMissionComplete] = useState(false);
+    const [powerRiderCount, setPowerRiderCount] = useState(0); // Track stackable protection status
 
     const gridRef = useRef(grid);
     const playerPosRef = useRef(playerPos);
@@ -105,6 +107,17 @@ export function useBombermanEngine() {
         clearPowerups
     } = usePowerupSystem(gridRef);
 
+    const endGame = useCallback((isSuccess = false) => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
+        setIsMissionComplete(isSuccess);
+        setGamePhase(GAME_PHASES.FINISHED);
+
+        setTimeout(() => {
+            setGamePhase(GAME_PHASES.RESULT);
+        }, 1500);
+    }, []);
+
     // ── Floating Score ─────────────────────────────────────────────
     const addFloatingScore = useCallback((value, row, col) => {
         const id = `fs-${++floatIdRef.current}`;
@@ -121,29 +134,48 @@ export function useBombermanEngine() {
         if (praiseTimeoutRef.current) clearTimeout(praiseTimeoutRef.current);
         praiseTimeoutRef.current = setTimeout(() => {
             setActivePraise(null);
-        }, 1200);
+        }, 3000);
     }, []);
 
     // ── Damage ─────────────────────────────────────────────────────
     const handleDamage = useCallback(() => {
         if (isInvulnerableRef.current) return;
+
+        // NEW LOGIC: Check if player has stackable Power Riders (Immunity)
+        if (powerRiderCount > 0) {
+            setPowerRiderCount(prev => prev - 1);
+            showPraise("You have the rider power to mitigate your risks");
+
+            // Still grant a tiny frame of invulnerability after hit
+            isInvulnerableRef.current = true;
+            setIsInvulnerable(true);
+            setTimeout(() => {
+                isInvulnerableRef.current = false;
+                setIsInvulnerable(false);
+            }, 1000);
+            return;
+        }
+
+        // NO POWER RIDER: Reduce life
         isInvulnerableRef.current = true;
         setIsInvulnerable(true);
 
         setHealth(prev => {
             const newHealth = prev - 1;
             if (newHealth <= 0) {
-                setTimeout(() => endGame(), 300);
+                setTimeout(() => endGame(false), 300);
             }
             return Math.max(0, newHealth);
         });
+
+        showPraise("Quickly grab your power riders to fight the risks");
         setShakeScreen(true);
         setTimeout(() => setShakeScreen(false), 300);
         setTimeout(() => {
             isInvulnerableRef.current = false;
             setIsInvulnerable(false);
         }, 1000);
-    }, []);
+    }, [powerRiderCount, showPraise, endGame]);
 
     // ── Game Loop ──────────────────────────────────────────────────
     const gameLoop = useCallback((timestamp) => {
@@ -209,7 +241,7 @@ export function useBombermanEngine() {
                 if (prev <= 1) {
                     clearInterval(timerRef.current);
                     timerRef.current = null;
-                    endGame();
+                    endGame(false);
                     return 0;
                 }
                 return prev - 1;
@@ -257,7 +289,7 @@ export function useBombermanEngine() {
         lastMoveRef.current = now;
         setPlayerPos({ row: newRow, col: newCol });
 
-        // ── Claim risk block by walking over it ──
+        // ── Claim risk block by walking over it (POWER RIDER) ──
         if (targetCell.type === CELL_TYPES.RISK) {
             const label = targetCell.riskData?.label || 'Risk';
             const newGrid = cloneGrid(currentGrid);
@@ -268,10 +300,14 @@ export function useBombermanEngine() {
             setRisksDestroyed(prev => prev + 1);
             setScore(prev => prev + POINTS_PER_RISK);
             addFloatingScore(`+${POINTS_PER_RISK}`, newRow, newCol);
-            showPraise(`${label} Secured! 🛡️`);
+
+            // Update Power Rider status - stackable immunity, NO life restoration
+            setPowerRiderCount(prev => prev + 1);
+            showPraise(`Good, you have taken a power rider`);
         }
 
-        // ── Collect power-up ──
+        // ── Collect power-up (DISABLED) ──
+        /*
         const collected = collectPowerup(newRow, newCol);
         if (collected) {
             setScore(s => s + POWERUP_SCORE);
@@ -292,6 +328,7 @@ export function useBombermanEngine() {
                 showPraise('Piercing Shield! ⚡');
             }
         }
+        */
 
         // ── Monster collision ──
         if (monstersRef.current) {
@@ -313,10 +350,12 @@ export function useBombermanEngine() {
                 if (hasRisks) break;
             }
 
-            if (hasRisks) {
-                showPraise('Claim all Risks to Exit! 🛡️');
+            const hasMonsters = monstersRef.current.some(m => m.active);
+
+            if (hasRisks || hasMonsters) {
+                showPraise('Clear all Threats & Riders to Exit! 🛡️');
             } else {
-                endGame();
+                endGame(true);
             }
         }
     }, [collectPowerup, handleDamage, addFloatingScore, showPraise]);
@@ -392,6 +431,8 @@ export function useBombermanEngine() {
         setFloatingScores([]);
         setShakeScreen(false);
         setIsInvulnerable(false);
+        setIsMissionComplete(false);
+        setPowerRiderCount(0);
         isInvulnerableRef.current = false;
 
         clearShields();
@@ -407,16 +448,6 @@ export function useBombermanEngine() {
 
         setGamePhase(GAME_PHASES.PLAYING);
     }, [clearShields, clearMonsters, clearPowerups, initMonsters]);
-
-    const endGame = useCallback(() => {
-        if (timerRef.current) clearInterval(timerRef.current);
-        if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
-        setGamePhase(GAME_PHASES.FINISHED);
-
-        setTimeout(() => {
-            setGamePhase(GAME_PHASES.RESULT);
-        }, 1500);
-    }, []);
 
     const exitGame = useCallback(() => {
         if (timerRef.current) clearInterval(timerRef.current);
@@ -504,6 +535,8 @@ export function useBombermanEngine() {
         monsters,
         activePowerup,
         getCooldownProgress,
+        powerRiderCount,
+        isMissionComplete,
 
         movePlayer,
         placeBomb: handleAction,

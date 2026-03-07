@@ -51,7 +51,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
     const goals = [
         { label: 'Family Protection', color: '#10B981', bg: 'linear-gradient(145deg, #059669 0%, #10B981 100%)', border: '#047857' },
         { label: 'Child Education', color: '#3B82F6', bg: 'linear-gradient(145deg, #1D4ED8 0%, #3B82F6 100%)', border: '#1e40af' },
-        { label: 'Retirement Plan', color: '#F59E0B', bg: 'linear-gradient(145deg, #D97706 0%, #F59E0B 100%)', border: '#b45309' },
+        { label: 'Retirement Fund', color: '#F59E0B', bg: 'linear-gradient(145deg, #D97706 0%, #F59E0B 100%)', border: '#b45309' },
         { label: 'Emergency Fund', color: '#EF4444', bg: 'linear-gradient(145deg, #B91C1C 0%, #EF4444 100%)', border: '#b91c1c' },
     ];
 
@@ -92,7 +92,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
                             <SwapIcon />
                             <div className="flex-1 min-w-0">
                                 <h3 className="text-white font-black text-sm uppercase tracking-wide mb-1">Swap Adjacent Tiles</h3>
-                                <p className="text-blue-200/60 text-xs leading-tight font-medium">
+                                <p className="text-blue-200/60 text-base leading-tight font-medium">
                                     Tap two neighboring tiles to swap them matches of 3 or more.
                                 </p>
                             </div>
@@ -178,7 +178,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
 
                 {/* GOAL BUCKETS LEGEND */}
                 <motion.div variants={itemVariants} className="w-full mt-2">
-                    <h3 className="text-center text-blue-200/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">Goal Buckets</h3>
+                    <h3 className="text-center text-blue-200/80 text-sm font-bold uppercase tracking-[0.2em] mb-4">Goal Buckets</h3>
                     <div className="grid grid-cols-1 gap-3 bg-[#0a1529]/50 p-4 rounded-2xl border border-white/5">
                         {goals.map((g, i) => (
                             <div key={i} className="flex items-center gap-4">
@@ -186,7 +186,7 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
                                     style={{ background: g.bg, boxShadow: `0 2px 0 ${g.border}` }}></div>
                                 <div className="flex-1 border-b border-white/5 pb-2">
                                     <span className="text-white text-sm font-bold uppercase tracking-wide block">{g.label}</span>
-                                    <span className="text-white/40 text-[10px] font-medium uppercase tracking-wider">Match tiles to fill</span>
+                                    <span className="text-white/40 text-xs font-medium uppercase tracking-wider">Match tiles to fill</span>
                                 </div>
                             </div>
                         ))}

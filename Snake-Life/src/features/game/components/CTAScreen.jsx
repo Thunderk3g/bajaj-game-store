@@ -52,10 +52,10 @@ const CTAScreen = ({ onCalculate }) => {
             {/* Message Section */}
             <div className="text-center space-y-4 mb-10">
                 <h2 className="text-2xl font-black text-primary leading-tight">
-                    Calculate what your family actually needs to continue this life.
+                    Know the type of protection your family needs to sustain this lifestyle
                 </h2>
                 <p className="text-gray-600 font-medium">
-                    A simple conversation can protect everything you’re building.
+                    A simple conversation with our Relationship Manager can protect everything you're building
                 </p>
             </div>
 

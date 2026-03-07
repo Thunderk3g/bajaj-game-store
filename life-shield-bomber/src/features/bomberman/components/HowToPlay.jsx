@@ -26,32 +26,32 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
             iconBg: 'from-blue-400 to-blue-600',
             iconShadow: '#1e40af',
             glowColor: 'from-blue-500 to-cyan-500',
-            title: 'Move with Joystick',
-            desc: 'Drag the joystick to move. Walk over risk blocks to claim and secure them.',
+            title: 'Move & Collect',
+            desc: 'Drag the joystick to move. Walk over Power Rider blocks to claim them.',
         },
         {
             icon: <Shield className="text-white w-7 h-7 stroke-[3]" />,
             iconBg: 'from-blue-400 to-indigo-600',
             iconShadow: '#312e81',
             glowColor: 'from-blue-500 to-indigo-500',
-            title: 'Throw Shield at Threats',
-            desc: 'Tap the shield button to launch it at red monsters approaching you.',
+            title: 'Stay Protected',
+            desc: 'Each Power Rider grants immunity for one hit. Collect multiple to stack protection!',
         },
         {
             icon: <Shield className="text-white w-7 h-7 stroke-[3]" />,
             iconBg: 'from-emerald-400 to-emerald-600',
             iconShadow: '#065f46',
             glowColor: 'from-emerald-500 to-teal-500',
-            title: 'Guard Your Health',
-            desc: 'Avoid red monsters — they drain your health. You have 3 lives.',
+            title: 'Defeat Risks',
+            desc: 'Use shields to destroy monsters. With a Power Rider, your life remains intact when hit.',
         },
         {
             icon: <Clock className="text-white w-7 h-7 stroke-[3]" />,
             iconBg: 'from-amber-400 to-amber-600',
             iconShadow: '#92400e',
             glowColor: 'from-amber-500 to-orange-500',
-            title: '90 Seconds',
-            desc: 'Claim all financial risks to unlock the exit door before time runs out!',
+            title: 'Clear Mission',
+            desc: 'Collect all Power Riders to unlock the exit door before time runs out!',
         },
     ];
 
@@ -121,9 +121,8 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
                     </div>
                 </motion.div>
 
-                {/* Risk Types Legend */}
                 <motion.div variants={itemVariants} className="w-full mt-2">
-                    <h3 className="text-center text-blue-200/80 text-[0.825rem] font-bold uppercase tracking-[0.2em] mb-4">Risks to plan for</h3>
+                    <h3 className="text-center text-blue-200/80 text-[0.825rem] font-bold uppercase tracking-[0.2em] mb-4">Power Riders to find</h3>
                     <div className="grid grid-cols-2 gap-2 bg-[#0a1529]/50 p-4 rounded-md border border-white/5">
                         {[
                             { icon: '🏥', label: 'Medical Risk', color: '#EF4444' },

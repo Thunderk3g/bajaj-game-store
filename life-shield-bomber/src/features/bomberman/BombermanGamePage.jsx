@@ -38,6 +38,8 @@ function BombermanGamePage() {
         monsters,
         activePowerup,
         getCooldownProgress,
+        powerRiderCount,
+        isMissionComplete,
 
         movePlayer,
         placeBomb,
@@ -123,19 +125,35 @@ function BombermanGamePage() {
                         timeLeft={timeLeft}
                         health={health}
                         score={score}
+                        powerRiderCount={powerRiderCount}
                         onExit={exitGame}
                     />
 
-                    {/* Praise Popup Area (Fixed between HUD and Grid) */}
-                    <div className="w-full h-0 flex items-center justify-center relative z-20 pointer-events-none overflow-visible">
+                    {/* Praise Popup Area (Center-ish) */}
+                    <div className="w-full h-0 flex items-center justify-center relative z-40 pointer-events-none overflow-visible">
                         {activePraise && (
-                            <div className="absolute -top-3 animate-pop-in px-6 py-2 rounded-full bg-[#1e40af]/95 backdrop-blur-md border border-[#60A5FA] shadow-[0_0_15px_rgba(59,130,246,0.4)] whitespace-nowrap">
-                                <span className="font-display text-[0.65rem] sm:text-xs font-black text-white uppercase tracking-widest drop-shadow-[0_2px_1px_rgba(0,0,0,0.8)]">
+                            <div className="absolute top-24 animate-pop-in px-8 py-3 rounded-2xl bg-[#1e40af]/95 backdrop-blur-md border border-[#60A5FA] shadow-[0_0_25px_rgba(59,130,246,0.7)] text-center max-w-[85vw]">
+                                <span className="font-display text-base sm:text-lg font-black text-white uppercase tracking-[0.1em] drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] leading-tight block">
                                     {activePraise}
                                 </span>
                             </div>
                         )}
                     </div>
+
+                    {/* Persistent Top Prompt when unprotected (Premium Banner below HUD) */}
+                    {powerRiderCount === 0 && (
+                        <div className="absolute top-[75px] z-30 w-full flex justify-center pointer-events-none">
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-gradient-to-r from-blue-600/20 via-blue-500/40 to-blue-600/20 backdrop-blur-sm px-6 py-2 border-y border-blue-400/30 w-full text-center shadow-[0_4px_15px_rgba(30,58,138,0.3)]"
+                            >
+                                <p className="text-white text-[11px] sm:text-[13px] font-black uppercase tracking-[0.25em] animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+                                    Quickly grab your power riders
+                                </p>
+                            </motion.div>
+                        </div>
+                    )}
 
                     <div className="flex-1 flex items-center justify-center overflow-hidden">
                         <GameGrid
@@ -147,6 +165,7 @@ function BombermanGamePage() {
                             floatingScores={floatingScores}
                             activePraise={activePraise}
                             isInvulnerable={isInvulnerable}
+                            powerRiderCount={powerRiderCount}
                         />
                     </div>
 
@@ -197,6 +216,7 @@ function BombermanGamePage() {
                         health={health}
                         timeLeft={timeLeft}
                         score={score}
+                        isMissionComplete={isMissionComplete}
                         onBookSlot={handleBookSlot}
                         onShowThankYou={showThankYou}
                         onRestart={goToHowToPlay}

@@ -167,13 +167,13 @@ const ResultScreen = ({
                         Your <span className="font-black text-base sm:text-lg md:text-xl text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.8)]">Life Milestone</span> score is
                     </h2>
 
-                    {/* Speedometer */}
+                    {/* Speedometer - Reduced size via props to fix scrolling without shifting */}
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="inline-block transform scale-[0.85] origin-top sm:scale-90 mb-0"
+                        className="flex justify-center w-full"
                     >
-                        <Speedometer score={displayScore} />
+                        <Speedometer score={displayScore} size={260} height={220} />
                     </motion.div>
 
                     {/* View Exposed Areas Button */}
@@ -212,7 +212,7 @@ const ResultScreen = ({
                     className="bg-white p-3 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-2 shrink-0 rounded-sm"
                 >
                     <p className="text-slate-600 text-[11px] sm:text-sm font-bold text-center mb-2 leading-relaxed">
-                        To secure your milestones risk from real life risk, Connect with our relationship manager
+                        To secure your milestones from real life risk, Connect with our relationship manager
                     </p>
 
                     {/* Call Action */}
@@ -236,8 +236,15 @@ const ResultScreen = ({
                     </button>
                 </motion.div>
 
+                {/* Disclaimer */}
+                <div className="w-full px-4 mt-2 pb-2 opacity-60 shrink-0">
+                    <p className="text-[8px] sm:text-[10px] text-white/70 leading-tight text-center font-medium">
+                        <span className="font-bold text-white/90">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                    </p>
+                </div>
+
                 {/* Restart Option */}
-                <div className="shrink-0 text-center pb-2">
+                <div className="shrink-0 text-center pb-4">
                     <button
                         onClick={onRestart}
                         className="text-blue-100 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md"

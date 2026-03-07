@@ -60,42 +60,78 @@ const GameTile = memo(function GameTile({
     if (!tile || !tile.type) return <div style={{ width: cellSize, height: cellSize }} />;
 
     const style = TILE_STYLES[tile.type] || TILE_STYLES.GREEN;
-    const isSelectedClass = isSelected ? 'scale-95 ring-[3px] ring-white/80 ring-offset-2 ring-offset-bb-navy z-20 brightness-110' : '';
+    const isSelectedClass = isSelected ? 'scale-95 ring-[2px] ring-white/60 z-20 brightness-110 shadow-[0_0_20px_rgba(255,255,255,0.3)]' : '';
     const animClass = isExploding ? 'animate-tile-pop opacity-0' : '';
 
-    // Calculate internal dimensions
-    // Subtracting gap/padding relative to cell size if needed, 
-    // but parent grid handles gap. We fill the cell.
+    // Swipe Threshold
+    const SWIPE_THRESHOLD = 25;
+
+    const handlePanEnd = (event, info) => {
+        // Only process pan if there's a significant offset (mobile-style sliding)
+        const { offset } = info;
+        const absX = Math.abs(offset.x);
+        const absY = Math.abs(offset.y);
+
+        if (absX > SWIPE_THRESHOLD || absY > SWIPE_THRESHOLD) {
+            let targetRow = tile.row;
+            let targetCol = tile.col;
+
+            if (absX > absY) {
+                targetCol = offset.x > 0 ? tile.col + 1 : tile.col - 1;
+            } else {
+                targetRow = offset.y > 0 ? tile.row + 1 : tile.row - 1;
+            }
+
+            if (targetRow >= 0 && targetRow < 6 && targetCol >= 0 && targetCol < 6) {
+                onTap(targetRow, targetCol);
+            }
+        }
+    };
+
+    const handleClick = (e) => {
+        // Desktop / Tap selection
+        onTap(tile.row, tile.col);
+    };
 
     return (
         <motion.div
-            layoutId={tile.id} // Enable Framer Motion shared layout for smooth swaps? 
-            // Actually, standard CSS transform is lighter for 60fps game grid if possible, 
-            // but Framer's 'layout' prop is great for swaps. 
-            // Let's stick to standard prop-driven rendering for now to avoid overhead, unless 'layout' is needed.
-            // Re-using the CSS transition from index.css logic for perf.
-
+            layout
+            layoutId={tile.id}
+            onPanEnd={handlePanEnd}
+            onClick={handleClick}
+            whileTap={{ scale: 0.94 }}
             className={`relative flex items-center justify-center 
-        ${style.bg} ${style.shadow} ${isSelectedClass} ${animClass} 
-        tile-premium select-none active:scale-[0.85]`}
+                ${style.bg} ${style.shadow} ${isSelectedClass} ${animClass} 
+                tile-premium select-none touch-none`}
             style={{
                 width: cellSize,
                 height: cellSize,
-                // Override shadow for specific colors if needed
             }}
-            onClick={() => onTap(tile.row, tile.col)}
             initial={false}
-            animate={{ scale: isExploding ? 1.5 : 1, opacity: isExploding ? 0 : 1 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            animate={{
+                scale: isExploding ? 1 : 1,
+                opacity: isExploding ? 0 : 1,
+            }}
+            transition={{
+                type: 'spring',
+                stiffness: 500,
+                damping: 30,
+                mass: 0.8
+            }}
         >
+            {/* Gloss Highlight Overlay */}
+            <div className="absolute inset-x-1 top-1 h-[25%] bg-white/20 rounded-full blur-[1px] pointer-events-none" />
+
             {/* Icon content */}
-            <TileIcon type={tile.type} />
+            <div className="relative z-10 w-full h-full flex items-center justify-center p-[20%]">
+                <TileIcon type={tile.type} />
+            </div>
 
             {/* Selection Glow Overlay */}
             {isSelected && (
                 <motion.div
                     layoutId="select-glow"
-                    className="absolute inset-0 rounded-[14px] bg-white/20 animate-pulse"
+                    className="absolute inset-[-4px] rounded-[18px] bg-white/20 border-2 border-white/50 shadow-[0_0_15px_rgba(255,255,255,0.5)] z-[-1]"
                 />
             )}
         </motion.div>

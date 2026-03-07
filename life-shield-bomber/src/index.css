@@ -18,7 +18,10 @@ body,
   margin: 0;
   padding: 0;
   width: 100%;
+  height: 100dvh;
   min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
   overflow-x: hidden;
   background: radial-gradient(circle at 50% 30%, #0f2a55 0%, #081c3a 80%, #051421 100%);
   font-family: 'Inter', system-ui, sans-serif;
