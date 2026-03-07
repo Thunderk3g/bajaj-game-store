@@ -227,20 +227,28 @@ export default function LeadModal({
                         )}
 
                         {/* Terms Checkbox */}
-                        <div className={styles.termsRow}>
-                            <div className={styles.checkboxWrapper}>
-                                <input
-                                    id="terms"
-                                    type="checkbox"
-                                    checked={termsAccepted}
-                                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                                    className={styles.checkbox}
-                                />
-                                <Check className={styles.checkIcon} strokeWidth={4} />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '4px' }}>
+                            <div className={styles.termsRow}>
+                                <div
+                                    onClick={() => {
+                                        setTermsAccepted(!termsAccepted);
+                                        setErrors(prev => ({ ...prev, terms: null }));
+                                    }}
+                                    className={`${styles.customCheckboxBox} ${termsAccepted ? styles.customCheckboxBoxChecked : ''}`}
+                                >
+                                    {termsAccepted && <Check className={styles.customCheckboxIcon} strokeWidth={4} />}
+                                </div>
+                                <div className={styles.customCheckboxText}>
+                                    I agree to the{' '}
+                                    <button type="button" onClick={() => setShowTerms(true)} className={styles.termsLink}>
+                                        Terms & Conditions
+                                    </button>{' '}
+                                    and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                </div>
                             </div>
-                            <label htmlFor="terms" className={styles.termsLabel}>
-                                I agree to the <button type="button" onClick={() => setShowTerms(true)} className={styles.termsLink}>Term & condition</button> and Acknowledge the Privacy Policy.
-                            </label>
+                            {errors.terms && (
+                                <p className={styles.errorText} style={{ marginLeft: '4px' }}>{errors.terms}</p>
+                            )}
                         </div>
 
                         <button
@@ -271,24 +279,29 @@ export default function LeadModal({
                                 onClick={(e) => e.stopPropagation()}
                                 className={styles.termsModal}
                             >
-                                <button
-                                    onClick={() => setShowTerms(false)}
-                                    className={styles.closeBtn}
-                                    style={{ top: 12, right: 12 }}
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                                <h3 className={styles.termsTitle}>Terms & Conditions</h3>
-                                <div className={styles.termsContent}>
-                                    <p>BAJAJ LIFE INSURANCE</p>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam...</p>
+                                <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
+                                    <h3 className="text-[#0066B2] text-xl font-black uppercase tracking-tight">
+                                        Terms & Conditions
+                                    </h3>
+                                    <button
+                                        onClick={() => setShowTerms(false)}
+                                        className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
-                                    className={styles.agreeBtn}
-                                >
-                                    I Agree
-                                </button>
+                                <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
+                                    <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                                    <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.</p>
+                                </div>
+                                <div className="mt-6">
+                                    <button
+                                        onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
+                                        className="w-full mt-6 py-3 bg-[#0066B2] text-white font-bold rounded-lg hover:bg-blue-700 transition-colors text-sm uppercase tracking-wider"
+                                    >
+                                        I Agree
+                                    </button>
+                                </div>
                             </motion.div>
                         </div>
                     )}

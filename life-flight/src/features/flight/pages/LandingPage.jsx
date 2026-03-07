@@ -154,7 +154,7 @@ export default function LandingPage() {
 
     return (
         <motion.div
-            className="w-full flex-1 min-h-[100dvh] flex flex-col items-center justify-end pb-8 pt-8 relative overflow-hidden"
+            className="w-full h-full flex flex-col items-center justify-end relative overflow-hidden"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -167,7 +167,7 @@ export default function LandingPage() {
             }}
         >
             {/* ── Start Button ── */}
-            <motion.div variants={itemVariants} className="w-full max-w-sm z-10 px-8 text-center flex justify-center pb-8 mb-4">
+            <motion.div variants={itemVariants} className="w-full max-w-sm z-10 px-8 text-center flex justify-center absolute bottom-6 sm:bottom-10">
                 <button
                     onClick={handleStartClick}
                     className="w-[85%] py-4 rounded-full font-black text-white hover:scale-105 active:scale-95 transition-transform duration-200 uppercase tracking-widest shadow-2xl flex items-center justify-center gap-2"
@@ -273,24 +273,28 @@ export default function LandingPage() {
                                     )}
                                 </div>
 
-                                <div className="flex items-start gap-2 pt-2 text-left">
-                                    <div className="relative flex items-center shrink-0 pt-0.5">
-                                        <input
-                                            id="terms"
-                                            type="checkbox"
-                                            checked={termsAccepted}
-                                            onChange={(e) => setTermsAccepted(e.target.checked)}
-                                            className="peer h-5 w-5 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#00B4D8] checked:bg-[#00B4D8] hover:border-[#00B4D8]"
-                                        />
-                                        <Check className="pointer-events-none absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
+                                <div className="space-y-2 py-1">
+                                    <div className="flex items-start gap-3">
+                                        <div
+                                            onClick={() => {
+                                                setTermsAccepted(!termsAccepted);
+                                                setErrors(prev => ({ ...prev, terms: null }));
+                                            }}
+                                            className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${termsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : 'bg-white border-slate-300'}`}
+                                        >
+                                            {termsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
+                                        </div>
+                                        <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight text-left">
+                                            I agree to the{' '}
+                                            <button type="button" onClick={() => setShowTerms(true)} className="text-[#00B4D8] underline cursor-pointer hover:text-[#0090ac]">
+                                                Terms & Conditions
+                                            </button>{' '}
+                                            and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                        </div>
                                     </div>
-                                    <label htmlFor="terms" className="text-[11px] font-bold text-slate-500 leading-snug select-none pr-1">
-                                        I agree to the{' '}
-                                        <button type="button" onClick={() => setShowTerms(true)} className="text-[#00B4D8] hover:underline font-black inline">
-                                            Terms &amp; Conditions
-                                        </button>{' '}
-                                        and Privacy Policy.
-                                    </label>
+                                    {errors.terms && (
+                                        <p className="text-red-500 text-[9px] min-[375px]:text-[10px] font-black uppercase tracking-wider ml-1 text-left">{errors.terms}</p>
+                                    )}
                                 </div>
 
                                 <button
@@ -334,27 +338,29 @@ export default function LandingPage() {
                             onClick={(e) => e.stopPropagation()}
                             className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border-4 border-[#00B4D8] relative text-left"
                         >
-                            <button
-                                onClick={() => setShowTerms(false)}
-                                className="absolute top-4 right-4 p-1 text-slate-400 hover:text-slate-600 transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                            <h3 className="text-[#00B4D8] font-black text-xl uppercase mb-4 tracking-tight">Terms &amp; Conditions</h3>
-                            <div className="text-sm text-slate-600 space-y-3 font-semibold leading-relaxed max-h-[50vh] overflow-y-auto pr-3 custom-scrollbar">
-                                <p>
-                                    I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.
-                                </p>
-                                <p>
-                                    Please refer to BALIC Privacy Policy.
-                                </p>
+                            <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
+                                <h3 className="text-[#00B4D8] text-xl font-black uppercase tracking-tight">
+                                    Terms & Conditions
+                                </h3>
+                                <button
+                                    onClick={() => setShowTerms(false)}
+                                    className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
-                                className="w-full mt-6 py-3.5 bg-[#00B4D8] text-white font-black rounded-xl hover:bg-[#0077b6] transition-colors text-base uppercase tracking-widest shadow-lg"
-                            >
-                                I Agree
-                            </button>
+                            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
+                                <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                                <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#00B4D8] underline">BALIC Privacy Policy</a>.</p>
+                            </div>
+                            <div className="mt-6">
+                                <button
+                                    onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
+                                    className="w-full mt-6 py-3.5 bg-[#00B4D8] text-white font-black rounded-xl hover:bg-[#0077b6] transition-colors text-base uppercase tracking-widest shadow-lg"
+                                >
+                                    I Agree
+                                </button>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}

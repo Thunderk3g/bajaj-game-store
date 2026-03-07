@@ -220,25 +220,32 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
                     )}
 
                     {/* Terms */}
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginTop: 4 }}>
-                        <div
-                            onClick={() => setTermsAccepted(v => !v)}
-                            style={{
-                                width: 20, height: 20, borderRadius: 4,
-                                background: termsAccepted ? T.blue : T.white,
-                                border: `2px solid ${termsAccepted ? T.blue : T.border}`,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer', flexShrink: 0, marginTop: 2,
-                                transition: 'all 0.15s'
-                            }}
-                        >
-                            {termsAccepted && <Check size={14} color="#fff" strokeWidth={3} />}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                            <div
+                                onClick={() => {
+                                    setTermsAccepted(!termsAccepted);
+                                    setErrors(prev => ({ ...prev, terms: undefined }));
+                                }}
+                                style={{
+                                    width: 20, height: 20, borderRadius: 4,
+                                    background: termsAccepted ? T.blue : T.white,
+                                    border: `2px solid ${termsAccepted ? T.blue : T.border}`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    cursor: 'pointer', flexShrink: 0, marginTop: 2,
+                                    transition: 'all 0.15s'
+                                }}
+                            >
+                                {termsAccepted && <Check size={14} color="#fff" strokeWidth={3} />}
+                            </div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: T.text, lineHeight: 1.5, textAlign: 'left' }}>
+                                I agree to the{' '}
+                                <button type="button" onClick={() => setShowTerms(true)} style={{ background: 'none', border: 'none', color: T.blue, fontWeight: 700, fontSize: 13, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                                    Terms & Conditions
+                                </button>{' '}
+                                and allow Bajaj Life Insurance to contact me even if registered on DND.
+                            </div>
                         </div>
-                        <p style={{ fontSize: 13, color: T.muted, margin: 0, lineHeight: 1.5 }}>
-                            I agree to the{' '}
-                            <button type="button" onClick={() => setShowTerms(true)} style={{ background: 'none', border: 'none', color: T.blue, fontWeight: 700, fontSize: 13, cursor: 'pointer', padding: 0 }}>Term & condition</button>
-                            {' '}and Acknowledge the Privacy Policy.
-                        </p>
                     </div>
 
                     {/* Submit */}
@@ -273,12 +280,17 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
             {showTerms && (
                 <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
                     onClick={() => setShowTerms(false)}>
-                    <div style={{ background: T.white, borderRadius: 20, padding: 24, maxWidth: 340, width: '100%', maxHeight: '70vh', overflow: 'auto', position: 'relative' }}
+                    <div style={{ background: T.white, borderRadius: 20, padding: 24, maxWidth: 360, width: '100%', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                         onClick={e => e.stopPropagation()}>
-                        <button onClick={() => setShowTerms(false)} style={{ position: 'absolute', top: 12, right: 12, background: T.border, border: 'none', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'flex' }}><X size={16} /></button>
-                        <h3 style={{ fontSize: 16, fontWeight: 800, color: T.textBold, marginBottom: 12 }}>Terms & Conditions</h3>
-                        <p style={{ fontSize: 13, color: T.text, lineHeight: 1.7 }}>Bajaj Allianz Life Insurance Co. Ltd. By participating, you consent to being contacted by our advisors regarding insurance products. Your data is protected under our Privacy Policy and applicable laws.</p>
-                        <button onClick={() => { setShowTerms(false); setTermsAccepted(true); }} style={{ marginTop: 16, width: '100%', padding: '12px', background: T.blue, color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>I Agree</button>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `2px solid ${T.border}`, paddingBottom: 12, marginBottom: 16 }}>
+                            <h3 style={{ fontSize: 20, fontWeight: 900, color: T.blue, margin: 0, textTransform: 'uppercase' }}>Terms & Conditions</h3>
+                            <button onClick={() => setShowTerms(false)} style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', color: T.muted }}><X size={24} /></button>
+                        </div>
+                        <div style={{ fontSize: 14, color: T.text, lineHeight: 1.5, overflowY: 'auto', fontWeight: 700 }}>
+                            <p style={{ marginBottom: 12 }}>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                            <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" style={{ color: T.blue, textDecoration: 'underline' }}>BALIC Privacy Policy</a>.</p>
+                        </div>
+                        <button onClick={() => { setShowTerms(false); setTermsAccepted(true); }} style={{ marginTop: 24, width: '100%', padding: '14px', background: T.blue, color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 16, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}>I Agree</button>
                     </div>
                 </div>
             )}

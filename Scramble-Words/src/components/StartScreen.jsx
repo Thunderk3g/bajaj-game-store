@@ -237,24 +237,28 @@ export default function StartScreen({ onStart }) {
                                     </div>
 
                                     {/* Terms Checkbox — pre-checked by default */}
-                                    <div className="flex items-start space-x-3 pt-1 text-left">
-                                        <div className="relative flex items-center">
-                                            <input
-                                                id="terms"
-                                                type="checkbox"
-                                                checked={termsAccepted}
-                                                onChange={(e) => setTermsAccepted(e.target.checked)}
-                                                className="peer h-5 w-5 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2]"
-                                            />
-                                            <Check className="pointer-events-none absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
+                                    <div className="space-y-2 py-1">
+                                        <div className="flex items-start gap-3">
+                                            <div
+                                                onClick={() => {
+                                                    setTermsAccepted(!termsAccepted);
+                                                    setErrors(prev => ({ ...prev, terms: null }));
+                                                }}
+                                                className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${termsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-white border-slate-300'}`}
+                                            >
+                                                {termsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
+                                            </div>
+                                            <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight text-left">
+                                                I agree to the{' '}
+                                                <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]">
+                                                    Terms & Conditions
+                                                </button>{' '}
+                                                and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                            </div>
                                         </div>
-                                        <label htmlFor="terms" className="text-[10px] sm:text-xs font-semibold text-slate-500 leading-tight select-none">
-                                            I agree to the{' '}
-                                            <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] hover:underline font-bold inline">
-                                                Terms &amp; Conditions
-                                            </button>{' '}
-                                            and Acknowledge the Privacy Policy.
-                                        </label>
+                                        {errors.terms && (
+                                            <p className="text-red-500 text-[9px] min-[375px]:text-[10px] font-black uppercase tracking-wider ml-1 text-left">{errors.terms}</p>
+                                        )}
                                     </div>
 
                                     <button

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, Loader2 } from 'lucide-react';
+import { X, Check, Loader2 } from 'lucide-react';
 import Modal from '../../../components/ui/Modal';
 import { submitToLMS } from '../../../utils/api';
 import welcomeBg from '/assets/welcome_bg.png';
@@ -144,30 +144,28 @@ const IntroScreen = ({ onStart }) => {
                             {errors.phone && <p className="text-red-500 text-sm font-black ml-2">{errors.phone}</p>}
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                            <div className="flex items-start gap-3 cursor-pointer" onClick={() => {
-                                setIsTermsAccepted(!isTermsAccepted);
-                                setErrors(prev => ({ ...prev, terms: null }));
-                            }}>
-                                <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${isTermsAccepted ? 'bg-green-500 border-green-500' : 'border-slate-100 bg-gray-50'}`}>
-                                    {isTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
+                        <div className="space-y-2 py-1">
+                            <div className="flex items-start gap-3">
+                                <div
+                                    onClick={() => {
+                                        setIsTermsAccepted(!isTermsAccepted);
+                                        setErrors(prev => ({ ...prev, terms: null }));
+                                    }}
+                                    className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-white border-slate-300'}`}
+                                >
+                                    {isTermsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
                                 </div>
-                                <div className="text-xs text-gray-400 font-bold leading-tight">
-                                    I accept the{' '}
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setIsTermsOpen(true);
-                                        }}
-                                        className="text-blue-500 hover:underline"
-                                    >
+                                <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight text-left">
+                                    I agree to the{' '}
+                                    <button type="button" onClick={() => setIsTermsOpen(true)} className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]">
                                         Terms & Conditions
-                                    </button>
-                                    {' '}and acknowledge the privacy policy.
+                                    </button>{' '}
+                                    and allow Bajaj Life Insurance to contact me even if registered on DND.
                                 </div>
                             </div>
-                            {errors.terms && <p className="text-red-500 text-sm font-black ml-2">{errors.terms}</p>}
+                            {errors.terms && (
+                                <p className="text-red-500 text-[9px] min-[375px]:text-[10px] font-black uppercase tracking-wider ml-1 text-left">{errors.terms}</p>
+                            )}
                         </div>
 
                         {errors.submit && (
@@ -193,19 +191,28 @@ const IntroScreen = ({ onStart }) => {
             {/* Terms Modal */}
             <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
                 <div className="bg-white rounded-[32px] p-8 w-full shadow-2xl relative">
-                    <button
-                        onClick={() => setIsTermsOpen(false)}
-                        className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-
-                    <h2 className="text-2xl font-black text-gray-800 mb-6 tracking-tight">
-                        Terms & Conditions
-                    </h2>
-                    <div className="text-sm text-gray-500 font-bold space-y-4 max-h-[50vh] overflow-y-auto pr-2">
-                        <p>BAJAJ.</p>
-                        <p>Please refer to our <a href="#" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">Privacy Policy</a> for more details.</p>
+                    <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
+                        <h3 className="text-[#0066B2] text-xl font-black uppercase tracking-tight">
+                            Terms & Conditions
+                        </h3>
+                        <button
+                            onClick={() => setIsTermsOpen(false)}
+                            className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200 text-left">
+                        <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                        <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.</p>
+                    </div>
+                    <div className="mt-6">
+                        <button
+                            onClick={() => { setIsTermsOpen(false); setIsTermsAccepted(true); }}
+                            className="w-full mt-6 py-3 bg-[#0066B2] text-white font-bold rounded-lg hover:bg-blue-700 transition-colors text-sm uppercase tracking-wider"
+                        >
+                            I Agree
+                        </button>
                     </div>
                 </div>
             </Modal>
