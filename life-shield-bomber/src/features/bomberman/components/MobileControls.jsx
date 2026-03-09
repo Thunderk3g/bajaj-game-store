@@ -17,7 +17,8 @@ const MobileControls = memo(function MobileControls({ onMove, onAction, getCoold
     const isTouchingRef = useRef(false);
     const originRef = useRef({ x: 0, y: 0 });
     const currentDirRef = useRef(null);
-    const moveIntervalRef = useRef(null);
+    const moveFrameRef = useRef(null);
+    const lastMoveTimeRef = useRef(0);
     const [knobPos, setKnobPos] = useState({ x: 0, y: 0 });
     const [isActive, setIsActive] = useState(false);
     const [cooldown, setCooldown] = useState(1);
@@ -48,26 +49,32 @@ const MobileControls = memo(function MobileControls({ onMove, onAction, getCoold
     }, []);
 
     const startContinuousMove = useCallback((direction) => {
-        if (moveIntervalRef.current) clearInterval(moveIntervalRef.current);
+        if (moveFrameRef.current) cancelAnimationFrame(moveFrameRef.current);
         currentDirRef.current = direction;
         onMove(direction); // Fire immediately
-        moveIntervalRef.current = setInterval(() => {
+        lastMoveTimeRef.current = performance.now();
+
+        const loop = (time) => {
             if (currentDirRef.current) {
-                onMove(currentDirRef.current);
+                if (time - lastMoveTimeRef.current >= MOVE_INTERVAL) {
+                    onMove(currentDirRef.current);
+                    lastMoveTimeRef.current = time;
+                }
+                moveFrameRef.current = requestAnimationFrame(loop);
             }
-        }, MOVE_INTERVAL);
+        };
+        moveFrameRef.current = requestAnimationFrame(loop);
     }, [onMove]);
 
     const stopContinuousMove = useCallback(() => {
         currentDirRef.current = null;
-        if (moveIntervalRef.current) {
-            clearInterval(moveIntervalRef.current);
-            moveIntervalRef.current = null;
+        if (moveFrameRef.current) {
+            cancelAnimationFrame(moveFrameRef.current);
+            moveFrameRef.current = null;
         }
     }, []);
 
     const handlePointerDown = useCallback((e) => {
-        e.preventDefault();
         isTouchingRef.current = true;
         setIsActive(true);
 
@@ -80,7 +87,6 @@ const MobileControls = memo(function MobileControls({ onMove, onAction, getCoold
 
     const handlePointerMove = useCallback((e) => {
         if (!isTouchingRef.current) return;
-        e.preventDefault();
 
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -117,22 +123,21 @@ const MobileControls = memo(function MobileControls({ onMove, onAction, getCoold
         const onMove = (e) => handlePointerMove(e);
         const onUp = () => handlePointerUp();
 
-        window.addEventListener('touchmove', onMove, { passive: false });
-        window.addEventListener('touchend', onUp);
-        window.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup', onUp);
+        window.addEventListener('touchmove', onMove, { passive: true });
+        window.addEventListener('touchend', onUp, { passive: true });
+        window.addEventListener('mousemove', onMove, { passive: true });
+        window.addEventListener('mouseup', onUp, { passive: true });
 
         return () => {
             window.removeEventListener('touchmove', onMove);
             window.removeEventListener('touchend', onUp);
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onUp);
-            if (moveIntervalRef.current) clearInterval(moveIntervalRef.current);
+            if (moveFrameRef.current) cancelAnimationFrame(moveFrameRef.current);
         };
     }, [handlePointerMove, handlePointerUp]);
 
     const handleShieldTouch = useCallback((e) => {
-        e.preventDefault();
         onAction();
     }, [onAction]);
 

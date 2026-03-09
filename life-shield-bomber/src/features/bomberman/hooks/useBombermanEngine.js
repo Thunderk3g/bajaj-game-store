@@ -74,6 +74,8 @@ export function useBombermanEngine() {
     const multiShieldEndRef = useRef(0);
     const isPenetrationRef = useRef(false);
     const penetrationEndRef = useRef(0);
+    const frameCountRef = useRef(0);
+    const deltaRef = useRef(0);
 
     gridRef.current = grid;
     playerPosRef.current = playerPos;
@@ -85,6 +87,7 @@ export function useBombermanEngine() {
     // Sub-systems
     const {
         shields,
+        shieldsRef,
         fireShield,
         updateShields,
         getCooldownProgress,
@@ -182,6 +185,7 @@ export function useBombermanEngine() {
         if (!isPlayingRef.current) return;
         const delta = timestamp - lastTimeRef.current;
         lastTimeRef.current = timestamp;
+        deltaRef.current += delta;
 
         const now = Date.now();
         const isTimeFrozen = now < timeFreezeEndRef.current;
@@ -191,33 +195,37 @@ export function useBombermanEngine() {
             isPenetrationRef.current = false;
         }
 
-        // Shield only targets monsters — no risk block destruction
-        updateShields(
-            delta,
-            (monsterId) => {
-                // Find monster position before removing for floating score
-                const monster = monstersRef.current.find(m => m.id === monsterId);
-                const mRow = monster ? monster.row : playerPosRef.current.row;
-                const mCol = monster ? monster.col : playerPosRef.current.col;
+        frameCountRef.current++;
+        if (frameCountRef.current % 2 === 0) {
+            // Shield only targets monsters — no risk block destruction
+            updateShields(
+                deltaRef.current,
+                (monsterId) => {
+                    // Find monster position before removing for floating score
+                    const monster = monstersRef.current.find(m => m.id === monsterId);
+                    const mRow = monster ? monster.row : playerPosRef.current.row;
+                    const mCol = monster ? monster.col : playerPosRef.current.col;
 
-                removeMonster(monsterId);
-                setMonstersDefeated(prev => prev + 1);
-                setScore(prev => prev + MONSTER_SCORE);
-                addFloatingScore(`+${MONSTER_SCORE}`, mRow, mCol);
-                showPraise('Threat Neutralized!');
-            },
-            monstersRef,
-            isPenetrationRef.current
-        );
+                    removeMonster(monsterId);
+                    setMonstersDefeated(prev => prev + 1);
+                    setScore(prev => prev + MONSTER_SCORE);
+                    addFloatingScore(`+${MONSTER_SCORE}`, mRow, mCol);
+                    showPraise('Threat Neutralized!');
+                },
+                monstersRef,
+                isPenetrationRef.current
+            );
 
-        updateMonsters(
-            now,
-            playerPosRef.current,
-            isTimeFrozen,
-            () => handleDamage()
-        );
+            updateMonsters(
+                now,
+                playerPosRef.current,
+                isTimeFrozen,
+                () => handleDamage()
+            );
 
-        checkPowerupSpawn(now);
+            checkPowerupSpawn(now);
+            deltaRef.current = 0;
+        }
 
         gameLoopRef.current = requestAnimationFrame(gameLoop);
     }, [updateShields, updateMonsters, checkPowerupSpawn, handleDamage, removeMonster, addFloatingScore, showPraise]);
@@ -537,6 +545,10 @@ export function useBombermanEngine() {
         getCooldownProgress,
         powerRiderCount,
         isMissionComplete,
+
+        playerPosRef,
+        shieldsRef,
+        monstersRef,
 
         movePlayer,
         placeBomb: handleAction,

@@ -649,6 +649,14 @@ export const useGameEngine = () => {
         if (!canvasRef.current || isPausedRef.current) { if (!isPausedRef.current) animFrameRef.current = requestAnimationFrame(gameLoop); return; }
 
         const ctx = canvasRef.current.getContext('2d');
+        if (!ctx.__shadowPatched && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            ctx.__shadowPatched = true;
+            Object.defineProperty(ctx, 'shadowBlur', { get: () => 0, set: () => { } });
+            Object.defineProperty(ctx, 'shadowColor', { get: () => 'transparent', set: () => { } });
+            Object.defineProperty(ctx, 'shadowOffsetX', { get: () => 0, set: () => { } });
+            Object.defineProperty(ctx, 'shadowOffsetY', { get: () => 0, set: () => { } });
+        }
+
         if (!lastTimeRef.current) lastTimeRef.current = ts;
         // High fidelity 60FPS DT Smoothing
         let dt = (ts - lastTimeRef.current) / 1000;

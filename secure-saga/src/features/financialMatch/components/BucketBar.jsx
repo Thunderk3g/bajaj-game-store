@@ -75,7 +75,7 @@ const BucketBar = memo(function BucketBar({ buckets }) {
                                 {/* Label Container with Fixed Height to handle 1 vs 2 lines */}
                                 <div className="h-6 sm:h-7 w-full flex items-center justify-center">
                                     <span
-                                        className={`text-[0.52rem] sm:text-[0.58rem] font-bold uppercase tracking-widest text-center leading-[1.1] transition-colors ${isFull ? 'text-bb-gold drop-shadow-md' : 'text-blue-100/70'}`}
+                                        className={`text-[0.65rem] sm:text-[0.7rem] font-bold uppercase tracking-widest text-center leading-[1.1] transition-colors ${isFull ? 'text-bb-gold drop-shadow-md' : 'text-blue-100/70'}`}
                                     >
                                         {meta.label}
                                     </span>
@@ -116,7 +116,7 @@ const BucketBar = memo(function BucketBar({ buckets }) {
 
                                 {/* Percentage Text */}
                                 <div className="absolute bottom-1.5 inset-x-0 text-center z-10">
-                                    <span className="font-game text-xs sm:text-sm drop-shadow-md text-white">
+                                    <span className="font-game text-base sm:text-lg drop-shadow-md text-white">
                                         {pct}%
                                     </span>
                                 </div>

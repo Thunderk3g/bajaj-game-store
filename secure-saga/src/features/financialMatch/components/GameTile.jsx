@@ -55,6 +55,7 @@ const GameTile = memo(function GameTile({
     isSelected,
     isExploding,
     onTap,
+    onSwipe,
     cellSize
 }) {
     if (!tile || !tile.type) return <div style={{ width: cellSize, height: cellSize }} />;
@@ -83,7 +84,7 @@ const GameTile = memo(function GameTile({
             }
 
             if (targetRow >= 0 && targetRow < 6 && targetCol >= 0 && targetCol < 6) {
-                onTap(targetRow, targetCol);
+                if (onSwipe) onSwipe(tile.row, tile.col, targetRow, targetCol);
             }
         }
     };
@@ -143,6 +144,7 @@ GameTile.propTypes = {
     isSelected: PropTypes.bool,
     isExploding: PropTypes.bool,
     onTap: PropTypes.func.isRequired,
+    onSwipe: PropTypes.func,
     cellSize: PropTypes.number.isRequired,
 };
 

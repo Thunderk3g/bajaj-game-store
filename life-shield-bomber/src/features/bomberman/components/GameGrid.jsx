@@ -81,6 +81,9 @@ const GameGrid = memo(function GameGrid({
     activePraise,
     isInvulnerable,
     powerRiderCount,
+    playerPosRef,
+    shieldsRef,
+    monstersRef,
 }) {
     const gridContainerRef = useRef(null);
     const [gridRect, setGridRect] = useState(null);
@@ -94,9 +97,46 @@ const GameGrid = memo(function GameGrid({
             }
         };
         measure();
-        window.addEventListener('resize', measure);
-        return () => window.removeEventListener('resize', measure);
+
+        let timeout;
+        const debouncedMeasure = () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(measure, 100);
+        };
+        window.addEventListener('resize', debouncedMeasure, { passive: true });
+        return () => {
+            window.removeEventListener('resize', debouncedMeasure);
+            clearTimeout(timeout);
+        };
     }, []);
+
+    const cellSize = gridRect ? gridRect.width / GRID_SIZE : 0;
+
+    // Direct DOM manipulation frame loop for high performance
+    useEffect(() => {
+        let frame;
+        const renderLoop = () => {
+            if (cellSize <= 0) {
+                frame = requestAnimationFrame(renderLoop);
+                return;
+            }
+            if (shieldsRef && shieldsRef.current) {
+                shieldsRef.current.forEach(sh => {
+                    const el = document.getElementById(sh.id);
+                    if (el) el.style.transform = `translate3d(${sh.col * cellSize}px, ${sh.row * cellSize}px, 0)`;
+                });
+            }
+            if (monstersRef && monstersRef.current) {
+                monstersRef.current.forEach(m => {
+                    const el = document.getElementById(m.id);
+                    if (el) el.style.transform = `translate3d(${m.col * cellSize}px, ${m.row * cellSize}px, 0)`;
+                });
+            }
+            frame = requestAnimationFrame(renderLoop);
+        };
+        frame = requestAnimationFrame(renderLoop);
+        return () => cancelAnimationFrame(frame);
+    }, [cellSize, shieldsRef, monstersRef]);
 
     const getCellClass = (cell) => {
         switch (cell.type) {
@@ -107,7 +147,6 @@ const GameGrid = memo(function GameGrid({
         }
     };
 
-    const cellSize = gridRect ? gridRect.width / GRID_SIZE : 0;
 
     return (
         <div className="relative w-full max-w-[30rem] mx-auto px-4 py-6">
@@ -136,6 +175,7 @@ const GameGrid = memo(function GameGrid({
                                 key={`${r}-${c}`}
                                 className={`grid-cell ${getCellClass(cell)}`}
                                 style={{
+                                    willChange: 'transform',
                                     border: '1px solid rgba(255,255,255,0.05)',
                                 }}
                             >
@@ -178,8 +218,9 @@ const GameGrid = memo(function GameGrid({
                 {/* Shields */}
                 {cellSize > 0 && shields.map(sh => (
                     <div
+                        id={sh.id}
                         key={sh.id}
-                        className="absolute z-30 pointer-events-none transition-transform duration-200 ease-out will-change-transform"
+                        className="absolute z-30 pointer-events-none will-change-transform"
                         style={{
                             width: cellSize,
                             height: cellSize,
@@ -234,8 +275,9 @@ const GameGrid = memo(function GameGrid({
                 {/* Monsters */}
                 {cellSize > 0 && monsters.map(monster => (
                     <div
+                        id={monster.id}
                         key={monster.id}
-                        className="absolute z-20 pointer-events-none transition-transform duration-300 ease-out will-change-transform"
+                        className="absolute z-20 pointer-events-none will-change-transform"
                         style={{
                             width: cellSize,
                             height: cellSize,
@@ -288,6 +330,9 @@ GameGrid.propTypes = {
     activePraise: PropTypes.string,
     isInvulnerable: PropTypes.bool,
     powerRiderCount: PropTypes.number,
+    playerPosRef: PropTypes.object,
+    shieldsRef: PropTypes.object,
+    monstersRef: PropTypes.object,
 };
 
 export default GameGrid;

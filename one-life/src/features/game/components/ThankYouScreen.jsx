@@ -11,7 +11,7 @@ const ThankYouScreen = ({ leadName }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] flex flex-col items-center justify-center p-6 text-center overflow-hidden"
+            className="fixed inset-0 z-[120] flex flex-col items-center justify-center p-6 text-center min-h-[100dvh] overflow-y-auto overflow-x-hidden"
             style={{ background: 'linear-gradient(180deg, #00509E 0%, #003366 100%)' }}
         >
             {/* Background Glow */}
