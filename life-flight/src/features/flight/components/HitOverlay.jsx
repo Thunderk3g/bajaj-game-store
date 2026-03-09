@@ -31,7 +31,7 @@ export default function HitOverlay({ hurdle, livesLeft, onRetry }) {
                         <span style={{ fontSize: 28 }}>💥</span>
                         <div>
                             <p className="font-black" style={{ fontSize: 16, color: hurdle?.color || '#E63946' }}>
-                                You hit {hurdle?.name || 'a Hurdle'}
+                                 {hurdle?.name || 'a Hurdle'} Alert!
                             </p>
                             <p className="font-semibold" style={{ fontSize: 12, color: '#6B7280' }}>
                                 {hurdle?.cost || ''}

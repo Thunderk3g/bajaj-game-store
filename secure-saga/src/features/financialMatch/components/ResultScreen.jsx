@@ -28,19 +28,19 @@ const ResultScreen = ({
             return {
                 headline: "Your Life Goals Need Stronger Planning",
                 message: "“You’ve secured less than half of your life goals. Start planning today to build stronger financial protection.”",
-                cta: "Talk to a Relationship Manager to start building a stronger financial plan for your life goals."
+                cta: "Turn Your Life Goals into Reality with Us!"
             };
         } else if (score <= 70) {
             return {
                 headline: "You’re On The Right Path",
                 message: "“You’re on your way, but some life goals still need stronger planning.”",
-                cta: "Connect with a Relationship Manager to strengthen your plan and secure your life goals."
+                cta: "Turn Your Life Goals into Reality with Us!"
             };
         } else {
             return {
                 headline: "You’re On The Right Path",
                 message: "“Great progress! You’re well on track to securing your life goals.”",
-                cta: "Connect with a Relationship Manager to keep your goals protected."
+                cta: "Turn Your Life Goals into Reality with Us!"
             };
         }
     };

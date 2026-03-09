@@ -40,6 +40,9 @@ function BombermanGamePage() {
         getCooldownProgress,
         powerRiderCount,
         isMissionComplete,
+        playerPosRef,
+        shieldsRef,
+        monstersRef,
 
         movePlayer,
         placeBomb,
@@ -166,6 +169,9 @@ function BombermanGamePage() {
                             activePraise={activePraise}
                             isInvulnerable={isInvulnerable}
                             powerRiderCount={powerRiderCount}
+                            playerPosRef={playerPosRef}
+                            shieldsRef={shieldsRef}
+                            monstersRef={monstersRef}
                         />
                     </div>
 

@@ -56,30 +56,29 @@ export function useShieldSystem(gridRef) {
         const tilesMoved = (deltaMs / 1000) * SHIELD_SPEED;
         const currentGrid = gridRef.current;
 
+        let removed = false;
         shieldsRef.current = shieldsRef.current.filter(sh => {
-            if (!sh.active) return false;
+            if (!sh.active) { removed = true; return false; }
 
             sh.row += sh.dir.row * tilesMoved;
             sh.col += sh.dir.col * tilesMoved;
             sh.distance += Math.abs(sh.dir.row * tilesMoved) + Math.abs(sh.dir.col * tilesMoved);
 
-            if (sh.distance >= MAX_DISTANCE) return false;
+            if (sh.distance >= MAX_DISTANCE) { removed = true; return false; }
 
             const currRow = Math.round(sh.row);
             const currCol = Math.round(sh.col);
 
             // Boundary check
             if (currRow < 0 || currRow >= currentGrid.length || currCol < 0 || currCol >= currentGrid[0].length) {
+                removed = true;
                 return false;
             }
 
             const targetCell = currentGrid[currRow][currCol];
 
             // Stop on walls only
-            if (targetCell.type === CELL_TYPES.WALL) return false;
-
-            // Shield passes THROUGH risk blocks — does NOT destroy them
-            // Risk blocks are claimed by walking over them
+            if (targetCell.type === CELL_TYPES.WALL) { removed = true; return false; }
 
             // Check monster collision
             if (monstersRef.current) {
@@ -89,14 +88,17 @@ export function useShieldSystem(gridRef) {
 
                 if (hitMonster) {
                     onHitMonster(hitMonster.id);
-                    return isPenetration ? true : false;
+                    if (!isPenetration) { removed = true; return false; }
+                    return true;
                 }
             }
 
             return true;
         });
 
-        setShields([...shieldsRef.current]);
+        if (removed) {
+            setShields([...shieldsRef.current]);
+        }
     }, [gridRef]);
 
     const getCooldownProgress = useCallback(() => {

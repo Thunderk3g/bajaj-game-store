@@ -14,6 +14,7 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
         date: '',
         timeSlot: ''
     });
+    const [bookingError, setBookingError] = useState('');
 
     const today = new Date().toISOString().split("T")[0];
 
@@ -42,6 +43,13 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
 
     const handleBookingSubmit = async (e) => {
         e.preventDefault();
+        setBookingError('');
+
+        if (bookingData.date < today) {
+            setBookingError('Please select a valid future date.');
+            return;
+        }
+
         setIsSubmitting(true);
         const result = await onBookSlot({ ...bookingData, summary_dtls: 'One Life - Appointment' });
         setIsSubmitting(false);
@@ -52,14 +60,14 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
     };
 
     return (
-        <div className="w-full h-[100dvh] flex flex-col items-center relative bg-gradient-to-b from-[#00509E] to-[#003366] overflow-hidden">
+        <div className="w-full min-h-[100dvh] h-full flex flex-col items-center relative bg-gradient-to-b from-[#00509E] to-[#003366] overflow-y-auto overflow-x-hidden">
             {/* Header Share Button Support */}
             <button onClick={handleShare} className="absolute top-4 right-4 z-50 text-white p-2">
                 <Share2 className="w-6 h-6" />
             </button>
 
             {/* Flexible Single Screen Container */}
-            <div className="w-full max-w-[420px] mx-auto h-full flex flex-col px-5 py-4 safe-p-top safe-p-bottom justify-between">
+            <div className="w-full max-w-[420px] mx-auto min-h-full flex flex-col px-5 py-4 safe-p-top safe-p-bottom justify-between">
 
                 {/* 1. Header Section */}
                 <header className="flex flex-col items-center text-center pt-2">
@@ -82,10 +90,10 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
 
                     <div className="mt-4 flex flex-col items-center text-center space-y-1.5 px-2">
                         <p className="text-[#FFEBB7] text-xs sm:text-sm font-black italic uppercase tracking-tight">
-                            But you lost an unexcepted event
+                            But you lost to an unexcepted event
                         </p>
                         <p className="text-white text-sm sm:text-[15px] font-black leading-tight max-w-[320px] italic">
-                            "the best time to protect the family was yesterday. the second best time is now"
+                            "The best time to protect the family was yesterday. The second best time is NOW!"
                         </p>
                     </div>
 
@@ -146,22 +154,23 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                     <button onClick={() => setIsBookingOpen(false)} className="absolute right-4 top-4 text-slate-400 p-1"><X className="w-5 h-5" /></button>
                     <h2 className="text-[#0066B2] font-black text-center mb-6 uppercase text-base tracking-widest">Book a Slot</h2>
                     <form onSubmit={handleBookingSubmit} className="space-y-4">
+                        {bookingError && <p className="text-red-500 text-xs font-bold text-center uppercase tracking-wider">{bookingError}</p>}
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Name</label>
-                            <input value={bookingData.name} onChange={e => setBookingData(p => ({ ...p, name: e.target.value }))} className="w-full bg-slate-50 h-10 border-2 border-slate-100 text-sm font-bold px-4 rounded-lg outline-none" />
+                            <input value={bookingData.name} onChange={e => setBookingData(p => ({ ...p, name: e.target.value }))} className="w-full bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-sm font-bold px-4 rounded-lg outline-none" />
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Mobile</label>
-                            <input type="tel" value={bookingData.mobile_no} onChange={e => setBookingData(p => ({ ...p, mobile_no: e.target.value.replace(/\D/g, '').slice(0, 10) }))} className="w-full bg-slate-50 h-10 border-2 border-slate-100 text-sm font-bold px-4 rounded-lg outline-none" />
+                            <input type="tel" value={bookingData.mobile_no} onChange={e => setBookingData(p => ({ ...p, mobile_no: e.target.value.replace(/\D/g, '').slice(0, 10) }))} className="w-full bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-sm font-bold px-4 rounded-lg outline-none" />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <input type="date" min={today} value={bookingData.date} onChange={e => setBookingData(p => ({ ...p, date: e.target.value }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-xs font-bold px-2 rounded-lg outline-none" />
-                            <select value={bookingData.timeSlot} onChange={e => setBookingData(p => ({ ...p, timeSlot: e.target.value }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-xs font-bold px-2 rounded-lg outline-none">
-                                <option value="">Select Time</option>
-                                {timeSlots.map(s => <option key={s} value={s}>{s}</option>)}
+                            <input type="date" min={today} value={bookingData.date} onChange={e => setBookingData(p => ({ ...p, date: e.target.value, bookingError: '' }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none" />
+                            <select value={bookingData.timeSlot} onChange={e => setBookingData(p => ({ ...p, timeSlot: e.target.value }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none">
+                                <option value="" className="text-black">Select Time</option>
+                                {timeSlots.map(s => <option key={s} value={s} className="text-black">{s}</option>)}
                             </select>
                         </div>
-                        <button type="submit" disabled={isSubmitting} className="w-full bg-[#FF8C00] text-white font-black py-4 shadow-[0_5px_0_#993D00] active:translate-y-1 transition-all uppercase tracking-widest text-sm mt-2 rounded-lg">
+                        <button type="submit" disabled={isSubmitting || !bookingData.date || !bookingData.timeSlot || bookingData.mobile_no.length !== 10} className="w-full bg-[#FF8C00] text-white font-black py-4 shadow-[0_5px_0_#993D00] active:translate-y-1 transition-all uppercase tracking-widest text-sm mt-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
                             {isSubmitting ? '...' : 'Confirm Slot'}
                         </button>
                     </form>

@@ -98,9 +98,8 @@ export function useMonsterSystem(gridRef) {
                 }
             });
 
-            if (changed) {
-                setMonsters([...monstersRef.current]);
-            }
+            // We don't trigger setMonsters here to avoid re-rendering React on every mobile movement.
+            // GameGrid will handle direct DOM transforms via refs.
         }
     }, [gridRef]);
 

@@ -50,12 +50,12 @@ export const HURDLES = [
     },
     {
         id: 'accident-disability',
-        name: 'Accident Disability',
+        name: 'Accidental Disability',
         cost: 'Rs.8–20 Lakhs',
         color: '#F4A261',
         tooltip: 'Disability can halt income for months or permanently.',
         hitMessage:
-            'An accident disability can cost Rs8-20 lacs and lead to loss of income. Protect your future with an Accident Disability rider',
+            'An accident disability can cost Rs8-20 lacs and lead to loss of income. Protect your future with an Accidental Disability rider',
     },
     {
         id: 'child-education',

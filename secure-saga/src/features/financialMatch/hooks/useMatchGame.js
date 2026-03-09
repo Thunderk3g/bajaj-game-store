@@ -264,6 +264,36 @@ export function useMatchGame() {
         [state.isProcessing, state.gameStatus, state.selectedCell, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
+    // ── Cell Swipe Logic (Candy Crush Style) ───────────────────────────
+    const handleCellSwipe = useCallback(
+        (r1, c1, r2, c2) => {
+            if (state.isProcessing || state.gameStatus !== GAME_PHASES.PLAYING) return;
+            const { grid } = state;
+
+            const isAdjacent = (Math.abs(r1 - r2) === 1 && c1 === c2) || (Math.abs(c1 - c2) === 1 && r1 === r2);
+            if (!isAdjacent) return;
+
+            const isValid = wouldCreateMatch(grid, r1, c1, r2, c2);
+
+            if (!isValid) {
+                dispatch({ type: A.APPLY_INVALID_SWAP });
+                return;
+            }
+
+            playSound('swap');
+            dispatch({ type: A.SET_PROCESSING, payload: true });
+
+            const newGrid = grid.map((r) => r.map((c) => ({ ...c })));
+            const a = { ...newGrid[r1][c1] };
+            const b = { ...newGrid[r2][c2] };
+            newGrid[r1][c1] = { ...b, row: r1, col: c1 };
+            newGrid[r2][c2] = { ...a, row: r2, col: c2 };
+
+            resolveChain(newGrid);
+        },
+        [state.isProcessing, state.gameStatus, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
+    );
+
     // ── Chain Resolution (Async) ────────────────────────────────────
     const resolveChain = useCallback(
         async (swappedGrid) => {
@@ -405,6 +435,7 @@ export function useMatchGame() {
         handleEntrySubmit,
         startGame,
         handleCellTap,
+        handleCellSwipe,
         exitGame,
         restartGame,
         showThankYou,

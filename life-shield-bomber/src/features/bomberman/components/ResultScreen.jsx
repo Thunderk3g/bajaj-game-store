@@ -21,13 +21,13 @@ const ResultScreen = memo(function ResultScreen({
     entryDetails,
 }) {
     const outcome = isMissionComplete ? {
-        message: "You defeated life’s risks with the help of Power Riders.",
+        message: "You defeated life’s risks with the help of Power Riders",
         subMessage: "In real life, as well, you can overcome life risks with proper financial planning",
-        ctaText: "Discover the riders that can protect your real-life goals. Talk to a Relationship Manager."
+        ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
     } : {
-        message: "You didn’t have enough Power Riders to overcome life’s risks.",
-        subMessage: "In games you get another try — in life you don't.",
-        ctaText: "Protect your life goals. Talk to a Relationship Manager."
+        message: "You didn’t have enough Power Riders to overcome life’s risks",
+        subMessage: "In games, you get another try\nin life you don't",
+        ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
     };
     const [showBooking, setShowBooking] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -141,7 +141,7 @@ const ResultScreen = memo(function ResultScreen({
                         <h2 className="text-white text-[18px] sm:text-[22px] font-display font-black leading-tight mb-3 uppercase tracking-tight drop-shadow-lg max-w-[340px] mx-auto">
                             {outcome.message}
                         </h2>
-                        <p className="text-blue-100 font-display text-[11px] sm:text-[13px] font-medium italic leading-relaxed max-w-[280px] mx-auto opacity-80 border-t border-white/10 pt-3">
+                        <p className="whitespace-pre-line text-[#2a8ad1] drop-shadow-md font-display text-[22px] sm:text-[24px] font-black italic leading-relaxed max-w-[400px] mx-auto opacity-100 border-t border-white/10 pt-3 mt-1">
                             {outcome.subMessage}
                         </p>
                     </motion.div>

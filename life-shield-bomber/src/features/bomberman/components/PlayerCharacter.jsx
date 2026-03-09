@@ -8,9 +8,9 @@ import PropTypes from 'prop-types';
 
 const PlayerCharacter = memo(function PlayerCharacter({ isDamaged, powerRiderCount }) {
     return (
-        <div className={`relative w-full h-full flex items-center justify-center player-character-container ${isDamaged ? 'animate-pulse opacity-70' : ''}`}>
+        <div className={`relative w-full h-full flex items-center justify-center player-character-container will-change-transform ${isDamaged ? 'animate-pulse opacity-70' : ''}`}>
             {/* Subtle grounding shadow */}
-            <div className={`absolute bottom-1 w-7 h-2 bg-black/40 blur-[4px] rounded-full scale-x-110 ${powerRiderCount > 0 ? 'shadow-[0_0_15px_rgba(59,130,246,0.8)]' : ''}`} />
+            <div className={`absolute bottom-1 w-7 h-2 bg-black/40 blur-[4px] rounded-full scale-x-110 will-change-transform ${powerRiderCount > 0 ? 'shadow-[0_0_15px_rgba(59,130,246,0.8)]' : ''}`} />
 
             {/* Power Rider Aura Glow */}
             {powerRiderCount > 0 && (

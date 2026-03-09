@@ -202,8 +202,8 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                     transition={{ delay: 0.3 }}
                     className="contact-box bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-3 shrink-0"
                 >
-                    <p className="text-slate-600 text-[10px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
-                        To Know more about insurance and savings products Connect with our Relationship Manager
+                    <p className="text-slate-600 text-[15px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
+                        Want to achieve your LIFE GOALS in Real Life? 
                     </p>
 
                     {/* Call Action */}

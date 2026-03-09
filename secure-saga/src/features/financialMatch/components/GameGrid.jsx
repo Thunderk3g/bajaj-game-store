@@ -11,6 +11,7 @@ const GameGrid = memo(function GameGrid({
     floatingScores,
     activePraise,
     onCellTap,
+    onCellSwipe,
 }) {
     const containerRef = useRef(null);
     // Use a stable, fixed cell size for typical mobile widths to prevent shifting
@@ -22,6 +23,11 @@ const GameGrid = memo(function GameGrid({
     const handleTap = useCallback(
         (row, col) => onCellTap(row, col),
         [onCellTap]
+    );
+
+    const handleSwipe = useCallback(
+        (fromRow, fromCol, targetRow, targetCol) => onCellSwipe(fromRow, fromCol, targetRow, targetCol),
+        [onCellSwipe]
     );
 
     const tiles = useMemo(() => {
@@ -43,6 +49,7 @@ const GameGrid = memo(function GameGrid({
                         isSelected={isSelected}
                         isExploding={isExploding}
                         onTap={handleTap}
+                        onSwipe={handleSwipe}
                         cellSize={cellSize}
                     />
                 );
@@ -159,6 +166,7 @@ GameGrid.propTypes = {
     floatingScores: PropTypes.array.isRequired,
     activePraise: PropTypes.string,
     onCellTap: PropTypes.func.isRequired,
+    onCellSwipe: PropTypes.func.isRequired,
 };
 
 export default GameGrid;

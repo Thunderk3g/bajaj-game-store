@@ -36,6 +36,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
         handleEntrySubmit,
         startGame,
         handleCellTap,
+        handleCellSwipe,
         exitGame,
         restartGame,
         showThankYou,
@@ -88,7 +89,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
             alertTimeoutRef.current = setTimeout(() => {
                 setAlertMessage(null);
                 setAlertColor(null);
-            }, 4000);
+            }, 5000);
         }
         prevBucketsRef.current = { ...buckets };
     }, [activePraise, buckets]);
@@ -97,7 +98,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
     useEffect(() => {
         if (gameStatus !== GAME_PHASES.PLAYING) return;
 
-        if (state.idleSeconds >= 4 && !alertMessage) {
+        if (state.idleSeconds >= 6 && !alertMessage) {
             const msg = URGENCY_MESSAGES[Math.floor(Math.random() * URGENCY_MESSAGES.length)];
             setAlertMessage(`⚡ ${msg}`);
             setAlertColor('rgba(239, 68, 68, 0.4)');
@@ -106,7 +107,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
             alertTimeoutRef.current = setTimeout(() => {
                 setAlertMessage(null);
                 setAlertColor(null);
-            }, 3000);
+            }, 5000);
         }
     }, [state.idleSeconds, gameStatus]);
 
@@ -279,6 +280,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                                 floatingScores={floatingScores}
                                 activePraise={activePraise}
                                 onCellTap={handleCellTap}
+                                onCellSwipe={handleCellSwipe}
                             />
                         </div>
 
