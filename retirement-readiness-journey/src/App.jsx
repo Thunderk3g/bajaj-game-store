@@ -39,10 +39,21 @@ const App = () => {
         }
     };
 
-
-    const isIntro = currentStep.id === JOURNEY_STEPS.INTRO;
-    const isResults = currentStep.id === JOURNEY_STEPS.RESULTS;
-    const progress = isIntro ? 0 : isResults ? 100 : ((currentStepIndex + 1) / totalSteps) * 100;
+    const isStepValid = () => {
+        switch (currentStep.id) {
+            case JOURNEY_STEPS.SCENARIO:
+            case JOURNEY_STEPS.LIFESTYLE:
+                return !!selections[currentStep.id];
+            case JOURNEY_STEPS.ESSENTIALS:
+            case JOURNEY_STEPS.ENGINE:
+                return (selections[currentStep.id] || []).length > 0;
+            case JOURNEY_STEPS.SURPRISES:
+                const surpriseSelections = selections[currentStep.id] || {};
+                return Object.keys(surpriseSelections).length === 3;
+            default:
+                return true;
+        }
+    };
 
     return (
         <div
@@ -103,12 +114,7 @@ const App = () => {
                         <Button
                             onClick={actions.goToNextStep}
                             className="flex-[2] h-[3.5rem] bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20"
-                            disabled={
-                                (currentStep.id === JOURNEY_STEPS.SCENARIO || currentStep.id === JOURNEY_STEPS.LIFESTYLE)
-                                    ? !selections[currentStep.id]
-                                    : false
-                            }
-
+                            disabled={!isStepValid()}
                         >
                             NEXT
                         </Button>

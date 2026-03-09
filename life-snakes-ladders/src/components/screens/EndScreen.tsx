@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trophy, Shield, AlertTriangle, Share2 } from 'lucide-react';
+import { Trophy, Shield, AlertTriangle, Share2, X } from 'lucide-react';
 import LeadModal from '../modals/LeadModal';
 interface EndScreenProps {
     hasShield: boolean;
@@ -108,65 +108,142 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, playerName, playerMobi
                     : "Luck may save you in a game, but real life needs protection"}
             </p>
 
-            {/* Stats Dropdown */}
+            {/* Stats Button */}
             {stats && (
-                <div style={{ width: '100%', maxWidth: 400, marginBottom: 24, background: 'rgba(255,255,255,0.05)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden' }}>
-                    <button
-                        onClick={() => setIsStatsOpen(!isStatsOpen)}
-                        style={{ width: '100%', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'transparent', border: 'none', color: T.white, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
-                    >
-                        <span>View Your Game Stats</span>
-                        <span style={{ transform: isStatsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }}>▼</span>
-                    </button>
-                    <div style={{ height: isStatsOpen ? 'auto' : 0, overflow: 'hidden', transition: 'max-height 0.3s ease-out' }}>
-                        <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <button
+                    onClick={() => setIsStatsOpen(true)}
+                    style={{
+                        width: '100%',
+                        maxWidth: 400,
+                        padding: '16px',
+                        marginBottom: 24,
+                        background: 'rgba(255,255,255,0.05)',
+                        borderRadius: 12,
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        color: T.white,
+                        fontSize: 15,
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                    }}
+                >
+                    <span>View Your Game Stats</span>
+                    <span>📊</span>
+                </button>
+            )}
 
+            {/* Stats Modal */}
+            {isStatsOpen && stats && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    background: 'rgba(0,0,0,0.85)',
+                    backdropFilter: 'blur(8px)',
+                    zIndex: 100,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px'
+                }}>
+                    <div style={{
+                        width: '100%',
+                        maxWidth: 400,
+                        background: '#1a2342', // Match board dark theme
+                        borderRadius: '24px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        padding: '24px',
+                        position: 'relative',
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                        maxHeight: '80vh',
+                        overflowY: 'auto'
+                    }}>
+                        <button
+                            onClick={() => setIsStatsOpen(false)}
+                            style={{
+                                position: 'absolute',
+                                top: 16,
+                                right: 16,
+                                background: 'rgba(255,255,255,0.1)',
+                                border: 'none',
+                                borderRadius: '50%',
+                                padding: '8px',
+                                cursor: 'pointer',
+                                color: T.white
+                            }}
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 20, textAlign: 'center' }}>Game Recap</h2>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                             {/* Snakes Avoided */}
-                            <div style={{ background: 'rgba(56, 189, 248, 0.08)', borderRadius: 10, borderLeft: '4px solid #38BDF8', padding: '12px 14px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: stats.snakesAvoided.length > 0 ? 8 : 0 }}>
-                                    <span style={{ color: '#E0F2FE', fontSize: 14, fontWeight: 700 }}>🛡️ Snakes Avoided</span>
-                                    <span style={{ color: '#bae6fd', fontSize: 16, fontWeight: 800 }}>{stats.snakesAvoided.length}</span>
+                            <div style={{ background: 'rgba(56, 189, 248, 0.08)', borderRadius: 12, borderLeft: '4px solid #38BDF8', padding: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: stats.snakesAvoided.length > 0 ? 12 : 0 }}>
+                                    <span style={{ color: '#E0F2FE', fontSize: 16, fontWeight: 700 }}>🛡️ Snakes Avoided</span>
+                                    <span style={{ color: '#bae6fd', fontSize: 20, fontWeight: 800 }}>{stats.snakesAvoided.length}</span>
                                 </div>
                                 {stats.snakesAvoided.length > 0 && (
-                                    <ul style={{ margin: 0, padding: '0 0 0 18px', listStyle: 'disc' }}>
+                                    <ul style={{ margin: 0, padding: '0 0 0 20px', listStyle: 'disc' }}>
                                         {stats.snakesAvoided.map((name, i) => (
-                                            <li key={i} style={{ color: '#bae6fd', fontSize: 12, lineHeight: 1.7, fontWeight: 500 }}>{name}</li>
+                                            <li key={i} style={{ color: '#bae6fd', fontSize: 13, lineHeight: 1.6, fontWeight: 500 }}>{name}</li>
                                         ))}
                                     </ul>
                                 )}
                             </div>
 
                             {/* Snakes Bitten */}
-                            <div style={{ background: 'rgba(239, 68, 68, 0.08)', borderRadius: 10, borderLeft: '4px solid #EF4444', padding: '12px 14px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: stats.snakesLanded.length > 0 ? 8 : 0 }}>
-                                    <span style={{ color: '#FEE2E2', fontSize: 14, fontWeight: 700 }}>🐍 Snakes Bitten</span>
-                                    <span style={{ color: '#fca5a5', fontSize: 16, fontWeight: 800 }}>{stats.snakesLanded.length}</span>
+                            <div style={{ background: 'rgba(239, 68, 68, 0.08)', borderRadius: 12, borderLeft: '4px solid #EF4444', padding: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: stats.snakesLanded.length > 0 ? 12 : 0 }}>
+                                    <span style={{ color: '#FEE2E2', fontSize: 16, fontWeight: 700 }}>🐍 Snakes Bitten</span>
+                                    <span style={{ color: '#fca5a5', fontSize: 20, fontWeight: 800 }}>{stats.snakesLanded.length}</span>
                                 </div>
                                 {stats.snakesLanded.length > 0 && (
-                                    <ul style={{ margin: 0, padding: '0 0 0 18px', listStyle: 'disc' }}>
+                                    <ul style={{ margin: 0, padding: '0 0 0 20px', listStyle: 'disc' }}>
                                         {stats.snakesLanded.map((name, i) => (
-                                            <li key={i} style={{ color: '#fca5a5', fontSize: 12, lineHeight: 1.7, fontWeight: 500 }}>{name}</li>
+                                            <li key={i} style={{ color: '#fca5a5', fontSize: 13, lineHeight: 1.6, fontWeight: 500 }}>{name}</li>
                                         ))}
                                     </ul>
                                 )}
                             </div>
 
                             {/* Ladders Climbed */}
-                            <div style={{ background: 'rgba(245, 158, 11, 0.08)', borderRadius: 10, borderLeft: '4px solid #F59E0B', padding: '12px 14px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: stats.laddersClimbed.length > 0 ? 8 : 0 }}>
-                                    <span style={{ color: '#FEF3C7', fontSize: 14, fontWeight: 700 }}>🪜 Ladders Climbed</span>
-                                    <span style={{ color: '#fde68a', fontSize: 16, fontWeight: 800 }}>{stats.laddersClimbed.length}</span>
+                            <div style={{ background: 'rgba(245, 158, 11, 0.08)', borderRadius: 12, borderLeft: '4px solid #F59E0B', padding: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: stats.laddersClimbed.length > 0 ? 12 : 0 }}>
+                                    <span style={{ color: '#FEF3C7', fontSize: 16, fontWeight: 700 }}>🪜 Ladders Climbed</span>
+                                    <span style={{ color: '#fde68a', fontSize: 20, fontWeight: 800 }}>{stats.laddersClimbed.length}</span>
                                 </div>
                                 {stats.laddersClimbed.length > 0 && (
-                                    <ul style={{ margin: 0, padding: '0 0 0 18px', listStyle: 'disc' }}>
+                                    <ul style={{ margin: 0, padding: '0 0 0 20px', listStyle: 'disc' }}>
                                         {stats.laddersClimbed.map((name, i) => (
-                                            <li key={i} style={{ color: '#fde68a', fontSize: 12, lineHeight: 1.7, fontWeight: 500 }}>{name}</li>
+                                            <li key={i} style={{ color: '#fde68a', fontSize: 13, lineHeight: 1.6, fontWeight: 500 }}>{name}</li>
                                         ))}
                                     </ul>
                                 )}
                             </div>
-
                         </div>
+
+                        <button
+                            onClick={() => setIsStatsOpen(false)}
+                            style={{
+                                width: '100%',
+                                marginTop: 24,
+                                padding: '14px',
+                                background: 'linear-gradient(to right, #0066B2, #1A56DB)',
+                                border: 'none',
+                                borderRadius: '12px',
+                                color: '#fff',
+                                fontWeight: 800,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            CLOSE
+                        </button>
                     </div>
                 </div>
             )}
@@ -211,15 +288,8 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, playerName, playerMobi
                     Book a Slot
                 </button>
 
-                {/* Disclaimer */}
-                <div style={{ width: '100%', padding: '0 24px', opacity: 0.4, marginTop: 16 }}>
-                    <p style={{ fontSize: 8, color: '#fff', textAlign: 'center', fontWeight: 700, maxWidth: 380, margin: '0 auto', lineHeight: 1.4, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
-                        <span style={{ opacity: 0.6, textDecoration: 'underline', marginRight: 4 }}>Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
-                    </p>
-                </div>
-
                 {/* Play Again text link */}
-                <div style={{ textAlign: 'center', marginTop: 16 }}>
+                <div style={{ textAlign: 'center', marginTop: 24 }}>
                     <button onClick={onPlayAgain} style={{
                         background: 'none', border: 'none', color: '#fff',
                         fontSize: 14, fontWeight: 700, cursor: 'pointer',
@@ -227,6 +297,13 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, playerName, playerMobi
                     }}>
                         Play Again
                     </button>
+                </div>
+
+                {/* Disclaimer */}
+                <div style={{ width: '100%', padding: '0 24px', opacity: 0.4, marginTop: 16 }}>
+                    <p style={{ fontSize: 8, color: '#fff', textAlign: 'center', fontWeight: 700, maxWidth: 380, margin: '0 auto', lineHeight: 1.4, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+                        <span style={{ opacity: 0.6, textDecoration: 'underline', marginRight: 4 }}>Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                    </p>
                 </div>
             </div>
 

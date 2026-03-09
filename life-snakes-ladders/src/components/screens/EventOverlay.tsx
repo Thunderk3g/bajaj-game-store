@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Shield, AlertTriangle, ArrowUpRight, Plus } from 'lucide-react';
 import { Cell } from '../../features/GameLogic';
 
@@ -15,6 +15,16 @@ const EventOverlay: React.FC<EventOverlayProps> = ({
 }) => {
     const isSnake = event.type === 'snake';
     const isFrozen = event.isAlreadyFrozen === true;
+    const shouldAutoDismiss = isFrozen || !isSnake;
+
+    useEffect(() => {
+        if (shouldAutoDismiss) {
+            const timer = setTimeout(() => {
+                onContinue();
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [shouldAutoDismiss, onContinue]);
 
     return (
         <div className="lsl-absolute lsl-inset-0 lsl-z-50 lsl-flex lsl-items-center lsl-justify-center lsl-p-6">
@@ -68,15 +78,17 @@ const EventOverlay: React.FC<EventOverlayProps> = ({
                     </div>
                 )}
 
-                <button
-                    onClick={onContinue}
-                    className={`lsl-btn lsl-w-full lsl-flex lsl-items-center lsl-justify-center lsl-py-3 lsl-text-sm ${isFrozen ? 'lsl-bg-shield-blue hover:lsl-bg-blue-600' :
-                        isSnake ? 'lsl-bg-orange-500 hover:lsl-bg-orange-600 lsl-border-none' :
-                            'lsl-bg-ladder-gold'
-                        } lsl-text-white`}
-                >
-                    {isFrozen ? 'CONTINUE' : isSnake ? 'CONTINUE Without Shield' : 'CLIMB UP!'}
-                </button>
+                {!shouldAutoDismiss && (
+                    <button
+                        onClick={onContinue}
+                        className={`lsl-btn lsl-w-full lsl-flex lsl-items-center lsl-justify-center lsl-py-3 lsl-text-sm ${isFrozen ? 'lsl-bg-shield-blue hover:lsl-bg-blue-600' :
+                            isSnake ? 'lsl-bg-orange-500 hover:lsl-bg-orange-600 lsl-border-none' :
+                                'lsl-bg-ladder-gold'
+                            } lsl-text-white`}
+                    >
+                        {isFrozen ? 'CONTINUE' : isSnake ? 'CONTINUE Without Shield' : 'CLIMB UP!'}
+                    </button>
+                )}
             </div>
 
             {isSnake && !isFrozen && (
