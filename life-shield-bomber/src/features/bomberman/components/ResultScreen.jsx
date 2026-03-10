@@ -21,15 +21,27 @@ const ResultScreen = memo(function ResultScreen({
     onRestart,
     entryDetails,
 }) {
-    const outcome = isMissionComplete ? {
-        message: "You defeated life’s risks with the help of Power Riders",
-        subMessage: "In real life, as well, you can overcome life risks with proper financial planning",
-        ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
-    } : {
-        message: "You didn’t have enough Power Riders to overcome life’s risks",
-        subMessage: "In games, you get another try\nin life you don't",
-        ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
-    };
+    const outcome = (() => {
+        if (isMissionComplete) {
+            return {
+                message: "You defeated life’s risks with the help of Power Riders",
+                subMessage: "In real life, as well, you can overcome life risks with proper financial planning",
+                ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
+            };
+        } else if (timeLeft <= 0) {
+            return {
+                message: "Your time is up before you could secure your future",
+                subMessage: "In life, time doesn't wait. Secure your future before it's too late",
+                ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
+            };
+        } else {
+            return {
+                message: "You didn’t have enough Power Riders to overcome life’s risks",
+                subMessage: "In games, you get another try\nin life you don't",
+                ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
+            };
+        }
+    })();
     const [showBooking, setShowBooking] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
@@ -110,7 +122,7 @@ const ResultScreen = memo(function ResultScreen({
 
     return (
         <div
-            className="w-full h-[100dvh] overflow-hidden flex flex-col items-center px-4 pt-3 pb-4"
+            className="w-full h-full absolute inset-0 overflow-y-auto overflow-x-hidden flex flex-col items-center px-4 custom-scrollbar"
             style={{ background: 'linear-gradient(180deg, #00509E 0%, #003366 100%)' }}
         >
             <Confetti />
@@ -118,7 +130,7 @@ const ResultScreen = memo(function ResultScreen({
 
 
             {/* Content Container */}
-            <div className="relative z-10 w-full max-w-[500px] h-full flex flex-col items-center justify-center py-4 sm:py-6">
+            <div className="relative z-10 w-full max-w-[500px] flex flex-col items-center py-8 sm:py-10 my-auto flex-shrink-0">
 
                 {/* ─── Header Block ─── */}
                 <div className="w-full flex flex-col items-center mt-2 mb-8">

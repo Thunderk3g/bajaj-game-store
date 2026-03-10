@@ -123,22 +123,11 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
                                     }
                                 }}
                             >
-                                {/* Emoji + check indicator */}
+                                {/* Emoji (Selection indicator removed to prevent unchecked radio text glitch) */}
                                 <div className="relative">
                                     <span className="text-[2.25rem] sm:text-[3rem] drop-shadow-md block leading-none">
                                         {stage.emoji}
                                     </span>
-                                    <div
-                                        className={`absolute -top-1 -right-1 w-[1.125rem] h-[1.125rem] sm:w-[1.375rem] sm:h-[1.375rem] rounded-full border-2 border-white flex items-center justify-center transition-colors duration-200 ${isSelected ? 'bg-green-500' : 'bg-slate-200'
-                                            }`}
-                                    >
-                                        <span
-                                            className={`material-symbols-outlined text-[0.625rem] sm:text-[0.75rem] font-bold ${isSelected ? 'text-white' : 'text-slate-400'
-                                                }`}
-                                        >
-                                            {isSelected ? 'check' : 'radio_button_unchecked'}
-                                        </span>
-                                    </div>
                                 </div>
 
                                 {/* Stage label */}

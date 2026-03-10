@@ -115,7 +115,7 @@ const QuestionScreen = memo(function QuestionScreen({
 
             {/* ================= HERO IMAGE ================= */}
             {/* Using flex-1 and min-h-0 allows the image container to shrink if needed, preventing overflow */}
-            <div className="flex-1 min-h-0 flex justify-center w-full z-10 pointer-events-none items-center -mt-4 mb-2">
+            <div className="flex-1 min-h-0 flex justify-center w-full z-30 pointer-events-none items-center -mt-6 sm:-mt-10 mb-2 relative">
                 <motion.img
                     key={stageData?.id}
                     src={StageImage}
