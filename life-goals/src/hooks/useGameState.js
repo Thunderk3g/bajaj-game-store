@@ -156,7 +156,7 @@ export const useGameState = () => {
     }, [setLastSubmittedPhone, setLeadName, setLeadPhone, setIsSubmitting, setSuccessMessage, setShowSuccessToast]);
 
     const handleRestart = () => {
-        setCurrentScreen(SCREENS.WELCOME);
+        setCurrentScreen(SCREENS.GOAL_SELECTION);
         setSelectedGoals([]);
         setCurrentGoalIndex(0);
         setCurrentQuestionIndex(0);
@@ -164,8 +164,6 @@ export const useGameState = () => {
         setScore(0);
         setLives(3);
         setIsGameOver(false);
-        setLeadName('');
-        setLeadPhone('');
         stopGameTimer();
     };
 

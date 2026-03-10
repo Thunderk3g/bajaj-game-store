@@ -99,15 +99,6 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
         // Clear Canvas
         ctx.clearRect(0, 0, size, size);
 
-        // Draw Pellet as Milestone Icon
-        const pX = state.pellet.x * cellSize + cellSize / 2;
-        const pY = state.pellet.y * cellSize + cellSize / 2;
-
-        ctx.font = `${cellSize * 1.3}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(state.nextMilestone.icon, pX, pY);
-
         // Pre-calculate all interpolated positions
         const positions = state.snake.map((segment, index) => {
             const prev = state.previousSnake && state.previousSnake[index] ? state.previousSnake[index] : segment;
@@ -186,6 +177,14 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
             ctx.arc(pathPoints[0].cx, pathPoints[0].cy, fillWidth / 2, 0, Math.PI * 2);
             ctx.fill();
         }
+
+        // ========== LAYER 2.5: Pellet (Food) on top of Snake Body ==========
+        const pX = state.pellet.x * cellSize + cellSize / 2;
+        const pY = state.pellet.y * cellSize + cellSize / 2;
+        ctx.font = `${cellSize * 1.3}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(state.nextMilestone.icon, pX, pY);
 
         // ========== LAYER 3: Eyes on Head ==========
         if (state.snake.length > 0) {

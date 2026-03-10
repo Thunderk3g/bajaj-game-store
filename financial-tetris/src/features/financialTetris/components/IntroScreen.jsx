@@ -118,7 +118,15 @@ const IntroScreen = ({ onStart }) => {
                                 onChange={(e) => {
                                     const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                                     setFormData(prev => ({ ...prev, name: val }));
-                                    setErrors(prev => ({ ...prev, name: null }));
+
+                                    // Real-time validation
+                                    if (!val.trim()) {
+                                        setErrors(prev => ({ ...prev, name: 'Please enter your name' }));
+                                    } else if (!/^[A-Za-z\s]+$/.test(val.trim())) {
+                                        setErrors(prev => ({ ...prev, name: 'Letters only' }));
+                                    } else {
+                                        setErrors(prev => ({ ...prev, name: null }));
+                                    }
                                 }}
                                 placeholder="Your name"
                                 className="w-full bg-gray-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-gray-800 placeholder:text-gray-400 font-bold focus:outline-none focus:border-blue-400 transition-all"
@@ -136,7 +144,15 @@ const IntroScreen = ({ onStart }) => {
                                 onChange={(e) => {
                                     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
                                     setFormData(prev => ({ ...prev, phone: val }));
-                                    setErrors(prev => ({ ...prev, phone: null }));
+
+                                    // Real-time validation
+                                    if (!val.trim()) {
+                                        setErrors(prev => ({ ...prev, phone: 'Please enter your phone number' }));
+                                    } else if (!/^[6-9]\d{9}$/.test(val)) {
+                                        setErrors(prev => ({ ...prev, phone: 'Invalid 10-digit number (starts 6-9)' }));
+                                    } else {
+                                        setErrors(prev => ({ ...prev, phone: null }));
+                                    }
                                 }}
                                 placeholder="Mobile number"
                                 className="w-full bg-gray-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-gray-800 placeholder:text-gray-400 font-bold focus:outline-none focus:border-blue-400 transition-all"

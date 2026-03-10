@@ -2,7 +2,7 @@ import React from 'react';
 
 const ScoreDisplay = ({ score, timeLeft, formatTime, nextPiece }) => {
     return (
-        <div className="w-full grid grid-cols-3 gap-2 px-1 mb-4">
+        <div className="w-full grid grid-cols-3 gap-2 px-1 mb-1">
             {/* Timer Column */}
             <div className="bg-[#050530] border border-blue-900/50 p-2 flex flex-col items-center justify-center shadow-lg rounded-sm">
                 <label className="text-[10px] font-bold uppercase tracking-tighter text-blue-400 leading-tight">Time</label>

@@ -12,6 +12,8 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     const maxDate = thirtyDaysFromNow.toISOString().split("T")[0];
 
+    const isSmallScreen = window.innerHeight < 700;
+
     const [isBookingOpen, setIsBookingOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isBookingSuccess, setIsBookingSuccess] = useState(false);
@@ -166,7 +168,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                 {/* Messaging Section */}
                 <div className="space-y-1 sh:space-y-0.5 text-center flex flex-col items-center">
                     <h2 className="text-xl sm:text-2xl sh:text-lg font-black text-white tracking-tight leading-tight px-4 drop-shadow-lg">
-                        Calculate what your family actually needs to continue this life
+                        Calculate what Life Cover your Family needs to continue this life
                     </h2>
                 </div>
 
@@ -181,21 +183,20 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
                 {/* Action Card Section */}
                 <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[20px] mh:rounded-[24px] p-5 sh:p-3 mh:p-4 border border-slate-800 space-y-4 sh:space-y-2 mh:space-y-3 relative overflow-hidden text-center shadow-xl">
-                    <p className="text-white text-sm sh:text-xs font-bold leading-tight">
-                        A simple conversation can protect everything you're building,<br />
-                        <span className="text-white font-bold">Connect with our Relationship Manager now</span>
+                    <p className="text-white text-lg sh:text-base font-bold leading-tight px-2">
+                        A simple conversation can protect everything you're building
                     </p>
 
-                    <div className="flex flex-col gap-3 sh:gap-2">
+                    <div className="flex flex-col gap-2.5 sh:gap-1.5 mh:gap-2">
                         <motion.a
                             href="tel:18002097272"
-                            className="bg-slate-900 text-white font-black py-4 sh:py-3.5 mh:py-3 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base border border-slate-700 hover:bg-slate-800"
+                            className="bg-amber-500 text-black font-black py-3 sh:py-2.5 mh:py-2.5 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base border border-amber-400 hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                         >
-                            <Phone className="w-6 h-6 sh:w-5 sh:h-5 text-gray-400" />
+                            <Phone className="w-5 h-5 sh:w-4 sh:h-4 text-black" />
                             <span>Call now</span>
                         </motion.a>
 
-                        <div className="flex items-center gap-4 py-1 sh:py-0.5">
+                        <div className="flex items-center gap-4 py-0.5 sh:py-0">
                             <div className="h-[1px] flex-1 bg-slate-800" />
                             <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest leading-none">OR</span>
                             <div className="h-[1px] flex-1 bg-slate-800" />
@@ -203,7 +204,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
                         <motion.button
                             onClick={() => setIsBookingOpen(true)}
-                            className="bg-green-600 text-white font-black py-4 sh:py-3.5 mh:py-3 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
+                            className="bg-green-600 text-white font-black py-3 sh:py-2.5 mh:py-2.5 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
                         >
                             <Calendar className="w-5 h-5 sh:w-4 sh:h-4 opacity-80" />
                             <span>Book a slot</span>
@@ -211,21 +212,21 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                     </div>
                 </div>
 
-                {/* Disclaimer */}
-                <div className="w-full px-6 opacity-40 mt-4">
-                    <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
-                        <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
-                    </p>
-                </div>
-
                 {/* Restart Action */}
                 <button
                     onClick={onRestart}
-                    className="w-full py-5 sh:py-4 mh:py-3.5 rounded-2xl sh:rounded-xl mh:rounded-xl bg-slate-900 border border-slate-800 text-white font-black text-xl sh:text-lg flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-lg"
+                    className="w-full py-2 flex items-center justify-center gap-2 text-white/40 hover:text-white transition-colors group"
                 >
-                    <RotateCcw className="w-6 h-6 sh:w-5 sh:h-5 text-gray-400" />
-                    <span>Play again</span>
+                    <RotateCcw className="w-4 h-4 opacity-40 group-hover:opacity-100" />
+                    <span className="text-xs font-bold uppercase tracking-[0.2em]">Play again</span>
                 </button>
+
+                {/* Disclaimer */}
+                <div className="w-full px-6 opacity-40 mt-4">
+                    <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto">
+                        <span className="opacity-60 mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                    </p>
+                </div>
             </div>
 
             <AnimatePresence>

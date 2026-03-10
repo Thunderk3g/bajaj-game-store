@@ -6,9 +6,7 @@ export default {
     ],
     theme: {
         extend: {
-            screens: {
-                'sh': { 'raw': '(max-height: 750px)' },
-            },
+            screens: {},
             colors: {
                 tetris: {
                     grid: '#1a1a2e',
@@ -33,5 +31,9 @@ export default {
             }
         },
     },
-    plugins: [],
+    plugins: [
+        function ({ addVariant }) {
+            addVariant('sh', '@media (max-height: 750px)');
+        }
+    ],
 }

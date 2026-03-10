@@ -113,6 +113,7 @@ export const useSnakeEngine = () => {
         }
 
         const newSnake = [newHead, ...snakeRef.current];
+        let shouldGeneratePellet = false;
 
         // Check Pellet
         if (newHead.x === pelletRef.current.x && newHead.y === pelletRef.current.y) {
@@ -128,7 +129,7 @@ export const useSnakeEngine = () => {
             growthPendingRef.current += additionalSegments;
 
             handlePelletEatenRef.current(currentMilestones);
-            generatePellet();
+            shouldGeneratePellet = true;
         } else {
             if (growthPendingRef.current > 0) {
                 growthPendingRef.current -= 1;
@@ -138,6 +139,9 @@ export const useSnakeEngine = () => {
         }
 
         snakeRef.current = newSnake;
+        if (shouldGeneratePellet) {
+            generatePellet();
+        }
         setTick(t => t + 1);
     }, [score, generatePellet]);
 

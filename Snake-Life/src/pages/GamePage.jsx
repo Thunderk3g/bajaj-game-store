@@ -62,24 +62,24 @@ const GamePage = () => {
         <div className="relative w-full max-w-md h-screen-safe mx-auto bg-[#0B1221] flex flex-col shadow-2xl overflow-hidden pt-safe">
             {/* Header Info */}
             {(status === GAME_STATUS.PLAYING || status === GAME_STATUS.PAUSED) && (
-                <div className="px-6 py-4 flex justify-between items-center bg-white border-b border-gray-100 z-10 animate-fade-in font-outfit">
+                <div className="px-6 py-4 flex justify-between items-center bg-[#0B1221] z-10 animate-fade-in font-outfit mt-6 sh:mt-0">
                     <div className="flex items-center gap-3">
-                        <div className="bg-primary/10 p-2 rounded-lg">
-                            <Trophy size={20} className="text-primary" />
+                        <div className="bg-white/5 p-2 rounded-lg border border-white/10">
+                            <Trophy size={20} className="text-secondary" />
                         </div>
                         <div>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider leading-none">Milestones</p>
-                            <p className="text-xl font-black text-primary leading-tight">{score}</p>
+                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider leading-none">Milestones</p>
+                            <p className="text-xl font-black text-white leading-tight">{score}</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <div className={`${timeLeft <= 15 ? 'bg-danger/10 animate-pulse-fast' : 'bg-secondary/10'} p-2 rounded-lg`}>
-                            <Clock size={20} className={timeLeft <= 15 ? 'text-danger' : 'text-secondary'} />
+                        <div className={`${timeLeft <= 15 ? 'bg-red-500/20 animate-pulse-fast' : 'bg-white/5'} p-2 rounded-lg border border-white/10`}>
+                            <Clock size={20} className={timeLeft <= 15 ? 'text-red-500' : 'text-amber-500'} />
                         </div>
                         <div>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider leading-none">Time</p>
-                            <p className={`text-xl font-black leading-tight ${timeLeft <= 15 ? 'text-danger' : 'text-secondary'}`}>{timeLeft}s</p>
+                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider leading-none">Time</p>
+                            <p className={`text-xl font-black leading-tight ${timeLeft <= 15 ? 'text-red-500' : 'text-amber-500'}`}>{timeLeft}s</p>
                         </div>
                     </div>
                 </div>
@@ -115,7 +115,7 @@ const GamePage = () => {
                             </div>
 
                             {/* Milestone Achievement Message */}
-                            <div className="mt-4 h-12 flex items-center justify-center">
+                            <div className="mt-2 mb-20 h-12 flex items-center justify-center relative z-20">
                                 <AnimatePresence mode="wait">
                                     {lastEatenMilestone && (
                                         <motion.div
@@ -145,7 +145,9 @@ const GamePage = () => {
                             leadData={leadData}
                             onRestart={() => {
                                 resetEngine();
-                                setStatus(GAME_STATUS.START);
+                                startGame();
+                                setIsPaused(false);
+                                setShowTutorial(false);
                             }}
                             onBookSlot={handleBookSlot}
                         />
@@ -175,7 +177,7 @@ const GamePage = () => {
                             initial={{ opacity: 0, y: -20, x: '-50%' }}
                             animate={{ opacity: 1, y: 0, x: '-50%' }}
                             exit={{ opacity: 0, y: -20, x: '-50%' }}
-                            className="absolute top-28 left-1/2 z-[100] bg-white/90 backdrop-blur-md border border-primary/20 px-6 py-2 rounded-full shadow-xl pointer-events-none"
+                            className="absolute top-20 left-1/2 z-[100] bg-white/90 backdrop-blur-md border border-primary/20 px-6 py-2 rounded-full shadow-xl pointer-events-none"
                         >
                             <p className="text-primary font-bold text-sm whitespace-nowrap">{toast}</p>
                         </motion.div>

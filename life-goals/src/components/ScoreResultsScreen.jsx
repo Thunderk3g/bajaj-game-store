@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from "./ui/input";
-import { PhoneCall, RotateCcw, X, Calendar, Share, Share2 } from "lucide-react";
+import { PhoneCall, RotateCcw, X, Calendar, Share, Share2, Clock, ChevronDown } from "lucide-react";
 import Confetti from './Confetti';
 import { isValidPhone } from '../utils/helpers';
 import Speedometer from './Speedometer';
@@ -15,6 +15,49 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
 
     const [formData, setFormData] = useState({ name: userName || '', mobile: userPhone || '', date: '', time: '', consent: true });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const dropdownScrollRef = useRef(null);
+    const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+
+    const checkScroll = () => {
+        if (dropdownScrollRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = dropdownScrollRef.current;
+            setShowScrollIndicator(scrollHeight > clientHeight + scrollTop + 10);
+        }
+    };
+
+    const scrollToBottom = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (dropdownScrollRef.current) {
+            dropdownScrollRef.current.scrollTo({
+                top: dropdownScrollRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (isTimeDropdownOpen) {
+            setTimeout(checkScroll, 100);
+        }
+    }, [isTimeDropdownOpen]);
+
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsTimeDropdownOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
     const [errors, setErrors] = useState({});
     const [showBooking, setShowBooking] = useState(false);
 
@@ -185,9 +228,9 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                 </motion.div>
 
                 {/* Disclaimer */}
-                <div className="w-full px-6 opacity-40 mt-4">
-                    <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
-                        <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                <div className="w-full px-6 opacity-60 mt-4">
+                    <p className="text-[8px] sm:text-[9px] text-white leading-relaxed text-center max-w-[400px] mx-auto">
+                        <span className="font-bold mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                     </p>
                 </div>
 
@@ -219,92 +262,158 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
 
                         <h2 className="text-[#0066B2] font-black text-center mb-6 text-sm sm:text-base uppercase tracking-tight pt-2">Book a convenient slot</h2>
 
-                        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-                            <div className="space-y-1">
+                        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 pb-12 sm:pb-24">
+                            <div className="space-y-0.5">
                                 <label htmlFor="booking-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your Name</label>
-                                <Input
-                                    id="booking-name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={e => {
-                                        const val = e.target.value.replace(/[^A-Za-z\s]/g, '');
-                                        updateField('name', val);
-                                        if (!val.trim()) {
-                                            setErrors(prev => ({ ...prev, name: "Name is required" }));
-                                        } else {
-                                            setErrors(prev => ({ ...prev, name: null }));
-                                        }
-                                    }}
-                                    className={`bg-slate-50 h-11 border-2 ${errors.name ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
-                                    placeholder="Full Name"
-                                    autoComplete="name"
-                                />
-                                {errors.name && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.name}</span>}
+                                <div className="relative">
+                                    <Input
+                                        id="booking-name"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                                            updateField('name', val);
+                                            if (!val.trim()) {
+                                                setErrors(prev => ({ ...prev, name: "Name is required" }));
+                                            } else {
+                                                setErrors(prev => ({ ...prev, name: null }));
+                                            }
+                                        }}
+                                        className={`bg-slate-50 h-11 border-2 ${errors.name ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
+                                        placeholder="Full Name"
+                                        autoComplete="name"
+                                    />
+                                </div>
+                                <div className="min-h-[18px]">
+                                    {errors.name && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.name}</span>}
+                                </div>
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-0.5">
                                 <label htmlFor="booking-mobile" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
-                                <Input
-                                    id="booking-mobile"
-                                    name="mobile"
-                                    value={formData.mobile}
-                                    onChange={e => {
-                                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                        updateField('mobile', val);
+                                <div className="relative">
+                                    <Input
+                                        id="booking-mobile"
+                                        name="mobile"
+                                        value={formData.mobile}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                            updateField('mobile', val);
 
-                                        if (!val.trim()) {
-                                            setErrors(p => ({ ...p, mobile: "Mobile is required" }));
-                                        } else if (val.length > 0 && !/^[6-9]/.test(val)) {
-                                            setErrors(p => ({ ...p, mobile: "Must start with 6-9" }));
-                                        } else if (val.length > 0 && val.length < 10) {
-                                            setErrors(p => ({ ...p, mobile: "Enter 10 digits" }));
-                                        } else {
-                                            setErrors(p => ({ ...p, mobile: null }));
-                                        }
-                                    }}
-                                    type="tel"
-                                    className={`bg-slate-50 h-11 border-2 ${errors.mobile ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
-                                    placeholder="9876543210"
-                                    autoComplete="tel"
-                                />
-                                {errors.mobile && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.mobile}</span>}
+                                            if (!val.trim()) {
+                                                setErrors(p => ({ ...p, mobile: "Mobile is required" }));
+                                            } else if (val.length > 0 && !/^[6-9]/.test(val)) {
+                                                setErrors(p => ({ ...p, mobile: "Must start with 6-9" }));
+                                            } else if (val.length > 0 && val.length < 10) {
+                                                setErrors(p => ({ ...p, mobile: "Enter 10 digits" }));
+                                            } else {
+                                                setErrors(p => ({ ...p, mobile: null }));
+                                            }
+                                        }}
+                                        type="tel"
+                                        className={`bg-slate-50 h-11 border-2 ${errors.mobile ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
+                                        placeholder="9876543210"
+                                        autoComplete="tel"
+                                    />
+                                </div>
+                                <div className="min-h-[18px]">
+                                    {errors.mobile && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.mobile}</span>}
+                                </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                    <label htmlFor="booking-date" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
+                            <div className="space-y-0.5">
+                                <div className="relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
                                     <Input
                                         id="booking-date"
                                         name="date"
                                         type="date"
                                         min={today}
                                         max={maxDate}
-                                        value={formData.date} onChange={e => updateField('date', e.target.value)}
-                                        className={`bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-xs font-bold px-4`}
+                                        value={formData.date}
+                                        onChange={e => updateField('date', e.target.value)}
+                                        className={`block w-full bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-11 pr-4`}
                                     />
-                                    {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                 </div>
-                                <div className="space-y-1">
-                                    <label htmlFor="booking-time" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Time</label>
-                                    <select
-                                        id="booking-time"
-                                        name="time"
-                                        value={formData.time}
-                                        onChange={e => updateField('time', e.target.value)}
-                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus-visible:ring-blue-100 text-xs font-bold px-4 appearance-none"
+                                <div className="min-h-[18px]">
+                                    {errors.date && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-2">{errors.date}</p>}
+                                </div>
+                            </div>
+                            <div className="space-y-0.5">
+                                <div className="relative" ref={dropdownRef}>
+                                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none z-10" />
+                                    <div
+                                        onClick={() => setIsTimeDropdownOpen(!isTimeDropdownOpen)}
+                                        className={`w-full bg-slate-50 h-11 border-2 ${errors.time ? 'border-red-400' : 'border-slate-100'} text-slate-800 text-sm font-bold pl-11 pr-10 rounded-md cursor-pointer flex items-center justify-between ${isTimeDropdownOpen ? 'border-blue-500 ring-4 ring-blue-100' : ''}`}
                                     >
-                                        <option value="">Select Slot</option>
-                                        {[...Array(12)].map((_, i) => {
-                                            const start = 9 + i;
-                                            const end = start + 1;
-                                            const formatTime = (h) => {
-                                                const amp = h >= 12 ? 'PM' : 'AM';
-                                                const hour = h > 12 ? h - 12 : h;
-                                                return `${hour}:00 ${amp}`;
-                                            };
-                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
-                                            return <option key={start} value={label}>{label}</option>;
-                                        })}
-                                    </select>
-                                    {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
+                                        <span className={formData.time ? 'text-slate-800' : 'text-slate-400'}>
+                                            {formData.time || "Choose a slot"}
+                                        </span>
+                                    </div>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none z-10" />
+
+                                    <AnimatePresence>
+                                        {isTimeDropdownOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.15 }}
+                                                className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-slate-100 rounded-md shadow-xl z-50 overflow-hidden"
+                                            >
+                                                <div
+                                                    ref={dropdownScrollRef}
+                                                    onScroll={checkScroll}
+                                                    className="py-1 max-h-[220px] overflow-y-auto scrollbar-hide relative"
+                                                >
+                                                    {[...Array(12)].map((_, i) => {
+                                                        const start = 9 + i;
+                                                        const end = start + 1;
+                                                        const formatTime = (h) => {
+                                                            const amp = h >= 12 ? 'PM' : 'AM';
+                                                            const hour = h > 12 ? h - 12 : h;
+                                                            return `${hour}:00 ${amp}`;
+                                                        };
+                                                        const label = `${formatTime(start)} - ${formatTime(end)}`;
+                                                        return (
+                                                            <div
+                                                                key={start}
+                                                                onClick={() => {
+                                                                    updateField('time', label);
+                                                                    setIsTimeDropdownOpen(false);
+                                                                }}
+                                                                className={`px-4 py-2 text-sm font-bold cursor-pointer hover:bg-slate-100 transition-colors ${formData.time === label ? 'bg-blue-50 text-blue-600' : 'text-slate-800'}`}
+                                                            >
+                                                                {label}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                {/* Floating Scroll Indicator Arrow */}
+                                                <AnimatePresence>
+                                                    {showScrollIndicator && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: -5 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: 5 }}
+                                                            className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[60] cursor-pointer"
+                                                            onClick={scrollToBottom}
+                                                        >
+                                                            <motion.div
+                                                                animate={{ y: [0, 8, 0] }}
+                                                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                                                className="flex items-center justify-center p-1"
+                                                            >
+                                                                <ChevronDown className="w-6 h-6 text-black" strokeWidth={3} />
+                                                            </motion.div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                                <div className="min-h-[18px]">
+                                    {errors.time && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-2">{errors.time}</p>}
                                 </div>
                             </div>
 
