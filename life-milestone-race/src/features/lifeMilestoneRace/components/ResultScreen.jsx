@@ -211,8 +211,8 @@ const ResultScreen = ({
                     transition={{ delay: 0.3 }}
                     className="bg-white p-3 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-2 shrink-0 rounded-sm"
                 >
-                    <p className="text-slate-600 text-[11px] sm:text-sm font-bold text-center mb-2 leading-relaxed">
-                        To secure your milestones from real life risk, Connect with our relationship manager
+                    <p className="text-slate-600 text-[14px] sm:text-sm font-bold text-center mb-2 leading-relaxed">
+                        To secure your milestones from real life risk.Connect with our relationship manager
                     </p>
 
                     {/* Call Action */}
