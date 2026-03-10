@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Share2, Phone, Calendar } from "lucide-react";
+import { buildShareUrl } from "../utils/crypto";
 import ScoreShield from "./common/ScoreShield";
 import BookingModal from "./BookingModal";
 import Confetti from "./common/Confetti";
