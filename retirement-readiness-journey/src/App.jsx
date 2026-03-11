@@ -79,7 +79,7 @@ const App = () => {
             {/* Main Content */}
             <main className={cn(
                 "flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col w-full mx-auto pb-safe",
-                isIntro ? "p-0 max-w-none" : "max-w-[48rem] px-4",
+                isIntro ? "p-0 max-w-none" : "max-w-[430px] px-4",
                 isResults ? "pt-[1rem] pb-0" : (isIntro ? "" : "py-4")
             )}>
                 <AnimatePresence mode="wait">
@@ -104,8 +104,8 @@ const App = () => {
 
             {/* Footer Navigation */}
             {!isIntro && !isResults && (
-                <footer className="sticky bottom-0 p-4 sm:p-6 z-50 bg-transparent">
-                    <div className="max-w-[48rem] mx-auto flex gap-3 sm:gap-4">
+                <footer className="sticky bottom-0 p-4 sm:p-6 z-50 bg-transparent flex justify-center w-full">
+                    <div className="w-full max-w-[430px] flex gap-3 sm:gap-4 px-4 sm:px-0">
                         <Button
                             variant="outline"
                             onClick={actions.goToPrevStep}
