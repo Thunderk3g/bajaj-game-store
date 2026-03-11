@@ -34,7 +34,7 @@ const LifeSortedPage = () => {
     const [isTermsOpen, setIsTermsOpen] = useState(false);
 
     const { toast, showToast } = useToastSystem();
-    const { stats, updateStats, getResults } = useScoreCalculator();
+    const { stats, updateStats, getResults, resetStats } = useScoreCalculator();
 
     const handleLevelWin = useCallback(() => {
         // Logic handled by useEffect watching engine.isWon
@@ -66,7 +66,7 @@ const LifeSortedPage = () => {
     const handleTimeUp = useCallback(() => {
         showToast(MESSAGE_LIBRARY.TIME_UP, 'error');
         updateStats(engine.moves, engine.mistakes, engine.sortedCount);
-        setGamePhase('final');
+        setGamePhase('report');
     }, [engine.moves, engine.mistakes, engine.sortedCount, updateStats, showToast]);
 
     const handleWarning = useCallback((time) => {
@@ -123,7 +123,6 @@ const LifeSortedPage = () => {
     };
 
     const nextLevel = () => {
-        updateStats(engine.moves, engine.mistakes, engine.sortedCount);
         if (currentLevelIndex < LEVEL_CONFIGS.length - 1) {
             setCurrentLevelIndex(prev => prev + 1);
             setGamePhase('playing');
@@ -141,11 +140,16 @@ const LifeSortedPage = () => {
 
     const onLevelComplete = () => {
         timer.stop();
-        // 400ms delay as requested
+        updateStats(engine.moves, engine.mistakes, engine.sortedCount);
+        // 400ms delay before showing popup
         setTimeout(() => {
             setGamePhase('report');
         }, 400);
     };
+
+    const handleReportDone = useCallback(() => {
+        setGamePhase('final');
+    }, []);
 
     React.useEffect(() => {
         // FIXED: Sync win check with levelLoaded to prevent skips. 
@@ -160,12 +164,18 @@ const LifeSortedPage = () => {
     }, [engine.tubes]);
 
     const handleRetry = useCallback(() => {
-        setGamePhase('playing');
         setCurrentLevelIndex(0);
         resetShock();
-        stats.moves = 0; // Reset stats reference if needed, but easier to just use the engine's reset
-        timer.start();
-    }, [timer, resetShock, stats]);
+        resetStats();
+        timer.reset();
+        // Use setTimeout to ensure state updates (especially currentLevelIndex) 
+        // have settled before starting, so the engine re-initializes properly
+        setTimeout(() => {
+            engine.reset();
+            setGamePhase('playing');
+            timer.start();
+        }, 50);
+    }, [timer, resetShock, resetStats, engine]);
 
     return (
         <GameLayout
@@ -305,7 +315,7 @@ const LifeSortedPage = () => {
                 </div>
             </Modal>
 
-            {gamePhase === 'playing' && (
+            {(gamePhase === 'playing' || gamePhase === 'report') && (
                 <>
                     <GameScreen
                         tubes={engine.tubes}
@@ -325,14 +335,14 @@ const LifeSortedPage = () => {
                 </>
             )}
 
-            {gamePhase === 'report' && (
-                <LevelReport
-                    tubes={engine.tubes}
-                    isWin={engine.isWon}
-                    capacity={LEVEL_CONFIGS[currentLevelIndex].capacity}
-                    onNext={() => setGamePhase('final')}
-                />
-            )}
+            {/* Level Report Popup Overlay */}
+            <LevelReport
+                tubes={engine.tubes}
+                isWin={engine.isWon}
+                capacity={LEVEL_CONFIGS[currentLevelIndex].capacity}
+                onNext={handleReportDone}
+                isVisible={gamePhase === 'report'}
+            />
 
             {gamePhase === 'final' && (
                 <FinalScreen

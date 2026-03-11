@@ -102,19 +102,13 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
     return (
         <>
             <motion.div
-                className="w-full flex flex-col items-center pt-8 pb-20 relative min-h-full"
+                className="w-full flex flex-col items-center pt-10 pb-20 relative min-h-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
             >
-                {/* Top Right Share Icon */}
-                <button
-                    onClick={handleShare}
-                    className="absolute top-6 right-6 z-50 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white/70 transition-all border border-white/10"
-                >
-                    <Share2 className="w-5 h-5" />
-                </button>
 
-                <div className="w-full max-w-sm flex flex-col items-center flex-1 gap-y-6 z-10 px-4">
+
+                <div className="w-full max-w-md flex flex-col items-center flex-1 gap-y-6 z-10 px-4">
                     <div className="text-center">
                         <h2 className="text-4xl font-black text-white tracking-tight uppercase">
                             HII <span className="text-gold">{leadData?.name || 'GUEST'}</span>
@@ -122,50 +116,39 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                     </div>
 
                     {/* Visual Score */}
-                    <div className="flex flex-col items-center gap-6">
+                    <div className="flex flex-col items-center gap-7">
                         <div className="relative">
                             <div className="absolute inset-0 bg-gold/10 blur-3xl rounded-full scale-150 animate-pulse" />
-                            <ScoreRing score={results.score} />
+                            <ScoreRing score={results.score} size={200} strokeWidth={14} />
                         </div>
 
                         <button
                             onClick={handleShare}
-                            className="flex items-center gap-2 px-8 py-2.5 bg-gold/10 border border-gold/30 rounded-full text-gold font-bold text-sm tracking-wide hover:bg-gold/20 transition-all active:scale-95"
+                            className="flex items-center gap-2 px-10 py-3 bg-gold/10 border border-gold/30 rounded-full text-gold font-bold text-base tracking-wide hover:bg-gold/20 transition-all active:scale-95"
                         >
-                            <Share2 className="w-4 h-4" /> Share Score
+                            <Share2 className="w-4 h-4" /> Share
                         </button>
                     </div>
 
-                    {/* Archetype Card - Restored Box */}
+                    {/* Heading below share */}
                     <div className="w-full text-center px-2">
-                        <p className="text-[10px] uppercase tracking-[0.4em] text-gold font-black mb-2 px-6">Your Life Archetype</p>
-                        <h3 className="text-3xl font-black text-white mb-3 tracking-tighter italic uppercase leading-none">{results.archetype}</h3>
-                        <div className="bg-white/5 backdrop-blur-md p-6 rounded-[2rem] border border-white/10 shadow-2xl relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 blur-2xl rounded-full -mr-12 -mt-12 group-hover:bg-gold/10 transition-all duration-700" />
-                            <p className="text-base font-bold text-teal mb-3 leading-tight">{archetype.traits}</p>
-                            <p className="text-sm text-white/40 leading-relaxed italic border-t border-white/5 pt-3">
-                                "{archetype.description}"
-                            </p>
-                        </div>
+                        <h3 className="text-2xl font-black text-white mb-2 leading-tight">Ready to Sort Your Real Life Finances?</h3>
                     </div>
 
                     {/* Action Card Section */}
-                    <div className="w-full bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/10 space-y-5 relative shadow-2xl overflow-hidden">
+                    <div className="w-full bg-white/5 backdrop-blur-xl rounded-[2.5rem] pt-5 pb-7 px-7 border border-white/10 space-y-4 relative shadow-2xl overflow-hidden">
                         <div className="absolute bottom-0 right-0 w-32 h-32 bg-teal/5 blur-3xl rounded-full -mb-16 -mr-16" />
 
-                        <div className="text-center space-y-1">
-                            <p className="text-white text-base font-black leading-tight">
-                                Build a strong financial foundation
-                            </p>
-                            <p className="text-white/40 text-[11px] font-bold uppercase tracking-wider">
-                                Connect with our expert manager
+                        <div className="text-center">
+                            <p className="text-sm text-white leading-relaxed font-medium">
+                                A Relationship Manager can help you structure protection, savings and growth — clearly and calmly.
                             </p>
                         </div>
 
-                        <div className="flex flex-col gap-3.5">
+                        <div className="flex flex-col gap-4">
                             <a
                                 href="tel:18002097272"
-                                className="bg-white text-black font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg hover:bg-gray-100 active:scale-95 shadow-xl"
+                                className="bg-[#D97706] text-black font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg hover:brightness-110 active:scale-95 shadow-xl"
                             >
                                 <Phone className="w-5 h-5 text-black/40" />
                                 <span>Call now</span>
@@ -190,7 +173,7 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                     {/* Play Again Action */}
                     <button
                         onClick={onRetry}
-                        className="flex items-center gap-3 text-white/70 hover:text-white font-black text-xl transition-all active:scale-95 py-4 mt-1 mb-4"
+                        className="flex items-center justify-center gap-3 text-white font-black text-2xl transition-all active:scale-95 py-4"
                     >
                         <RefreshCw className="w-6 h-6 text-gold" />
                         <span>Play again</span>

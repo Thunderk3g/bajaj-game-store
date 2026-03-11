@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Segment = ({
+const Segment = React.forwardRef(({
     element,
     isBottom,
     heightPct = 25
-}) => {
+}, ref) => {
     return (
         <motion.div
+            ref={ref}
             layout
             className={`relative w-full flex-shrink-0 flex items-center justify-center
                 ${isBottom ? 'rounded-b-[2rem]' : 'rounded-none'}
@@ -23,6 +24,8 @@ const Segment = ({
             </span>
         </motion.div>
     );
-};
+});
+
+Segment.displayName = 'Segment';
 
 export default Segment;

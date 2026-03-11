@@ -40,7 +40,7 @@ export const generateInitialTubes = (levelConfig) => {
 };
 
 export const isTubeSorted = (tube, capacity) => {
-    if (tube.length === 0) return true; // Empty tube is "valid" but not a completed category tube
+    if (tube.length === 0) return false; // Empty tubes are holding spaces, not sorted
     if (tube.length !== capacity) return false;
 
     const category = tube[0].category;
@@ -48,7 +48,8 @@ export const isTubeSorted = (tube, capacity) => {
 };
 
 export const checkWin = (tubes, activeCategoriesCount, capacity) => {
-    // A level is won when every tube is either completely empty (0) or filled with 4 same-category segments
-    const completedTubes = tubes.filter(tube => tube.length === capacity && isTubeSorted(tube, capacity));
+    // Only check the first N tubes (category tubes). The last tubes are utility/empty tubes for holding.
+    const categoryTubes = tubes.slice(0, activeCategoriesCount);
+    const completedTubes = categoryTubes.filter(tube => tube.length === capacity && isTubeSorted(tube, capacity));
     return completedTubes.length === activeCategoriesCount;
 };

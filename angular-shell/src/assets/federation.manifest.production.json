@@ -134,5 +134,14 @@
         "popular": true,
         "gameId": "GAME_013",
         "assets": []
+    },
+    "life-sorted": {
+        "remoteEntry": "assets/games/life-sorted/index.js",
+        "exposedModule": "./GameEntry",
+        "type": "react",
+        "displayName": "Life Sorted",
+        "popular": true,
+        "gameId": "GAME_014",
+        "assets": []
     }
 }

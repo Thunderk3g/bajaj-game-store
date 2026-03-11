@@ -106,7 +106,9 @@ export const useLifeSortedEngine = (currentLevelIndex, onLevelWin, showToast, tr
         }
     }, [history]);
 
-    const sortedCount = tubes.filter(t => isTubeSorted(t, config.capacity)).length;
+    // Only count sorted from category tubes (first N), not utility tubes
+    const activeTubesCount = config.tubesCount - (config.emptyTubes || 0);
+    const sortedCount = tubes.slice(0, activeTubesCount).filter(t => isTubeSorted(t, config.capacity)).length;
 
     return {
         tubes,
