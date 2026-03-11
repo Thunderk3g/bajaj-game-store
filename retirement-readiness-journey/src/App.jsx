@@ -16,7 +16,7 @@ const StepSurprises = lazy(() => import('./components/StepSurprises'));
 const Results = lazy(() => import('./components/Results'));
 
 const App = () => {
-    const { currentStep, currentStepIndex, totalSteps, actions, selections, score, insights, scoreBreakdown, userInfo } = useRetirementJourney();
+    const { currentStep, currentStepIndex, totalSteps, actions, selections, score, insights, scoreBreakdown, userInfo, surprisesSubStep } = useRetirementJourney();
     const isIntro = currentStep.id === JOURNEY_STEPS.INTRO;
     const isResults = currentStep.id === JOURNEY_STEPS.RESULTS;
     const renderStep = () => {
@@ -32,7 +32,7 @@ const App = () => {
             case JOURNEY_STEPS.ENGINE:
                 return <StepEngine step={currentStep} selections={selections} onSelect={actions.handleSelection} />;
             case JOURNEY_STEPS.SURPRISES:
-                return <StepSurprises step={currentStep} selections={selections} onSelect={actions.handleSelection} />;
+                return <StepSurprises step={currentStep} selections={selections} onSelect={actions.handleSelection} currentSubStep={surprisesSubStep} setSubStep={actions.setSurprisesSubStep} />;
             case JOURNEY_STEPS.RESULTS:
                 return <Results score={score} selections={selections} onReset={actions.reset} insights={insights} scoreBreakdown={scoreBreakdown} userInfo={userInfo} />;
             default:
@@ -50,7 +50,8 @@ const App = () => {
                 return (selections[currentStep.id] || []).length > 0;
             case JOURNEY_STEPS.SURPRISES:
                 const surpriseSelections = selections[currentStep.id] || {};
-                return Object.keys(surpriseSelections).length === 3;
+                const currentCategory = currentStep.categories[surprisesSubStep];
+                return surpriseSelections[currentCategory?.id] !== undefined;
             default:
                 return true;
         }
@@ -103,18 +104,18 @@ const App = () => {
 
             {/* Footer Navigation */}
             {!isIntro && !isResults && (
-                <footer className="sticky bottom-0 p-6">
-                    <div className="max-w-[48rem] mx-auto flex gap-4">
+                <footer className="sticky bottom-0 p-4 sm:p-6 z-50 bg-transparent">
+                    <div className="max-w-[48rem] mx-auto flex gap-3 sm:gap-4">
                         <Button
                             variant="outline"
                             onClick={actions.goToPrevStep}
-                            className="flex-1 h-[3.5rem] bg-primary-50 border-primary-500 text-primary-500 hover:bg-primary-100"
+                            className="flex-1 h-12 sm:h-[3.5rem] bg-primary-50 border-primary-500 text-primary-500 hover:bg-primary-100"
                         >
                             BACK
                         </Button>
                         <Button
                             onClick={actions.goToNextStep}
-                            className="flex-[2] h-[3.5rem] bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20"
+                            className="flex-[2] h-12 sm:h-[3.5rem] bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20"
                             disabled={!isStepValid()}
                         >
                             NEXT

@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const StepSurprises = ({ step, selections, onSelect, stepIndex = 5 }) => {
+const StepSurprises = ({ step, selections, onSelect, stepIndex = 5, currentSubStep, setSubStep }) => {
     const currentSelections = selections[step.id] || {};
-    const [currentSubStep, setCurrentSubStep] = useState(0);
     const [direction, setDirection] = useState(0);
+    const prevSubStepRef = useRef(currentSubStep);
+
+    useEffect(() => {
+        if (currentSubStep > prevSubStepRef.current) {
+            setDirection(1);
+        } else if (currentSubStep < prevSubStepRef.current) {
+            setDirection(-1);
+        }
+        prevSubStepRef.current = currentSubStep;
+    }, [currentSubStep]);
 
     const categories = step.categories;
 
@@ -14,19 +23,10 @@ const StepSurprises = ({ step, selections, onSelect, stepIndex = 5 }) => {
             ...currentSelections,
             [catId]: optId
         });
-
-        // Auto-advance after a small delay for better UX
-        if (currentSubStep < categories.length - 1) {
-            setTimeout(() => {
-                setDirection(1);
-                setCurrentSubStep(prev => prev + 1);
-            }, 400);
-        }
     };
 
     const goToSubStep = (index) => {
-        setDirection(index > currentSubStep ? 1 : -1);
-        setCurrentSubStep(index);
+        setSubStep(index);
     };
 
     const variants = {
@@ -156,11 +156,16 @@ const StepSurprises = ({ step, selections, onSelect, stepIndex = 5 }) => {
                                                             {option.label}
                                                         </span>
                                                     </div>
-                                                    {isSelected && (
-                                                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                                                            <div className="w-2 h-2 bg-white rounded-full" />
-                                                        </div>
-                                                    )}
+                                                    <div className={cn(
+                                                        "w-5 h-5 rounded-full flex items-center justify-center border-2 transition-all ml-3 flex-shrink-0",
+                                                        isSelected
+                                                            ? "border-blue-500 bg-blue-500"
+                                                            : "border-slate-300 bg-white group-hover:border-blue-400"
+                                                    )}>
+                                                        {isSelected && (
+                                                            <div className="w-2 h-2 bg-white rounded-full shadow-sm" />
+                                                        )}
+                                                    </div>
                                                 </button>
                                             );
                                         })}

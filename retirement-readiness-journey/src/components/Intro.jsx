@@ -83,10 +83,10 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
                 backgroundRepeat: 'no-repeat'
             }}
         >
-            <div className="w-full flex justify-center pb-12">
+            <div className="w-full flex justify-center pb-8 sm:pb-12">
                 <Button
                     onClick={handleStartClick}
-                    className="px-12 h-[4rem] text-[1.25rem] font-black text-white rounded-none tracking-widest hover:opacity-100 transition-all border-b-[6px] border-[#00407A] active:border-b-0 active:translate-y-[6px] relative overflow-hidden group shadow-[0_10px_30px_rgba(0,102,178,0.3)]"
+                    className="px-10 sm:px-12 h-14 sm:h-[4rem] text-[1.1rem] sm:text-[1.25rem] font-black text-white rounded-none tracking-widest hover:opacity-100 transition-all border-b-[6px] border-[#00407A] active:border-b-0 active:translate-y-[6px] relative overflow-hidden group shadow-[0_10px_30px_rgba(0,102,178,0.3)]"
                     style={{ background: '#0066B2' }}
                 >
                     <span className="relative z-10 italic">START NOW</span>
@@ -110,24 +110,24 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="relative bg-white shadow-2xl w-full max-w-[340px] p-6 border-[6px] border-[#0066B2] rounded-2xl"
+                            className="relative bg-white shadow-2xl w-full max-w-[340px] p-4 sm:p-6 border-[6px] border-[#0066B2] rounded-2xl max-h-[90vh] overflow-y-auto"
                         >
                             <button
                                 onClick={() => setShowNamePopup(false)}
-                                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+                                className="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-slate-600 transition-colors"
                             >
-                                <X className="w-6 h-6" />
+                                <X className="w-5 h-5 sm:w-6 sm:h-6" />
                             </button>
 
-                            <div className="text-center mb-6">
-                                <div className="w-20 h-20 bg-[#0066B2] flex items-center justify-center mx-auto mb-4 shadow-xl border-4 border-white rounded-full">
-                                    <span className="text-4xl">👋</span>
+                            <div className="text-center mb-4 sm:mb-6">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#0066B2] flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xl border-4 border-white rounded-full">
+                                    <span className="text-3xl sm:text-4xl">👋</span>
                                 </div>
-                                <h2 className="text-[#0066B2] text-2xl font-black mb-1">Welcome!</h2>
-                                <p className="text-slate-500 font-bold text-base">Enter your details to start</p>
+                                <h2 className="text-[#0066B2] text-xl sm:text-2xl font-black mb-1">Welcome!</h2>
+                                <p className="text-slate-500 font-bold text-sm sm:text-base">Enter your details to start.</p>
                             </div>
 
-                            <form onSubmit={handleNameSubmit} className="space-y-4">
+                            <form onSubmit={handleNameSubmit} className="space-y-3 sm:space-y-4">
                                 <div className="space-y-1.5">
                                     <label className="block text-slate-700 text-xs font-black uppercase tracking-widest ml-1 text-left" htmlFor="userName">
                                         Your Name
@@ -203,7 +203,7 @@ const Intro = ({ onStart, setUserInfo, userInfo }) => {
                                 <Button
                                     type="submit"
                                     disabled={!userName.trim() || phone.length !== 10 || !termsAccepted || isSubmitting}
-                                    className="w-full py-4 rounded-xl font-bold tracking-widest disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 bg-[#0066B2] hover:bg-[#005596] text-white"
+                                    className="w-full py-3.5 sm:py-4 rounded-xl font-bold tracking-widest disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 bg-[#0066B2] hover:bg-[#005596] text-white"
                                 >
                                     {isSubmitting ? (
                                         <>
