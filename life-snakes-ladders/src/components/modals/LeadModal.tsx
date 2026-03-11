@@ -124,7 +124,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
                         {isBooking ? 'Book a Slot' : 'Welcome!'}
                     </h2>
                     <p style={{ fontSize: 'clamp(14px, 2.5vh, 16px)', color: T.muted, margin: 0, fontWeight: 500 }}>
-                        {isBooking ? 'Select a time for our advisor to connect with you.' : 'Enter your details to start'}
+                        {isBooking ? 'Select a time for our advisor to connect with you' : 'Enter your details to start'}
                     </p>
                 </div>
 

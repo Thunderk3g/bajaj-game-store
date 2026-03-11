@@ -65,8 +65,8 @@ const LeadCaptureScreen: React.FC<LeadCaptureScreenProps> = ({ onSubmit }) => {
                     </div>
                     <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8 }}>Bajaj Allianz Life</span>
                 </div>
-                <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 6px', lineHeight: 1.2 }}>Before You Play,<br />Tell Us About You</h2>
-                <p style={{ fontSize: 13, opacity: 0.75, margin: 0, lineHeight: 1.5 }}>We'll personalise your experience and connect you with the right protection plan.</p>
+                <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 6px', lineHeight: 1.2 }}>Stay Protected,<br />Tell Us About You</h2>
+                <p style={{ fontSize: 13, opacity: 0.75, margin: 0, lineHeight: 1.5 }}>Secure your future and connect with the right protection plan</p>
             </div>
 
             {/* Form Card */}
