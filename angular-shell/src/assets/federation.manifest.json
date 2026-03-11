@@ -35,8 +35,7 @@
     "popular": true,
     "gameId": "GAME_002",
     "assets": [
-      "assets/games/quiz-game/assets/bajaj.png",
-      "assets/games/quiz-game/assets/Quiz-bg.png"
+      "assets/games/quiz-game/assets/bajaj.png"
     ]
   },
   "life-milestone-race": {
