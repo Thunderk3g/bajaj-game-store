@@ -299,6 +299,7 @@ const manifest = {
 
 const manifests = [
   path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.json"),
+  path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.preprod.json"),
   path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.prod.json"),
 ];
 
