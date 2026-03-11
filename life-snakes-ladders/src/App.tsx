@@ -94,8 +94,8 @@ const App: React.FC<AppProps> = ({
                 if (nextPos <= BOARD_SIZE) {
                     setGameState(prev => ({ ...prev, playerPosition: nextPos }));
                     currentStep++;
-                    // GDD 9.3: 90ms/step
-                    movementTimeoutRef.current = window.setTimeout(moveOneStep, 90);
+                    // GDD 9.3: slow down movement per step
+                    movementTimeoutRef.current = window.setTimeout(moveOneStep, 400);
                 } else {
                     finalizeMove(startPos + steps);
                 }

@@ -152,7 +152,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
                         bottom: `${tokenBottom}%`,
                         transform: 'translate(-50%, 50%)',
                         transition: isMoving
-                            ? 'left 0.22s cubic-bezier(0.34,1.56,0.64,1), bottom 0.22s cubic-bezier(0.34,1.56,0.64,1)'
+                            ? 'left 0.4s cubic-bezier(0.34,1.56,0.64,1), bottom 0.4s cubic-bezier(0.34,1.56,0.64,1)'
                             : 'none',
                         zIndex: 15,
                         pointerEvents: 'none',
