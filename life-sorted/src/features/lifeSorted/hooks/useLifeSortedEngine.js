@@ -14,6 +14,7 @@ export const useLifeSortedEngine = (currentLevelIndex, onLevelWin, showToast, tr
     const [history, setHistory] = useState([]);
     const [isWon, setIsWon] = useState(false);
     const [levelLoaded, setLevelLoaded] = useState(-1);
+    const [newlySortedTubes, setNewlySortedTubes] = useState([]);
 
     const reset = useCallback(() => {
         setIsWon(false);
@@ -22,6 +23,7 @@ export const useLifeSortedEngine = (currentLevelIndex, onLevelWin, showToast, tr
         setMoves(0);
         setMistakes(0);
         setHistory([]);
+        setNewlySortedTubes([]);
         setLevelLoaded(currentLevelIndex);
     }, [config, currentLevelIndex]);
 
@@ -60,8 +62,26 @@ export const useLifeSortedEngine = (currentLevelIndex, onLevelWin, showToast, tr
                     setSelectedTube(null);
                     setMoves((prev) => prev + 1);
 
-                    // Correct move feedback - 35% chance
-                    if (Math.random() < 0.35) {
+                    // Check if target tube just became sorted (only category tubes 0-4)
+                    const activeCats = config.tubesCount - (config.emptyTubes || 0);
+                    const categoryMapping = ['growth', 'safety', 'resp', 'risk', 'asset'];
+                    const expectedCat = categoryMapping[index];
+
+                    if (index < activeCats && isTubeSorted(newTubes[index], config.capacity, expectedCat)) {
+                        setNewlySortedTubes(prev => [...prev, index]);
+
+                        // Use actual segment category for toast name
+                        const actualCategory = newTubes[index][0]?.category;
+                        const catNames = { growth: 'Growth', safety: 'Safety', resp: 'Family', risk: 'Risk', asset: 'Assets' };
+                        const catName = catNames[actualCategory] || actualCategory;
+                        showToast(`${catName} sorted! 🎉`, 'success');
+
+                        // Clear newly sorted state after animation duration
+                        setTimeout(() => {
+                            setNewlySortedTubes(prev => prev.filter(i => i !== index));
+                        }, 2000);
+                    } else if (Math.random() < 0.35) {
+                        // Correct move feedback - 35% chance (only if not a sort celebration)
                         const messages = MESSAGE_LIBRARY.VALID_MOVE;
                         showToast(messages[Math.floor(Math.random() * messages.length)], 'success');
                     }
@@ -106,9 +126,12 @@ export const useLifeSortedEngine = (currentLevelIndex, onLevelWin, showToast, tr
         }
     }, [history]);
 
-    // Only count sorted from category tubes (first N), not utility tubes
+    // Only count sorted from category tubes (first N) matching their designated slots
     const activeTubesCount = config.tubesCount - (config.emptyTubes || 0);
-    const sortedCount = tubes.slice(0, activeTubesCount).filter(t => isTubeSorted(t, config.capacity)).length;
+    const categoryMapping = ['growth', 'safety', 'resp', 'risk', 'asset'];
+    const sortedCount = tubes.slice(0, activeTubesCount).filter((t, i) =>
+        isTubeSorted(t, config.capacity, categoryMapping[i])
+    ).length;
 
     return {
         tubes,
@@ -122,6 +145,7 @@ export const useLifeSortedEngine = (currentLevelIndex, onLevelWin, showToast, tr
         isWon,
         canUndo: history.length > 0,
         levelLoaded,
+        newlySortedTubes,
         reset
     };
 };

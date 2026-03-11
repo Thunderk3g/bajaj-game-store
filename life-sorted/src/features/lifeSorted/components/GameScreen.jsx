@@ -17,14 +17,11 @@ const GameScreen = ({
     activeCategories,
     moves,
     currentLevel,
-    tubeRefs
+    tubeRefs,
+    newlySortedTubes,
+    sortedCount
 }) => {
     const categoryMapping = ['growth', 'safety', 'resp', 'risk', 'asset'];
-    const sortedCount = tubes.slice(0, 5).filter((segments, idx) => {
-        if (segments.length === 0) return false;
-        const cat = segments[0]?.category;
-        return segments.length === capacity && segments.every(s => s.category === cat);
-    }).length;
 
     return (
         <div className="w-full h-full flex flex-col items-center pt-1">
@@ -92,6 +89,8 @@ const GameScreen = ({
                                             segments={segments}
                                             capacity={capacity}
                                             isSelected={selectedTube === index}
+                                            isSorted={segments.length === capacity && segments.every(s => s.category === categoryMapping[index])}
+                                            isNewlySorted={newlySortedTubes?.includes(index)}
                                             onClick={onTubeClick}
                                             isValidTarget={selectedTube !== null && selectedTube !== index}
                                         />
@@ -120,6 +119,8 @@ const GameScreen = ({
                                         segments={segments}
                                         capacity={capacity}
                                         isSelected={selectedTube === tubeIndex}
+                                        isSorted={false}
+                                        isNewlySorted={false}
                                         onClick={onTubeClick}
                                         isValidTarget={selectedTube !== null && selectedTube !== tubeIndex}
                                     />

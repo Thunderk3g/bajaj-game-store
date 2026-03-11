@@ -295,22 +295,30 @@ const LifeSortedPage = () => {
                 </div>
             </Modal>
 
-            {/* Terms Modal */}
             <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
                 <div className="bg-white rounded-[32px] p-8 w-full shadow-2xl relative text-left">
-                    <button
-                        onClick={() => setIsTermsOpen(false)}
-                        className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-
-                    <h2 className="text-2xl font-black text-gray-800 mb-6 tracking-tight">
-                        Terms & Conditions
-                    </h2>
-                    <div className="text-sm text-gray-500 font-bold space-y-4 max-h-[50dvh] overflow-y-auto pr-2">
-                        <p>Privacy Policy & Terms of Use for Life Sorted 3D.</p>
-                        <p>Your data stays secure and will only be used for providing personalized life planning insights.</p>
+                    <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
+                        <h3 className="text-[#0066B2] text-xl font-black uppercase tracking-tight">
+                            Terms &amp; Conditions
+                        </h3>
+                        <button
+                            onClick={() => setIsTermsOpen(false)}
+                            className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200 text-left">
+                        <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                        <p>Please refer to <a href="https://www.bajajlifeinsurance.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.</p>
+                    </div>
+                    <div className="mt-6">
+                        <button
+                            onClick={() => { setIsTermsOpen(false); setIsTermsAccepted(true); }}
+                            className="w-full mt-6 py-3 bg-[#0066B2] text-white font-bold rounded-lg hover:bg-blue-700 transition-colors text-sm uppercase tracking-wider"
+                        >
+                            I Agree
+                        </button>
                     </div>
                 </div>
             </Modal>
@@ -330,6 +338,8 @@ const LifeSortedPage = () => {
                         moves={engine.moves}
                         currentLevel={currentLevelIndex + 1}
                         tubeRefs={tubeRefs}
+                        newlySortedTubes={engine.newlySortedTubes}
+                        sortedCount={engine.sortedCount}
                     />
                     <ShockOverlay isActive={isShockActive} onResolve={resolveShock} />
                 </>

@@ -11,10 +11,10 @@ const Toast = ({ message, type = 'info', onDismiss }) => {
     };
 
     const styles = {
-        info: 'border-blue-500/30 bg-blue-950/80 shadow-[0_4px_24px_rgba(59,130,246,0.15)]',
-        success: 'border-emerald-500/30 bg-emerald-950/80 shadow-[0_4px_24px_rgba(16,185,129,0.15)]',
-        error: 'border-red-500/30 bg-red-950/80 shadow-[0_4px_24px_rgba(239,68,68,0.15)]',
-        warning: 'border-amber-500/30 bg-amber-950/80 shadow-[0_4px_24px_rgba(245,158,11,0.2)]',
+        info: 'border-blue-500/40 bg-blue-950/60 shadow-[0_0_20px_rgba(59,130,246,0.1)]',
+        success: 'border-emerald-500/40 bg-emerald-950/60 shadow-[0_0_20px_rgba(16,185,129,0.1)]',
+        error: 'border-red-500/40 bg-red-950/60 shadow-[0_0_20px_rgba(239,68,68,0.1)]',
+        warning: 'border-amber-500/40 bg-amber-950/60 shadow-[0_0_20px_rgba(245,158,11,0.15)]',
     };
 
     const textColors = {
@@ -25,24 +25,32 @@ const Toast = ({ message, type = 'info', onDismiss }) => {
     };
 
     return (
-        <div className="fixed top-16 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
+        <div className="fixed top-[82px] left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
             <AnimatePresence>
                 {message && (
                     <motion.div
-                        initial={{ opacity: 0, y: -30, scale: 0.95 }}
+                        initial={{ opacity: 0, y: -12, scale: 0.92 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -15 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        exit={{ opacity: 0, scale: 0.92, y: -8 }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 600,
+                            damping: 32,
+                            mass: 0.7
+                        }}
                         className={`
-                            flex items-center gap-3 px-5 py-3 rounded-2xl border backdrop-blur-xl
-                            pointer-events-auto max-w-sm w-full
+                            flex items-center gap-4 px-6 py-4 rounded-[26px] border border-white/20
+                            backdrop-blur-3xl pointer-events-auto max-w-sm w-full
+                            shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_20px_rgba(255,255,255,0.05)_inset]
                             ${styles[type]}
                         `}
                     >
-                        <div className="shrink-0">
+                        <div className={`p-2 rounded-xl bg-white/5 border border-white/10 shrink-0`}>
                             {icons[type]}
                         </div>
-                        <p className={`text-sm font-bold ${textColors[type]}`}>{message}</p>
+                        <p className={`text-[0.9rem] font-bold tracking-tight ${textColors[type]}`}>
+                            {message}
+                        </p>
                     </motion.div>
                 )}
             </AnimatePresence>
