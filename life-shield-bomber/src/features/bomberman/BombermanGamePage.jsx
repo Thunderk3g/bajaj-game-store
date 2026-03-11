@@ -58,12 +58,9 @@ function BombermanGamePage() {
     const [showEntry, setShowEntry] = useState(false);
 
     const handleLandingStart = useCallback(() => {
-        if (entryDetails) {
-            goToHowToPlay();
-        } else {
-            setShowEntry(true);
-        }
-    }, [entryDetails, goToHowToPlay]);
+        // Lead popup disabled — start game directly
+        goToHowToPlay();
+    }, [goToHowToPlay]);
 
     const handleEntryDone = useCallback(async (name, mobile) => {
         await handleEntrySubmit(name, mobile);

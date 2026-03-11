@@ -179,8 +179,9 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
 
     const handleLandingStart = useCallback(() => {
         handleUserInteraction();
-        setShowEntry(true);
-    }, [handleUserInteraction]);
+        // Lead popup disabled — start game directly
+        handleEntryDone('', '');
+    }, [handleUserInteraction, handleEntryDone]);
 
     const handleEntryClose = useCallback(() => {
         setShowEntry(false);

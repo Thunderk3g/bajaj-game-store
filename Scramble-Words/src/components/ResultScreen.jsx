@@ -22,20 +22,20 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
 
     if (finalScore === 0) {
         heading = "Bad";
-        subtext = "You can do better.";
+        subtext = "You can do better";
     } else if (finalScore === 1 || finalScore === 2) {
         heading = "Not up the mark";
         // FIXED: corrected from "You can do it better." to "You can do better."
-        subtext = "You can do better.";
+        subtext = "You can do better";
     } else if (finalScore === 3) {
         heading = "Good";
-        subtext = "You can do better.";
+        subtext = "You can do better";
     } else if (finalScore === 4) {
         heading = "Good Job";
-        subtext = "You have learned important\nfinancial and insurance concepts.";
+        subtext = "You have learned important\nfinancial and insurance concepts";
     } else if (finalScore === 5) {
         heading = "Excellent";
-        subtext = "You have learned important\nfinancial and insurance concepts.";
+        subtext = "You have learned important\nfinancial and insurance concepts";
     }
 
     const handleShare = async () => {
