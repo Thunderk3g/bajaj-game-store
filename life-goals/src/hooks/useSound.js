@@ -10,7 +10,9 @@ export const useSound = () => {
         if (!soundEnabled.current) return;
 
         try {
-            const audio = new Audio(`./sounds/${soundType}.wav`);
+            // Use absolute-looking path from project root and add cache-buster
+            const soundPath = `./sounds/${soundType}.wav?v=${Date.now()}`;
+            const audio = new Audio(soundPath);
             audio.volume = 0.5;
 
             if (options.startTime) {
@@ -19,9 +21,11 @@ export const useSound = () => {
 
             audio.play().catch(err => {
                 // Silently fail if sound doesn't exist or can't play
+                console.warn(`Sound play failed for ${soundPath}:`, err);
             });
         } catch (error) {
             // Sound not available
+            console.error('Error in useSound:', error);
         }
     }, []);
 

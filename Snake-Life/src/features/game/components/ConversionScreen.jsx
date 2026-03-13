@@ -26,6 +26,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
         timeSlot: ''
     });
     const [errors, setErrors] = useState({});
+    const [isTermsOpen, setIsTermsOpen] = useState(false);
 
     const timeSlots = [
         "9:00 AM - 10:00 AM",
@@ -311,7 +312,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                         <div>
                             <label htmlFor="date" className="text-sm font-bold text-slate-400 ml-1 block mb-1.5">Booking Date</label>
                             <div className="relative">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
+                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500 pointer-events-none" strokeWidth={2.5} />
                                 <input
                                     type="date"
                                     value={bookingData.date}
@@ -323,14 +324,26 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                     }}
                                     id="date"
                                     name="date"
-                                    className={`w-full bg-slate-900 border-2 rounded-2xl pl-11 pr-4 py-3 text-white font-bold focus:outline-none focus:border-blue-500 transition-colors ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
+                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-12 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none uppercase text-sm min-h-[52px] text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
                                 />
-                                {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
+                                <div
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-1"
+                                    onClick={() => {
+                                        const input = document.getElementById('date');
+                                        if (input && input.showPicker) {
+                                            input.showPicker();
+                                        } else if (input) {
+                                            input.click();
+                                        }
+                                    }}
+                                >
+                                    <Calendar className="w-5 h-5 text-white" strokeWidth={2.5} />
+                                </div>
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="timeSlot" className="text-sm font-bold text-slate-400 ml-1 block mb-1.5">Preferred Time Slot</label>
+                            <label htmlFor="timeSlot" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block mb-1.5">Preferred Time Slot</label>
                             <div className="relative">
                                 <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
                                 <select
@@ -359,7 +372,15 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                     {bookingTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
                                 </div>
                                 <div className="text-sm text-gray-500 font-bold leading-tight">
-                                    I accept the terms & conditions and acknowledge the privacy policy.
+                                    I agree to the{' '}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}
+                                        className="text-blue-500 font-bold underline cursor-pointer hover:text-blue-400"
+                                    >
+                                        Terms & Conditions
+                                    </button>
+                                    {' '}and allow Bajaj Life Insurance to contact me even if registered on DND.
                                 </div>
                             </div>
                             {errors.terms && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.terms}</p>}
@@ -373,6 +394,35 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                             {isSubmitting ? 'Booking...' : 'Confirm booking'}
                         </button>
                     </form>
+                </div>
+            </Modal>
+
+            {/* Terms Modal */}
+            <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
+                <div className="bg-[#0f172a] rounded-[32px] p-8 w-full shadow-2xl relative max-w-sm mx-auto border-2 border-slate-800">
+                    <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+                        <h3 className="text-blue-500 text-xl font-black uppercase tracking-tight">
+                            Terms & Conditions
+                        </h3>
+                        <button
+                            onClick={() => setIsTermsOpen(false)}
+                            className="text-white/40 hover:text-white transition-colors p-1"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-white/50 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-white/10 text-left">
+                        <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                        <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">BALIC Privacy Policy</a>.</p>
+                    </div>
+                    <div className="mt-6">
+                        <button
+                            onClick={() => { setIsTermsOpen(false); setBookingTermsAccepted(true); }}
+                            className="w-full mt-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-500 transition-colors text-sm uppercase tracking-wider"
+                        >
+                            I Agree
+                        </button>
+                    </div>
                 </div>
             </Modal>
         </motion.div>

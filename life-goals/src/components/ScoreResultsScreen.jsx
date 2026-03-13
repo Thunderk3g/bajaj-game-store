@@ -367,8 +367,9 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                 </div>
                             </div>
                             <div className="space-y-0.5">
+                                <label htmlFor="booking-date" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Booking Date</label>
                                 <div className="relative">
-                                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none z-10" />
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500 pointer-events-none z-10" strokeWidth={2.5} />
                                     <Input
                                         id="booking-date"
                                         name="date"
@@ -377,14 +378,35 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                         max={maxDate}
                                         value={formData.date}
                                         onChange={e => updateField('date', e.target.value)}
-                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-4 pr-11`}
+                                        ref={(el) => {
+                                            if (el) {
+                                                // We can store it in a local variable or use a ref if needed, 
+                                                // but for a single click handler, we can find it via parent
+                                            }
+                                        }}
+                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-12 pr-12 uppercase text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
+                                        placeholder="DD-MM-YYYY"
                                     />
+                                    <div
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-1"
+                                        onClick={() => {
+                                            const input = document.getElementById('booking-date');
+                                            if (input && input.showPicker) {
+                                                input.showPicker();
+                                            } else if (input) {
+                                                input.click();
+                                            }
+                                        }}
+                                    >
+                                        <Calendar className="w-5 h-5 text-slate-800" strokeWidth={2.5} />
+                                    </div>
                                 </div>
                                 <div className="min-h-[18px]">
                                     {errors.date && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{errors.date}</p>}
                                 </div>
                             </div>
                             <div className="space-y-0.5">
+                                <label htmlFor="booking-time" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Time Slot</label>
                                 <div className="relative" ref={dropdownRef}>
                                     <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none z-10" />
                                     <div

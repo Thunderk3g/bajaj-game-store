@@ -13,11 +13,12 @@ export const useSound = () => {
         if (!AVAILABLE_SOUNDS.includes(soundType)) return;
 
         try {
-            const audio = new Audio(`./sounds/${soundType}.mp3`);
+            const soundPath = `./sounds/${soundType}.mp3?v=${Date.now()}`;
+            const audio = new Audio(soundPath);
             audio.volume = 0.5;
             audio.play().catch(err => {
                 // Silently fail if sound doesn't exist or can't play
-                console.log('Sound playback skipped:', soundType);
+                console.log('Sound playback skipped:', soundPath);
             });
         } catch (error) {
             console.log('Sound not available:', soundType);
