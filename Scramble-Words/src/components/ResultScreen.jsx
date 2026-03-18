@@ -22,20 +22,16 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
 
     if (finalScore === 0) {
         heading = "Bad";
-        subtext = "You can do better";
+        subtext = "It's ok! You have learned many new concept";
     } else if (finalScore === 1 || finalScore === 2) {
         heading = "Not up the mark";
-        // FIXED: corrected from "You can do it better." to "You can do better."
-        subtext = "You can do better";
-    } else if (finalScore === 3) {
+        subtext = "You did well but you can surely do better";
+    } else if (finalScore === 3 || finalScore === 4) {
         heading = "Good";
-        subtext = "You can do better";
-    } else if (finalScore === 4) {
-        heading = "Good Job";
-        subtext = "You have learned important\nfinancial and insurance concepts";
+        subtext = "You did well but you can surely do better";
     } else if (finalScore === 5) {
         heading = "Excellent";
-        subtext = "You have learned important\nfinancial and insurance concepts";
+        subtext = "You know a lot of Insurance related concepts, keep going";
     }
 
     const handleShare = async () => {
@@ -183,7 +179,8 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
                         onClick={onRestart}
                         className="text-white/70 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors underline underline-offset-4 mt-2"
                     >
-                        Try Again
+                        Play Again
+
                     </button>
 
                     {/* Disclaimer */}
