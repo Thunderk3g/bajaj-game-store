@@ -27,7 +27,14 @@ export default function GameScreen({ onEnd }) {
 
     useEffect(() => {
         const shuffled = [...(WORDS || [])].sort(() => Math.random() - 0.5);
-        setGameWords(shuffled.slice(0, 5));
+        const shortestWordIndex = shuffled.findIndex(w => w.word.length <= 4);
+        let firstWord = shuffled[0];
+        if (shortestWordIndex !== -1) {
+            firstWord = shuffled.splice(shortestWordIndex, 1)[0];
+        } else {
+            firstWord = shuffled.shift();
+        }
+        setGameWords([firstWord, ...shuffled.slice(0, 4)]);
     }, []);
 
     const currentWordObj = (gameWords && gameWords[wordIndex]) ? gameWords[wordIndex] : null;
@@ -247,16 +254,24 @@ export default function GameScreen({ onEnd }) {
                     <span className="text-xl sm:text-2xl font-game text-white">{wordIndex + 1}/{gameWords ? gameWords.length : 0}</span>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-md px-3 py-2 sm:px-6 sm:py-2 rounded-2xl border border-white/20 flex gap-1 sm:gap-2 justify-center">
-                    {gameWords.map((_, i) => (
-                        <Star
-                            key={i}
-                            className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors duration-300 ${questionResults[i] === 'correct' ? 'text-yellow-400 fill-yellow-400' :
-                                questionResults[i] === 'wrong' ? 'text-red-500 fill-red-500' :
-                                    'text-white/30'
-                                }`}
-                        />
-                    ))}
+                <div className="bg-white/10 backdrop-blur-md px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border border-white/20 flex items-center justify-center gap-1 sm:gap-2">
+                    {gameWords.map((_, i) => {
+                        const status = questionResults[i];
+                        const isActive = i === wordIndex;
+                        let bgClass = "bg-white/30";
+                        if (status === 'correct') bgClass = "bg-emerald-400";
+                        else if (status === 'wrong') bgClass = "bg-rose-500";
+                        else if (isActive) bgClass = "bg-amber-400 ring-4 ring-amber-400/30";
+
+                        return (
+                            <div key={i} className="flex items-center">
+                                <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 ${bgClass}`} />
+                                {i < gameWords.length - 1 && (
+                                    <div className={`w-3 sm:w-5 h-[2px] mx-1 transition-all duration-300 ${questionResults[i] !== null ? 'bg-white/60' : 'bg-white/20'}`} />
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -358,6 +373,7 @@ export default function GameScreen({ onEnd }) {
                     usedIndices={usedLetterIndices}
                     hintedIndex={hintedBankIndex}
                     onLetterSelect={handleLetterPlace}
+                    showTutorial={wordIndex === 0}
                 />
 
                 <div className="flex gap-4 sm:gap-6 pb-2 sm:pb-0">
