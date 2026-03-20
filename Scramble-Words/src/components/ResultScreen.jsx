@@ -16,22 +16,15 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
     const finalScore = Math.min(Math.max(normalizedScore, 0), 5);
     const name = firstName || "BAJAJ";
 
-    // Dynamic Heading & Subtext based on score
-    let heading = "";
+    // Dynamic Subtext based on score
     let subtext = "";
 
     if (finalScore === 0) {
-        heading = "Bad";
-        subtext = "It's ok! You have learned many new concept";
-    } else if (finalScore === 1 || finalScore === 2) {
-        heading = "Not up the mark";
-        subtext = "You did well but you can surely do better";
-    } else if (finalScore === 3 || finalScore === 4) {
-        heading = "Good";
-        subtext = "You did well but you can surely do better";
+        subtext = "It's ok! You learned something new";
+    } else if (finalScore >= 1 && finalScore <= 4) {
+        subtext = "You did well but you can surely do better!";
     } else if (finalScore === 5) {
-        heading = "Excellent";
-        subtext = "You know a lot of Insurance related concepts, keep going";
+        subtext = "You know a lot of insurance related concepts, keep going";
     }
 
     const handleShare = async () => {
@@ -110,13 +103,7 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
                 {/* Gap 12px (after shield visual space) */}
                 <div className="h-3 shrink-0"></div>
 
-                {/* Heading (Excellent) */}
-                <h2 className="text-xl font-bold text-white tracking-wide leading-tight">
-                    {heading}
-                </h2>
 
-                {/* Gap 8px */}
-                <div className="h-2 shrink-0"></div>
 
                 {/* Description */}
                 <div className="w-full">

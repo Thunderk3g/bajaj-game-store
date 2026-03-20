@@ -383,7 +383,7 @@ export default function GameScreen({ onEnd }) {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
-                        Hint ({3 - hintUsedCount})
+                        Help ({3 - hintUsedCount})
                     </motion.button>
 
                     {/* CHANGED: disabled once result is shown (isLocked) or transitioning to next word */}
