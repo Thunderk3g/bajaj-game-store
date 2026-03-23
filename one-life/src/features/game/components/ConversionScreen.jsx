@@ -117,7 +117,7 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                 <footer className="footer-section">
                     <div className="bg-white p-4 shadow-2xl rounded-[12px] border border-slate-100 w-full mb-3">
                         <p className="text-slate-800 text-[11px] sm:text-xs font-black text-center leading-tight uppercase tracking-tight mb-3">
-                            Let's secure your family's future against unexcepted event 
+                            Let's secure your family's future against unexcepted event
                         </p>
                         <div className="flex flex-col gap-2.5">
                             <a href="tel:18002097272" className="block w-full">
@@ -136,15 +136,15 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                     </div>
 
                     <div className="flex flex-col items-center space-y-3">
+                        <button onClick={() => onRestart && onRestart()} className="text-white text-[12px] sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 underline underline-offset-4 decoration-white/30">
+                            <RefreshCw className="w-4 h-4" /> TRY AGAIN
+                        </button>
+
                         <div className="px-1">
                             <p className="opacity-60 text-[6.5px] sm:text-[7.5px] text-white text-center leading-tight max-w-[380px] uppercase font-medium">
                                 The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes
                             </p>
                         </div>
-
-                        <button onClick={() => onRestart && onRestart()} className="text-white text-[12px] sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 underline underline-offset-4 decoration-white/30">
-                            <RefreshCw className="w-4 h-4" /> TRY AGAIN
-                        </button>
                     </div>
                 </footer>
             </div>

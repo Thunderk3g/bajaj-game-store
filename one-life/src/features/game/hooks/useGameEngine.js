@@ -343,111 +343,106 @@ export const useGameEngine = () => {
 
     const drawPlayer = useCallback((ctx, p) => {
         const { x, y, width: w, height: h, animPhase } = p;
-        // 6-8 frame smooth bounce animation
+        const lx = x + w / 2;
+        const ly = y + h;
+
+        // --- 0. Dynamics ---
         const bounce = Math.abs(Math.sin(animPhase)) * 8;
-        const legSwing = Math.sin(animPhase * 1.5) * 6;
+        const step = Math.sin(animPhase * 1.5) * 8;
 
         ctx.save();
         ctx.translate(0, -bounce);
 
-        // Dark Ground Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.4)';
-        // Shadow stays on ground, counter-acts bounce
-        ctx.beginPath(); ctx.ellipse(x + w / 2, y + h + bounce + 4, w * 0.4 - bounce * 0.5, 6, 0, 0, Math.PI * 2); ctx.fill();
+        // Ground Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath(); ctx.ellipse(lx, ly + bounce + 4, w * 0.35, 6, 0, 0, Math.PI * 2); ctx.fill();
 
-        // Shoes & Legs with distinct running swing
-        ctx.fillStyle = '#1A2A40';
-        ctx.fillRect(x + w / 2 - 12 + legSwing * 0.5, y + h - 18, 9, 14 - legSwing);
-        ctx.fillRect(x + w / 2 + 3 - legSwing * 0.5, y + h - 18, 9, 14 + legSwing);
+        // Rendering Config
+        const strokeOuter = (path) => { ctx.strokeStyle = '#000'; ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.stroke(path); };
+        const strokeInner = (path) => { ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke(path); };
 
-        ctx.fillStyle = COLORS.PLAYER_SHOES;
-        // Left shoe
-        ctx.beginPath(); ctx.roundRect(x + w / 2 - 15 + legSwing * 0.5, y + h - 6 - legSwing, 14, 8, 4); ctx.fill();
-        // Right shoe
-        ctx.beginPath(); ctx.roundRect(x + w / 2 + 1 - legSwing * 0.5, y + h - 6 + legSwing, 14, 8, 4); ctx.fill();
+        // --- 1. Legs & Boots ---
+        ctx.fillStyle = '#1A1A1A'; // Charcoal Slim Pants
+        const legW = 10, legH = 80;
+        const lp1 = new Path2D(); lp1.roundRect(lx - 12 + step * 0.2, ly - 85, legW, legH, 3);
+        ctx.fill(lp1); strokeOuter(lp1);
+        const rp1 = new Path2D(); rp1.roundRect(lx + 2 - step * 0.2, ly - 85, legW, legH, 3);
+        ctx.fill(rp1); strokeOuter(rp1);
 
-        // Hoodie Main Body
-        const g = ctx.createLinearGradient(x, y + 15, x, y + h - 10);
-        g.addColorStop(0, COLORS.PLAYER_HOODIE);
-        g.addColorStop(1, COLORS.PLAYER_HOODIE_DARK);
-        ctx.fillStyle = g;
-        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
-        ctx.beginPath(); ctx.roundRect(x + 10, y + 25, w - 20, h - 38, [12, 12, 8, 8]); ctx.fill();
-        ctx.shadowColor = 'transparent';
+        ctx.fillStyle = '#3E2A1C'; // Leather Boots
+        const bootW = 16, bootH = 12;
+        const lb = new Path2D(); lb.roundRect(lx - 16 + step * 0.2, ly - 12 - step * 0.4, bootW, bootH, [3, 6, 2, 2]); ctx.fill(lb); strokeOuter(lb);
+        const rb = new Path2D(); rb.roundRect(lx + 0 - step * 0.2, ly - 12 + step * 0.4, bootW, bootH, [6, 3, 2, 2]); ctx.fill(rb); strokeOuter(rb);
 
-        // Hoodie Zipper/Details
-        ctx.fillStyle = '#1A3D63';
-        ctx.fillRect(x + w / 2 - 2, y + 35, 4, h - 50);
-        ctx.fillStyle = '#FFF';
-        ctx.beginPath(); ctx.ellipse(x + w / 2, y + 28, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
+        // --- 2. Torso (Royal Blue Shirt) ---
+        const shirtY = y + 42;
+        const shirtH = 55;
+        const sg = ctx.createLinearGradient(lx, shirtY, lx, shirtY + shirtH);
+        sg.addColorStop(0, '#5B85E0'); sg.addColorStop(1, '#2F5FC4');
+        ctx.fillStyle = sg;
 
-        // Neck
-        ctx.fillStyle = '#DCA38C';
-        ctx.fillRect(x + w / 2 - 4, y + 18, 8, 10);
+        // Draw Arms BEHIND Torso
+        const armStep = Math.sin(animPhase * 1.5) * 5;
+        const drawArm = (armX, armY, hndX, hndY, flip) => {
+            const arm = new Path2D(); arm.moveTo(armX, armY); arm.lineTo(hndX, hndY);
+            ctx.lineWidth = 14; ctx.strokeStyle = '#2F5FC4'; ctx.stroke(arm);
+            ctx.lineWidth = 2.4; ctx.strokeStyle = '#000'; ctx.stroke(arm);
+            // Hand
+            ctx.fillStyle = '#EBC2A0';
+            const hand = new Path2D(); hand.roundRect(hndX - 8, hndY - 3, 16, 16, 5); ctx.fill(hand); strokeOuter(hand);
+            const fin = new Path2D(); for (let i = 0; i < 3; i++) { fin.moveTo(hndX - 4 + i * 4, hndY + 5); fin.lineTo(hndX - 4 + i * 4, hndY + 12); }
+            strokeInner(fin);
+        };
+        const hL_X = lx - 32 - armStep * 0.8, hL_Y = shirtY + 55 + armStep * 0.3;
+        drawArm(lx - 18, shirtY + 12, hL_X, hL_Y, false);
+        const hR_X = lx + 32 + armStep * 0.8, hR_Y = shirtY + 55 - armStep * 0.3;
+        drawArm(lx + 18, shirtY + 12, hR_X, hR_Y, true);
 
-        // Face
-        ctx.fillStyle = COLORS.PLAYER_FACE;
-        ctx.beginPath(); ctx.roundRect(x + w / 2 - 12, y + 4, 24, 20, 8); ctx.fill();
+        // Draw Simple Shirt Torso
+        const torso = new Path2D();
+        torso.moveTo(lx - 20, shirtY);
+        torso.bezierCurveTo(lx - 24, shirtY + 5, lx - 24, shirtY + 25, lx - 20, shirtY + shirtH); // Side L
+        torso.lineTo(lx + 20, shirtY + shirtH);
+        torso.bezierCurveTo(lx + 24, shirtY + 25, lx + 24, shirtY + 5, lx + 20, shirtY); // Side R
+        torso.closePath();
+        ctx.fill(torso); strokeOuter(torso);
 
-        // Modern Hair
-        ctx.fillStyle = '#2A1B14'; // Dark brown hair
-        ctx.beginPath();
-        ctx.moveTo(x + w / 2 - 14, y + 10);
-        ctx.bezierCurveTo(x + w / 2 - 12, y - 4, x + w / 2 + 12, y - 6, x + w / 2 + 14, y + 10);
-        ctx.lineTo(x + w / 2 + 10, y + 2);
-        ctx.lineTo(x + w / 2, y - 2);
-        ctx.lineTo(x + w / 2 - 10, y + 4);
-        ctx.closePath();
-        ctx.fill();
+        // Minimalist details (shirt folds)
+        const innerDet = new Path2D();
+        innerDet.moveTo(lx - 15, shirtY + shirtH - 10); innerDet.bezierCurveTo(lx - 5, shirtY + shirtH - 12, lx + 5, shirtY + shirtH - 12, lx + 15, shirtY + shirtH - 10);
+        strokeInner(innerDet);
 
-        // Hair spikes (casual modern look)
-        ctx.beginPath(); ctx.moveTo(x + w / 2 - 8, y + 2); ctx.lineTo(x + w / 2 - 4, y + 12); ctx.lineTo(x + w / 2, y + 2); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(x + w / 2 + 2, y - 1); ctx.lineTo(x + w / 2 + 6, y + 10); ctx.lineTo(x + w / 2 + 8, y + 2); ctx.fill();
+        // --- 3. Neck & Head ---
+        const headY = y + 10;
+        const headH = 34;
 
-        // Eyes (adult style, determined expression)
-        ctx.fillStyle = '#111';
-        ctx.fillRect(x + w / 2 - 8, y + 12, 4, 4);
-        ctx.fillRect(x + w / 2 + 4, y + 12, 4, 4);
+        // Visible Neck
+        ctx.fillStyle = '#EBC2A0';
+        ctx.fillRect(lx - 6, y + 35, 12, 12);
+        ctx.strokeRect(lx - 6, y + 35, 12, 12);
 
-        // Eyebrows
-        ctx.strokeStyle = '#2A1B14'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(x + w / 2 - 9, y + 10); ctx.lineTo(x + w / 2 - 4, y + 10); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x + w / 2 + 4, y + 10); ctx.lineTo(x + w / 2 + 9, y + 10); ctx.stroke();
+        // Oval Face Shape (Mobile RPG/Protagonist Style)
+        const face = new Path2D();
+        face.ellipse(lx, headY + 18, 18, 20, 0, 0, Math.PI * 2);
+        ctx.fill(face); strokeOuter(face);
 
-        // Mouth (neutral/determined)
-        ctx.strokeStyle = '#4A2B29'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(x + w / 2 - 3, y + 20); ctx.lineTo(x + w / 2 + 3, y + 20); ctx.stroke();
+        // Side-Parted Hair
+        ctx.fillStyle = '#1A1108';
+        const hair = new Path2D();
+        hair.moveTo(lx - 18, headY + 10);
+        hair.bezierCurveTo(lx - 22, headY - 14, lx + 18, headY - 14, lx + 20, headY + 12);
+        hair.lineTo(lx + 15, headY + 8); hair.lineTo(lx - 15, headY + 8); hair.closePath();
+        ctx.fill(hair); strokeOuter(hair);
 
-        // Arms/Hands — swing opposite to legs while running
-        const armSwing = Math.sin(animPhase * 1.5) * 8;
-        ctx.strokeStyle = COLORS.PLAYER_HOODIE;
-        ctx.lineWidth = 7;
-        ctx.lineCap = 'round';
+        // Good Face Details
+        ctx.fillStyle = '#000';
+        // Anime Eyes (Positioned lower)
+        ctx.fillRect(lx - 11, headY + 18, 5, 4); ctx.fillRect(lx + 6, headY + 18, 5, 4);
 
-        // Left arm
-        ctx.beginPath();
-        ctx.moveTo(x + w / 2 - 10, y + 30);
-        ctx.lineTo(x + w / 2 - 18 - armSwing * 0.6, y + 48 + armSwing * 0.4);
-        ctx.stroke();
-
-        // Left hand
-        ctx.fillStyle = COLORS.PLAYER_FACE;
-        ctx.beginPath();
-        ctx.arc(x + w / 2 - 18 - armSwing * 0.6, y + 48 + armSwing * 0.4, 4, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Right arm
-        ctx.strokeStyle = COLORS.PLAYER_HOODIE;
-        ctx.beginPath();
-        ctx.moveTo(x + w / 2 + 10, y + 30);
-        ctx.lineTo(x + w / 2 + 18 + armSwing * 0.6, y + 48 - armSwing * 0.4);
-        ctx.stroke();
-
-        // Right hand
-        ctx.fillStyle = COLORS.PLAYER_FACE;
-        ctx.beginPath();
-        ctx.arc(x + w / 2 + 18 + armSwing * 0.6, y + 48 - armSwing * 0.4, 4, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.lineWidth = 1.2; ctx.strokeStyle = '#000';
+        // Refined nose & confident smirk
+        ctx.beginPath(); ctx.moveTo(lx, headY + 26); ctx.lineTo(lx - 1, headY + 29); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(lx - 5, headY + 31); ctx.bezierCurveTo(lx - 1, headY + 33, lx + 1, headY + 33, lx + 6, headY + 31); ctx.stroke();
 
         ctx.restore();
     }, []);
@@ -655,12 +650,7 @@ export const useGameEngine = () => {
         ctx.shadowColor = 'rgba(255,255,255,0.4)'; ctx.shadowBlur = 4;
         ctx.fillText(`SCORE: ${scr}`, srx + sw / 2, sry + sh / 2 + 1);
 
-        if (cbo > 1) {
-            ctx.fillStyle = COLORS.GLOW_GOLD;
-            ctx.shadowColor = COLORS.GLOW_GOLD; ctx.shadowBlur = 6;
-            ctx.font = '800 13px system-ui';
-            ctx.fillText(`x${cbo.toFixed(1)}`, srx + sw / 2, sry + sh + 14);
-        }
+
         ctx.restore();
     }, []);
 
@@ -862,70 +852,53 @@ export const useGameEngine = () => {
             ctx.rotate(rd.rotation);
             ctx.globalAlpha = rd.grounded ? 0.7 : 1;
 
-            // Simplified ragdoll body
             const w = PLAYER_WIDTH, h = PLAYER_HEIGHT;
+            const lx = 0, ly = 0; // centered coords
 
-            // Shadow on ground (only when airborne)
-            if (!rd.grounded) {
-                ctx.save();
-                ctx.rotate(-rd.rotation); // un-rotate the shadow
-                const shadowScale = Math.max(0.2, 1 - Math.abs(rd.y - groundY) / 200);
-                ctx.fillStyle = `rgba(0,0,0,${0.3 * shadowScale})`;
-                ctx.beginPath();
-                ctx.ellipse(0, groundY - rd.y + h / 2 + 8, w * 0.3 * shadowScale, 4, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
+            // Standard stroke
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1.5;
 
-            // Legs (flailing)
-            ctx.fillStyle = '#1A2A40';
-            ctx.fillRect(-8 + Math.sin(rd.rotation * 3) * 6, h / 2 - 22, 9, 18);
-            ctx.fillRect(3 - Math.sin(rd.rotation * 3) * 6, h / 2 - 22, 9, 18);
-            // Shoes
-            ctx.fillStyle = COLORS.PLAYER_SHOES;
-            ctx.beginPath(); ctx.roundRect(-10 + Math.sin(rd.rotation * 3) * 6, h / 2 - 6, 14, 8, 4); ctx.fill();
-            ctx.beginPath(); ctx.roundRect(1 - Math.sin(rd.rotation * 3) * 6, h / 2 - 6, 14, 8, 4); ctx.fill();
+            // Legs flailing
+            ctx.fillStyle = '#1B1E28';
+            ctx.beginPath();
+            ctx.roundRect(-12, h / 2 - 30, 8, 20, 2);
+            ctx.fill(); ctx.stroke();
+            ctx.beginPath();
+            ctx.roundRect(4, h / 2 - 30, 8, 20, 2);
+            ctx.fill(); ctx.stroke();
 
-            // Hoodie body
-            const bodyG = ctx.createLinearGradient(0, -h / 2 + 15, 0, h / 2 - 10);
-            bodyG.addColorStop(0, COLORS.PLAYER_HOODIE);
-            bodyG.addColorStop(1, COLORS.PLAYER_HOODIE_DARK);
+            // Boots
+            ctx.fillStyle = '#4B3621';
+            ctx.beginPath(); ctx.roundRect(-14, h / 2 - 12, 12, 8, 3); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.roundRect(2, h / 2 - 12, 12, 8, 3); ctx.fill(); ctx.stroke();
+
+            // Coat body
+            const bodyG = ctx.createLinearGradient(0, -h / 2 + 15, 0, h / 2 - 15);
+            bodyG.addColorStop(0, '#005BAC');
+            bodyG.addColorStop(1, '#0A3D91');
             ctx.fillStyle = bodyG;
-            ctx.beginPath(); ctx.roundRect(-w / 2 + 10, -h / 2 + 25, w - 20, h - 38, [12, 12, 8, 8]); ctx.fill();
-
-            // Arms flailing
-            ctx.fillStyle = COLORS.PLAYER_HOODIE;
-            ctx.save();
-            ctx.rotate(Math.sin(rd.rotation * 4) * 0.8);
-            ctx.fillRect(-w / 2 + 2, -h / 2 + 30, 10, 30);
-            ctx.restore();
-            ctx.save();
-            ctx.rotate(-Math.sin(rd.rotation * 4) * 0.8);
-            ctx.fillRect(w / 2 - 12, -h / 2 + 30, 10, 30);
-            ctx.restore();
+            ctx.beginPath(); ctx.roundRect(-w / 2 + 12, -h / 2 + 30, w - 24, h - 60, 10); ctx.fill(); ctx.stroke();
 
             // Head
-            ctx.fillStyle = COLORS.PLAYER_FACE;
-            ctx.beginPath(); ctx.roundRect(-12, -h / 2 + 4, 24, 20, 8); ctx.fill();
-            // Hair
-            ctx.fillStyle = '#2A1B14';
+            ctx.fillStyle = '#FFD1B3';
+            ctx.beginPath(); ctx.roundRect(-14, -h / 2 + 5, 28, 22, 10); ctx.fill(); ctx.stroke();
+
+            // X Eyes (knocked out)
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(-9, -h / 2 + 12); ctx.lineTo(-4, -h / 2 + 18); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-4, -h / 2 + 12); ctx.lineTo(-9, -h / 2 + 18); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(4, -h / 2 + 12); ctx.lineTo(9, -h / 2 + 18); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(9, -h / 2 + 12); ctx.lineTo(4, -h / 2 + 18); ctx.stroke();
+
+            // Hair (spiky)
+            ctx.fillStyle = '#111';
             ctx.beginPath();
-            ctx.moveTo(-14, -h / 2 + 10);
-            ctx.bezierCurveTo(-12, -h / 2 - 4, 12, -h / 2 - 6, 14, -h / 2 + 10);
-            ctx.lineTo(10, -h / 2 + 2);
-            ctx.lineTo(0, -h / 2 - 2);
-            ctx.lineTo(-10, -h / 2 + 4);
+            ctx.moveTo(-16, -h / 2 + 18);
+            const rSpikes = [[-18, 5], [-10, 0], [0, -5], [10, 0], [18, 5]];
+            rSpikes.forEach(([sx, sy]) => ctx.lineTo(sx, -h / 2 + sy + 5));
             ctx.closePath();
-            ctx.fill();
-            // X eyes (knocked out)
-            ctx.strokeStyle = '#111'; ctx.lineWidth = 2.5;
-            ctx.beginPath(); ctx.moveTo(-10, -h / 2 + 11); ctx.lineTo(-5, -h / 2 + 15); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(-5, -h / 2 + 11); ctx.lineTo(-10, -h / 2 + 15); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(5, -h / 2 + 11); ctx.lineTo(10, -h / 2 + 15); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(10, -h / 2 + 11); ctx.lineTo(5, -h / 2 + 15); ctx.stroke();
-            // Open mouth (shock)
-            ctx.fillStyle = '#4A2B29';
-            ctx.beginPath(); ctx.ellipse(0, -h / 2 + 20, 4, 3, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fill(); ctx.stroke();
 
             ctx.globalAlpha = 1;
             ctx.restore();

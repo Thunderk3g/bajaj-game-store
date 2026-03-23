@@ -69,9 +69,9 @@ const GameOverOverlay = () => {
                             key={index}
                             className="text-white font-black drop-shadow-2xl"
                             style={{
-                                fontSize: index === visibleMessages.length - 1 ? '28px' : '22px',
-                                opacity: index === visibleMessages.length - 1 ? 1 : 0.5,
-                                filter: index === visibleMessages.length - 1 ? 'none' : 'blur(1px)',
+                                fontSize: '26px',
+                                opacity: 1,
+                                filter: 'none',
                             }}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}

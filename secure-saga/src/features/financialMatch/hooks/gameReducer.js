@@ -169,12 +169,18 @@ export function gameReducer(state, action) {
                 isProcessing: false,
             };
 
-        case A.RESTART_GAME:
+        case A.RESTART_GAME: {
+            const eng = createMatchEngine({
+                tileTypes: TILE_TYPES,
+                maxMoves: 999,
+            });
             return {
                 ...initialState,
+                grid: eng.initialGrid,
                 entryDetails: state.entryDetails,
-                gameStatus: state.entryDetails ? GAME_PHASES.HOW_TO_PLAY : GAME_PHASES.LANDING,
+                gameStatus: GAME_PHASES.PLAYING,
             };
+        }
 
         /* ── Grid Interactions ── */
 
