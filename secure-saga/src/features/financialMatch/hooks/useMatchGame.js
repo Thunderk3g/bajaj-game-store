@@ -174,8 +174,9 @@ const playSound = (type) => {
     const handleEntrySubmit = useCallback(async (name, mobile) => {
         dispatch({ type: A.SET_ENTRY, payload: { name, mobile } });
         leadFiredRef.current = false;
-        // Lead popup disabled — skip submitToLMS, go directly to how-to-play
-        dispatch({ type: A.SHOW_HOW_TO_PLAY });
+        // How-to-play page completely removed: launch directly into the game natively.
+        // It will trigger the overlay conditionally if the tutorial hasn't been seen!
+        dispatch({ type: A.START_GAME });
     }, []);
 
     const startGame = useCallback(() => {
@@ -185,7 +186,7 @@ const playSound = (type) => {
     // ── Cell Tap Logic ──────────────────────────────────────────────
     const handleCellTap = useCallback(
         (row, col) => {
-            if (state.isProcessing || state.gameStatus !== GAME_PHASES.PLAYING) return;
+            if (state.isProcessing || state.invalidSwapping || state.gameStatus !== GAME_PHASES.PLAYING) return;
 
             const { selectedCell, grid } = state;
 
@@ -213,7 +214,18 @@ const playSound = (type) => {
             const isValid = wouldCreateMatch(grid, r1, c1, r2, c2);
 
             if (!isValid) {
-                dispatch({ type: A.APPLY_INVALID_SWAP });
+                // Candy Crush Style Invalid Swap Animation Trigger (500ms lock boundary)
+                dispatch({
+                    type: A.INVALID_SWAP_START,
+                    payload: [
+                        { row: r1, col: c1, targetRow: r2, targetCol: c2 },
+                        { row: r2, col: c2, targetRow: r1, targetCol: c1 }
+                    ]
+                });
+                playSound('swap'); // Using existing swap audio slightly as a dull proxy
+                setTimeout(() => {
+                    dispatch({ type: A.INVALID_SWAP_END });
+                }, 500);
                 return;
             }
 
@@ -229,13 +241,13 @@ const playSound = (type) => {
 
             resolveChain(newGrid);
         },
-        [state.isProcessing, state.gameStatus, state.selectedCell, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
+        [state.isProcessing, state.invalidSwapping, state.gameStatus, state.selectedCell, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
     // ── Cell Swipe Logic (Candy Crush Style) ───────────────────────────
     const handleCellSwipe = useCallback(
         (r1, c1, r2, c2) => {
-            if (state.isProcessing || state.gameStatus !== GAME_PHASES.PLAYING) return;
+            if (state.isProcessing || state.invalidSwapping || state.gameStatus !== GAME_PHASES.PLAYING) return;
             const { grid } = state;
 
             const isAdjacent = (Math.abs(r1 - r2) === 1 && c1 === c2) || (Math.abs(c1 - c2) === 1 && r1 === r2);
@@ -244,7 +256,17 @@ const playSound = (type) => {
             const isValid = wouldCreateMatch(grid, r1, c1, r2, c2);
 
             if (!isValid) {
-                dispatch({ type: A.APPLY_INVALID_SWAP });
+                dispatch({
+                    type: A.INVALID_SWAP_START,
+                    payload: [
+                        { row: r1, col: c1, targetRow: r2, targetCol: c2 },
+                        { row: r2, col: c2, targetRow: r1, targetCol: c1 }
+                    ]
+                });
+                playSound('swap');
+                setTimeout(() => {
+                    dispatch({ type: A.INVALID_SWAP_END });
+                }, 500);
                 return;
             }
 
@@ -259,7 +281,7 @@ const playSound = (type) => {
 
             resolveChain(newGrid);
         },
-        [state.isProcessing, state.gameStatus, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
+        [state.isProcessing, state.invalidSwapping, state.gameStatus, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
     // ── Chain Resolution (Async) ────────────────────────────────────
@@ -314,9 +336,8 @@ const playSound = (type) => {
             dispatch({ type: A.SET_GRID, payload: currentGrid });
             dispatch({ type: A.CLEAR_EXPLOSIONS });
 
-            // Praise Logic: Strictly after cascade settles
-            // Increased thresholds to reduce frequency of praising
-            if (chainStep >= 3 || totalPointsThisChain >= 45) {
+            // Praise Logic: Guarantee audio praise fires for any decent play resolving the user's audio-priority instructions.
+            if (chainStep >= 2 || totalPointsThisChain >= 18) {
                 await new Promise((res) => setTimeout(res, 100));
                 showPraise();
             }
@@ -327,11 +348,10 @@ const playSound = (type) => {
     const showPraise = useCallback(() => {
         const msg = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
 
-        // Randomize speech synthesis to 30% chance to prevent stuttering on Android
-        if (Math.random() > 0.7) {
-            speakPraise(msg);
-        }
+        // Guarantee strictly 100% Audio text synthesis as requested (Stripped 30% randomization cap)!
+        speakPraise(msg);
 
+        // Still dispatching to update state strictly for architecture (text popups have been systematically stripped upstream)
         dispatch({ type: A.SHOW_PRAISE, payload: msg });
 
         if (praiseTimeoutRef.current) clearTimeout(praiseTimeoutRef.current);

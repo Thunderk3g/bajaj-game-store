@@ -8,6 +8,16 @@
 
 export const TILE_TYPES = ['GREEN', 'BLUE', 'YELLOW', 'RED'];
 
+// Map reference elements to types
+export const EXACT_INITIAL_GRID = [
+    ['GREEN', 'BLUE', 'GREEN', 'RED', 'YELLOW', 'YELLOW'],
+    ['BLUE', 'BLUE', 'GREEN', 'RED', 'RED', 'GREEN'],
+    ['GREEN', 'YELLOW', 'BLUE', 'YELLOW', 'YELLOW', 'GREEN'],
+    ['YELLOW', 'GREEN', 'YELLOW', 'BLUE', 'RED', 'BLUE'],
+    ['GREEN', 'GREEN', 'BLUE', 'GREEN', 'YELLOW', 'YELLOW'],
+    ['YELLOW', 'BLUE', 'GREEN', 'GREEN', 'RED', null]
+];
+
 export const TILE_META = {
     GREEN: {
         label: 'Family Protection',
