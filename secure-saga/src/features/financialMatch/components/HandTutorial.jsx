@@ -1,5 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { wouldCreateMatch } from '../../../core/matchEngine/index.js';
 
 import greenShield from '../../assets/image/tiles/green_shield.png';
 import blueCap from '../../assets/image/tiles/blue_graduation.png';
@@ -14,17 +15,33 @@ const TILE_ASSETS = {
 };
 
 const HandTutorial = memo(function HandTutorial({ grid, cellSize, gridGap }) {
-    if (!grid || !grid[2] || !grid[2][2] || !grid[2][3]) return null;
+    const move = useMemo(() => {
+        if (!grid) return null;
+        const size = grid.length;
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
+                // Check right
+                if (c + 1 < size && wouldCreateMatch(grid, r, c, r, c + 1)) {
+                    return { r1: r, c1: c, r2: r, c2: c + 1, type: 'HORIZ' };
+                }
+                // Check down
+                if (r + 1 < size && wouldCreateMatch(grid, r, c, r + 1, c)) {
+                    return { r1: r, c1: c, r2: r + 1, c2: c, type: 'VERT' };
+                }
+            }
+        }
+        return null; // Should not happen in SECURE SAGA due to valid move guarantee
+    }, [grid]);
 
-    const r = 2;
-    const c1 = 2;
-    const c2 = 3;
+    if (!move) return null;
 
-    const tileA = grid[r][c1];
-    const tileB = grid[r][c2];
+    const { r1, c1, r2, c2, type } = move;
+    const tileA = grid[r1][c1];
+    const tileB = grid[r2][c2];
 
-    const topPos = r * (cellSize + gridGap);
+    const topA = r1 * (cellSize + gridGap);
     const leftA = c1 * (cellSize + gridGap);
+    const topB = r2 * (cellSize + gridGap);
     const leftB = c2 * (cellSize + gridGap);
 
     const shiftDist = cellSize + gridGap;
@@ -42,36 +59,43 @@ const HandTutorial = memo(function HandTutorial({ grid, cellSize, gridGap }) {
 
     const handOpacity = [0, 1, 1, 1, 1, 1, 0, 0];
     const handScale = [0, 1.0, 0.85, 0.85, 1.0, 1.0, 1.0, 0];
-    const handX = [0, 0, 0, shiftDist, shiftDist, shiftDist, shiftDist, 0];
+    const handX = [0, 0, 0, type === 'HORIZ' ? shiftDist : 0, type === 'HORIZ' ? shiftDist : 0, type === 'HORIZ' ? shiftDist : 0, type === 'HORIZ' ? shiftDist : 0, 0];
+    const handY = [0, 0, 0, type === 'VERT' ? shiftDist : 0, type === 'VERT' ? shiftDist : 0, type === 'VERT' ? shiftDist : 0, type === 'VERT' ? shiftDist : 0, 0];
 
     const cloneOpacity = [1, 1, 1, 1, 1, 1, 0, 0];
     const cloneAScale = [1, 1, 0.9, 0.9, 1.0, 1.0, 1.0, 1];
-    const cloneAX = [0, 0, 0, shiftDist, shiftDist, shiftDist, 0, 0];
-    const cloneBX = [0, 0, 0, -shiftDist, -shiftDist, -shiftDist, 0, 0];
+
+    // Animate X if horizontal swap
+    const cloneAX = [0, 0, 0, type === 'HORIZ' ? shiftDist : 0, type === 'HORIZ' ? shiftDist : 0, type === 'HORIZ' ? shiftDist : 0, 0, 0];
+    const cloneBX = [0, 0, 0, type === 'HORIZ' ? -shiftDist : 0, type === 'HORIZ' ? -shiftDist : 0, type === 'HORIZ' ? -shiftDist : 0, 0, 0];
+
+    // Animate Y if vertical swap
+    const cloneAY = [0, 0, 0, type === 'VERT' ? shiftDist : 0, type === 'VERT' ? shiftDist : 0, type === 'VERT' ? shiftDist : 0, 0, 0];
+    const cloneBY = [0, 0, 0, type === 'VERT' ? -shiftDist : 0, type === 'VERT' ? -shiftDist : 0, type === 'VERT' ? -shiftDist : 0, 0, 0];
 
     return (
         <div className="absolute inset-0 z-[600] pointer-events-none overflow-visible">
 
-            {/* Fake Tile A (Gets Pressed and Dragged Right) */}
+            {/* Fake Tile A */}
             <motion.div
-                animate={{ x: cloneAX, scale: cloneAScale, opacity: cloneOpacity }}
+                animate={{ x: cloneAX, y: cloneAY, scale: cloneAScale, opacity: cloneOpacity }}
                 transition={{ duration: 2, times, repeat: Infinity, ease: "linear" }}
                 className="absolute flex items-center justify-center pointer-events-none drop-shadow-md z-[601]"
                 style={{
-                    left: leftA, top: topPos, width: cellSize, height: cellSize,
+                    left: leftA, top: topA, width: cellSize, height: cellSize,
                     filter: 'brightness(1.35) saturate(1.45)'
                 }}
             >
                 <img src={TILE_ASSETS[tileA.type]} className="w-[125%] h-[125%] object-contain drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]" alt="" />
             </motion.div>
 
-            {/* Fake Tile B (Gets Swapped Left naturally) */}
+            {/* Fake Tile B */}
             <motion.div
-                animate={{ x: cloneBX, opacity: cloneOpacity }}
+                animate={{ x: cloneBX, y: cloneBY, opacity: cloneOpacity }}
                 transition={{ duration: 2, times, repeat: Infinity, ease: "linear" }}
                 className="absolute flex items-center justify-center pointer-events-none drop-shadow-md z-[600]"
                 style={{
-                    left: leftB, top: topPos, width: cellSize, height: cellSize,
+                    left: leftB, top: topB, width: cellSize, height: cellSize,
                     filter: 'brightness(1.35) saturate(1.45)'
                 }}
             >
@@ -80,12 +104,12 @@ const HandTutorial = memo(function HandTutorial({ grid, cellSize, gridGap }) {
 
             {/* The Orchestrating Hand Gesture Pointer */}
             <motion.div
-                animate={{ x: handX, scale: handScale, opacity: handOpacity }}
+                animate={{ x: handX, y: handY, scale: handScale, opacity: handOpacity }}
                 transition={{ duration: 2, times, repeat: Infinity, ease: "linear" }}
                 className="absolute z-[700] flex items-center justify-center"
                 style={{
                     left: leftA + (cellSize / 2) - 10,
-                    top: topPos + (cellSize / 2) - 10,
+                    top: topA + (cellSize / 2) - 10,
                 }}
             >
                 {/* Hand visually slightly offset to the bottom right of the cursor center for optimal tile sightline */}

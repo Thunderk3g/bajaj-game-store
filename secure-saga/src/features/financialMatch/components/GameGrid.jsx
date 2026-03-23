@@ -131,8 +131,6 @@ const GameGrid = memo(function GameGrid({
                 <img src={gearCogImg} alt="" className="absolute -bottom-3 -left-3 w-[30px] h-[30px] z-30 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]" draggable={false} />
                 <img src={gearCogImg} alt="" className="absolute -bottom-3 -right-3 w-[30px] h-[30px] z-30 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]" draggable={false} />
 
-                {/* Extra Center Top Gear */}
-                <img src={gearCogImg} alt="" className="absolute -top-5 left-1/2 -translate-x-1/2 w-[30px] h-[30px] z-30 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]" draggable={false} />
 
                 {/* Inner Board Area - TASK 4 Darker Interior */}
                 <div

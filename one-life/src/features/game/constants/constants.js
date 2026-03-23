@@ -1,9 +1,9 @@
 export const CANVAS_WIDTH = 375;
 export const CANVAS_HEIGHT = 812;
 
-export const PLAYER_WIDTH = 75;
-export const PLAYER_HEIGHT = 103;
-export const PLAYER_Y = CANVAS_HEIGHT * 0.67;
+export const PLAYER_WIDTH = 65;
+export const PLAYER_HEIGHT = 160;
+export const PLAYER_Y = CANVAS_HEIGHT * 0.60; // Positioned for 18% screen height and grounded feet
 export const PLAYER_SPEED = 8;
 export const PLAYER_LANE_PADDING = 24;
 

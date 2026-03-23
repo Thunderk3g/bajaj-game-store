@@ -104,18 +104,33 @@ const ResultScreen = ({
 
     const handleShare = async () => {
         const shareUrl = buildShareUrl() || window.location.href;
-        const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list. Click here ${shareUrl}`.trim();
+        const shareText = `Checkout my life goal score: ${Math.round(displayScore)}% on Secure Saga!`.trim();
+
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
+                // Ensure text AND url are both passed explicitly as some mobile OS's require one or both.
                 await navigator.share({
                     title: 'Secure Saga',
-                    text: text
+                    text: shareText,
+                    url: shareUrl
                 });
-            } catch { }
+            } catch (err) {
+                // If user cancels, we do nothing. If error, fallback.
+                if (err.name !== 'AbortError') {
+                    copyToClipboard(shareText + " " + shareUrl);
+                }
+            }
         } else {
-            try { await navigator.clipboard.writeText(text); } catch { }
+            copyToClipboard(shareText + " " + shareUrl);
+        }
+    };
+
+    const copyToClipboard = async (str) => {
+        try {
+            await navigator.clipboard.writeText(str);
+            alert("Share details copied to clipboard!");
+        } catch (err) {
+            alert("Sharing not supported on this browser.");
         }
     };
 
