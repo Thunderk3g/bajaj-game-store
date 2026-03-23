@@ -1,157 +1,214 @@
 import React, { useState } from 'react';
-import { Shield, User, Phone, Calendar, CheckCircle } from 'lucide-react';
+import { User, Phone, Calendar, ChevronRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
-// ─── Design Tokens ───────────────────────────────────────────────────────────
-const T = {
-    bgPage: '#F0F4FF',
-    bgCard: '#FFFFFF',
-    blue: '#0066B2',
-    blueDark: '#004A80',
-    blueLight: '#E8F1FB',
-    orange: '#FF6600',
-    orangeLight: '#FFF3EB',
-    text: '#1A2340',
-    muted: '#64748B',
-    border: '#DCE5F5',
-    success: '#059669',
-};
-
-const FIELD_STYLE: React.CSSProperties = {
-    width: '100%',
-    padding: '13px 16px 13px 44px',
-    background: '#F8FAFF',
-    border: `1.5px solid ${T.border}`,
-    borderRadius: 12,
-    fontSize: 14,
-    color: T.text,
-    outline: 'none',
-    fontFamily: 'inherit',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.2s',
-};
-
-interface LeadCaptureScreenProps {
-    onSubmit: (data: any) => void;
-}
-
-const LeadCaptureScreen: React.FC<LeadCaptureScreenProps> = ({ onSubmit }) => {
-    const [formData, setFormData] = useState({ name: '', mobile: '', age: '', hasTermInsurance: '' });
+const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit }) => {
+    const [formData, setFormData] = useState({ name: '', mobile: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [focused, setFocused] = useState<string | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (formData.name && formData.mobile && formData.age && formData.hasTermInsurance) {
-            onSubmit(formData);
+        if (formData.name && formData.mobile && isTermsAccepted) {
+            setIsSubmitting(true);
+            setTimeout(() => {
+                onSubmit(formData);
+            }, 800);
         }
     };
 
-    const fieldStyle = (name: string): React.CSSProperties => ({
-        ...FIELD_STYLE,
-        borderColor: focused === name ? T.blue : T.border,
-        boxShadow: focused === name ? `0 0 0 3px ${T.blueLight}` : 'none',
+    const inputStyle = (name: string): React.CSSProperties => ({
+        width: '100%',
+        backgroundColor: '#F9FAFB',
+        border: `2px solid ${focused === name ? '#31CDEC' : '#F1F5F9'}`,
+        borderRadius: '16px',
+        padding: '14px 16px 14px 48px',
+        fontSize: '15px',
+        fontWeight: '700',
+        color: '#1F2937',
+        outline: 'none',
+        transition: 'all 0.2s ease',
+        boxSizing: 'border-box',
     });
 
-    const fieldWrap: React.CSSProperties = { position: 'relative', display: 'flex', flexDirection: 'column', gap: 6 };
-    const label: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em' };
-    const iconStyle: React.CSSProperties = { position: 'absolute', bottom: 13, left: 14, color: T.blue, opacity: 0.6, pointerEvents: 'none' };
+    const iconStyle = (name: string): React.CSSProperties => ({
+        position: 'absolute',
+        left: '16px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        color: focused === name ? '#31CDEC' : '#94A3B8',
+        transition: 'color 0.2s ease',
+        pointerEvents: 'none',
+    });
 
     return (
-        <div style={{ width: '100%', height: '100dvh', background: T.bgPage, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-            {/* Header */}
-            <div style={{ background: `linear-gradient(135deg, ${T.blue} 0%, ${T.blueDark} 100%)`, padding: '28px 24px 32px', color: '#fff', flexShrink: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                    <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: 8, display: 'flex' }}>
-                        <Shield size={20} color="#fff" />
+        <div style={{
+            width: '100%',
+            height: '100dvh',
+            backgroundColor: '#0B1221',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            boxSizing: 'border-box',
+            fontFamily: 'Inter, system-ui, sans-serif',
+        }}>
+            <div style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '32px',
+                padding: '32px 24px',
+                width: '100%',
+                maxWidth: '360px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                border: '5px solid #31CDEC',
+                position: 'relative',
+                animation: 'fadeUp 0.5s ease-out',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px',
+            }}>
+                {/* Header */}
+                <div style={{ textAlign: 'center' }}>
+                    <h2 style={{
+                        fontSize: '24px',
+                        fontWeight: '900',
+                        color: '#0B1221',
+                        margin: '0 0 4px 0',
+                        letterSpacing: '-0.02em',
+                    }}>Enter Your Details</h2>
+                    <p style={{
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        color: '#94A3B8',
+                        margin: 0,
+                    }}>to reveal your score</p>
+                </div>
+
+                <form onSubmit={handleSubmit} style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                }}>
+                    {/* Name */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '13px', fontWeight: '800', color: '#4B5563', marginLeft: '4px' }}>Full Name</label>
+                        <div style={{ position: 'relative' }}>
+                            <User size={20} style={iconStyle('name')} />
+                            <input
+                                type="text"
+                                required
+                                placeholder="Enter your name"
+                                value={formData.name}
+                                onFocus={() => setFocused('name')}
+                                onBlur={() => setFocused(null)}
+                                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                style={inputStyle('name')}
+                            />
+                        </div>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8 }}>Bajaj Allianz Life</span>
-                </div>
-                <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 6px', lineHeight: 1.2 }}>Stay Protected,<br />Tell Us About You</h2>
-                <p style={{ fontSize: 13, opacity: 0.75, margin: 0, lineHeight: 1.5 }}>Secure your future and connect with the right protection plan</p>
-            </div>
 
-            {/* Form Card */}
-            <div style={{ flex: 1, padding: '0 16px 24px', marginTop: -16 }}>
-                <div style={{ background: T.bgCard, borderRadius: 20, padding: '24px 20px', boxShadow: '0 4px 24px rgba(0,102,178,0.10)', border: `1px solid ${T.border}` }}>
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                        {/* Name */}
-                        <div style={fieldWrap}>
-                            <label style={label}>Full Name</label>
-                            <div style={{ position: 'relative' }}>
-                                <User size={16} style={iconStyle} />
-                                <input type="text" required placeholder="Enter your full name" value={formData.name}
-                                    style={fieldStyle('name')} onFocus={() => setFocused('name')} onBlur={() => setFocused(null)}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })} />
-                            </div>
+                    {/* Mobile */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '13px', fontWeight: '800', color: '#4B5563', marginLeft: '4px' }}>Mobile Number</label>
+                        <div style={{ position: 'relative' }}>
+                            <Phone size={20} style={iconStyle('mobile')} />
+                            <input
+                                type="tel"
+                                required
+                                pattern="[0-9]{10}"
+                                maxLength={10}
+                                placeholder="10-digit mobile number"
+                                value={formData.mobile}
+                                onFocus={() => setFocused('mobile')}
+                                onBlur={() => setFocused(null)}
+                                onChange={e => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, '') })}
+                                style={inputStyle('mobile')}
+                            />
                         </div>
+                    </div>
 
-                        {/* Mobile */}
-                        <div style={fieldWrap}>
-                            <label style={label}>Mobile Number</label>
-                            <div style={{ position: 'relative' }}>
-                                <Phone size={16} style={iconStyle} />
-                                <input type="tel" required pattern="[0-9]{10,}" placeholder="10-digit mobile number" value={formData.mobile}
-                                    style={fieldStyle('mobile')} onFocus={() => setFocused('mobile')} onBlur={() => setFocused(null)}
-                                    onChange={e => setFormData({ ...formData, mobile: e.target.value })} />
-                            </div>
-                        </div>
-
-                        {/* Age */}
-                        <div style={fieldWrap}>
-                            <label style={label}>Age</label>
-                            <div style={{ position: 'relative' }}>
-                                <Calendar size={16} style={iconStyle} />
-                                <input type="number" required min="18" max="65" placeholder="Your age (18–65)" value={formData.age}
-                                    style={fieldStyle('age')} onFocus={() => setFocused('age')} onBlur={() => setFocused(null)}
-                                    onChange={e => setFormData({ ...formData, age: e.target.value })} />
-                            </div>
-                        </div>
-
-                        {/* Coverage */}
-                        <div style={fieldWrap}>
-                            <label style={label}>Do you have Term Insurance?</label>
-                            <div style={{ position: 'relative' }}>
-                                <CheckCircle size={16} style={iconStyle} />
-                                <select required value={formData.hasTermInsurance}
-                                    style={{ ...fieldStyle('ins'), appearance: 'none' as any }}
-                                    onFocus={() => setFocused('ins')} onBlur={() => setFocused(null)}
-                                    onChange={e => setFormData({ ...formData, hasTermInsurance: e.target.value })}>
-                                    <option value="" disabled>Select your status</option>
-                                    <option value="yes">Yes, I am protected ✅</option>
-                                    <option value="no">No, not yet</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Submit */}
-                        <button type="submit" style={{
-                            marginTop: 6,
-                            width: '100%',
-                            padding: '15px 24px',
-                            background: `linear-gradient(135deg, ${T.orange} 0%, #FF8533 100%)`,
-                            color: '#fff',
-                            fontFamily: 'inherit',
-                            fontSize: 15,
-                            fontWeight: 800,
-                            letterSpacing: '0.08em',
-                            textTransform: 'uppercase',
-                            border: 'none',
-                            borderRadius: 14,
+                    {/* Terms */}
+                    <div
+                        style={{
+                            display: 'flex',
+                            gap: '12px',
+                            alignItems: 'flex-start',
+                            padding: '4px',
                             cursor: 'pointer',
-                            boxShadow: '0 4px 20px rgba(255,102,0,0.35)',
-                            transition: 'transform 0.12s',
+                        }}
+                        onClick={() => setIsTermsAccepted(!isTermsAccepted)}
+                    >
+                        <div style={{
+                            width: '22px',
+                            height: '22px',
+                            borderRadius: '6px',
+                            border: `2px solid ${isTermsAccepted ? '#31CDEC' : '#E2E8F0'}`,
+                            backgroundColor: isTermsAccepted ? '#31CDEC' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease',
+                            flexShrink: 0,
+                            marginTop: '2px'
                         }}>
-                            SEE RESULTS →
-                        </button>
-                    </form>
-                </div>
+                            {isTermsAccepted && <CheckCircle2 size={16} color="white" />}
+                        </div>
+                        <p style={{
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            color: '#64748B',
+                            margin: 0,
+                            lineHeight: '1.4',
+                        }}>
+                            I agree and consent to the <span style={{ color: '#31CDEC', textDecoration: 'underline' }}>T&C and Privacy Policy</span>
+                        </p>
+                    </div>
 
-                {/* Trust badges */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 18, paddingBottom: 8 }}>
-                    {['🔒 Secure', '✅ IRDAI Registered', '🏆 Trusted'].map(t => (
-                        <span key={t} style={{ fontSize: 10, fontWeight: 700, color: T.muted }}>{t}</span>
-                    ))}
-                </div>
+                    {/* Submit Button */}
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        style={{
+                            width: '100%',
+                            backgroundColor: '#31CDEC',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            borderRadius: '16px',
+                            padding: '16px',
+                            fontSize: '18px',
+                            fontWeight: '900',
+                            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                            boxShadow: '0 10px 15px -3px rgba(49, 205, 236, 0.3)',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            opacity: isSubmitting ? 0.7 : 1,
+                            marginTop: '8px',
+                            letterSpacing: '0.05em',
+                        }}
+                    >
+                        {isSubmitting ? 'LOADING...' : (
+                            <>
+                                SEE RESULTS! <ChevronRight size={20} strokeWidth={3} />
+                            </>
+                        )}
+                    </button>
+                </form>
             </div>
+
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                input::-webkit-outer-spin-button,
+                input::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+            `}</style>
         </div>
     );
 };

@@ -390,6 +390,11 @@ const playSound = (type) => {
         dispatch({ type: A.SHOW_THANK_YOU });
     }, []);
 
+    const handleLeadSuccess = useCallback((details) => {
+        dispatch({ type: A.SET_ENTRY, payload: details });
+        dispatch({ type: A.SHOW_RESULT });
+    }, []);
+
     const handleBookSlot = useCallback(
         async (formData) => {
             try {
@@ -433,6 +438,7 @@ const playSound = (type) => {
         exitGame,
         restartGame,
         showThankYou,
+        handleLeadSuccess,
         handleBookSlot,
     };
 }

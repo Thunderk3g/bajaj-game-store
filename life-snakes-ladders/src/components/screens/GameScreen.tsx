@@ -204,20 +204,25 @@ const GameScreen: React.FC<GameScreenProps> = ({
                 alignItems: 'center',
             }}>
                 {/* 2D Premium Dice Wrapper */}
-                <div style={{
-                    width: 68,
-                    height: 68,
-                    background: '#fff',
-                    borderRadius: 16,
-                    marginBottom: 16,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 -5px 0 rgba(226,232,240,1)',
-                    border: '1px solid #e2e8f0',
-                    transformOrigin: 'bottom center',
-                    animation: isRolling ? 'shakeDice 0.4s ease-in-out infinite' : 'bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                }}>
+                <div
+                    onClick={handleRoll}
+                    style={{
+                        width: 68,
+                        height: 68,
+                        background: '#fff',
+                        borderRadius: 16,
+                        marginBottom: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 -5px 0 rgba(226,232,240,1)',
+                        border: '1px solid #e2e8f0',
+                        transformOrigin: 'bottom center',
+                        animation: isRolling ? 'shakeDice 0.4s ease-in-out infinite' : 'bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        cursor: (isMoving || isRolling) ? 'not-allowed' : 'pointer',
+                        transition: 'transform 0.1s active',
+                    }}
+                >
                     {lastDice > 0 && !isRolling ? (
                         <span style={{ fontSize: 56, lineHeight: 1, color: '#1A56DB', marginTop: '-6px' }}>
                             {DICE_FACES[lastDice]}
@@ -232,31 +237,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
                 {/* Message removed per user request */}
 
                 {/* Roll button */}
-                <button
-                    onClick={handleRoll}
-                    disabled={isMoving || isRolling}
-                    style={{
-                        width: '100%',
-                        height: 56,
-                        background: (isMoving || isRolling)
-                            ? 'rgba(255,255,255,0.08)'
-                            : 'linear-gradient(135deg, #0066B2 0%, #1A56DB 100%)',
-                        color: '#fff',
-                        fontFamily: 'inherit',
-                        fontSize: 16,
-                        fontWeight: 900,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        border: 'none',
-                        borderRadius: 14,
-                        cursor: (isMoving || isRolling) ? 'not-allowed' : 'pointer',
-                        opacity: (isMoving || isRolling) ? 0.5 : 1,
-                        boxShadow: (isMoving || isRolling) ? 'none' : '0 4px 20px rgba(0,102,178,0.4)',
-                        transition: 'all 0.2s',
-                    }}
-                >
-                    {isRolling ? 'ROLLING…' : isMoving ? 'MOVING…' : '🎲 ROLL DICE'}
-                </button>
+                {/* Roll button removed per user request */}
             </div>
 
             {/* Branding removed per user request */}

@@ -40,6 +40,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
         exitGame,
         restartGame,
         showThankYou,
+        handleLeadSuccess,
         handleBookSlot,
     } = useMatchGame();
 
@@ -262,6 +263,23 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                                     Calculated...
                                 </motion.div>
                             </div>
+                        </motion.div>
+                    )}
+
+                    {/* ── POST-GAME LEAD CAPTURE ── */}
+                    {gameStatus === GAME_PHASES.POST_GAME_LEAD && (
+                        <motion.div
+                            key="post-game-lead"
+                            variants={pageVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            className="absolute inset-0 z-[2000]"
+                        >
+                            <PostGameLeadCapture
+                                score={finalScore}
+                                onSuccess={handleLeadSuccess}
+                            />
                         </motion.div>
                     )}
 

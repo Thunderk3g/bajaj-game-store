@@ -53,36 +53,36 @@ const LeadCaptureScreen = ({ onSuccess }) => {
     };
 
     return (
-        <div className="flex-1 flex flex-col items-center justify-center min-h-0 bg-white/10 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/20 shadow-2xl mx-auto w-full max-w-[380px]">
+        <div className="flex flex-col items-center justify-center bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/20 shadow-2xl mx-auto my-auto w-full max-w-[380px]">
             <div className="text-center mb-10 w-full px-2">
-                <h2 className="text-3xl font-black text-white mb-3 tracking-tighter uppercase italic leading-none text-left">
+                <h2 className="text-3xl font-black text-white mb-3 tracking-tighter uppercase italic leading-none text-left drop-shadow-lg">
                     Great Progress!
                 </h2>
-                <p className="text-blue-100 font-bold text-lg leading-tight text-left">Enter details to see your <span className="text-yellow-400">Retirement Readiness</span> status</p>
+                <p className="text-blue-50 font-bold text-lg leading-tight text-left">Enter details to see your <span className="text-yellow-400">Retirement Readiness</span> status</p>
             </div>
 
             <form onSubmit={handleSubmit} className="w-full space-y-6 text-left">
                 <div className="space-y-1.5">
-                    <label className="block text-white/70 text-[10px] font-black uppercase tracking-widest ml-1">Full Name</label>
+                    <label className="block text-white text-[10px] font-black uppercase tracking-widest ml-1 opacity-90">Full Name</label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
                         placeholder="e.g. Rahul Sharma"
-                        className={`w-full bg-white/5 border-2 rounded-2xl px-5 py-3.5 text-white placeholder:text-white/20 font-bold focus:outline-none transition-all ${errors.name ? 'border-red-500 bg-red-500/10' : 'border-white/10 focus:border-white/40'}`}
+                        className={`w-full bg-white/10 border-2 rounded-2xl px-5 py-3.5 text-white placeholder:text-white/30 font-bold focus:outline-none transition-all ${errors.name ? 'border-red-500 bg-red-500/10' : 'border-white/20 focus:border-white/50'}`}
                     />
                     {errors.name && <p className="text-red-400 text-[10px] font-black uppercase tracking-wider ml-1">{errors.name}</p>}
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="block text-white/70 text-[10px] font-black uppercase tracking-widest ml-1">Mobile Number</label>
+                    <label className="block text-white text-[10px] font-black uppercase tracking-widest ml-1 opacity-90">Mobile Number</label>
                     <input
                         type="tel"
                         maxLength={10}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                         placeholder="9876543210"
-                        className={`w-full bg-white/5 border-2 rounded-2xl px-5 py-3.5 text-white placeholder:text-white/20 font-bold focus:outline-none transition-all ${errors.phone ? 'border-red-500 bg-red-500/10' : 'border-white/10 focus:border-white/40'}`}
+                        className={`w-full bg-white/10 border-2 rounded-2xl px-5 py-3.5 text-white placeholder:text-white/30 font-bold focus:outline-none transition-all ${errors.phone ? 'border-red-500 bg-red-500/10' : 'border-white/20 focus:border-white/50'}`}
                     />
                     {errors.phone && <p className="text-red-400 text-[10px] font-black uppercase tracking-wider ml-1">{errors.phone}</p>}
                 </div>
@@ -90,11 +90,11 @@ const LeadCaptureScreen = ({ onSuccess }) => {
                 <div className="flex items-start gap-3 py-1">
                     <div
                         onClick={() => setIsTermsAccepted(!isTermsAccepted)}
-                        className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-lg cursor-pointer transition-all ${isTermsAccepted ? 'bg-white border-white' : 'bg-transparent border-white/30'}`}
+                        className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-lg cursor-pointer transition-all ${isTermsAccepted ? 'bg-white border-white' : 'bg-transparent border-white/50'}`}
                     >
                         {isTermsAccepted && <span className="text-blue-600 font-black text-xs">✓</span>}
                     </div>
-                    <p className="text-[10px] font-bold text-white/60 leading-snug">
+                    <p className="text-[10px] font-bold text-white/90 leading-snug">
                         I agree and consent to the <span className="text-white underline font-black">T&C and Privacy Policy</span>
                     </p>
                 </div>

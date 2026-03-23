@@ -24,7 +24,7 @@ export default function GamePage() {
 
     // Redirect if not in playing phase
     useEffect(() => {
-        if (state.phase === PHASES.GAMEOVER) navigate('/lead');
+        if (state.phase === PHASES.GAMEOVER) navigate('/gameover');
         else if (state.phase === PHASES.LANDING) navigate('/');
     }, [state.phase, navigate, PHASES]);
 

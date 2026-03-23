@@ -137,7 +137,7 @@ const GamePage = () => {
                         </motion.div>
                     )}
 
-                    {status === GAME_STATUS.GAMEOVER && (
+                    {status === GAME_STATUS.LEAD_CAPTURE && (
                         <LeadCaptureForm
                             key="lead"
                             score={score}
@@ -169,13 +169,6 @@ const GamePage = () => {
                         />
                     )}
 
-                    {status === 'LEAD_CAPTURE' && (
-                        <LeadCaptureForm
-                            key="lead"
-                            recommendedCover={recommendedCover}
-                            onBack={() => setStatus(GAME_STATUS.CTA)}
-                        />
-                    )}
                 </AnimatePresence>
 
                 {/* Toast Notification - Moved outside main AnimatePresence to fix blinking */}
