@@ -34,6 +34,11 @@ const ChainIcon = () => (
     </div>
 );
 
+import largeGreen from '../../assets/image/tiles/green_shield.png';
+import largeBlue from '../../assets/image/tiles/blue_graduation.png';
+import largeYellow from '../../assets/image/tiles/gold_coin.png';
+import largeRed from '../../assets/image/tiles/red_briefcase.png';
+
 const HowToPlay = memo(function HowToPlay({ onStart }) {
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -49,10 +54,10 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
     };
 
     const goals = [
-        { label: 'Family Protection', color: '#10B981', bg: 'linear-gradient(145deg, #059669 0%, #10B981 100%)', border: '#047857' },
-        { label: 'Child Education', color: '#3B82F6', bg: 'linear-gradient(145deg, #1D4ED8 0%, #3B82F6 100%)', border: '#1e40af' },
-        { label: 'Retirement Fund', color: '#F59E0B', bg: 'linear-gradient(145deg, #D97706 0%, #F59E0B 100%)', border: '#b45309' },
-        { label: 'Emergency Fund', color: '#EF4444', bg: 'linear-gradient(145deg, #B91C1C 0%, #EF4444 100%)', border: '#b91c1c' },
+        { label: 'Family Protection', icon: largeGreen },
+        { label: 'Child Education', icon: largeBlue },
+        { label: 'Retirement Fund', icon: largeYellow },
+        { label: 'Emergency Fund', icon: largeRed },
     ];
 
     return (
@@ -182,8 +187,12 @@ const HowToPlay = memo(function HowToPlay({ onStart }) {
                     <div className="grid grid-cols-1 gap-3 bg-[#0a1529]/50 p-4 rounded-2xl border border-white/5">
                         {goals.map((g, i) => (
                             <div key={i} className="flex items-center gap-4">
-                                <div className="w-8 h-8 rounded-lg shadow-sm shrink-0 border border-white/10"
-                                    style={{ background: g.bg, boxShadow: `0 2px 0 ${g.border}` }}></div>
+                                <img
+                                    src={g.icon}
+                                    alt={g.label}
+                                    className="w-10 h-10 object-contain drop-shadow-md shrink-0"
+                                    draggable={false}
+                                />
                                 <div className="flex-1 border-b border-white/5 pb-2">
                                     <span className="text-white text-sm font-bold uppercase tracking-wide block">{g.label}</span>
                                 </div>

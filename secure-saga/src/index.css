@@ -20,7 +20,7 @@ body,
     width: 100%;
     min-height: 100dvh;
     overflow-x: hidden;
-    background: radial-gradient(circle at 50% 30%, #0f2a55 0%, #081c3a 80%, #051421 100%);
+    background: #0A1628;
     font-family: 'Inter', system-ui, sans-serif;
     color: white;
     -webkit-font-smoothing: antialiased;
