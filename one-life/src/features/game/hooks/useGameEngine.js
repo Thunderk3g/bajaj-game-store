@@ -418,6 +418,37 @@ export const useGameEngine = () => {
         ctx.strokeStyle = '#4A2B29'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(x + w / 2 - 3, y + 20); ctx.lineTo(x + w / 2 + 3, y + 20); ctx.stroke();
 
+        // Arms/Hands — swing opposite to legs while running
+        const armSwing = Math.sin(animPhase * 1.5) * 8;
+        ctx.strokeStyle = COLORS.PLAYER_HOODIE;
+        ctx.lineWidth = 7;
+        ctx.lineCap = 'round';
+
+        // Left arm
+        ctx.beginPath();
+        ctx.moveTo(x + w / 2 - 10, y + 30);
+        ctx.lineTo(x + w / 2 - 18 - armSwing * 0.6, y + 48 + armSwing * 0.4);
+        ctx.stroke();
+
+        // Left hand
+        ctx.fillStyle = COLORS.PLAYER_FACE;
+        ctx.beginPath();
+        ctx.arc(x + w / 2 - 18 - armSwing * 0.6, y + 48 + armSwing * 0.4, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Right arm
+        ctx.strokeStyle = COLORS.PLAYER_HOODIE;
+        ctx.beginPath();
+        ctx.moveTo(x + w / 2 + 10, y + 30);
+        ctx.lineTo(x + w / 2 + 18 + armSwing * 0.6, y + 48 - armSwing * 0.4);
+        ctx.stroke();
+
+        // Right hand
+        ctx.fillStyle = COLORS.PLAYER_FACE;
+        ctx.beginPath();
+        ctx.arc(x + w / 2 + 18 + armSwing * 0.6, y + 48 - armSwing * 0.4, 4, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.restore();
     }, []);
 

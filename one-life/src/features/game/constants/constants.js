@@ -10,9 +10,9 @@ export const PLAYER_LANE_PADDING = 24;
 export const MAX_LIVES = 3;
 // Life regen removed — lives only decrease
 
-export const RISK_SIZE = 62;
-export const RISK_INITIAL_SPEED = 2.5;
-export const RISK_MAX_SPEED = 7;
+export const RISK_SIZE = 50;
+export const RISK_INITIAL_SPEED = 1.8;
+export const RISK_MAX_SPEED = 5;
 export const RISK_SPAWN_INTERVAL_INITIAL = 1200;
 export const RISK_SPAWN_INTERVAL_MIN = 600;
 

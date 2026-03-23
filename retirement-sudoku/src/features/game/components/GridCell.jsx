@@ -1,5 +1,5 @@
 import { useDroppable } from '@dnd-kit/core';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { PILLAR_MAP } from '../../../constants/game.js';
 
@@ -28,6 +28,7 @@ const GridCell = memo(function GridCell({
     isDropValid,
     onClearCell,
 }) {
+    const lastClickTime = useRef(0);
     const cellKey = `cell-${row}-${col}`;
     const isCelebrationRow = row === 1; // Row 2 is index 1
 
@@ -39,6 +40,21 @@ const GridCell = memo(function GridCell({
 
     const pillar = value ? PILLAR_MAP[value] : null;
     const styleDef = value ? PILLAR_CELL_STYLE[value] : null;
+
+    const handleCellClick = useCallback(() => {
+        if (isPrefilled || !value) return;
+
+        const now = Date.now();
+        const DOUBLE_CLICK_DELAY = 300;
+
+        if (now - lastClickTime.current < DOUBLE_CLICK_DELAY) {
+            // It's a double click/tap
+            onClearCell(row, col);
+            lastClickTime.current = 0; // Reset
+        } else {
+            lastClickTime.current = now;
+        }
+    }, [isPrefilled, value, row, col, onClearCell]);
 
     const handleDoubleClick = useCallback(() => {
         if (!isPrefilled && value) onClearCell(row, col);
@@ -103,6 +119,7 @@ const GridCell = memo(function GridCell({
         <div
             ref={setNodeRef}
             id={cellKey}
+            onClick={handleCellClick}
             onDoubleClick={handleDoubleClick}
             onKeyDown={handleKeyDown}
             tabIndex={isPrefilled ? -1 : 0}

@@ -340,11 +340,10 @@ const IntroPage = memo(function IntroPage() {
                                                 {termsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
                                             </div>
                                             <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight text-left">
-                                                I agree to the{' '}
+                                                I agree and consent to the{' '}
                                                 <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]">
-                                                    Terms & Conditions
-                                                </button>{' '}
-                                                and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                                    T&C and Privacy Policy
+                                                </button>
                                             </div>
                                         </div>
                                         {errors.terms && (
