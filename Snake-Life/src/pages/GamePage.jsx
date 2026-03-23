@@ -137,6 +137,14 @@ const GamePage = () => {
                         </motion.div>
                     )}
 
+                    {status === GAME_STATUS.GAMEOVER && (
+                        <LeadCaptureForm
+                            key="lead"
+                            score={score}
+                            onSuccess={() => setStatus(GAME_STATUS.CTA)}
+                        />
+                    )}
+
                     {status === GAME_STATUS.CTA && (
                         <ConversionScreen
                             key="results"

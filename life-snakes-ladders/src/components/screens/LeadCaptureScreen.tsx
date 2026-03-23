@@ -140,7 +140,7 @@ const LeadCaptureScreen: React.FC<LeadCaptureScreenProps> = ({ onSubmit }) => {
                             boxShadow: '0 4px 20px rgba(255,102,0,0.35)',
                             transition: 'transform 0.12s',
                         }}>
-                            LET'S PLAY →
+                            SEE RESULTS →
                         </button>
                     </form>
                 </div>

@@ -30,7 +30,7 @@ const ThankYouScreen = ({ userName = "User", score, onRestart }) => {
                     >
                         <span>Thank You</span>
                         <span className="text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.6)]">{userName}</span>
-                        <span>for sharing your details</span>
+                        <span>For Sharing Your Details</span>
                     </motion.h1>
 
                     <motion.p
@@ -47,9 +47,9 @@ const ThankYouScreen = ({ userName = "User", score, onRestart }) => {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.6 }}
                         onClick={onRestart}
-                        className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 mx-auto drop-shadow-md py-4 px-8 border-2 border-white/20 bg-white/5 hover:bg-white/10 rounded-xl"
+                        className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-5 mx-auto drop-shadow-md py-4 px-8 border-2 border-white/20 bg-white/5 hover:bg-white/10 rounded-xl"
                     >
-                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> Retake Quiz
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />RETAKE QUIZ
                     </motion.button>
                 </motion.div>
 

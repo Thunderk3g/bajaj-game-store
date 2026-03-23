@@ -79,6 +79,7 @@ export function useFlightEngine({
             bird: createBird(),
             pipes: [],
             clouds,
+            particles: [], // For feathers
             hurdleIndex: 0,
         };
         scoreRef.current = 0;
@@ -91,6 +92,20 @@ export function useFlightEngine({
     const handleFlap = useCallback(() => {
         if (!stateRef.current) return;
         stateRef.current.bird.vy = FLAP_FORCE;
+
+        // Restore individual feather particles
+        for (let i = 0; i < 3; i++) {
+            stateRef.current.particles.push({
+                x: stateRef.current.bird.x - 10,
+                y: stateRef.current.bird.y,
+                vx: -rand(1, 4),
+                vy: rand(-2, 2),
+                size: rand(4, 7),
+                life: 1.0,
+                rotation: rand(0, Math.PI * 2),
+                spin: rand(-0.1, 0.1)
+            });
+        }
     }, []);
 
     // ── Draw helpers ─────────────────────────────────────────────
@@ -112,51 +127,71 @@ export function useFlightEngine({
 
     const drawPipe = (ctx, pipe) => {
         const { color } = pipe.hurdle;
-        const capColor = color + 'dd';
+        const baseColor = '#2C3E50';
+        const accentColor = color;
+        const capColor = baseColor;
 
         // ── Top pipe ─
         const grad = ctx.createLinearGradient(pipe.x, 0, pipe.x + PIPE_WIDTH, 0);
-        grad.addColorStop(0, color + 'cc');
-        grad.addColorStop(0.4, color);
-        grad.addColorStop(1, color + '88');
+        grad.addColorStop(0, '#34495E');
+        grad.addColorStop(0.4, baseColor);
+        grad.addColorStop(1, '#1A252F');
         ctx.fillStyle = grad;
         ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.topH);
+
         ctx.fillStyle = capColor;
-        ctx.fillRect(pipe.x - 4, pipe.topH - 18, PIPE_WIDTH + 8, 18);
+        ctx.fillRect(pipe.x - 4, pipe.topH - 22, PIPE_WIDTH + 8, 22);
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(pipe.x - 4, pipe.topH - 22, PIPE_WIDTH + 8, 22);
+
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = accentColor;
+        ctx.fillRect(pipe.x - 4, pipe.topH - 4, PIPE_WIDTH + 8, 4);
+        ctx.globalAlpha = 1;
 
         // ── Bottom pipe ─
         const bGrad = ctx.createLinearGradient(pipe.x, 0, pipe.x + PIPE_WIDTH, 0);
-        bGrad.addColorStop(0, color + 'cc');
-        bGrad.addColorStop(0.4, color);
-        bGrad.addColorStop(1, color + '88');
+        bGrad.addColorStop(0, '#34495E');
+        bGrad.addColorStop(0.4, baseColor);
+        bGrad.addColorStop(1, '#1A252F');
         ctx.fillStyle = bGrad;
         ctx.fillRect(pipe.x, pipe.bottomY, PIPE_WIDTH, CANVAS_H - pipe.bottomY - GROUND_HEIGHT);
-        ctx.fillStyle = capColor;
-        ctx.fillRect(pipe.x - 4, pipe.bottomY, PIPE_WIDTH + 8, 18);
 
-        // ── Hurdle label on TOP pipe ─
+        ctx.fillStyle = capColor;
+        ctx.fillRect(pipe.x - 4, pipe.bottomY, PIPE_WIDTH + 8, 22);
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(pipe.x - 4, pipe.bottomY, PIPE_WIDTH + 8, 22);
+
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = accentColor;
+        ctx.fillRect(pipe.x - 4, pipe.bottomY, PIPE_WIDTH + 8, 4);
+        ctx.globalAlpha = 1;
+
+        // ── Hurdle labels (Centered & Scaled) ─
         ctx.save();
-        ctx.font = '900 16px Inter, sans-serif';
+        ctx.font = '900 13px "Inter", sans-serif'; // Reduced from 16px to 13px
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
-        ctx.globalAlpha = 1;
+        ctx.textBaseline = 'middle';
+
+        // Top Pipe Text
+        ctx.save();
         ctx.translate(pipe.x + PIPE_WIDTH / 2, pipe.topH / 2);
         ctx.rotate(-Math.PI / 2);
-        // Use maxWidth to prevent text from going outside the pipe vertically (which is horizontal in rotated space)
-        ctx.fillText(pipe.hurdle.name, 0, 5, pipe.topH - 25);
+        // Max width set to pipe height minus padding, scaling if needed
+        ctx.fillText(pipe.hurdle.name, 0, 0, pipe.topH - 40);
         ctx.restore();
 
-        // ── Hurdle label on BOTTOM pipe ─
+        // Bottom Pipe Text
         ctx.save();
-        ctx.font = '900 16px Inter, sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.globalAlpha = 1;
         const bottomContentHeight = CANVAS_H - pipe.bottomY - GROUND_HEIGHT;
         ctx.translate(pipe.x + PIPE_WIDTH / 2, pipe.bottomY + bottomContentHeight / 2);
         ctx.rotate(-Math.PI / 2);
-        // Use maxWidth to prevent text from going outside the pipe
-        ctx.fillText(pipe.hurdle.name, 0, 5, bottomContentHeight - 25);
+        ctx.fillText(pipe.hurdle.name, 0, 0, bottomContentHeight - 40);
+        ctx.restore();
+
         ctx.restore();
     };
 
@@ -165,38 +200,76 @@ export function useFlightEngine({
         ctx.translate(bird.x, bird.y);
         ctx.rotate(bird.rotation);
 
-        // Body
+        // Body - Bright Yellow
         ctx.beginPath();
-        ctx.ellipse(0, 0, 18, 14, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFD166';
+        ctx.ellipse(0, 0, 18, 15, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#F7DB5E';
         ctx.fill();
-        ctx.strokeStyle = '#F4A261';
+        ctx.strokeStyle = '#3C2218'; // Darker brown/black for outline
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Eye - Big White Eye
+        ctx.beginPath();
+        ctx.ellipse(8, -5, 7, 8, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = '#3C2218';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Eye
+        // Pupil
         ctx.beginPath();
-        ctx.arc(7, -4, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(8, -4, 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#1D3557';
+        ctx.arc(10, -5, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#000000';
         ctx.fill();
 
-        // Beak
+        // Beak - Big Orange Beak (Flat/Rounded like image)
         ctx.beginPath();
-        ctx.moveTo(16, -1);
-        ctx.lineTo(22, 2);
-        ctx.lineTo(16, 5);
+        ctx.moveTo(12, -2);
+        ctx.quadraticCurveTo(30, -2, 30, 4);
+        ctx.quadraticCurveTo(30, 10, 12, 10);
         ctx.closePath();
-        ctx.fillStyle = '#E76F51';
+        ctx.fillStyle = '#E65D39'; // Reddish-orange beak
         ctx.fill();
+        ctx.strokeStyle = '#3C2218';
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
-        // Shield badge
-        ctx.font = '10px sans-serif';
-        ctx.fillText('🛡️', -6, 5);
+        // Beak Line
+        ctx.beginPath();
+        ctx.moveTo(12, 4);
+        ctx.lineTo(30, 4);
+        ctx.stroke();
 
+        // Wing - On Side (Like image)
+        const flap = Math.sin(Date.now() / 60);
+        ctx.save();
+        ctx.translate(-10, 2 + (flap * 2));
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = '#3C2218';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.restore();
+    };
+
+    const drawFeather = (ctx, p) => {
+        ctx.save();
+        ctx.globalAlpha = p.life;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.size, p.size / 2, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
         ctx.restore();
     };
 
@@ -247,6 +320,17 @@ export function useFlightEngine({
                     c.y = rand(40, CANVAS_H * 0.5);
                 }
             });
+
+            // Update particles (Feathers)
+            s.particles.forEach((p) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.08; // Gravity on feathers
+                p.vx *= 0.96; // Friction
+                p.life -= 0.02;
+                p.rotation += p.spin;
+            });
+            s.particles = s.particles.filter(p => p.life > 0);
 
             if (!gameStarted) {
                 // Keep bird hovering vertically loosely for effect
@@ -301,6 +385,7 @@ export function useFlightEngine({
             s.clouds.forEach((c) => drawCloud(ctx, c));
             s.pipes.forEach((p) => drawPipe(ctx, p));
             drawGround(ctx);
+            s.particles.forEach((p) => drawFeather(ctx, p));
             drawBird(ctx, s.bird);
 
             rafRef.current = requestAnimationFrame(loop);

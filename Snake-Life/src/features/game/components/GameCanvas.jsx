@@ -99,6 +99,22 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
         // Clear Canvas
         ctx.clearRect(0, 0, size, size);
 
+        // ========== LAYER 0: Board Improvements ==========
+        // Draw a subtle checkered pattern for a better board look
+        const boardBg = '#B9F84D';
+        const boardPattern = '#A4F231';
+        ctx.fillStyle = boardBg;
+        ctx.fillRect(0, 0, size, size);
+
+        ctx.fillStyle = boardPattern;
+        for (let row = 0; row < GRID_SIZE; row++) {
+            for (let col = 0; col < GRID_SIZE; col++) {
+                if ((row + col) % 2 === 0) {
+                    ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
         // Pre-calculate all interpolated positions
         const positions = state.snake.map((segment, index) => {
             const prev = state.previousSnake && state.previousSnake[index] ? state.previousSnake[index] : segment;
@@ -116,82 +132,105 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
             return { x, y };
         });
 
-        // Build the path points once for reuse
+        // Build the path points
         const pathPoints = positions.map(p => ({
             cx: p.x * cellSize + cellSize / 2,
             cy: p.y * cellSize + cellSize / 2
         }));
 
         // Helper: build a smooth path using arcTo for rounded corners
-        const buildSnakePath = () => {
+        const buildSnakePath = (radius = cellSize / 2) => {
             if (pathPoints.length < 2) return;
-            const arcRadius = cellSize / 2;
-
             ctx.beginPath();
             ctx.moveTo(pathPoints[0].cx, pathPoints[0].cy);
 
             for (let i = 1; i < pathPoints.length - 1; i++) {
-                // Use arcTo: the corner point is the control, next point is the target
                 ctx.arcTo(
                     pathPoints[i].cx, pathPoints[i].cy,
                     pathPoints[i + 1].cx, pathPoints[i + 1].cy,
-                    arcRadius
+                    radius
                 );
             }
-            // Final line to the last point
             ctx.lineTo(
                 pathPoints[pathPoints.length - 1].cx,
                 pathPoints[pathPoints.length - 1].cy
             );
         };
 
-        // ========== LAYER 1: Dark blue OUTLINE (wider) ==========
+        // ========== LAYER 1: Snake Shadow & Body ==========
         const outlineColor = '#2A4BBC';
         const fillColor = '#4674E9';
+        const patternColor = '#355FC7';
         const outlineWidth = cellSize * 1.05;
-        const fillWidth = cellSize * 0.82;
+        const fillWidth = cellSize * 0.85;
 
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
-        if (pathPoints.length > 1) {
-            // Draw outline
-            ctx.strokeStyle = outlineColor;
-            ctx.lineWidth = outlineWidth;
-            buildSnakePath();
-            ctx.stroke();
+        if (pathPoints.length > 0) {
+            ctx.save();
+            // Subtle shadow for depth
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 4;
 
-            // ========== LAYER 2: Lighter blue FILL (narrower) ==========
-            ctx.strokeStyle = fillColor;
-            ctx.lineWidth = fillWidth;
-            buildSnakePath();
-            ctx.stroke();
-        } else if (pathPoints.length === 1) {
-            // Single segment
-            ctx.fillStyle = outlineColor;
-            ctx.beginPath();
-            ctx.arc(pathPoints[0].cx, pathPoints[0].cy, outlineWidth / 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = fillColor;
-            ctx.beginPath();
-            ctx.arc(pathPoints[0].cx, pathPoints[0].cy, fillWidth / 2, 0, Math.PI * 2);
-            ctx.fill();
+            if (pathPoints.length > 1) {
+                // Draw outline
+                ctx.strokeStyle = outlineColor;
+                ctx.lineWidth = outlineWidth;
+                buildSnakePath();
+                ctx.stroke();
+
+                // Draw main fill
+                ctx.shadowColor = 'transparent'; // No shadow for fill layer
+                ctx.strokeStyle = fillColor;
+                ctx.lineWidth = fillWidth;
+                buildSnakePath();
+                ctx.stroke();
+
+                // ========== LAYER 1.5: Body Pattern (Scales/Spots) ==========
+                ctx.strokeStyle = patternColor;
+                ctx.lineWidth = fillWidth * 0.4;
+                ctx.setLineDash([2, cellSize * 0.8]); // Dash pattern for spots/scales
+                buildSnakePath();
+                ctx.stroke();
+                ctx.setLineDash([]); // Reset
+            } else {
+                // Single segment
+                ctx.fillStyle = outlineColor;
+                ctx.beginPath();
+                ctx.arc(pathPoints[0].cx, pathPoints[0].cy, outlineWidth / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowColor = 'transparent';
+                ctx.fillStyle = fillColor;
+                ctx.beginPath();
+                ctx.arc(pathPoints[0].cx, pathPoints[0].cy, fillWidth / 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
         }
 
-        // ========== LAYER 2.5: Pellet (Food) on top of Snake Body ==========
+        // ========== LAYER 2: Pellet (Food) ==========
         const pX = state.pellet.x * cellSize + cellSize / 2;
         const pY = state.pellet.y * cellSize + cellSize / 2;
+
+        // Pulse animation for food
+        const foodScale = 1 + Math.sin(t / 200) * 0.1;
+        ctx.save();
+        ctx.translate(pX, pY);
+        ctx.scale(foodScale, foodScale);
         ctx.font = `${cellSize * 1.3}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(state.nextMilestone.icon, pX, pY);
+        ctx.fillText(state.nextMilestone.icon, 0, 0);
+        ctx.restore();
 
-        // ========== LAYER 3: Eyes on Head ==========
+        // ========== LAYER 3: Head Details (Eyes, Tongue, Mouth) ==========
         if (state.snake.length > 0) {
             const headSegment = state.snake[0];
-            const { x, y } = positions[0];
-            const px = x * cellSize;
-            const py = y * cellSize;
+            const { x: hx, y: hy } = positions[0];
+            const cx = hx * cellSize + cellSize / 2;
+            const cy = hy * cellSize + cellSize / 2;
 
             // Determine direction
             const prev = state.previousSnake && state.previousSnake[0] ? state.previousSnake[0] : headSegment;
@@ -213,17 +252,50 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
                 }
             }
 
-            // Draw Eyes natively
-            const cx = px + cellSize / 2;
-            const cy = py + cellSize / 2;
-            const eyeRadius = cellSize * 0.15;
-            const pupilRadius = cellSize * 0.06;
-            const eyeSep = cellSize * 0.22;
-            const eyeFwd = cellSize * 0.15;
+            // --- Tongue ---
+            const tongueColor = '#FF4D4D';
+            const tongueLen = cellSize * 0.4 * (0.8 + Math.sin(t / 80) * 0.5); // Flicking animation
+            const isNearFood = Math.abs(headSegment.x - state.pellet.x) <= 1 && Math.abs(headSegment.y - state.pellet.y) <= 1;
 
-            let eye1 = { x: cx, y: cy };
-            let eye2 = { x: cx, y: cy };
+            if (tongueLen > cellSize * 0.2 || isNearFood) {
+                ctx.beginPath();
+                ctx.strokeStyle = tongueColor;
+                ctx.lineWidth = 3;
+                let tx = cx, ty = cy;
+                const offset = fillWidth / 2;
 
+                if (dir === 'UP') { ty -= offset; ctx.moveTo(tx, ty); ctx.lineTo(tx, ty - tongueLen); }
+                else if (dir === 'DOWN') { ty += offset; ctx.moveTo(tx, ty); ctx.lineTo(tx, ty + tongueLen); }
+                else if (dir === 'LEFT') { tx -= offset; ctx.moveTo(tx, ty); ctx.lineTo(tx - tongueLen, ty); }
+                else if (dir === 'RIGHT') { tx += offset; ctx.moveTo(tx, ty); ctx.lineTo(tx + tongueLen, ty); }
+
+                ctx.stroke();
+
+                // Forked tongue tip
+                const forkLen = 4;
+                if (dir === 'UP' || dir === 'DOWN') {
+                    const tipY = dir === 'UP' ? ty - tongueLen : ty + tongueLen;
+                    ctx.moveTo(tx, tipY); ctx.lineTo(tx - forkLen, tipY + (dir === 'UP' ? -forkLen : forkLen));
+                    ctx.moveTo(tx, tipY); ctx.lineTo(tx + forkLen, tipY + (dir === 'UP' ? -forkLen : forkLen));
+                } else {
+                    const tipX = dir === 'LEFT' ? tx - tongueLen : tx + tongueLen;
+                    ctx.moveTo(tipX, ty); ctx.lineTo(tipX + (dir === 'LEFT' ? -forkLen : forkLen), ty - forkLen);
+                    ctx.moveTo(tipX, ty); ctx.lineTo(tipX + (dir === 'LEFT' ? -forkLen : forkLen), ty + forkLen);
+                }
+                ctx.stroke();
+            }
+
+            // --- Eyes ---
+            const eyeRadius = cellSize * 0.16;
+            const pupilRadius = cellSize * 0.07;
+            const eyeSep = cellSize * 0.24;
+            const eyeFwd = cellSize * 0.18;
+
+            // Mouth opening (eating animation)
+            const mouthOpen = isNearFood ? Math.sin(t / 100) * 0.15 : 0;
+            const eyeScale = 1 + mouthOpen;
+
+            let eye1, eye2;
             if (dir === 'UP') {
                 eye1 = { x: cx - eyeSep, y: cy - eyeFwd };
                 eye2 = { x: cx + eyeSep, y: cy - eyeFwd };
@@ -233,7 +305,7 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
             } else if (dir === 'LEFT') {
                 eye1 = { x: cx - eyeFwd, y: cy - eyeSep };
                 eye2 = { x: cx - eyeFwd, y: cy + eyeSep };
-            } else if (dir === 'RIGHT') {
+            } else {
                 eye1 = { x: cx + eyeFwd, y: cy - eyeSep };
                 eye2 = { x: cx + eyeFwd, y: cy + eyeSep };
             }
@@ -241,15 +313,15 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
             // White eye backgrounds
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.arc(eye1.x, eye1.y, eyeRadius, 0, Math.PI * 2);
+            ctx.arc(eye1.x, eye1.y, eyeRadius * eyeScale, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(eye2.x, eye2.y, eyeRadius, 0, Math.PI * 2);
+            ctx.arc(eye2.x, eye2.y, eyeRadius * eyeScale, 0, Math.PI * 2);
             ctx.fill();
 
-            // Dark blue pupils looking forward
+            // Pupils
             ctx.fillStyle = '#1D3B9C';
-            const pupilOffset = cellSize * 0.05;
+            const pupilOffset = cellSize * 0.06;
             const p1x = dir === 'LEFT' ? eye1.x - pupilOffset : dir === 'RIGHT' ? eye1.x + pupilOffset : eye1.x;
             const p1y = dir === 'UP' ? eye1.y - pupilOffset : dir === 'DOWN' ? eye1.y + pupilOffset : eye1.y;
             const p2x = dir === 'LEFT' ? eye2.x - pupilOffset : dir === 'RIGHT' ? eye2.x + pupilOffset : eye2.x;
@@ -262,18 +334,19 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
             ctx.arc(p2x, p2y, pupilRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Milestone floating label on head
+            // Milestone floating label
             const anim = milestoneAnimRef.current;
             if (anim.milestone && t - anim.startTime < 1500) {
                 const animElapsed = t - anim.startTime;
                 const animProgress = animElapsed / 1500;
-                const floatY = py - cellSize - (animProgress * cellSize * 2);
+                const floatY = (hy * cellSize) - cellSize - (animProgress * cellSize * 2);
                 const opacity = 1 - animProgress;
 
                 ctx.save();
                 ctx.globalAlpha = opacity;
-                ctx.fillStyle = 'black';
-                ctx.font = `bold ${cellSize * 0.5}px Outfit`;
+                ctx.fillStyle = '#000000';
+                ctx.font = `bold ${cellSize * 0.6}px Outfit`;
+                ctx.textAlign = 'center';
                 ctx.fillText(`${anim.milestone.icon} ${anim.milestone.name}`, cx, floatY);
                 ctx.restore();
             }
@@ -288,7 +361,7 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
         };
         requestRef.current = requestAnimationFrame(loop);
         return () => cancelAnimationFrame(requestRef.current);
-    }, []); // Loop never restarts
+    }, []);
 
     return (
         <div
@@ -297,17 +370,10 @@ const GameCanvas = ({ snake, previousSnake, pellet, nextMilestone, lastEatenMile
         >
             <canvas
                 ref={canvasRef}
-                className="relative z-10 block shadow-2xl"
+                className="relative z-10 block rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.5)]"
                 style={{
                     imageRendering: 'auto',
-                    backgroundColor: '#B9F84D',
-                    backgroundImage: `
-                        radial-gradient(#A4F231 1.5px, transparent 0),
-                        radial-gradient(#A4F231 1.5px, transparent 0)
-                    `,
-                    backgroundSize: '12px 12px',
-                    backgroundPosition: '0 0, 6px 6px',
-                    width: 'min(100%, 100%)',
+                    width: 'min(95%, 95%)',
                     height: 'auto'
                 }}
             />

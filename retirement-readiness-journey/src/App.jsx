@@ -13,6 +13,7 @@ const StepLifestyle = lazy(() => import('./components/StepLifestyle'));
 const StepEssentials = lazy(() => import('./components/StepEssentials'));
 const StepEngine = lazy(() => import('./components/StepEngine'));
 const StepSurprises = lazy(() => import('./components/StepSurprises'));
+const LeadCaptureScreen = lazy(() => import('./components/LeadCaptureScreen'));
 const Results = lazy(() => import('./components/Results'));
 
 const App = () => {
@@ -33,6 +34,15 @@ const App = () => {
                 return <StepEngine step={currentStep} selections={selections} onSelect={actions.handleSelection} />;
             case JOURNEY_STEPS.SURPRISES:
                 return <StepSurprises step={currentStep} selections={selections} onSelect={actions.handleSelection} currentSubStep={surprisesSubStep} setSubStep={actions.setSurprisesSubStep} />;
+            case JOURNEY_STEPS.LEAD:
+                return (
+                    <LeadCaptureScreen
+                        onSuccess={(data) => {
+                            actions.setUserInfo({ ...data, termsAccepted: true });
+                            actions.goToNextStep();
+                        }}
+                    />
+                );
             case JOURNEY_STEPS.RESULTS:
                 return <Results score={score} selections={selections} onReset={actions.reset} insights={insights} scoreBreakdown={scoreBreakdown} userInfo={userInfo} />;
             default:
@@ -115,7 +125,7 @@ const App = () => {
                         </Button>
                         <Button
                             onClick={actions.goToNextStep}
-                            className="flex-[2] h-12 sm:h-[3.5rem] bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20"
+                            className="flex-1 h-12 sm:h-[3.5rem] bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20"
                             disabled={!isStepValid()}
                         >
                             NEXT

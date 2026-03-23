@@ -108,7 +108,7 @@ const StepSurprises = ({ step, selections, onSelect, stepIndex = 5, currentSubSt
                             }}
                             className="w-full"
                         >
-                            <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-50 relative overflow-hidden">
+                            <div className="relative overflow-visible">
                                 {/* Decorative elements */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50 shrink-0" />
 
@@ -137,8 +137,8 @@ const StepSurprises = ({ step, selections, onSelect, stepIndex = 5, currentSubSt
                                                     className={cn(
                                                         "w-full flex items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all text-left relative group",
                                                         isSelected
-                                                            ? "border-blue-500 bg-blue-50/50"
-                                                            : "border-slate-100 bg-slate-50/50 hover:border-blue-200"
+                                                            ? "border-blue-500 bg-blue-50/50 shadow-inner"
+                                                            : "border-slate-200 bg-white shadow-sm hover:border-blue-200 hover:bg-slate-50"
                                                     )}
                                                 >
                                                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[0.5rem] sm:rounded-xl overflow-hidden mr-2.5 sm:mr-3 shadow-sm flex-shrink-0 border-2 border-white bg-white">
@@ -160,7 +160,7 @@ const StepSurprises = ({ step, selections, onSelect, stepIndex = 5, currentSubSt
                                                         "w-5 h-5 rounded-full flex items-center justify-center border-2 transition-all ml-3 flex-shrink-0",
                                                         isSelected
                                                             ? "border-blue-500 bg-blue-500"
-                                                            : "border-slate-300 bg-white group-hover:border-blue-400"
+                                                            : "border-slate-400 bg-white group-hover:border-blue-400"
                                                     )}>
                                                         {isSelected && (
                                                             <div className="w-2 h-2 bg-white rounded-full shadow-sm" />

@@ -12,6 +12,7 @@ import GameGrid from './components/GameGrid.jsx';
 import BucketBar from './components/BucketBar.jsx';
 import AlertPopup from './components/AlertPopup.jsx';
 import ResultScreen from './components/ResultScreen.jsx';
+import PostGameLeadCapture from './components/PostGameLeadCapture.jsx';
 import ThankYou from './components/ThankYou.jsx';
 import Background from './components/Background.jsx';
 

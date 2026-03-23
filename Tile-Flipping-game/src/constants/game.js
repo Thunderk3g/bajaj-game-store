@@ -51,6 +51,7 @@ export const TILE_PAIRS_COLORS = [
 export const SCREENS = {
     INTRO: 'intro',
     GAME: 'game',
+    LEAD: 'lead',
     SCORE: 'score',
     THANK_YOU: 'thankyou',
 };

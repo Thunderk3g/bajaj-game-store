@@ -147,12 +147,6 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             {percentage >= 60 && <Confetti />}
 
             {/* Top Right Share Button */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 p-2 bg-white/50 backdrop-blur-sm rounded-full text-brand-blue hover:bg-white shadow-sm transition-all active:scale-95 z-10"
-            >
-                <Share2 className="w-5 h-5" />
-            </button>
 
             {/* Content Wrapper for consistency across heights */}
             <div className="w-full max-w-sm flex flex-col justify-between mx-auto py-4">
@@ -227,7 +221,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                     {/* Large Retake Button */}
                     <button
                         onClick={onRestart}
-                        className="game-btn w-full py-4 text-xl flex items-center justify-center gap-3 rounded-[16px]"
+                        className="game-btn w-full py-4 text-xl flex items-center justify-center gap-3 rounded-[16px] mt-6"
                     >
                         <RotateCcw className="w-6 h-6" />
                         <span>Retake quiz</span>
@@ -254,7 +248,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                 </button>
 
                                 <Dialog.Title className="text-xl sm:text-2xl font-black text-gray-800 text-center mb-6 tracking-tight pr-6 whitespace-nowrap">
-                                    Book a convenient slot
+                                    Book a Slot
                                 </Dialog.Title>
 
                                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -339,9 +333,21 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                                     className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-10 py-3 text-gray-800 font-bold focus:outline-none appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
                                                 >
                                                     <option value="">Choose a slot</option>
-                                                    {timeSlots.map(slot => (
-                                                        <option key={slot} value={slot}>{slot}</option>
-                                                    ))}
+                                                    {timeSlots.map(slot => {
+                                                        const now = new Date();
+                                                        const isToday = bookingData.date === today;
+                                                        const currentHour = now.getHours();
+
+                                                        // Parse "9:00 AM - 10:00 AM" -> start hour is 9
+                                                        const startHourStr = slot.split(':')[0];
+                                                        let startHour = parseInt(startHourStr);
+                                                        if (slot.includes('PM') && startHour !== 12) startHour += 12;
+                                                        if (slot.includes('AM') && startHour === 12) startHour = 0;
+
+                                                        if (isToday && startHour <= currentHour) return null;
+
+                                                        return <option key={slot} value={slot}>{slot}</option>;
+                                                    }).filter(Boolean)}
                                                 </select>
                                                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
                                                 {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}
@@ -350,12 +356,12 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <div className="flex items-start gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
+                                        <div className="flex justify-center items-center gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
                                             <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : 'border-slate-100 bg-gray-50'}`}>
                                                 {bookingTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
                                             </div>
                                             <div className="text-[11px] text-gray-400 font-bold leading-tight underline-offset-2">
-                                                I agree to the <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}>Terms & Conditions</span> and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                                I agree and consent to the <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}>T&C and Privacy Policy</span>
                                             </div>
                                         </div>
                                         {errors.terms && <p className="text-red-500 text-xs font-bold ml-2">{errors.terms}</p>}
@@ -400,8 +406,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     </button>
                                 </div>
                                 <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200 text-left">
-                                    <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
-                                    <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.</p>
+                                    <p>I hereby authorize Bajaj Life Insurance Limited. to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business</p>
+                                    <p>Please refer to Bajaj Life <a href="https://www.bajajlifeinsurance.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">Privacy Policy</a>.</p>
                                 </div>
                                 <div className="mt-6">
                                     <button

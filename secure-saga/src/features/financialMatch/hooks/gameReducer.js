@@ -25,6 +25,7 @@ export const A = {
     TICK: 'TICK',
     FINISH_GAME: 'FINISH_GAME',
     SHOW_RESULT: 'SHOW_RESULT',
+    SHOW_LEAD: 'SHOW_LEAD',
     SHOW_THANK_YOU: 'SHOW_THANK_YOU',
     EXIT_GAME: 'EXIT_GAME',
     RESTART_GAME: 'RESTART_GAME',
@@ -158,6 +159,9 @@ export function gameReducer(state, action) {
 
         case A.SHOW_RESULT:
             return { ...state, gameStatus: GAME_PHASES.RESULT };
+
+        case A.SHOW_LEAD:
+            return { ...state, gameStatus: GAME_PHASES.POST_GAME_LEAD };
 
         case A.SHOW_THANK_YOU:
             return { ...state, gameStatus: GAME_PHASES.THANK_YOU };

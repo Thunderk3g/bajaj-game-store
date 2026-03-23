@@ -8,6 +8,7 @@ import ConversionScreen from '../features/game/components/ConversionScreen';
 import IntroScreen from '../features/game/components/IntroScreen';
 import TutorialOverlay from '../features/game/components/TutorialOverlay';
 import ThankYouScreen from '../features/game/components/ThankYouScreen';
+import PostGameLeadCapture from '../features/game/components/PostGameLeadCapture';
 import LifeLostPopup from '../features/game/components/LifeLostPopup';
 import { submitToLMS } from '../services/api';
 
@@ -65,7 +66,7 @@ const GamePage = () => {
     useEffect(() => {
         if (status === GAME_STATUS.GAME_OVER) {
             const timer = setTimeout(() => {
-                setStatus(GAME_STATUS.CTA);
+                setStatus(GAME_STATUS.POST_GAME_LEAD);
             }, 300);
             return () => clearTimeout(timer);
         }
@@ -159,6 +160,16 @@ const GamePage = () => {
                                 {/* Game Over Overlay (car crash) */}
                                 <GameOverOverlay />
                             </motion.div>
+                        )}
+
+                        {status === GAME_STATUS.POST_GAME_LEAD && (
+                            <PostGameLeadCapture
+                                score={score}
+                                onSuccess={(details) => {
+                                    setLeadData(details);
+                                    setStatus(GAME_STATUS.CTA);
+                                }}
+                            />
                         )}
 
                         {status === GAME_STATUS.CTA && (

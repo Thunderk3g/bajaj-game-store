@@ -176,7 +176,24 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                             <input type="date" min={today} value={bookingData.date} onChange={e => setBookingData(p => ({ ...p, date: e.target.value, bookingError: '' }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none" />
                             <select value={bookingData.timeSlot} onChange={e => setBookingData(p => ({ ...p, timeSlot: e.target.value }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none">
                                 <option value="" className="text-black">Select Time</option>
-                                {timeSlots.map(s => <option key={s} value={s} className="text-black">{s}</option>)}
+                                {timeSlots.map(s => {
+                                    const isToday = bookingData.date === today;
+                                    if (isToday) {
+                                        const slotHour = parseInt(s.split(':')[0]);
+                                        const isPM = s.includes('PM') && slotHour !== 12;
+                                        const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                        if (normalizedHour <= new Date().getHours()) return null;
+                                    }
+                                    return <option key={s} value={s} className="text-black">{s}</option>;
+                                }).filter(Boolean)}
+                                {bookingData.date === today && timeSlots.every(s => {
+                                    const slotHour = parseInt(s.split(':')[0]);
+                                    const isPM = s.includes('PM') && slotHour !== 12;
+                                    const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                    return normalizedHour <= new Date().getHours();
+                                }) && (
+                                        <option disabled className="text-black italic">No slots available for today</option>
+                                    )}
                             </select>
                         </div>
                         <button type="submit" disabled={isSubmitting || !bookingData.date || !bookingData.timeSlot || bookingData.mobile_no.length !== 10} className="w-full bg-[#FF8C00] text-white font-black py-4 shadow-[0_5px_0_#993D00] active:translate-y-1 transition-all uppercase tracking-widest text-sm mt-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">

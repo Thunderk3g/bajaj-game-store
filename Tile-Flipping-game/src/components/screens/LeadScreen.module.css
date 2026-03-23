@@ -1,0 +1,35 @@
+.intro {
+    background: linear-gradient(135deg, #0047AB 0%, #0066B2 100%);
+}
+
+.inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 3rem;
+    background-image: url('../../assets/images/Intro-BG.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.centeredContent {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.btnStartNow {
+    font-size: 1.25rem;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    height: 3.5rem;
+    border-bottom: 6px solid #003380;
+    transition: all 0.1s;
+}
+
+.btnStartNow:active {
+    transform: translateY(4px);
+    border-bottom-width: 2px;
+}

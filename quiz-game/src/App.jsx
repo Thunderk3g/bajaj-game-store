@@ -3,6 +3,7 @@ import { QuizProvider, useQuiz, SCREENS } from './context/QuizContext';
 import WelcomeScreen from './components/WelcomeScreen';
 import QuestionScreen from './components/QuestionScreen';
 import FeedbackScreen from './components/FeedbackScreen';
+import LeadCaptureScreen from './components/LeadCaptureScreen';
 import ResultsScreen from './components/ResultsScreen';
 
 import ThankYouScreen from './components/ThankYouScreen';
@@ -60,6 +61,10 @@ const QuizGame = () => {
                                     onNext={handleNextQuestion}
                                 />
                             </div>
+                        )}
+
+                        {currentScreen === SCREENS.LEAD_CAPTURE && (
+                            <LeadCaptureScreen key="lead-capture" />
                         )}
 
                         {currentScreen === SCREENS.RESULTS && (

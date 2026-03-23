@@ -6,6 +6,7 @@ import { useGame } from '../features/game/context/GameContext.jsx';
 
 const IntroPage = lazy(() => import('../pages/IntroPage.jsx'));
 const GamePage = lazy(() => import('../pages/GamePage.jsx'));
+const LeadPage = lazy(() => import('../pages/LeadCapturePage.jsx'));
 const ResultPage = lazy(() => import('../pages/ResultPage.jsx'));
 const ThankYouPage = lazy(() => import('../pages/ThankYouPage.jsx'));
 
@@ -47,6 +48,7 @@ function InnerRouter() {
                     }
                 />
                 <Route path="/result" element={<ResultPage />} />
+                <Route path="/lead" element={<LeadPage />} />
                 <Route path="/thank-you" element={<ThankYouPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

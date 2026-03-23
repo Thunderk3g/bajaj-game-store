@@ -123,6 +123,7 @@ export const GAME_PHASES = {
     HOW_TO_PLAY: 'how_to_play',
     PLAYING: 'playing',
     FINISHED: 'finished',
+    POST_GAME_LEAD: 'post_game_lead',
     RESULT: 'result',
     THANK_YOU: 'thank_you',
     EXITED: 'exited',

@@ -19,8 +19,8 @@ const LEAD_COPY = {
     },
 };
 
-const INITIAL_FORM = { name: '', mobile: '', age: '', concern: '' };
-const INITIAL_ERRORS = { name: '', mobile: '', age: '', concern: '' };
+const INITIAL_FORM = { name: '', mobile: '' };
+const INITIAL_ERRORS = { name: '', mobile: '' };
 
 export default function LeadPage() {
     const { state, dispatch, ACTIONS, PHASES } = useGame();
@@ -37,12 +37,9 @@ export default function LeadPage() {
         let valid = true;
 
         if (!form.name.trim()) { errs.name = 'Name is required'; valid = false; }
+        else if (!/^[A-Za-z\s]+$/.test(form.name.trim())) { errs.name = 'Invalid name'; valid = false; }
+
         if (!/^\d{10}$/.test(form.mobile)) { errs.mobile = 'Enter a valid 10-digit mobile number'; valid = false; }
-        const age = parseInt(form.age, 10);
-        if (!form.age || isNaN(age) || age < 18 || age > 65) {
-            errs.age = 'Age must be between 18 and 65'; valid = false;
-        }
-        if (!form.concern) { errs.concern = 'Please select a concern'; valid = false; }
 
         setErrors(errs);
         return valid;
@@ -53,17 +50,32 @@ export default function LeadPage() {
         if (!validate()) return;
         setSubmitting(true);
 
-        await submitLead({
-            name: form.name.trim(),
-            mobile: form.mobile,
-            age: form.age,
-            concern: form.concern,
-            score: state.finalScore,
-            mode,
-        });
+        try {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
 
-        dispatch({ type: ACTIONS.SUBMIT_SUCCESS });
-        navigate('/success');
+            const result = await submitLead({
+                name: form.name.trim(),
+                mobile: form.mobile,
+                param4: tomorrow.toISOString().split('T')[0],
+                param19: '09:00 AM',
+                score: state.finalScore,
+                p_data_source: 'LIFE_FLIGHT_LEAD'
+            });
+
+            if (result.success) {
+                if (result.leadNo || result.lead_no) {
+                    sessionStorage.setItem('lifeFlightLeadNo', result.leadNo || result.lead_no);
+                }
+                sessionStorage.setItem('lastSubmittedName', form.name.trim());
+                sessionStorage.setItem('lastSubmittedPhone', form.mobile);
+                navigate('/gameover');
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const field = (label, key, type = 'text', placeholder = '') => (
@@ -96,93 +108,60 @@ export default function LeadPage() {
 
     return (
         <div
-            className="h-full flex flex-col pb-8 no-scrollbar overflow-y-auto"
-            style={{ background: 'linear-gradient(180deg, #0A2540 0%, #021A38 100%)' }}
+            className="h-full flex flex-col items-center justify-center p-5 translate-y-[-20px]"
+            style={{ background: 'linear-gradient(180deg, #00509E 0%, #003366 100%)' }}
         >
-            {/* Back arrow */}
-            <div className="px-5 pt-5 pb-2">
-                <button
-                    onClick={() => navigate('/gameover')}
-                    className="flex items-center gap-2 transition-opacity active:opacity-60"
-                    style={{ color: '#90E0EF', fontSize: 14, background: 'none', border: 'none' }}
-                >
-                    ← Back
-                </button>
-            </div>
-
-            <div className="px-5">
-                {/* Header */}
-                <h1 className="font-black mb-2" style={{ fontSize: 24, color: '#ffffff', lineHeight: 1.2 }}>
-                    {copy.title}
-                </h1>
-                <p className="mb-8 leading-relaxed" style={{ fontSize: 14, color: '#ADE8F4' }}>
-                    {copy.subtext}
-                </p>
-
-                {/* Score context */}
-                <div
-                    className="rounded-2xl px-4 py-3 mb-6 flex items-center gap-3"
-                    style={{ background: 'rgba(0,180,216,0.10)', border: '1px solid rgba(0,180,216,0.25)' }}
-                >
-                    <span style={{ fontSize: 22 }}>🎮</span>
-                    <p style={{ fontSize: 13, color: '#ADE8F4' }}>
-                        Your game score: <strong style={{ color: '#00B4D8' }}>{state.finalScore} hurdles cleared</strong>
-                    </p>
+            <div
+                className="bg-white shadow-2xl w-full max-w-[340px] p-8 border-[5px] border-[#00B4D8] rounded-[2rem]"
+            >
+                <div className="text-center mb-8">
+                    <h2 className="text-[#005BAC] text-3xl font-black mb-2 tracking-tight">Enter Your Details</h2>
+                    <p className="text-slate-500 font-bold text-lg">to reveal your score</p>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} noValidate>
-                    {field('Full Name *', 'name', 'text', 'Enter your full name')}
-                    {field('Mobile Number *', 'mobile', 'tel', 'Enter 10-digit mobile number')}
-                    {field('Age *', 'age', 'number', 'Enter your age (18–65)')}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-2 text-left">
+                        <label className="block text-slate-700 text-[12px] font-black uppercase tracking-widest ml-1">Your Name</label>
+                        <input
+                            type="text"
+                            value={form.name}
+                            onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                            placeholder="Full Name"
+                            className={`w-full px-4 py-4 border-4 ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-100 focus:border-[#00B4D8]'} focus:outline-none text-slate-800 font-bold text-lg transition-all rounded-2xl`}
+                        />
+                        {errors.name && <p className="text-red-500 text-[11px] font-black uppercase tracking-wider ml-1">{errors.name}</p>}
+                    </div>
 
-                    {/* Concern dropdown */}
-                    <div className="mb-6">
-                        <label className="block mb-1 font-semibold" style={{ fontSize: 13, color: '#ADE8F4' }}>
-                            Primary Concern *
-                        </label>
-                        <select
-                            value={form.concern}
-                            onChange={(e) => {
-                                setForm((f) => ({ ...f, concern: e.target.value }));
-                                if (errors.concern) setErrors((er) => ({ ...er, concern: '' }));
-                            }}
-                            className="w-full px-4 py-3 rounded-xl font-medium outline-none appearance-none"
-                            style={{
-                                background: 'rgba(255,255,255,0.07)',
-                                border: errors.concern ? '1.5px solid #E63946' : '1.5px solid rgba(255,255,255,0.12)',
-                                color: form.concern ? '#ffffff' : 'rgba(255,255,255,0.4)',
-                                fontSize: 15,
-                            }}
-                        >
-                            <option value="" disabled style={{ color: '#1a1a2e' }}>Select your main concern</option>
-                            {CONCERN_OPTIONS.map((opt) => (
-                                <option key={opt} value={opt} style={{ color: '#1a1a2e', background: '#fff' }}>
-                                    {opt}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.concern && (
-                            <p className="mt-1" style={{ fontSize: 12, color: '#E63946' }}>{errors.concern}</p>
-                        )}
+                    <div className="space-y-2 text-left">
+                        <label className="block text-slate-700 text-[12px] font-black uppercase tracking-widest ml-1">Mobile Number</label>
+                        <input
+                            type="tel"
+                            maxLength={10}
+                            value={form.mobile}
+                            onChange={(e) => setForm(f => ({ ...f, mobile: e.target.value.replace(/\D/g, '') }))}
+                            placeholder="9876543210"
+                            className={`w-full px-4 py-4 border-4 ${errors.mobile ? 'border-red-400 bg-red-50' : 'border-slate-100 focus:border-[#00B4D8]'} focus:outline-none text-slate-800 font-bold text-lg transition-all rounded-2xl`}
+                        />
+                        {errors.mobile && <p className="text-red-500 text-[11px] font-black uppercase tracking-wider ml-1">{errors.mobile}</p>}
+                    </div>
+
+                    <div className="flex items-start gap-3 py-1">
+                        <div className="mt-1 shrink-0 w-6 h-6 bg-[#00B4D8] border-2 border-[#00B4D8] flex items-center justify-center rounded-md">
+                            <span className="text-white font-black text-sm">✓</span>
+                        </div>
+                        <p className="text-[12px] font-bold text-slate-600 leading-snug text-left">
+                            I agree and consent to the <span className="text-[#00B4D8] underline font-black">T&C and Privacy Policy</span>
+                        </p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full py-4 rounded-2xl font-bold text-white transition-all active:scale-95 disabled:opacity-60"
-                        style={{
-                            fontSize: 16,
-                            background: 'linear-gradient(135deg, #00B4D8 0%, #2DC653 100%)',
-                            boxShadow: '0 8px 24px rgba(0,180,216,0.35)',
-                        }}
+                        className="w-full py-4 rounded-2xl text-xl tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-xl"
+                        style={{ background: 'linear-gradient(135deg, #00B4D8 0%, #0077b6 100%)' }}
                     >
-                        {submitting ? '⏳ Submitting...' : `✅ ${copy.submitLabel}`}
+                        {submitting ? 'Loading...' : 'See Results!'}
                     </button>
-
-                    <p className="text-center mt-3" style={{ fontSize: 12, color: 'rgba(173,232,244,0.5)' }}>
-                        No obligation. Just clarity.
-                    </p>
                 </form>
             </div>
         </div>

@@ -146,7 +146,7 @@ const playSound = (type) => {
             if (timerRef.current) clearInterval(timerRef.current);
             // Wait 1.5s then show result
             const t = setTimeout(() => {
-                dispatch({ type: A.SHOW_RESULT });
+                dispatch({ type: A.SHOW_LEAD });
             }, 1500);
             return () => clearTimeout(t);
         }
@@ -157,7 +157,7 @@ const playSound = (type) => {
             // Lead submission disabled — skip submitToLMS on early exit
 
             const t = setTimeout(() => {
-                dispatch({ type: A.SHOW_RESULT });
+                dispatch({ type: A.SHOW_LEAD });
             }, 800);
             return () => clearTimeout(t);
         }

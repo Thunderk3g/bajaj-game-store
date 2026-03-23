@@ -121,12 +121,6 @@ const Results = ({ score, onReset, userInfo }) => {
                             YOUR RETIREMENT READINESS SCORE
                         </div>
                     </h2>
-                    <button
-                        onClick={handleShare}
-                        className="absolute right-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:bg-white/30 transition-colors max-[640px]:w-8 max-[640px]:h-8"
-                    >
-                        <Share2 className="w-5 h-5 max-[640px]:w-4 max-[640px]:h-4" />
-                    </button>
                 </div>
 
                 {/* SVG Circle Meter */}
@@ -164,14 +158,9 @@ const Results = ({ score, onReset, userInfo }) => {
                     </div>
                 </div>
 
-                {/* Large Band Text with Emoji */}
+                {/* Large Band Text */}
                 <div className="space-y-2 max-[640px]:space-y-1">
-                    <div className="flex items-center justify-center gap-2 sm:gap-3">
-                        {band.icon.includes('.png') ? (
-                            <img src={band.icon} alt={band.label} className="w-[2.5rem] h-[2.5rem] sm:w-[3.5rem] sm:h-[3.5rem] object-contain drop-shadow-sm" />
-                        ) : (
-                            <span className="text-[2rem] sm:text-[3rem] drop-shadow-sm">{band.icon}</span>
-                        )}
+                    <div className="flex items-center justify-center">
                         <h2 className="text-[2.2rem] sm:text-[3rem] font-bold tracking-wide text-[#ff6600] uppercase drop-shadow-md leading-none max-[640px]:text-[1.8rem]">
                             {band.label}
                         </h2>
