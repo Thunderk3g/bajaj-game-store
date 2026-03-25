@@ -272,20 +272,20 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                     </button>
                 </motion.div>
 
-                {/* Disclaimer */}
-                <div className="w-full px-6 opacity-60 mt-4">
-                    <p className="text-[8px] sm:text-[9px] text-white leading-relaxed text-center max-w-[400px] mx-auto">
-                        <span className="font-bold mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
-                    </p>
-                </div>
-
                 <div className="restart-container shrink-0 text-center pb-4 mt-6">
                     <button
                         onClick={onRestart}
                         className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 mx-auto drop-shadow-md pb-2"
                     >
-                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> RETAKE QUIZ
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> PLAY AGAIN
                     </button>
+                </div>
+
+                {/* Disclaimer */}
+                <div className="w-full px-6 opacity-60 mt-4">
+                    <p className="text-[8px] sm:text-[9px] text-white leading-relaxed text-center max-w-[400px] mx-auto">
+                        <span className="font-bold mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                    </p>
                 </div>
             </div>
 

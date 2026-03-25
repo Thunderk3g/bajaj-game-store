@@ -150,13 +150,7 @@ const ResultScreen = ({
         }}>
             <Confetti />
 
-            {/* Top Right Share Icon */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 z-50 text-white/90 hover:text-white transition-opacity p-2"
-            >
-                <Share2 className="w-6 h-6 sm:w-7 sm:h-7 drop-shadow-md" strokeWidth={2.5} />
-            </button>
+
 
             {/* Background Pattern */}
             <div className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center opacity-60 mix-blend-overlay"
@@ -185,7 +179,7 @@ const ResultScreen = ({
 
                     {/* View Exposed Areas Button */}
                     {timeline && timeline.filter(e => e.decision === 'exposed').length > 0 && (
-                        <div className="flex justify-center mt-0 mb-2 relative z-20">
+                        <div className="flex justify-center mt-0 mb-4 relative z-20">
                             <button
                                 onClick={() => setShowExposedModal(true)}
                                 className="bg-red-500/20 hover:bg-red-500/30 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 px-6 py-2.5 rounded-full backdrop-blur-sm border border-red-500/30 transition-all shadow-[0_4px_0_rgba(239,68,68,0.3)] active:translate-y-1 active:shadow-none"
@@ -200,7 +194,7 @@ const ResultScreen = ({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="flex justify-center mt-1 mb-2"
+                        className="flex justify-center mt-2 mb-2"
                     >
                         <button
                             onClick={handleShare}
@@ -216,7 +210,7 @@ const ResultScreen = ({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="bg-white p-3 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-2 shrink-0 rounded-sm"
+                    className="bg-white p-3 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-0 shrink-0 rounded-sm"
                 >
                     <p className="text-slate-600 text-[14px] sm:text-sm font-bold text-center mb-2 leading-relaxed">
                         To secure your milestones from real life risk. Connect with our relationship manager
@@ -244,17 +238,17 @@ const ResultScreen = ({
                 </motion.div>
 
                 {/* Restart Option (Moved Above Disclaimer) */}
-                <div className="shrink-0 text-center mt-2 mb-4">
+                <div className="shrink-0 text-center mt-0 mb-0">
                     <button
                         onClick={onRestart}
-                        className="text-blue-100 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md underline underline-offset-4"
+                        className="text-white text-base sm:text-xl font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 mx-auto drop-shadow-md hover:scale-105 active:scale-95"
                     >
-                        <RefreshCw className="w-4 h-4" /> RETAKE QUIZ
+                        <RefreshCw className="w-5 h-5" /> PLAY AGAIN
                     </button>
                 </div>
 
                 {/* Disclaimer */}
-                <div className="w-full px-6 opacity-40 mt-2 mb-4">
+                <div className="w-full px-6 opacity-40 mt-0 mb-4">
                     <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
                         <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                     </p>

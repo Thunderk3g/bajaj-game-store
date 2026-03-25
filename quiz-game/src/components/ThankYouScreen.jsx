@@ -48,7 +48,7 @@ const ThankYouScreen = () => {
                 >
                     <div className="flex items-center justify-center gap-3 sm:gap-4">
                         <RotateCcw className="w-6 h-6 sm:w-8 sm:h-8" />
-                        <span>RETAKE</span>
+                        <span>PLAY AGAIN</span>
                     </div>
                 </button>
             </div>

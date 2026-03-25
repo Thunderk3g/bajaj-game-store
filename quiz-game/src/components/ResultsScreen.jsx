@@ -77,9 +77,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
         }
 
         if (!bookingData.mobile_no.trim()) {
-            errs.mobile_no = "Mobile is required";
+            errs.mobile_no = "Mobile Number is required";
         } else if (!/^[6-9]\d{9}$/.test(bookingData.mobile_no)) {
-            errs.mobile_no = "Invalid 10-digit number";
+            errs.mobile_no = "Enter a Valid Mobile Number";
         }
 
         if (!bookingData.date) {
@@ -211,21 +211,23 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                         </div>
                     </div>
 
+                    {/* Play again Text Link */}
+                    <div
+                        onClick={onRestart}
+                        className="text-white font-black uppercase tracking-[0.2em] text-sm cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center gap-3 mb-3"
+                    >
+                        <RotateCcw className="w-5 h-5" />
+                        <span>play again</span>
+                    </div>
+
                     {/* Disclaimer */}
-                    <div className="w-full px-6 opacity-40 mt-4">
+                    <div className="w-full px-6 opacity-40 mt-2">
                         <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
                             <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                         </p>
                     </div>
 
-                    {/* Large Retake Button */}
-                    <button
-                        onClick={onRestart}
-                        className="game-btn w-full py-4 text-xl flex items-center justify-center gap-3 rounded-[16px] mt-6"
-                    >
-                        <RotateCcw className="w-6 h-6" />
-                        <span>Retake quiz</span>
-                    </button>
+
                 </div>
             </div>
 
@@ -284,9 +286,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                                 onChange={(e) => {
                                                     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
                                                     setBookingData(prev => ({ ...prev, mobile_no: val }));
-                                                    if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile is required" }));
-                                                    else if (val.length > 0 && val.length < 10) setErrors(prev => ({ ...prev, mobile_no: "Enter 10 digits" }));
-                                                    else if (val.length === 10 && !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Must start 6-9" }));
+                                                    if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile Number is required" }));
+                                                    else if (val.length < 10 || !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Enter a Valid Mobile Number" }));
                                                     else setErrors(prev => ({ ...prev, mobile_no: null }));
                                                 }}
                                                 placeholder="Mobile number"

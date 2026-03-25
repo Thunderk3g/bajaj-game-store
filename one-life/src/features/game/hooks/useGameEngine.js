@@ -738,7 +738,7 @@ export const useGameEngine = () => {
                 if (livesRef.current <= 0) {
                     // All lives lost — show game over popup
                     isPausedRef.current = true;
-                    setLifeLostPopup({ message: 'You lost all your lives! But you can try again.', type: 'gameover' });
+                    setLifeLostPopup({ message: 'You lost all your lives! But you can play again.', type: 'gameover' });
                 } else {
                     // Still has lives — pause and show continue popup
                     isPausedRef.current = true;

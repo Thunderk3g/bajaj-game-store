@@ -49,7 +49,7 @@ const ThankYouScreen = ({ userName = "User", score, onRestart }) => {
                         onClick={onRestart}
                         className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-5 mx-auto drop-shadow-md py-4 px-8 border-2 border-white/20 bg-white/5 hover:bg-white/10 rounded-xl"
                     >
-                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />RETAKE QUIZ
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />PLAY AGAIN
                     </motion.button>
                 </motion.div>
 

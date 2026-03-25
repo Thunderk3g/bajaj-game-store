@@ -167,64 +167,11 @@ const WelcomeScreen = ({
                         style={{ maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%)' }}
                     />
 
-                    {/* Gold Coins */}
-                    <img
-                        src="./assets/images/gold_coins-removebg-preview.png"
-                        alt="Gold Coins"
-                        className="absolute bottom-4 -left-8 min-[375px]:-left-6 w-24 min-[375px]:w-32 z-10 opacity-100 drop-shadow-xl object-cover object-center"
-                    />
-                    <img
-                        src="./assets/images/gold_coins-removebg-preview.png"
-                        alt="Gold Coins"
-                        className="absolute bottom-4 -right-8 min-[375px]:-right-6 w-24 min-[375px]:w-32 z-10 opacity-100 transform scale-x-[-1] drop-shadow-xl object-cover object-center"
-                    />
 
-                    {/* Central Clipboard */}
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2, type: "spring" }}
-                        className="relative z-20 w-full max-w-[200px] min-[375px]:max-w-[240px] bg-white shadow-[0_15px_40px_rgba(0,0,0,0.6)] flex flex-col items-center border-[3px] min-[375px]:border-[4px] border-[#34495E] overflow-hidden shrink-0 mb-8"
-                    >
-                        {/* Clip Element */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 min-[375px]:w-12 h-3 min-[375px]:h-4 bg-[#E5533D] shadow-lg flex items-center justify-center border-b-2 border-[#C0392B] z-30">
-                            <div className="w-1.5 min-[375px]:w-2 h-1.5 min-[375px]:h-2 bg-white border-2 border-[#C0392B] shadow-inner"></div>
-                        </div>
 
-                        <div className="pt-4 min-[375px]:pt-5 pb-3 min-[375px]:pb-4 px-2 min-[375px]:px-3 w-full bg-gradient-to-b from-white to-slate-100">
-                            <h2 className="text-[#E67E22] text-[8px] min-[375px]:text-[9px] font-black first-letter:uppercase lowercase text-center mb-1.5 min-[375px]:mb-2 tracking-tighter">
-                                Mission: <span className="text-[#D35400] first-letter:uppercase lowercase">Life Goals Done</span>
-                            </h2>
 
-                            <ul className="grid grid-cols-1 gap-0.5 min-[375px]:gap-1 px-2 min-[375px]:px-4">
-                                {lifeGoals.map((goal) => (
-                                    <li key={goal.id} className="flex items-center gap-1 min-[375px]:gap-1.5 text-[7px] min-[375px]:text-[8px] font-black text-[#2C3E50] border-b border-[#0066B2]/5 pb-0.5">
-                                        <span className="text-[#0066B2]">•</span>
-                                        <span className="truncate">{goal.name}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </motion.div>
 
-                    {/* Characters */}
-                    <motion.img
-                        initial={{ x: -100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.3, type: "spring", damping: 15 }}
-                        src="./assets/images/character_woman-removebg-preview.png"
-                        alt="Professional Woman"
-                        className="char-woman absolute bottom-[10px] min-[375px]:bottom-[15px] -left-12 min-[375px]:-left-20 h-[180px] min-[375px]:h-[230px] object-cover object-center z-30 drop-shadow-xl"
-                    />
 
-                    <motion.img
-                        initial={{ x: 100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.3, type: "spring", damping: 15 }}
-                        src="./assets/images/character_man-removebg-preview.png"
-                        alt="Professional Man"
-                        className="char-man absolute bottom-[10px] min-[375px]:bottom-[15px] -right-12 min-[375px]:-right-20 h-[190px] min-[375px]:h-[240px] object-cover object-center z-30 drop-shadow-xl"
-                    />
                 </div>
 
                 {/* Main Visuals Area - Desktop/Tablet View */}
@@ -233,64 +180,11 @@ const WelcomeScreen = ({
                     {/* background_characters.png - Desktop */}
                     {/* background_characters.png - Desktop (Removed, using global background instead) */}
 
-                    {/* Gold Coins - Scaled down */}
-                    <img
-                        src="./assets/images/gold_coins-removebg-preview.png"
-                        alt="Gold Coins"
-                        className="absolute bottom-4 -left-6 w-32 sm:w-32 md:w-40 z-10 opacity-100 drop-shadow-xl object-cover object-center"
-                    />
-                    <img
-                        src="./assets/images/gold_coins-removebg-preview.png"
-                        alt="Gold Coins"
-                        className="absolute bottom-4 -right-6 w-32 sm:w-32 md:w-40 z-10 opacity-100 transform scale-x-[-1] drop-shadow-xl object-cover object-center"
-                    />
 
-                    {/* Central Clipboard - Optimized size */}
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2, type: "spring" }}
-                        className="relative z-20 w-full max-w-[240px] sm:max-w-[320px] md:max-w-[380px] bg-white shadow-[0_15px_40px_rgba(0,0,0,0.6)] flex flex-col items-center border-[4px] sm:border-[6px] border-[#34495E] overflow-hidden shrink-0 transform -translate-y-4"
-                    >
-                        {/* Clip Element */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-4 sm:h-5 bg-[#E5533D] shadow-lg flex items-center justify-center border-b-2 sm:border-b-4 border-[#C0392B] z-30">
-                            <div className="w-2 sm:w-3 h-2 sm:h-3 bg-white border-2 border-[#C0392B] shadow-inner"></div>
-                        </div>
 
-                        <div className="pt-5 sm:pt-7 pb-4 sm:pb-6 px-3 sm:px-5 w-full bg-gradient-to-b from-white to-slate-100">
-                            <h2 className="text-[#E67E22] text-[9px] sm:text-[11px] md:text-sm font-black first-letter:uppercase lowercase text-center mb-2 sm:mb-3 tracking-tighter">
-                                Mission: <span className="text-[#D35400] first-letter:uppercase lowercase">Life Goals Done</span>
-                            </h2>
 
-                            <ul className="grid grid-cols-1 gap-1 sm:gap-1.5 px-4">
-                                {lifeGoals.map((goal) => (
-                                    <li key={goal.id} className="flex items-center gap-1.5 sm:gap-2 text-[8px] sm:text-[10px] md:text-xs font-black text-[#2C3E50] border-b border-[#0066B2]/5 pb-0.5">
-                                        <span className="text-[#0066B2]">•</span>
-                                        <span className="truncate">{goal.name}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </motion.div>
 
-                    {/* Characters - Scaled down for safe fit */}
-                    <motion.img
-                        initial={{ x: -100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.3, type: "spring", damping: 15 }}
-                        src="./assets/images/character_woman-removebg-preview.png"
-                        alt="Professional Woman"
-                        className="absolute bottom-0 -left-12 sm:-left-20 md:-left-24 h-[230px] sm:h-[240px] md:h-[280px] lg:h-[320px] object-cover object-center z-30 drop-shadow-xl"
-                    />
 
-                    <motion.img
-                        initial={{ x: 100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.3, type: "spring", damping: 15 }}
-                        src="./assets/images/character_man-removebg-preview.png"
-                        alt="Professional Man"
-                        className="absolute bottom-0 -right-12 sm:-right-20 md:-right-24 h-[240px] sm:h-[250px] md:h-[290px] lg:h-[330px] object-cover object-center z-30 drop-shadow-xl"
-                    />
                 </div>
 
                 {/* Footer Section - Better margins */}

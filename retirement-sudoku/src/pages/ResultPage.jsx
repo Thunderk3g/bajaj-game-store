@@ -718,12 +718,12 @@ const ResultPage = memo(function ResultPage() {
                                     BOOK SLOT
                                 </button>
 
-                                {/* Try Again */}
+                                {/* Play Again */}
                                 <button
                                     onClick={() => { restartGame(); navigate('/game'); }}
                                     className="text-white/70 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors underline underline-offset-4 mt-1"
                                 >
-                                    Try Again
+                                    Play Again
                                 </button>
 
                                 {/* Legal Disclaimer */}

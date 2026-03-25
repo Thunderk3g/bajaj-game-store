@@ -438,7 +438,7 @@ export default function GameOverPage() {
                             onClick={handlePlayAgain}
                             className="text-blue-100 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md"
                         >
-                            <RefreshCw className="w-4 h-4" /> TRY AGAIN
+                            <RefreshCw className="w-4 h-4" /> PLAY AGAIN
                         </button>
                     </div>
 

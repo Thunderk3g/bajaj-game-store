@@ -96,7 +96,7 @@ const Results = ({ score, onReset, userInfo }) => {
                     className="w-full max-w-[280px] h-[4.5rem] bg-[#ff6600] hover:bg-[#ff7711] text-white font-extrabold rounded-2xl shadow-[0_6px_0_#993d00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xl uppercase tracking-wider"
                 >
                     <RotateCcw className="w-6 h-6" />
-                    RETAKE
+                    Play Again
                 </button>
 
             </div>
@@ -186,7 +186,7 @@ const Results = ({ score, onReset, userInfo }) => {
                 max-[640px]:p-3 max-[640px]:rounded-[1.25rem] max-[640px]:space-y-2.5">
                 <div className="text-center">
                     <p className="text-slate-700 font-bold text-sm leading-relaxed max-[640px]:text-[0.7rem] max-[640px]:px-1 max-[640px]:leading-snug">
-                        To Know more about retirement focussed products, connect with our Relationship Manager NOW!
+                        To Know more about retirement focused products, connect with our Relationship Manager NOW!
                     </p>
                 </div>
 
@@ -219,7 +219,7 @@ const Results = ({ score, onReset, userInfo }) => {
                     className="w-full flex items-center justify-center gap-2 text-slate-400 text-[0.75rem] font-semibold uppercase tracking-widest hover:text-blue-500 transition-colors pt-4 max-[640px]:pt-2 max-[640px]:text-[0.65rem]"
                 >
                     <RotateCcw className="w-4 h-4" />
-                    RETAKE ASSESSMENT
+                    Play Again
                 </button>
             </div>
 

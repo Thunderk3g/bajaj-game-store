@@ -70,10 +70,7 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
 
     return (
         <div className="w-full min-h-[100dvh] h-full flex flex-col items-center relative bg-gradient-to-b from-[#00509E] to-[#003366] overflow-y-auto overflow-x-hidden">
-            {/* Header Share Button Support */}
-            <button onClick={handleShare} className="absolute top-4 right-4 z-50 text-white p-2">
-                <Share2 className="w-6 h-6" />
-            </button>
+
 
             {/* Flexible Single Screen Container */}
             <div className="w-full max-w-[420px] mx-auto min-h-full flex flex-col px-5 py-4 safe-p-top safe-p-bottom justify-between">
@@ -137,7 +134,7 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
 
                     <div className="flex flex-col items-center space-y-3">
                         <button onClick={() => onRestart && onRestart()} className="text-white text-[12px] sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 underline underline-offset-4 decoration-white/30">
-                            <RefreshCw className="w-4 h-4" /> TRY AGAIN
+                            <RefreshCw className="w-4 h-4" /> PLAY AGAIN
                         </button>
 
                         <div className="px-1">

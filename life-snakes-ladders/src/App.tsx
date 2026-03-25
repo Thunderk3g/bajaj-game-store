@@ -65,20 +65,8 @@ const App: React.FC<AppProps> = ({
         audioService.playDiceRoll();
         const dice = Math.floor(Math.random() * 6) + 1;
 
-        // Special rule: Square 1 is index 0. 
-        // If at 0 and roll 1, stay at 0 (0 steps).
-        // If at 0 and roll D > 1, go to D (D-1 steps).
         let stepsToMove = dice;
         let message = `You rolled a ${dice}!`;
-
-        if (gameState.playerPosition === 0) {
-            if (dice === 1) {
-                stepsToMove = 0;
-                message = `You rolled a 1. You stay on Square 1!`;
-            } else {
-                stepsToMove = dice - 1;
-            }
-        }
 
         const requiredToWin = BOARD_SIZE - gameState.playerPosition;
 

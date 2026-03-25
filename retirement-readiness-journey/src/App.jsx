@@ -113,7 +113,7 @@ const App = () => {
             </main>
 
             {/* Footer Navigation */}
-            {!isIntro && !isResults && (
+            {!isIntro && !isResults && currentStep.id !== JOURNEY_STEPS.LEAD && (
                 <footer className="sticky bottom-0 p-4 sm:p-6 z-50 bg-transparent flex justify-center w-full">
                     <div className="w-full max-w-[430px] flex gap-3 sm:gap-4 px-4 sm:px-0">
                         <Button

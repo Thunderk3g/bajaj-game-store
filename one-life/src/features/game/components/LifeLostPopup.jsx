@@ -113,7 +113,7 @@ const LifeLostPopup = ({ message, type, onContinue, onGameOver, onRestart }) => 
                             onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.96)'}
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                             Try Again
+                            Play Again
                         </button>
                     ) : (
                         <button
@@ -135,12 +135,12 @@ const LifeLostPopup = ({ message, type, onContinue, onGameOver, onRestart }) => 
                             onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.96)'}
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                             Continue
+                            Continue
                         </button>
                     )}
                 </div>
             </motion.div>
-        </motion.div>
+        </motion.div >
     );
 };
 

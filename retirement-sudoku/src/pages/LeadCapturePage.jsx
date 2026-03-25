@@ -54,7 +54,10 @@ const LeadCapturePage = () => {
     };
 
     return (
-        <div className="vh-fix flex flex-col items-center justify-center bg-sudoku-bg p-6">
+        <div
+            className="vh-fix w-full flex flex-col items-center justify-center p-6 overflow-y-auto"
+            style={{ background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 55%, #0c1a2e 100%)' }}
+        >
             <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
