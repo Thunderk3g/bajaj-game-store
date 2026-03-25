@@ -29,7 +29,7 @@ const IntroScreen = memo(function IntroScreen({ onStart }) {
 
     return (
         <motion.div
-            className="w-full flex-1 min-h-[100dvh] flex flex-col items-center justify-end pb-12 pt-8 relative overflow-hidden"
+            className="w-full flex-1 min-h-[100dvh] flex flex-col items-center justify-end pb-8 pt-8 relative overflow-hidden"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -44,8 +44,8 @@ const IntroScreen = memo(function IntroScreen({ onStart }) {
             <motion.div variants={itemVariants} className="w-full max-w-xs z-10 px-6">
                 <Button
                     variant="primary"
-                    size="lg"
-                    className="w-full shadow-lg text-white btn-5"
+                    size="md"
+                    className="w-full shadow-lg text-white btn-5 py-3"
                     onClick={handleStartClick}
                     id="btn-start-race"
                     style={{
