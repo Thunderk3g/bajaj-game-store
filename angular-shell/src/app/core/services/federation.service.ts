@@ -138,7 +138,7 @@ export class FederationService {
         params.set('gameId', gameId);
       }
 
-      const manifestUrl = `${this.baseHref}${basePath}index.html?${params.toString()}`;
+      const manifestUrl = `${this.baseHref}${basePath}?${params.toString()}`;
       console.log(
         `[FederationService] 🔗 Using manifest URL for game "${gameId}": ${manifestUrl}`,
       );
