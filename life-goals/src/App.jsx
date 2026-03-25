@@ -9,6 +9,7 @@ const WelcomeScreen = lazy(() => import('./components/WelcomeScreen'));
 const GoalSelectionScreen = lazy(() => import('./components/GoalSelectionScreen'));
 const GoalAssessmentScreen = lazy(() => import('./components/GoalAssessmentScreen'));
 const ScoreResultsScreen = lazy(() => import('./components/ScoreResultsScreen'));
+const LeadCaptureScreen = lazy(() => import('./components/LeadCaptureScreen'));
 const ThankYouScreen = lazy(() => import('./components/ThankYouScreen'));
 
 function App() {
@@ -34,7 +35,8 @@ function App() {
 
         advanceGame,
         handleBookSlot,
-        handleRestart
+        handleRestart,
+        completeLeadCapture
     } = useGameState();
 
 
@@ -107,6 +109,21 @@ function App() {
                         score={score}
                         lives={lives}
                         onAnswer={(ans) => advanceGame(ans, selectedGoals[currentGoalIndex], selectedGoals.length)}
+                    />
+                );
+            case SCREENS.LEAD_CAPTURE:
+                return (
+                    <LeadCaptureScreen
+                        key="lead-capture"
+                        score={score}
+                        isSubmitting={isSubmitting}
+                        onSubmit={async (data) => {
+                            const result = await handleLeadSubmit(data);
+                            if (result.success) {
+                                completeLeadCapture();
+                            }
+                            return result;
+                        }}
                     />
                 );
             case SCREENS.SCORE_RESULTS:

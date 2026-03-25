@@ -146,7 +146,7 @@ const playSound = (type) => {
             if (timerRef.current) clearInterval(timerRef.current);
             // Wait 1.5s then show result
             const t = setTimeout(() => {
-                dispatch({ type: A.SHOW_RESULT });
+                dispatch({ type: A.SHOW_LEAD });
             }, 1500);
             return () => clearTimeout(t);
         }
@@ -157,7 +157,7 @@ const playSound = (type) => {
             // Lead submission disabled — skip submitToLMS on early exit
 
             const t = setTimeout(() => {
-                dispatch({ type: A.SHOW_RESULT });
+                dispatch({ type: A.SHOW_LEAD });
             }, 800);
             return () => clearTimeout(t);
         }
@@ -390,6 +390,11 @@ const playSound = (type) => {
         dispatch({ type: A.SHOW_THANK_YOU });
     }, []);
 
+    const handleLeadSuccess = useCallback((details) => {
+        dispatch({ type: A.SET_ENTRY, payload: details });
+        dispatch({ type: A.SHOW_RESULT });
+    }, []);
+
     const handleBookSlot = useCallback(
         async (formData) => {
             try {
@@ -433,6 +438,7 @@ const playSound = (type) => {
         exitGame,
         restartGame,
         showThankYou,
+        handleLeadSuccess,
         handleBookSlot,
     };
 }

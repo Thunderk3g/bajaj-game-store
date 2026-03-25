@@ -260,7 +260,24 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                                             className={`w-full block bg-white/5 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-gold appearance-none text-sm min-h-[52px] ${errors.timeSlot ? 'border-red-500' : 'border-white/5'}`}
                                         >
                                             <option value="" className="bg-[#0B1221]">Choose a slot</option>
-                                            {timeSlots.map(s => <option key={s} value={s} className="bg-[#0B1221]">{s}</option>)}
+                                            {timeSlots.map(s => {
+                                                const isToday = bookingData.date === today;
+                                                if (isToday) {
+                                                    const slotHour = parseInt(s.split(':')[0]);
+                                                    const isPM = s.includes('PM') && slotHour !== 12;
+                                                    const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                                    if (normalizedHour <= new Date().getHours()) return null;
+                                                }
+                                                return <option key={s} value={s} className="bg-[#0B1221]">{s}</option>;
+                                            }).filter(Boolean)}
+                                            {bookingData.date === today && timeSlots.every(s => {
+                                                const slotHour = parseInt(s.split(':')[0]);
+                                                const isPM = s.includes('PM') && slotHour !== 12;
+                                                const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                                return normalizedHour <= new Date().getHours();
+                                            }) && (
+                                                    <option disabled className="bg-[#0B1221] text-white/30 italic">No slots available for today</option>
+                                                )}
                                         </select>
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                             <ChevronDown className="w-5 h-5 text-white/40" />

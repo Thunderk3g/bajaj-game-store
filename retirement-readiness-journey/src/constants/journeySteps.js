@@ -5,6 +5,7 @@ export const JOURNEY_STEPS = {
     ESSENTIALS: 'essentials',
     ENGINE: 'engine',
     SURPRISES: 'surprises',
+    LEAD: 'lead',
     RESULTS: 'results',
 };
 
@@ -24,7 +25,7 @@ export const STEPS_DATA = [
     },
     {
         id: JOURNEY_STEPS.LIFESTYLE,
-        title: "Lifestyle Load",
+        title: "Lifestyle Choice",
         description: " What kind of lifestyle are you aiming for in retirement?",
         options: [
             { id: 'simple', label: 'Simple Living', sublabel: 'Basic home, limited travel, controlled expenses', icon: '☘️', points: 25, image: './assets/simple_living.png' },
@@ -99,7 +100,7 @@ export const STEPS_DATA = [
 export const READINESS_BANDS = [
     { min: 85, label: 'Champion', description: "Fantastic! You are ready for your retirement adventure!", color: '#DC2626', icon: '🏆' },
     { min: 70, label: 'Intermediate', description: "Good Job! You're on track with your retirement planning!", color: '#10B981', icon: './assets/badge.png' },
-    { min: 50, label: 'Amateure', description: "Half way there! You have a foundation to build upon!", color: '#F59E0B', icon: './assets/newbie.png' },
+    { min: 50, label: 'Amateur', description: "Half way there! You have a foundation to build upon!", color: '#F59E0B', icon: './assets/newbie.png' },
     { min: 0, label: 'Rookie', description: "Attention Required! Start planning for your retirement now!", color: '#3B82F6', icon: './assets/egg.png' },
 ];
 

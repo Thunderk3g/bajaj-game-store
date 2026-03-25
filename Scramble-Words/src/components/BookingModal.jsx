@@ -201,17 +201,29 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                         className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:border-blue-200 text-xs font-bold px-4 appearance-none transition-colors"
                                     >
                                         <option value="">Select Slot</option>
-                                        {[...Array(12)].map((_, i) => {
-                                            const start = 9 + i;
-                                            const end = start + 1;
-                                            const formatTime = (h) => {
-                                                const amp = h >= 12 ? 'PM' : 'AM';
-                                                const hour = h > 12 ? h - 12 : h;
-                                                return `${hour}:00 ${amp}`;
-                                            };
-                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
-                                            return <option key={start} value={label}>{label}</option>;
-                                        })}
+                                        {(() => {
+                                            const slots = [...Array(12)].map((_, i) => {
+                                                const start = 9 + i;
+                                                const end = start + 1;
+                                                const formatTime = (h) => {
+                                                    const amp = h >= 12 ? 'PM' : 'AM';
+                                                    const hour = h > 12 ? h - 12 : h;
+                                                    return `${hour}:00 ${amp}`;
+                                                };
+                                                const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                // Filter logic: if today, only show slots that haven't passed
+                                                const now = new Date();
+                                                const isToday = formData.date === todayStr;
+                                                const currentHour = now.getHours();
+
+                                                if (isToday && start <= currentHour) return null;
+
+                                                return <option key={start} value={label}>{label}</option>;
+                                            }).filter(Boolean);
+
+                                            return slots.length > 0 ? slots : <option disabled>No slots available for today</option>;
+                                        })()}
                                     </select>
                                     {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                 </div>

@@ -131,9 +131,24 @@ const LeadForm = memo(function LeadForm({ title, subtitle }) {
                         aria-invalid={!!errors.preferredTime}
                     >
                         <option value="">Select time</option>
-                        {TIME_OPTIONS.map((t) => (
-                            <option key={t} value={t}>{t}</option>
-                        ))}
+                        {TIME_OPTIONS.map((t) => {
+                            const isToday = form.preferredDate === getTodayString();
+                            if (isToday) {
+                                const slotHour = parseInt(t.split(':')[0]);
+                                const isPM = t.includes('PM') && slotHour !== 12;
+                                const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && t.includes('AM') ? 0 : slotHour);
+                                if (normalizedHour <= new Date().getHours()) return null;
+                            }
+                            return <option key={t} value={t}>{t}</option>;
+                        }).filter(Boolean)}
+                        {form.preferredDate === getTodayString() && TIME_OPTIONS.every(t => {
+                            const slotHour = parseInt(t.split(':')[0]);
+                            const isPM = t.includes('PM') && slotHour !== 12;
+                            const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && t.includes('AM') ? 0 : slotHour);
+                            return normalizedHour <= new Date().getHours();
+                        }) && (
+                                <option disabled className="italic italic">No slots available for today</option>
+                            )}
                     </select>
                     <FieldError message={errors.preferredTime} />
                 </div>

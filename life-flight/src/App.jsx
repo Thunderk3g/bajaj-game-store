@@ -6,7 +6,6 @@ import { GameProvider } from './features/flight/context/GameContext.jsx';
 const LandingPage = lazy(() => import('./features/flight/pages/LandingPage.jsx'));
 const GamePage = lazy(() => import('./features/flight/pages/GamePage.jsx'));
 const GameOverPage = lazy(() => import('./features/flight/pages/GameOverPage.jsx'));
-const LeadPage = lazy(() => import('./features/flight/pages/LeadPage.jsx'));
 const SuccessPage = lazy(() => import('./features/flight/pages/SuccessPage.jsx'));
 
 // ── Error boundary ────────────────────────────────────────────
@@ -77,7 +76,6 @@ export default function App() {
                                     <Route path="/" element={<LandingPage />} />
                                     <Route path="/game" element={<GamePage />} />
                                     <Route path="/gameover" element={<GameOverPage />} />
-                                    <Route path="/lead" element={<LeadPage />} />
                                     <Route path="/success" element={<SuccessPage />} />
                                     <Route path="*" element={<Navigate to="/" replace />} />
                                 </Routes>

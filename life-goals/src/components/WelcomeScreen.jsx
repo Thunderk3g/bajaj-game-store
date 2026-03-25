@@ -10,7 +10,7 @@ import { isValidPhone } from '../utils/helpers';
 const TermsModal = () => (
     <Dialog.Root>
         <Dialog.Trigger asChild>
-            <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]">Terms & Conditions</span>
+            <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]">T&C and Privacy Policy</span>
         </Dialog.Trigger>
         <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 z-[200] bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" />
@@ -27,16 +27,16 @@ const TermsModal = () => (
                 </div>
                 <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
                     <p>
-                        I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.
+                        I hereby authorize Bajaj Life Insurance Limited. to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business
                     </p>
                     <p>
-                        Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.
+                        Please refer to Bajaj Life <a href="https://www.bajajlifeinsurance.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">Privacy Policy</a>.
                     </p>
                 </div>
                 <div className="mt-6">
                     <Dialog.Close asChild>
                         <button className="btn-primary-3d w-full !py-3 uppercase tracking-widest text-sm">
-                            Close
+                            CLOSE
                         </button>
                     </Dialog.Close>
                 </div>
@@ -131,26 +131,26 @@ const WelcomeScreen = ({
                         {/* Mobile Header: 3 Lines with Glow */}
                         <div className="block sm:hidden mt-2 min-[375px]:mt-6">
                             <h1 className="text-xl min-[375px]:text-2xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)] tracking-tighter leading-none mb-1 italic">
-                                Are you prepared to
+                                Are You Prepared to
                             </h1>
                             <h1 className="text-xl min-[375px]:text-2xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)] tracking-tighter leading-none mb-1 italic">
-                                achieve your
+                                Achieve Your
                             </h1>
-                            <h1 className="text-3xl min-[375px]:text-4xl font-black text-[#FFD700] tracking-tight leading-none uppercase mt-1 drop-shadow-[0_0_30px_rgba(255,215,0,1)] stroke-black stroke-2">
-                                LIFE GOALS?
+                            <h1 className="text-3xl min-[375px]:text-4xl font-black text-[#FFD700] tracking-tight leading-none mt-1 drop-shadow-[0_0_30px_rgba(255,215,0,1)] stroke-black stroke-2">
+                                Life Goals?
                             </h1>
                         </div>
 
                         {/* Desktop Header: 3 Lines with Glow on "LIFE GOALS?" */}
                         <div className="hidden sm:block">
                             <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)] tracking-tighter leading-none mb-1 italic">
-                                Are you prepared to
+                                Are You Prepared to
                             </h1>
                             <h1 className="text-xl md:text-2xl lg:text-3xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)] tracking-tighter leading-none mb-2 italic">
-                                achieve your
+                                Achieve Your
                             </h1>
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#FFD700] tracking-tight leading-none uppercase mt-2 drop-shadow-[0_0_40px_rgba(255,215,0,0.8)] stroke-black stroke-2">
-                                LIFE GOALS?
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#FFD700] tracking-tight leading-none mt-2 drop-shadow-[0_0_40px_rgba(255,215,0,0.8)] stroke-black stroke-2">
+                                Life Goals?
                             </h1>
                         </div>
                     </motion.div>
@@ -192,8 +192,8 @@ const WelcomeScreen = ({
                         </div>
 
                         <div className="pt-4 min-[375px]:pt-5 pb-3 min-[375px]:pb-4 px-2 min-[375px]:px-3 w-full bg-gradient-to-b from-white to-slate-100">
-                            <h2 className="text-[#E67E22] text-[8px] min-[375px]:text-[9px] font-black uppercase text-center mb-1.5 min-[375px]:mb-2 tracking-tighter">
-                                MISSION: <span className="text-[#D35400]">LIFE GOALS DONE</span>
+                            <h2 className="text-[#E67E22] text-[8px] min-[375px]:text-[9px] font-black first-letter:uppercase lowercase text-center mb-1.5 min-[375px]:mb-2 tracking-tighter">
+                                Mission: <span className="text-[#D35400] first-letter:uppercase lowercase">Life Goals Done</span>
                             </h2>
 
                             <ul className="grid grid-cols-1 gap-0.5 min-[375px]:gap-1 px-2 min-[375px]:px-4">
@@ -258,8 +258,8 @@ const WelcomeScreen = ({
                         </div>
 
                         <div className="pt-5 sm:pt-7 pb-4 sm:pb-6 px-3 sm:px-5 w-full bg-gradient-to-b from-white to-slate-100">
-                            <h2 className="text-[#E67E22] text-[9px] sm:text-[11px] md:text-sm font-black uppercase text-center mb-2 sm:mb-3 tracking-tighter">
-                                MISSION: <span className="text-[#D35400]">LIFE GOALS DONE</span>
+                            <h2 className="text-[#E67E22] text-[9px] sm:text-[11px] md:text-sm font-black first-letter:uppercase lowercase text-center mb-2 sm:mb-3 tracking-tighter">
+                                Mission: <span className="text-[#D35400] first-letter:uppercase lowercase">Life Goals Done</span>
                             </h2>
 
                             <ul className="grid grid-cols-1 gap-1 sm:gap-1.5 px-4">
@@ -299,150 +299,11 @@ const WelcomeScreen = ({
                         onClick={handleStartClick}
                         className="btn-primary-3d w-auto px-8 min-[375px]:px-10 sm:w-full sm:max-w-[340px] !py-3 sm:!py-5 !text-base min-[375px]:!text-lg sm:!text-xl mt-1 whitespace-nowrap"
                     >
-                        Check Your Score
+                        CHECK YOUR SCORE
                     </button>
                 </div>
             </div>
 
-            {/* Name Input Popup */}
-            <AnimatePresence>
-                {showNamePopup && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md"
-                        onClick={() => setShowNamePopup(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative bg-white shadow-2xl w-full max-w-[320px] min-[375px]:max-w-[340px] p-5 min-[375px]:p-6 border-[4px] sm:border-[6px] border-[#0066B2] my-auto"
-                        >
-                            <button
-                                onClick={() => setShowNamePopup(false)}
-                                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
-                            >
-                                <X className="w-5 h-5 min-[375px]:w-6 min-[375px]:h-6" />
-                            </button>
-
-                            <div className="text-center mb-4 min-[375px]:mb-6">
-                                <div className="w-14 h-14 min-[375px]:w-16 min-[375px]:h-16 sm:w-20 sm:h-20 bg-[#0066B2] flex items-center justify-center mx-auto mb-3 min-[375px]:mb-4 shadow-xl border-4 border-white">
-                                    <span className="text-2xl min-[375px]:text-3xl sm:text-4xl">👋</span>
-                                </div>
-                                <h2 className="text-[#0066B2] text-lg min-[375px]:text-xl sm:text-2xl font-black mb-1">Welcome!</h2>
-                                <p className="text-slate-500 font-bold text-xs min-[375px]:text-sm sm:text-base">What should we call you?</p>
-                            </div>
-
-                            <form onSubmit={handleNameSubmit} className="space-y-3 min-[375px]:space-y-4">
-                                <div className="space-y-1 min-[375px]:space-y-1.5">
-                                    <label className="block text-slate-700 text-[9px] min-[375px]:text-[10px] sm:text-xs font-black uppercase tracking-widest ml-1" htmlFor="userName">
-                                        Your Name
-                                    </label>
-                                    <input
-                                        id="userName"
-                                        name="userName"
-                                        type="text"
-                                        value={userName}
-                                        onChange={(e) => {
-                                            // Allow only letters and spaces, remove everything else
-                                            const val = e.target.value.replace(/[^A-Za-z\s]/g, '');
-                                            setUserName(val);
-
-                                            // Real-time validation
-                                            if (!val.trim()) {
-                                                setErrors(prev => ({ ...prev, name: 'Please enter your name' }));
-                                            } else {
-                                                setErrors(prev => ({ ...prev, name: null }));
-                                            }
-                                        }}
-                                        placeholder="Full Name"
-                                        className={`w-full px-3 py-2.5 min-[375px]:px-4 min-[375px]:py-3 sm:py-4 border-4 ${errors.name ? 'border-red-400' : 'border-slate-100'} focus:border-[#0066B2] focus:outline-none focus:ring-4 focus:ring-[#0066B2]/10 text-slate-800 font-bold text-sm min-[375px]:text-base sm:text-lg transition-all`}
-                                        autoFocus
-                                        autoComplete="name"
-                                    />
-                                    {errors.name && (
-                                        <p className="text-red-500 text-[10px] min-[375px]:text-[11px] font-black uppercase tracking-wider ml-1 mt-1 leading-tight">{errors.name}</p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-1 min-[375px]:space-y-1.5">
-                                    <label className="block text-slate-700 text-[9px] min-[375px]:text-[10px] sm:text-xs font-black uppercase tracking-widest ml-1" htmlFor="phone">
-                                        Mobile Number
-                                    </label>
-                                    <input
-                                        id="phone"
-                                        name="phone"
-                                        type="tel"
-                                        value={phone}
-                                        onChange={(e) => {
-                                            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                            setPhone(val);
-
-                                            // Real-time validation
-                                            if (!val.trim()) {
-                                                setErrors(prev => ({ ...prev, phone: 'Please enter your phone number' }));
-                                            } else if (val.length > 0 && !/^[6-9]/.test(val)) {
-                                                setErrors(prev => ({ ...prev, phone: 'Phone number must start with 6-9' }));
-                                            } else if (val.length > 0 && val.length < 10) {
-                                                setErrors(prev => ({ ...prev, phone: 'Please enter 10 digits' }));
-                                            } else if (val.length === 10 && !isValidPhone(val)) {
-                                                setErrors(prev => ({ ...prev, phone: 'Please enter a valid 10-digit number' }));
-                                            } else {
-                                                setErrors(prev => ({ ...prev, phone: null }));
-                                            }
-                                        }}
-                                        placeholder="9876543210"
-                                        className={`w-full px-3 py-2.5 min-[375px]:px-4 min-[375px]:py-3 sm:py-4 border-4 ${errors.phone ? 'border-red-400' : 'border-slate-100'} focus:border-[#0066B2] focus:outline-none focus:ring-4 focus:ring-[#0066B2]/10 text-slate-800 font-bold text-sm min-[375px]:text-base sm:text-lg transition-all`}
-                                        autoComplete="tel"
-                                    />
-                                    {errors.phone && (
-                                        <p className="text-red-500 text-[10px] min-[375px]:text-[11px] font-black uppercase tracking-wider ml-1 mt-1 leading-tight">{errors.phone}</p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2 py-1">
-                                    <div className="flex items-start gap-3">
-                                        <div
-                                            onClick={() => {
-                                                setTermsAccepted(!termsAccepted);
-                                                setErrors(prev => ({ ...prev, terms: null }));
-                                            }}
-                                            className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${termsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-white border-slate-300'}`}
-                                        >
-                                            {termsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
-                                        </div>
-                                        <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight">
-                                            I agree to the <TermsModal /> and allow Bajaj Life Insurance to contact me even if registered on DND.
-                                        </div>
-                                    </div>
-                                    {errors.terms && (
-                                        <p className="text-red-500 text-[9px] min-[375px]:text-[10px] font-black uppercase tracking-wider ml-1">{errors.terms}</p>
-                                    )}
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className={`btn-primary-3d w-full !py-2.5 min-[375px]:!py-3 sm:!py-4 transition-all ${isSubmitting ? 'opacity-50 grayscale cursor-not-allowed translate-y-0 shadow-none' : ''}`}
-                                >
-                                    {isSubmitting ? (
-                                        <span className="flex items-center justify-center gap-2">
-                                            <span className="w-2 h-2 bg-white rounded-full animate-ping"></span>
-                                            Processing...
-                                        </span>
-                                    ) : (
-                                        "Let's Go!"
-                                    )}
-                                </button>
-                            </form>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div >
     );
 };

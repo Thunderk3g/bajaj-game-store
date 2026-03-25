@@ -49,10 +49,10 @@ const StepScenario = ({ step, selections, onSelect, stepIndex = 1 }) => {
                                 onClick={() => onSelect(step.id, option.id)}
                                 className={cn(
                                     "flex flex-col items-center text-center rounded-xl transition-all duration-300 overflow-hidden group h-full",
-                                    "bg-white/90 backdrop-blur-xl shadow-md hover:shadow-lg hover:-translate-y-0.5",
+                                    "shadow-md hover:shadow-lg hover:-translate-y-0.5",
                                     isSelected
                                         ? "ring-2 ring-blue-500 bg-blue-50/90"
-                                        : "hover:bg-white"
+                                        : "bg-white border border-slate-200 hover:bg-slate-50"
                                 )}
                             >
                                 <div className="h-16 sm:h-24 w-full overflow-hidden p-2 sm:p-3 flex items-center justify-center bg-slate-50/50">

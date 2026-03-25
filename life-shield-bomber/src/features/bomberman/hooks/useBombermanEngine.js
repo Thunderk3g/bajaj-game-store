@@ -118,7 +118,7 @@ export function useBombermanEngine() {
         setGamePhase(GAME_PHASES.FINISHED);
 
         setTimeout(() => {
-            setGamePhase(GAME_PHASES.RESULT);
+            setGamePhase(GAME_PHASES.POST_GAME_LEAD);
         }, 1500);
     }, []);
 
@@ -543,5 +543,7 @@ export function useBombermanEngine() {
         goToHowToPlay,
         handleBookSlot,
         showThankYou,
+        setGamePhase,
+        setEntryDetails,
     };
 }

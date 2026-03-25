@@ -6,6 +6,7 @@ export const SCREENS = {
     GOAL_SELECTION: 'goal_selection',
     COUNTDOWN: 'countdown',
     ASSESSMENT: 'assessment',
+    LEAD_CAPTURE: 'lead_capture',
     SCORE_RESULTS: 'score_results',
     THANK_YOU: 'thank_you'
 };
@@ -31,7 +32,7 @@ export const useGameState = () => {
     const gameTimerRef = useRef(null);
 
     const handleEndOfGame = useCallback(() => {
-        setCurrentScreen(SCREENS.SCORE_RESULTS);
+        setCurrentScreen(SCREENS.LEAD_CAPTURE);
         if (gameTimerRef.current) {
             clearTimeout(gameTimerRef.current);
         }
@@ -53,13 +54,7 @@ export const useGameState = () => {
         return () => stopGameTimer();
     }, [stopGameTimer]);
 
-    const startGame = useCallback((userData) => {
-        if (userData?.name) {
-            setLeadName(userData.name);
-        }
-        if (userData?.phone) {
-            setLeadPhone(userData.phone);
-        }
+    const startGame = useCallback(() => {
         setCurrentScreen(SCREENS.GOAL_SELECTION);
         setSelectedGoals([]);
         setCurrentGoalIndex(0);
@@ -168,6 +163,10 @@ export const useGameState = () => {
         stopGameTimer();
     };
 
+    const completeLeadCapture = useCallback(() => {
+        setCurrentScreen(SCREENS.SCORE_RESULTS);
+    }, []);
+
     return {
         currentScreen,
         selectedGoals,
@@ -195,6 +194,7 @@ export const useGameState = () => {
         handleCallNow,
         handleBookSlot,
         handleTalkToExpert,
-        handleRestart
+        handleRestart,
+        completeLeadCapture
     };
 };

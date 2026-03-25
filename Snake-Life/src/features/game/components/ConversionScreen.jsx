@@ -357,9 +357,26 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                     className={`w-full bg-slate-900 border-2 rounded-2xl pl-11 pr-10 py-3 text-white font-bold focus:outline-none focus:border-blue-500 appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-800'}`}
                                 >
                                     <option value="" className="bg-slate-950 text-white">Choose a slot</option>
-                                    {timeSlots.map(slot => (
-                                        <option key={slot} value={slot} className="bg-slate-950 text-white">{slot}</option>
-                                    ))}
+                                    {timeSlots.map(slot => {
+                                        const isToday = bookingData.date === today;
+                                        if (isToday) {
+                                            const slotHour = parseInt(slot.split(':')[0]);
+                                            const isPM = slot.includes('PM') && slotHour !== 12;
+                                            const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+                                            if (normalizedHour <= new Date().getHours()) return null;
+                                        }
+                                        return (
+                                            <option key={slot} value={slot} className="bg-slate-950 text-white">{slot}</option>
+                                        );
+                                    }).filter(Boolean)}
+                                    {bookingData.date === today && timeSlots.every(slot => {
+                                        const slotHour = parseInt(slot.split(':')[0]);
+                                        const isPM = slot.includes('PM') && slotHour !== 12;
+                                        const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+                                        return normalizedHour <= new Date().getHours();
+                                    }) && (
+                                            <option disabled className="bg-slate-950 text-gray-500 italic">No slots available for today</option>
+                                        )}
                                 </select>
                                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
                                 {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}

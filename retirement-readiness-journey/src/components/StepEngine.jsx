@@ -46,8 +46,10 @@ const StepEngine = ({ step, selections, onSelect, stepIndex = 4 }) => {
                                     onSelect(step.id, next);
                                 }}
                                 className={cn(
-                                    "flex items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 backdrop-blur-xl shadow-md sm:shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all",
-                                    isSelected && "ring-2 ring-blue-500 bg-blue-50/90"
+                                    "flex items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all",
+                                    isSelected
+                                        ? "ring-2 ring-blue-500 bg-blue-50/90"
+                                        : "bg-white border border-slate-200 hover:bg-slate-50"
                                 )}
                             >
                                 <div className="w-14 h-14 sm:w-20 sm:h-20 bg-slate-50/50 rounded-lg flex items-center justify-center p-1.5 sm:p-2 shadow-inner mr-3 sm:mr-4 flex-shrink-0">
@@ -70,7 +72,7 @@ const StepEngine = ({ step, selections, onSelect, stepIndex = 4 }) => {
                                     "ml-2 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors border-2",
                                     isSelected
                                         ? "bg-blue-500 border-blue-500 text-white shadow-sm"
-                                        : "bg-slate-50 border-slate-100 text-slate-300"
+                                        : "bg-slate-50 border-slate-300 text-slate-400"
                                 )}>
                                     {isSelected ? <span className="text-[10px] font-bold">✓</span> : <span className="text-[10px]">→</span>}
                                 </div>

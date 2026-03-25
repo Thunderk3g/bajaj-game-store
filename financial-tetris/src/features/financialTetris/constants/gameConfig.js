@@ -11,7 +11,8 @@ export const GAME_STATUS = {
     LOST: 'lost',
     WON: 'won',
     LINE_CLEARED: 'line-cleared',
-    CLEARING: 'clearing'
+    CLEARING: 'clearing',
+    LEAD_CAPTURE: 'lead_capture'
 };
 
 export const POINT_VALUES = {

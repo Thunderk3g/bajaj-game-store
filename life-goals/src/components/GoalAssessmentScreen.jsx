@@ -148,7 +148,7 @@ const GoalAssessmentScreen = ({
                         <div className="w-full shrink-0 mb-3 sm:mb-4">
                             <header className="flex items-center justify-between mb-3">
                                 <span className="text-blue-200 text-[10px] sm:text-xs font-bold uppercase tracking-widest">
-                                    GOAL {currentGoalIndex + 1}/3
+                                    Goal {currentGoalIndex + 1}/3
                                 </span>
                                 <div className="relative w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center">
                                     <svg className="absolute w-full h-full -rotate-90 scale-110">
@@ -177,7 +177,7 @@ const GoalAssessmentScreen = ({
                             </div>
 
                             {/* Goal Title - Centered, Large, Dominant - Reduced top margin */}
-                            <h2 className="text-white text-2xl sm:text-3xl md:text-4xl pt-8 font-extrabold drop-shadow-md text-center mt-1 uppercase">
+                            <h2 className="text-white text-2xl sm:text-3xl md:text-4xl pt-8 font-extrabold drop-shadow-md text-center mt-1">
                                 {currentGoal.name}
                             </h2>
                         </div>

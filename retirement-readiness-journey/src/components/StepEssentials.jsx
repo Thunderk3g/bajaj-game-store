@@ -51,10 +51,10 @@ const StepEssentials = ({ step, selections, onSelect, stepIndex = 3 }) => {
                                 }}
                                 className={cn(
                                     "flex flex-col items-center text-center rounded-xl transition-all duration-300 overflow-hidden group relative",
-                                    "bg-white/90 backdrop-blur-xl shadow-md hover:shadow-lg hover:-translate-y-0.5",
+                                    "shadow-md hover:shadow-lg hover:-translate-y-0.5",
                                     isSelected
                                         ? "ring-2 ring-blue-500 bg-blue-50/90"
-                                        : "hover:bg-white",
+                                        : "bg-white border border-slate-200 hover:bg-slate-50",
                                     isLastOdd ? "col-span-2 w-[calc(50%-0.375rem)] sm:w-[calc(50%-0.5rem)] mx-auto h-full" : "h-full"
                                 )}
                             >
@@ -77,7 +77,7 @@ const StepEssentials = ({ step, selections, onSelect, stepIndex = 3 }) => {
                                     "absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-colors border-2",
                                     isSelected
                                         ? "bg-blue-500 border-blue-500 text-white shadow-sm"
-                                        : "bg-white/80 border-slate-100 text-slate-300 opacity-0 group-hover:opacity-100"
+                                        : "bg-white/80 border-slate-300 text-slate-400 group-hover:border-blue-400"
                                 )}>
                                     {isSelected ? <span className="text-[10px] font-bold">✓</span> : <span className="text-[10px]">→</span>}
                                 </div>
