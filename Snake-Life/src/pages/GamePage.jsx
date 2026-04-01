@@ -141,7 +141,10 @@ const GamePage = () => {
                         <LeadCaptureForm
                             key="lead"
                             score={score}
-                            onSuccess={() => setStatus(GAME_STATUS.CTA)}
+                            onSuccess={(data) => {
+                                setLeadData(data);
+                                setStatus(GAME_STATUS.CTA);
+                            }}
                         />
                     )}
 

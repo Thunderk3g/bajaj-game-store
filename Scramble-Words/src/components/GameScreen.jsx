@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star } from "lucide-react";
 import { WORDS } from "../data/words";
 import WordLinker from "./WordLinker";
-import expertImg from "../assets/MaleImg.png";
+
 
 export default function GameScreen({ onEnd }) {
     const [wordIndex, setWordIndex] = useState(0);
@@ -282,15 +282,7 @@ export default function GameScreen({ onEnd }) {
                 animate={{ opacity: 1, y: 0 }}
                 key={`hint-pill-${wordIndex}`}
             >
-                <div className="shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border-[3px] border-amber-400 bg-gradient-to-br from-blue-100 to-slate-200 shadow-lg z-10 relative">
-                    <img
-                        src={expertImg}
-                        alt="Expert character"
-                        className="w-full h-full object-cover object-top"
-                    />
-                </div>
-
-                <div className="flex-1 -ml-8 sm:-ml-12 bg-white/90 backdrop-blur-sm rounded-3xl py-4 pl-12 pr-6 sm:pl-16 sm:pr-8 sm:py-6 shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-white/40">
+                <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-3xl py-4 px-6 sm:px-10 sm:py-6 shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-white/40">
                     <p className="text-blue-900 font-bold text-lg sm:text-2xl md:text-3xl leading-tight sm:leading-snug text-center">
                         {currentWordObj.hint}
                     </p>

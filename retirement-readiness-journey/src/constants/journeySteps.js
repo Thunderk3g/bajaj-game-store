@@ -20,7 +20,7 @@ export const STEPS_DATA = [
             { id: 'medium', label: 'Medium Term', sublabel: '10-14 years', icon: '🪴', points: 12, image: './assets/medium_term.png' },
             { id: 'later', label: 'Later', sublabel: '15-19 years', icon: '🏠', points: 15, image: './assets/later.png' },
             { id: 'much_later', label: 'Much Later', sublabel: '20-24 years', icon: '🌱', points: 18, image: './assets/Much_later.png' },
-            { id: 'distant', label: 'Distant Future', sublabel: '30+ years', icon: '🌌', points: 20, image: './assets/distant_future.png' },
+            { id: 'distant', label: 'Distant Future', sublabel: '30+ years', icon: '🌌', points: 20, image: './assets/distant future.png' },
         ]
     },
     {

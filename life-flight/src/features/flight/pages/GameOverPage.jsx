@@ -521,12 +521,21 @@ export default function GameOverPage() {
                                                 const end = start + 1;
                                                 const formatTime = (h) => {
                                                     const amp = h >= 12 ? 'pm' : 'am';
-                                                    const hour = h > 12 ? h - 12 : h;
+                                                    const hour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
                                                     return `${hour}:00 ${amp}`;
                                                 };
                                                 const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                // Filter logic
+                                                const now = new Date();
+                                                const isToday = formData.date === today;
+                                                if (isToday && start <= now.getHours()) return null;
+
                                                 return <option key={start} value={label}>{label}</option>;
-                                            })}
+                                            }).filter(Boolean)}
+                                            {formData.date === today && [...Array(12)].every((_, i) => (9 + i) <= new Date().getHours()) && (
+                                                <option disabled>No slots available for today</option>
+                                            )}
                                         </select>
                                         {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                     </div>

@@ -35,7 +35,10 @@ const LeadCaptureForm = ({ score, onSuccess }) => {
                 summary_dtls: 'Snake Life - Post Game Lead',
             });
             if (result.success) {
-                onSuccess();
+                onSuccess({
+                    name: formData.name,
+                    phone: formData.mobile
+                });
             }
         } catch (error) {
             console.error(error);

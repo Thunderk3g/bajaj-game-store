@@ -216,15 +216,12 @@ const BookingModal = memo(function BookingModal({
                                                         const isToday = formData.preferredDate === today;
                                                         const currentHour = now.getHours();
 
-                                                        // Parse "9:00 AM - 11:00 AM" -> start hour is 9
-                                                        const startHourStr = slot.split(':')[0];
-                                                        const isPM = slot.includes('PM') && !slot.startsWith('12') && !slot.startsWith('11') && !slot.startsWith('10') && !slot.startsWith('9');
-                                                        // Actually simpler parsing:
-                                                        let startHour = parseInt(startHourStr);
-                                                        if (slot.includes('PM') && startHour !== 12) startHour += 12;
-                                                        if (slot.includes('AM') && startHour === 12) startHour = 0;
+                                                        // Robust parsing
+                                                        const slotHour = parseInt(slot.split(':')[0]);
+                                                        const isPM = slot.includes('PM') && slotHour !== 12;
+                                                        const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
 
-                                                        if (isToday && startHour <= currentHour) return null;
+                                                        if (isToday && normalizedHour <= currentHour) return null;
 
                                                         return (
                                                             <button
