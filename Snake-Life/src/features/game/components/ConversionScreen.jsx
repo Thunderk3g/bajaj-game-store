@@ -173,7 +173,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                     {/* Messaging Section */}
                     <div className="space-y-1 sh:space-y-0.5 text-center flex flex-col items-center">
                         <h2 className="text-xl sm:text-2xl sh:text-lg font-black text-white tracking-tight leading-tight px-4 drop-shadow-lg">
-                            Calculate how much Life Cover your Family needs to continue this life
+                            Know how much Life Cover your Family needs to continue this life
                         </h2>
                     </div>
 
