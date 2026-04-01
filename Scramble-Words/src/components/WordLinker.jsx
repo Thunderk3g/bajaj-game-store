@@ -9,16 +9,15 @@ export default function WordLinker({ letters, usedIndices, hintedIndex, onLetter
             {isTutorialActive && (
                 <motion.div
                     className="absolute z-50 pointer-events-none text-white drop-shadow-md top-1/2 left-1/2"
-                    initial={{ x: -20, y: 10, opacity: 0 }}
+                    initial={{ x: -20, y: 10, opacity: 0, scale: 1 }}
                     animate={{
-                        x: [-20, -20, -20],
-                        y: [10, -90, 10],
+                        scale: [1, 0.8, 1],
                         opacity: [0, 1, 1, 0]
                     }}
                     transition={{
-                        duration: 2,
+                        duration: 1.5,
                         repeat: Infinity,
-                        ease: "easeOut"
+                        ease: "easeInOut"
                     }}
                 >
                     <Pointer className="w-10 h-10 text-white fill-white drop-shadow-lg transform -rotate-12" />
@@ -34,29 +33,10 @@ export default function WordLinker({ letters, usedIndices, hintedIndex, onLetter
                             <motion.div
                                 layout
                                 layoutId={`letter-${i}`}
-                                drag
-                                dragConstraints={{ top: -500, bottom: 100, left: -200, right: 200 }}
-                                dragElastic={0.1}
-                                dragMomentum={false}
-                                dragSnapToOrigin
-                                onDragEnd={(e, info) => {
-                                    // Robust detection: get all elements at point and find the box
-                                    const elements = document.elementsFromPoint(info.point.x, info.point.y);
-                                    const boxElement = elements.find(el => el.hasAttribute("data-box-index"));
-                                    const boxIndex = boxElement ? parseInt(boxElement.getAttribute("data-box-index")) : null;
-
-                                    if (boxIndex !== null) {
-                                        onLetterSelect(i, boxIndex);
-                                    } else if (info.offset.y < -40) {
-                                        // Fallback to next empty if dragged up but not on a specific box
-                                        onLetterSelect(i);
-                                    }
-                                }}
                                 onTap={() => onLetterSelect(i)}
                                 whileHover={{ scale: 1.05, zIndex: 30 }}
                                 whileTap={{ scale: 0.95, zIndex: 30 }}
-                                whileDrag={{ scale: 1.1, zIndex: 50 }}
-                                className={`w-11 h-11 sm:w-16 sm:h-16 bg-white rounded-xl flex items-center justify-center font-game text-2xl sm:text-4xl text-blue-900 shadow-lg cursor-pointer z-20 transition-all duration-300
+                                className={`w-11 h-11 sm:w-16 sm:h-16 bg-white rounded-xl flex items-center justify-center font-sans font-bold text-2xl sm:text-4xl text-blue-900 shadow-lg cursor-pointer z-20 transition-all duration-300
                                     ${isHinted ? 'hint-glow scale-110' : ''}
                                 `}
                                 initial={{ scale: 0 }}

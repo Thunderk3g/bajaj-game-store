@@ -324,7 +324,7 @@ export default function GameScreen({ onEnd }) {
                         >
                             <span className="text-sm sm:text-lg uppercase tracking-widest text-blue-900/60 font-bold">Try Exhausted</span>
                             <div className="text-xl sm:text-3xl flex flex-col items-center">
-                                <span className="text-white tracking-[0.2em] font-game mb-2">{currentWordObj.word}</span>
+                                <span className="text-white tracking-[0.2em] font-sans font-bold mb-2">{currentWordObj.word}</span>
                                 <p className="text-xs sm:text-base text-blue-900 font-semibold text-center italic leading-tight">
                                     "{currentWordObj.hint}"
                                 </p>
@@ -355,7 +355,7 @@ export default function GameScreen({ onEnd }) {
                             <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className={`font-game text-2xl sm:text-4xl pointer-events-none drop-shadow-sm
+                                className={`font-sans font-bold text-2xl sm:text-4xl pointer-events-none drop-shadow-sm
                                     ${placed ? 'text-blue-900' : 'text-white'}
                                 `}
                             >

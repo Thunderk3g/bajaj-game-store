@@ -164,6 +164,7 @@ const GridCell = memo(function GridCell({
                             lineHeight: 1,
                             pointerEvents: 'none',
                             filter: iconFilter,
+                            color: pillar.id === 'savings' ? '#000000' : undefined,
                         }}
                     >
                         {pillar.emoji}
