@@ -13,11 +13,13 @@ import { decryptToken } from './utils/crypto'
         const token = params.get('token');
         if (token) {
             hasParams = true;
-            sessionStorage.setItem('gamification_rawToken', token);
-            const payload = decryptToken(token);
-            if (payload) {
-                ['game_id', 'emp_id', 'emp_name', 'emp_mobile', 'location', 'zone'].forEach(k => { if (payload[k] != null) sessionStorage.setItem(`gamification_${k}`, String(payload[k])); });
-                sessionStorage.setItem('gamification_referral', payload.referral || 'N');
+            if (token !== 'GUEST_SESSION') {
+                sessionStorage.setItem('gamification_rawToken', token);
+                const payload = decryptToken(token);
+                if (payload) {
+                    ['game_id', 'emp_id', 'emp_name', 'emp_mobile', 'location', 'zone'].forEach(k => { if (payload[k] != null) sessionStorage.setItem(`gamification_${k}`, String(payload[k])); });
+                    sessionStorage.setItem('gamification_referral', payload.referral || 'N');
+                }
             }
         }
         if (hasParams) window.history.replaceState({}, '', window.location.pathname);
