@@ -155,12 +155,6 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                     <p className="text-white font-black text-2xl text-center mt-1">
                         You Achieved
                     </p>
-                    <button
-                        onClick={handleShare}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 p-2 bg-white/5 backdrop-blur-sm rounded-full text-white/70 hover:text-white hover:bg-white/10 border border-white/10 transition-all active:scale-95 z-10"
-                    >
-                        <Share2 className="w-5 h-5" />
-                    </button>
                 </div>
 
                 <div className="w-full max-w-sm flex flex-col items-center gap-y-3">
@@ -348,21 +342,23 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                                     {timeSlots.map(slot => {
                                         const isToday = bookingData.date === today;
                                         if (isToday) {
-                                            const slotHour = parseInt(slot.split(':')[0]);
-                                            const isPM = slot.includes('PM') && slotHour !== 12;
-                                            const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+                                            const [startTime] = slot.split(' - ');
+                                            const slotHour = parseInt(startTime.split(':')[0]);
+                                            const isPM = startTime.includes('PM');
+                                            const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
                                             if (normalizedHour <= new Date().getHours()) return null;
                                         }
                                         return (
                                             <option key={slot} value={slot} className="bg-slate-950">{slot}</option>
                                         );
                                     }).filter(Boolean)}
-                                    {bookingData.date === today && timeSlots.every(slot => {
-                                        const slotHour = parseInt(slot.split(':')[0]);
-                                        const isPM = slot.includes('PM') && slotHour !== 12;
-                                        const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
-                                        return normalizedHour <= new Date().getHours();
-                                    }) && (
+                                    {bookingData.date === today && timeSlots.filter(slot => {
+                                        const [startTime] = slot.split(' - ');
+                                        const slotHour = parseInt(startTime.split(':')[0]);
+                                        const isPM = startTime.includes('PM');
+                                        const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                                        return normalizedHour > new Date().getHours();
+                                    }).length === 0 && (
                                             <option disabled className="bg-slate-950 text-gray-500 italic">No slots available for today</option>
                                         )}
                                 </select>
@@ -377,15 +373,14 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                                     {bookingTermsAccepted && <ShieldCheck className="w-4 h-4 text-white" />}
                                 </div>
                                 <div className="text-xs text-slate-400 font-bold leading-tight">
-                                    I agree to the{' '}
+                                    I agree and consent to the{' '}
                                     <button
                                         type="button"
                                         onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}
                                         className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]"
                                     >
-                                        Terms & Conditions
+                                        T&C and Privacy Policy
                                     </button>
-                                    {' '}and allow Bajaj Life Insurance to contact me even if registered on DND.
                                 </div>
                             </div>
                             {errors.terms && <p className="text-red-500 text-xs font-bold mt-1 ml-1">{errors.terms}</p>}

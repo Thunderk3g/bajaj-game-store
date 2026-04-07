@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGameState } from '../hooks/useGameState';
 import { submitToLMS } from '../utils/api';
+import TermsModal from './TermsModal';
 
 const LeadCaptureScreen = ({ onSuccess }) => {
     const { setLeadNo, showToast } = useGameState();
@@ -10,6 +11,7 @@ const LeadCaptureScreen = ({ onSuccess }) => {
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const validate = () => {
         const newErrors = {};
@@ -106,22 +108,25 @@ const LeadCaptureScreen = ({ onSuccess }) => {
                             {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
                         </div>
                         <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">
-                            I agree and consent to the <span className="text-[#0066B2] underline font-black">T&C and Privacy Policy</span>
+                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#1e40af] transition-colors">T&C and Privacy Policy</span>
                         </p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg"
+                        className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg active:scale-[0.98]"
                         style={{ background: 'linear-gradient(135deg, #0066B2 0%, #1e40af 100%)' }}
                     >
                         {isSubmitting ? 'Starting...' : 'Reveal Score!'}
                     </button>
 
                     {errors.submit && <p className="text-red-500 text-sm font-black text-center mt-2">{errors.submit}</p>}
+                    {errors.terms && !isTermsAccepted && <p className="text-red-500 text-[10px] font-black uppercase text-center">{errors.terms}</p>}
                 </form>
             </motion.div>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </motion.div>
     );
 };

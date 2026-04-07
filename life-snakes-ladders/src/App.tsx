@@ -273,7 +273,12 @@ const App: React.FC<AppProps> = ({
         }
 
         if (onLeadSubmitted) onLeadSubmitted(payload);
-        setGameState(prev => ({ ...prev, currentScreen: 'end' }));
+        setGameState(prev => ({
+            ...prev,
+            currentScreen: 'end',
+            playerName: data.name,
+            playerMobile: data.mobile
+        }));
     };
 
     const handleBookingSubmit = async (data: any) => {

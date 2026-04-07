@@ -176,19 +176,22 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                                 {timeSlots.map(s => {
                                     const isToday = bookingData.date === today;
                                     if (isToday) {
-                                        const slotHour = parseInt(s.split(':')[0]);
-                                        const isPM = s.includes('PM') && slotHour !== 12;
-                                        const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                        const [startTime] = s.split(' - ');
+                                        const slotHour = parseInt(startTime.split(':')[0]);
+                                        const isPM = startTime.includes('PM');
+                                        const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+
                                         if (normalizedHour <= new Date().getHours()) return null;
                                     }
                                     return <option key={s} value={s} className="text-black">{s}</option>;
                                 }).filter(Boolean)}
-                                {bookingData.date === today && timeSlots.every(s => {
-                                    const slotHour = parseInt(s.split(':')[0]);
-                                    const isPM = s.includes('PM') && slotHour !== 12;
-                                    const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
-                                    return normalizedHour <= new Date().getHours();
-                                }) && (
+                                {bookingData.date === today && timeSlots.filter(s => {
+                                    const [startTime] = s.split(' - ');
+                                    const slotHour = parseInt(startTime.split(':')[0]);
+                                    const isPM = startTime.includes('PM');
+                                    const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                                    return normalizedHour > new Date().getHours();
+                                }).length === 0 && (
                                         <option disabled className="text-black italic">No slots available for today</option>
                                     )}
                             </select>

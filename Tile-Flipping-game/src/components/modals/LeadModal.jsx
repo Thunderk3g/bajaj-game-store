@@ -211,21 +211,25 @@ export default function LeadModal({
                                         <option value="">Select Slot</option>
                                         {[
                                             "08:00 AM - 09:00 AM", "09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM",
-                                            "11:00 AM - 12:00 PM", "12:00 PM - 01:00 PM", "01:00 PM - 02:00 PM",
-                                            "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM", "04:00 PM - 05:00 PM",
-                                            "05:00 PM - 06:00 PM", "06:00 PM - 07:00 PM", "07:00 PM - 08:00 PM"
+                                            "11:00 AM - 12:00 PM", "12:00 PM - 01:00 PM",
+                                            "01:00 PM - 02:00 PM", "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM",
+                                            "04:00 PM - 05:00 PM", "05:00 PM - 06:00 PM", "06:00 PM - 07:00 PM",
+                                            "07:00 PM - 08:00 PM"
                                         ].map(slot => {
-                                            const todayIso = new Date().toISOString().split('T')[0];
+                                            const todayIso = new Date().toLocaleDateString('en-CA');
                                             const isToday = preferredDate === todayIso;
                                             if (isToday) {
-                                                const slotHour = parseInt(slot.split(':')[0]);
+                                                const slotHourStr = slot.split(':')[0];
+                                                const slotHour = parseInt(slotHourStr);
                                                 const isPM = slot.includes('PM') && slotHour !== 12;
                                                 const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
-                                                if (normalizedHour <= new Date().getHours()) return null;
+
+                                                const currentHour = new Date().getHours();
+                                                if (normalizedHour <= currentHour) return null;
                                             }
                                             return <option key={slot} value={slot}>{slot}</option>;
                                         }).filter(Boolean)}
-                                        {preferredDate === new Date().toISOString().split('T')[0] && [
+                                        {preferredDate === new Date().toLocaleDateString('en-CA') && [
                                             "08:00 AM - 09:00 AM", "09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM",
                                             "11:00 AM - 12:00 PM", "12:00 PM - 01:00 PM", "01:00 PM - 02:00 PM",
                                             "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM", "04:00 PM - 05:00 PM",
@@ -256,11 +260,10 @@ export default function LeadModal({
                                     {termsAccepted && <Check className={styles.customCheckboxIcon} strokeWidth={4} />}
                                 </div>
                                 <div className={styles.customCheckboxText}>
-                                    I agree to the{' '}
+                                    I agree and consent to the{' '}
                                     <button type="button" onClick={() => setShowTerms(true)} className={styles.termsLink}>
-                                        Terms & Conditions
-                                    </button>{' '}
-                                    and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                        T&C and Privacy Policy
+                                    </button>
                                 </div>
                             </div>
                             {errors.terms && (
@@ -308,10 +311,19 @@ export default function LeadModal({
                                     Terms & Conditions
                                 </h3>
 
+                                <div className={styles.termsDivider} />
+
                                 <div className={styles.termsContent}>
                                     <p className="mb-4">I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
                                     <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className={styles.termsLink}>BALIC Privacy Policy</a>.</p>
                                 </div>
+
+                                <button
+                                    className={styles.agreeBtn}
+                                    onClick={() => setShowTerms(false)}
+                                >
+                                    I Agree
+                                </button>
                             </motion.div>
                         </div>
                     )}

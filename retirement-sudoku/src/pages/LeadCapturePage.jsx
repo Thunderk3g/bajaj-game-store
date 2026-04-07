@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { submitToLMS } from '../utils/api';
+import TermsModal from './TermsModal';
 
 const LeadCapturePage = () => {
     const navigate = useNavigate();
@@ -10,6 +11,7 @@ const LeadCapturePage = () => {
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const validate = () => {
         const newErrors = {};
@@ -61,7 +63,7 @@ const LeadCapturePage = () => {
             <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                className="bg-white rounded-[2rem] p-8 w-full max-w-[340px] shadow-2xl relative border-[4px] border-sudoku-accent"
+                className="bg-white rounded-[2rem] p-8 w-full max-w-[340px] shadow-2xl relative border-[5px] border-sudoku-accent"
             >
                 <div className="text-center mb-10">
                     <h2 className="text-sudoku-accent text-2xl font-black mb-1 tracking-tight uppercase leading-tight text-left">
@@ -78,7 +80,7 @@ const LeadCapturePage = () => {
                             value={name}
                             onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
                             placeholder="Full Name"
-                            className={`w-full bg-slate-50 border-4 rounded-xl px-5 py-3 text-slate-800 placeholder:text-slate-300 font-bold focus:outline-none transition-all ${errors.name ? 'border-red-500' : 'border-slate-100 focus:border-sudoku-accent'}`}
+                            className={`w-full bg-slate-50 border-4 rounded-xl px-5 py-3 text-slate-800 placeholder:text-gray-300 font-bold focus:outline-none transition-all ${errors.name ? 'border-red-500' : 'border-slate-100 focus:border-sudoku-accent'}`}
                         />
                         {errors.name && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{errors.name}</p>}
                     </div>
@@ -91,12 +93,12 @@ const LeadCapturePage = () => {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                             placeholder="9876543210"
-                            className={`w-full bg-slate-50 border-4 rounded-xl px-5 py-3 text-slate-800 placeholder:text-slate-300 font-bold focus:outline-none transition-all ${errors.phone ? 'border-red-500' : 'border-slate-100 focus:border-sudoku-accent'}`}
+                            className={`w-full bg-slate-50 border-4 rounded-xl px-5 py-3 text-slate-800 placeholder:text-gray-300 font-bold focus:outline-none transition-all ${errors.phone ? 'border-red-500' : 'border-slate-100 focus:border-sudoku-accent'}`}
                         />
                         {errors.phone && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{errors.phone}</p>}
                     </div>
 
-                    <div className="flex items-start gap-3 py-1">
+                    <div className="flex items-start gap-3 py-1 text-left">
                         <div
                             onClick={() => setIsTermsAccepted(!isTermsAccepted)}
                             className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-md cursor-pointer transition-all ${isTermsAccepted ? 'bg-sudoku-accent border-sudoku-accent' : 'bg-white border-slate-300'}`}
@@ -104,22 +106,25 @@ const LeadCapturePage = () => {
                             {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
                         </div>
                         <p className="text-[10px] font-bold text-slate-600 leading-snug">
-                            I agree and consent to the <span className="text-sudoku-accent underline font-black">T&C and Privacy Policy</span>
+                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-sudoku-accent underline font-black cursor-pointer hover:text-[#d97706] transition-colors">T&C and Privacy Policy</span>
                         </p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg"
-                        style={{ background: 'linear-gradient(135deg, #0066B2 0%, #3B82F6 100%)' }}
+                        className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg active:scale-[0.98]"
+                        style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}
                     >
                         {isSubmitting ? 'Submitting...' : 'See Results!'}
                     </button>
 
                     {errors.submit && <p className="text-red-500 text-sm font-black text-center mt-2">{errors.submit}</p>}
+                    {errors.terms && !isTermsAccepted && <p className="text-red-500 text-[10px] font-black uppercase text-center">{errors.terms}</p>}
                 </form>
             </motion.div>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </div>
     );
 };

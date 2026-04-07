@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, CheckCircle, Share2, RefreshCw, Calendar, X, Check } from 'lucide-react';
+import { Phone, CheckCircle, Share2, RefreshCw, Calendar, X, Check, ChevronDown } from 'lucide-react';
 import Confetti from './Confetti';
+import TermsModal from './TermsModal';
 import { buildShareUrl } from '../../../utils/crypto';
 import Speedometer from './Speedometer';
 import { submitToLMS, updateLeadNew } from '../../../utils/api';
@@ -312,29 +313,40 @@ const ResultScreen = ({
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Time</label>
-                                    <select
-                                        value={formData.time}
-                                        onChange={e => updateField('time', e.target.value)}
-                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4 appearance-none"
-                                    >
-                                        <option value="">Select</option>
-                                        {[...Array(12)].map((_, i) => {
-                                            const start = 9 + i;
-                                            const end = start + 1;
-                                            const formatTime = (h) => {
-                                                const amp = h >= 12 ? 'PM' : 'AM';
-                                                const hour = h > 12 ? h - 12 : h;
-                                                return `${hour}:00 ${amp}`;
-                                            };
-                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
-                                            return <option key={start} value={label}>{label}</option>;
-                                        })}
-                                    </select>
+                                    <div className="relative">
+                                        <select
+                                            value={formData.time}
+                                            onChange={e => updateField('time', e.target.value)}
+                                            className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4 appearance-none"
+                                        >
+                                            <option value="">Select</option>
+                                            {[...Array(12)].map((_, i) => {
+                                                const start = 9 + i;
+                                                const end = start + 1;
+
+                                                // Filter logic: if today, check if slot start time has passed
+                                                const isToday = formData.date === today;
+                                                if (isToday && start <= new Date().getHours()) return null;
+
+                                                const formatTime = (h) => {
+                                                    const amp = h >= 12 ? 'PM' : 'AM';
+                                                    const hour = h > 12 ? h - 12 : h;
+                                                    return `${hour}:00 ${amp}`;
+                                                };
+                                                const label = `${formatTime(start)} - ${formatTime(end)}`;
+                                                return <option key={start} value={label}>{label}</option>;
+                                            }).filter(Boolean)}
+                                            {formData.date === today && [...Array(12)].filter((_, i) => (9 + i) > new Date().getHours()).length === 0 && (
+                                                <option disabled>No slots available for today</option>
+                                            )}
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                    </div>
                                     {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                 </div>
                             </div>
 
-                            {/* Terms Checkbox — pre-checked by default */}
+                            {/* Terms Checkbox — standardized label */}
                             <div className="flex items-start space-x-2 pt-1 text-left">
                                 <div className="relative flex items-center shrink-0">
                                     <input
@@ -347,7 +359,7 @@ const ResultScreen = ({
                                     <Check className="pointer-events-none absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
                                 </div>
                                 <label htmlFor="modal-terms" className="text-[9px] sm:text-[10px] font-semibold text-slate-500 leading-tight select-none">
-                                    I agree to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] font-bold hover:underline inline">Terms & Conditions</button> and Acknowledge the Privacy Policy.
+                                    I agree and consent to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] font-bold hover:underline inline">T&C and Privacy Policy</button>
                                 </label>
                             </div>
 
@@ -404,7 +416,7 @@ const ResultScreen = ({
                     </motion.div>
                 )}
             </AnimatePresence>
-
+            <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
         </div>
     );
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { submitToLMS } from '../services/apiClient';
+import TermsModal from './TermsModal';
 
 const PostGameLeadCapture = ({ onSuccess, score }) => {
     const [name, setName] = useState('');
@@ -8,6 +9,7 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const validate = () => {
         const newErrors = {};
@@ -104,21 +106,24 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
                             {isTermsAccepted && <span className="text-[#003366] font-black text-xs">✓</span>}
                         </div>
                         <p className="text-[11px] font-bold text-blue-100/50 leading-relaxed">
-                            By proceeding, I agree to the <span className="text-white underline font-black">T&C and Privacy Policy</span>
+                            By proceeding, I agree to the <span onClick={() => setIsTermsModalOpen(true)} className="text-white underline font-black cursor-pointer hover:text-[#fbbf24] transition-colors">T&C and Privacy Policy</span>
                         </p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full h-16 bg-[#fbbf24] hover:bg-[#fcd34d] text-[#003366] font-black text-xl tracking-[0.15em] disabled:opacity-50 transition-all duration-300 shadow-[0_10px_25px_rgba(251,191,36,0.2)] active:translate-y-1 active:shadow-none rounded-2xl border-none uppercase italic"
+                        className="w-full h-16 bg-[#fbbf24] hover:bg-[#fcd34d] text-[#003366] font-black text-xl tracking-[0.15em] disabled:opacity-50 transition-all duration-300 shadow-[0_10px_25px_rgba(251,191,36,0.2)] active:scale-[0.98] active:shadow-none rounded-2xl border-none uppercase italic"
                     >
                         {isSubmitting ? 'Verifying...' : 'Show Results'}
                     </button>
 
                     {errors.submit && <p className="text-red-400 text-sm font-black text-center mt-2">{errors.submit}</p>}
+                    {errors.terms && !isTermsAccepted && <p className="text-red-400 text-[10px] font-black uppercase text-center">{errors.terms}</p>}
                 </form>
             </motion.div>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </div>
     );
 };

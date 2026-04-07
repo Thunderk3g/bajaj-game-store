@@ -325,8 +325,18 @@ const ResultScreen = memo(function ResultScreen({
                                                     return `${hour}:00 ${amp}`;
                                                 };
                                                 const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                // Filter out passed slots for today
+                                                if (bookingForm.date === today && start <= new Date().getHours()) return null;
+
                                                 return <option key={start} value={label}>{label}</option>;
-                                            })}
+                                            }).filter(Boolean)}
+                                            {bookingForm.date === today && [...Array(12)].filter((_, i) => {
+                                                const start = 9 + i;
+                                                return start > new Date().getHours();
+                                            }).length === 0 && (
+                                                    <option disabled className="bg-slate-50 text-slate-300 italic">No slots available for today</option>
+                                                )}
                                         </select>
                                         {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                     </div>
@@ -344,7 +354,7 @@ const ResultScreen = memo(function ResultScreen({
                                         className="mt-0.5 w-4 h-4 accent-[#0066B2] rounded shrink-0"
                                     />
                                     <span className="text-[10px] text-slate-500 leading-tight font-semibold">
-                                        I agree to receive a callback from Bajaj Life Insurance regarding my booking.
+                                        I agree and consent to the T&C and Privacy Policy
                                     </span>
                                 </label>
                                 {errors.terms && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.terms}</span>}

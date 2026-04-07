@@ -1,18 +1,23 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import TermsModal from './TermsModal';
 
 const LeadCaptureScreen = ({ score, onSubmit, isSubmitting }) => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const validate = () => {
         const errs = {};
         if (!name.trim()) errs.name = 'Name is required';
-        else if (!/^[A-Za-z\s]+$/.test(name.trim())) errs.name = 'Invalid name';
+        else if (!/^[A-Za-z\s]+$/.test(name.trim())) errs.name = 'Letters only';
 
         if (!/^[6-9]\d{9}$/.test(phone)) errs.phone = 'Invalid 10-digit number';
+
+        if (!isTermsAccepted) errs.terms = 'Please accept terms';
 
         setErrors(errs);
         return Object.keys(errs).length === 0;
@@ -51,7 +56,7 @@ const LeadCaptureScreen = ({ score, onSubmit, isSubmitting }) => {
                         <input
                             type="text"
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
                             placeholder="Full Name"
                             className={`w-full px-4 py-3 border-4 ${errors.name ? 'border-red-400' : 'border-slate-100'} focus:border-[#00B4D8] focus:outline-none text-slate-800 font-bold text-base transition-all rounded-xl`}
                         />
@@ -71,25 +76,31 @@ const LeadCaptureScreen = ({ score, onSubmit, isSubmitting }) => {
                         {errors.phone && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{errors.phone}</p>}
                     </div>
 
-                    <div className="flex items-start gap-3 py-1">
-                        <div className="mt-0.5 shrink-0 w-6 h-6 bg-[#00B4D8] border-2 border-[#00B4D8] flex items-center justify-center rounded-md">
-                            <span className="text-white font-black text-xs">✓</span>
+                    <div className="flex items-start gap-3 py-1 text-left">
+                        <div
+                            onClick={() => setIsTermsAccepted(!isTermsAccepted)}
+                            className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-md cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : 'bg-white border-slate-300'}`}
+                        >
+                            {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
                         </div>
-                        <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">
-                            I agree and consent to the <span className="text-[#00B4D8] underline font-black">T&C and Privacy Policy</span>
+                        <p className="text-[10px] font-bold text-slate-600 leading-snug">
+                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-[#00B4D8] underline font-black cursor-pointer hover:text-[#0077b6] transition-colors">T&C and Privacy Policy</span>
                         </p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg"
+                        className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg active:scale-[0.98]"
                         style={{ background: 'linear-gradient(135deg, #00B4D8 0%, #0077b6 100%)' }}
                     >
                         {isSubmitting ? 'Loading...' : 'See Results!'}
                     </button>
+                    {errors.terms && !isTermsAccepted && <p className="text-red-500 text-[10px] font-black uppercase text-center">{errors.terms}</p>}
                 </form>
             </motion.div>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </motion.div>
     );
 };

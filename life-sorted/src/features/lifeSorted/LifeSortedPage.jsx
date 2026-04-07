@@ -198,8 +198,8 @@ const LifeSortedPage = () => {
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
                     <div className="bg-white rounded-[32px] p-8 w-full max-w-[340px] shadow-2xl relative border-[5px] border-[#00B4D8] animate-in zoom-in-95">
                         <div className="text-center mb-8">
-                            <h2 className="text-[#005BAC] text-2xl font-black mb-1 tracking-tight uppercase">Enter Your Details</h2>
-                            <p className="text-slate-500 font-bold text-lg">to reveal your score</p>
+                            <h2 className="text-[#005BAC] text-2xl font-black mb-1 tracking-tight uppercase">Enter Details</h2>
+                            <p className="text-slate-500 font-bold text-lg text-center">To see the results</p>
                         </div>
 
                         <form onSubmit={handleLeadSubmit} className="space-y-6">
@@ -233,14 +233,14 @@ const LifeSortedPage = () => {
                                     <span className="text-white font-black text-xs">✓</span>
                                 </div>
                                 <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">
-                                    I agree and consent to the <span className="text-[#00B4D8] underline font-black">T&C and Privacy Policy</span>
+                                    I agree and consent to the <span onClick={() => setIsTermsOpen(true)} className="text-[#00B4D8] underline font-black cursor-pointer hover:text-[#0077b6] transition-colors">T&C and Privacy Policy</span>
                                 </p>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={isSubmittingLead}
-                                className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg"
+                                className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg active:scale-[0.98]"
                                 style={{ background: 'linear-gradient(135deg, #00B4D8 0%, #0077b6 100%)' }}
                             >
                                 {isSubmittingLead ? 'Loading...' : 'See Results!'}
@@ -251,10 +251,10 @@ const LifeSortedPage = () => {
             )}
 
             <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
-                <div className="bg-white rounded-[32px] p-8 w-full shadow-2xl relative text-left">
-                    <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
-                        <h3 className="text-[#0066B2] text-xl font-black uppercase tracking-tight">
-                            Terms &amp; Conditions
+                <div className="bg-white rounded-[32px] p-8 w-full shadow-2xl relative text-left border-[5px] border-[#00B4D8]">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-[#005BAC] text-2xl font-black uppercase tracking-tight leading-tight">
+                            Terms & Conditions
                         </h3>
                         <button
                             onClick={() => setIsTermsOpen(false)}
@@ -263,14 +263,15 @@ const LifeSortedPage = () => {
                             <X className="w-6 h-6" />
                         </button>
                     </div>
-                    <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200 text-left">
+                    <div className="max-h-[40vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-medium text-xs leading-relaxed scrollbar-thin scrollbar-thumb-slate-200 text-left">
                         <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
-                        <p>Please refer to <a href="https://www.bajajlifeinsurance.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.</p>
+                        <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#00B4D8] underline font-bold">Privacy Policy</a>.</p>
                     </div>
-                    <div className="mt-6">
+                    <div className="mt-8">
                         <button
                             onClick={() => { setIsTermsOpen(false); setIsTermsAccepted(true); }}
-                            className="w-full mt-6 py-3 bg-[#0066B2] text-white font-bold rounded-lg hover:bg-blue-700 transition-colors text-sm uppercase tracking-wider"
+                            className="w-full py-4 rounded-xl text-lg tracking-widest text-white uppercase font-black transition-all duration-300 shadow-lg"
+                            style={{ background: 'linear-gradient(135deg, #00B4D8 0%, #0077b6 100%)' }}
                         >
                             I Agree
                         </button>

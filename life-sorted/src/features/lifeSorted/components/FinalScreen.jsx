@@ -23,10 +23,10 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
     const [errors, setErrors] = useState({});
     const [isTermsOpen, setIsTermsOpen] = useState(false);
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-    const maxDate = thirtyDaysFromNow.toISOString().split("T")[0];
+    const maxDate = thirtyDaysFromNow.toLocaleDateString('en-CA');
 
     const timeSlots = [
         "9:00 AM - 10:00 AM",
@@ -107,14 +107,6 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                 animate={{ opacity: 1 }}
             >
 
-                {/* Top Right Share Button */}
-                <button
-                    onClick={handleShare}
-                    className="absolute top-6 right-6 p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all active:scale-95 z-50 border border-white/10 shadow-lg backdrop-blur-md"
-                    aria-label="Share performance"
-                >
-                    <Share2 className="w-5 h-5 text-gold" />
-                </button>
 
                 <div className="w-full max-w-md flex flex-col items-center flex-1 gap-y-6 z-10 px-4">
                     <div className="text-center">
@@ -263,19 +255,22 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                                             {timeSlots.map(s => {
                                                 const isToday = bookingData.date === today;
                                                 if (isToday) {
-                                                    const slotHour = parseInt(s.split(':')[0]);
-                                                    const isPM = s.includes('PM') && slotHour !== 12;
-                                                    const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                                    const [startTime] = s.split(' - ');
+                                                    const slotHour = parseInt(startTime.split(':')[0]);
+                                                    const isPM = startTime.includes('PM');
+                                                    const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+
                                                     if (normalizedHour <= new Date().getHours()) return null;
                                                 }
                                                 return <option key={s} value={s} className="bg-[#0B1221]">{s}</option>;
                                             }).filter(Boolean)}
-                                            {bookingData.date === today && timeSlots.every(s => {
-                                                const slotHour = parseInt(s.split(':')[0]);
-                                                const isPM = s.includes('PM') && slotHour !== 12;
-                                                const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
-                                                return normalizedHour <= new Date().getHours();
-                                            }) && (
+                                            {bookingData.date === today && timeSlots.filter(s => {
+                                                const [startTime] = s.split(' - ');
+                                                const slotHour = parseInt(startTime.split(':')[0]);
+                                                const isPM = startTime.includes('PM');
+                                                const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                                                return normalizedHour > new Date().getHours();
+                                            }).length === 0 && (
                                                     <option disabled className="bg-[#0B1221] text-white/30 italic">No slots available for today</option>
                                                 )}
                                         </select>
@@ -287,21 +282,20 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="space-y-4">
                                 <div className="flex items-start gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
                                     <div className={`shrink-0 w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-[#005faa] border-[#005faa]' : 'border-white/10 bg-white/5'}`}>
                                         {bookingTermsAccepted && <ShieldCheck className="w-4 h-4 text-white" />}
                                     </div>
                                     <div className="text-[10px] text-white/50 font-medium leading-[1.4]">
-                                        I agree to the{' '}
+                                        I agree and consent to the{' '}
                                         <button
                                             type="button"
                                             onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}
                                             className="text-[#005faa] font-bold underline cursor-pointer hover:text-blue-400"
                                         >
-                                            Terms & Conditions
+                                            T&C and Privacy Policy
                                         </button>
-                                        {' '}and allow Bajaj Life Insurance to contact me even if registered on DND.
                                     </div>
                                 </div>
                                 {errors.terms && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.terms}</p>}

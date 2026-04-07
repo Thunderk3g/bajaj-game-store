@@ -248,11 +248,10 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
                                 {termsAccepted && <Check size={14} color="#fff" strokeWidth={3} />}
                             </div>
                             <div style={{ fontSize: 'clamp(11px, 2.2vh, 13px)', fontWeight: 700, color: T.text, lineHeight: 1.5, textAlign: 'left' }}>
-                                I agree to the{' '}
+                                I agree and consent to the{' '}
                                 <button type="button" onClick={() => setShowTerms(true)} style={{ background: 'none', border: 'none', color: T.blue, fontWeight: 700, fontSize: 'clamp(11px, 2.2vh, 13px)', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
-                                    Terms & Conditions
-                                </button>{' '}
-                                and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                    T&C and Privacy Policy
+                                </button>
                             </div>
                         </div>
                     </div>

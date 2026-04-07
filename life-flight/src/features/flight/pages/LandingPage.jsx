@@ -337,10 +337,10 @@ export default function LandingPage() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border-4 border-[#00B4D8] relative text-left"
+                            className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border-4 border-[#005BAC] relative text-left"
                         >
                             <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
-                                <h3 className="text-[#00B4D8] text-xl font-black uppercase tracking-tight">
+                                <h3 className="text-[#005BAC] text-xl font-black uppercase tracking-tight">
                                     Terms & Conditions
                                 </h3>
                                 <button
@@ -352,12 +352,12 @@ export default function LandingPage() {
                             </div>
                             <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
                                 <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
-                                <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#00B4D8] underline">BALIC Privacy Policy</a>.</p>
+                                <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#005BAC] underline">BALIC Privacy Policy</a>.</p>
                             </div>
                             <div className="mt-6">
                                 <button
                                     onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
-                                    className="w-full mt-6 py-3.5 bg-[#00B4D8] text-white font-black rounded-xl hover:bg-[#0077b6] transition-colors text-base uppercase tracking-widest shadow-lg"
+                                    className="w-full py-3.5 bg-[#005BAC] text-white font-black rounded-xl hover:bg-[#004C85] transition-colors text-base uppercase tracking-widest shadow-lg"
                                 >
                                     I Agree
                                 </button>

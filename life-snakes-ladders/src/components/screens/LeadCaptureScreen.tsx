@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { User, Phone, Calendar, ChevronRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import TermsModal from '../modals/TermsModal';
 
 const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit }) => {
     const [formData, setFormData] = useState({ name: '', mobile: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [focused, setFocused] = useState<string | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -75,13 +77,14 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                         color: '#0B1221',
                         margin: '0 0 4px 0',
                         letterSpacing: '-0.02em',
-                    }}>Enter Your Details</h2>
+                        textTransform: 'uppercase'
+                    }}>Enter Details</h2>
                     <p style={{
                         fontSize: '14px',
                         fontWeight: '700',
                         color: '#94A3B8',
                         margin: 0,
-                    }}>to reveal your score</p>
+                    }}>To see the results</p>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{
@@ -101,7 +104,7 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                                 value={formData.name}
                                 onFocus={() => setFocused('name')}
                                 onBlur={() => setFocused(null)}
-                                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                onChange={e => setFormData({ ...formData, name: e.target.value.replace(/[^a-zA-Z\s]/g, '') })}
                                 style={inputStyle('name')}
                             />
                         </div>
@@ -134,23 +137,25 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                             gap: '12px',
                             alignItems: 'flex-start',
                             padding: '4px',
-                            cursor: 'pointer',
                         }}
-                        onClick={() => setIsTermsAccepted(!isTermsAccepted)}
                     >
-                        <div style={{
-                            width: '22px',
-                            height: '22px',
-                            borderRadius: '6px',
-                            border: `2px solid ${isTermsAccepted ? '#31CDEC' : '#E2E8F0'}`,
-                            backgroundColor: isTermsAccepted ? '#31CDEC' : 'transparent',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s ease',
-                            flexShrink: 0,
-                            marginTop: '2px'
-                        }}>
+                        <div
+                            onClick={() => setIsTermsAccepted(!isTermsAccepted)}
+                            style={{
+                                width: '22px',
+                                height: '22px',
+                                borderRadius: '6px',
+                                border: `2px solid ${isTermsAccepted ? '#31CDEC' : '#E2E8F0'}`,
+                                backgroundColor: isTermsAccepted ? '#31CDEC' : 'transparent',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s ease',
+                                flexShrink: 0,
+                                marginTop: '2px',
+                                cursor: 'pointer',
+                            }}
+                        >
                             {isTermsAccepted && <CheckCircle2 size={16} color="white" />}
                         </div>
                         <p style={{
@@ -159,8 +164,9 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                             color: '#64748B',
                             margin: 0,
                             lineHeight: '1.4',
+                            textAlign: 'left'
                         }}>
-                            I agree and consent to the <span style={{ color: '#31CDEC', textDecoration: 'underline' }}>T&C and Privacy Policy</span>
+                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} style={{ color: '#31CDEC', textDecoration: 'underline', cursor: 'pointer' }}>T&C and Privacy Policy</span>
                         </p>
                     </div>
 
@@ -187,7 +193,10 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                             opacity: isSubmitting ? 0.7 : 1,
                             marginTop: '8px',
                             letterSpacing: '0.05em',
+                            textTransform: 'uppercase'
                         }}
+                        onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.98)')}
+                        onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                     >
                         {isSubmitting ? 'LOADING...' : (
                             <>
@@ -195,8 +204,11 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                             </>
                         )}
                     </button>
+                    {!isTermsAccepted && <p style={{ color: '#EF4444', fontSize: '10px', fontWeight: '800', textAlign: 'center', margin: 0, textTransform: 'uppercase' }}>Please accept terms</p>}
                 </form>
             </div>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
 
             <style>{`
                 @keyframes fadeUp {

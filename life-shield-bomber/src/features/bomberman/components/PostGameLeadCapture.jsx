@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { submitToLMS } from '../services/apiClient';
+import TermsModal from './TermsModal';
 
 const PostGameLeadCapture = ({ onSuccess, score }) => {
     const [name, setName] = useState('');
@@ -8,6 +9,7 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const validate = () => {
         const newErrors = {};
@@ -61,9 +63,9 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
             >
                 <div className="text-center mb-8">
                     <h2 className="text-white text-3xl font-black mb-2 tracking-tighter uppercase italic leading-none text-left">
-                        Mission <span className="text-[#60a5fa]">Complete!</span>
+                        Enter <span className="text-[#60a5fa]">Details</span>
                     </h2>
-                    <p className="text-blue-200 font-bold text-lg text-left">Enter details to see your <span className="text-yellow-400 text-xl italic uppercase">Protection Level</span></p>
+                    <p className="text-blue-200 font-bold text-lg text-left italic">To see the results</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6 text-left">
@@ -100,21 +102,24 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
                             {isTermsAccepted && <span className="text-[#1e1b4b] font-black text-xs">✓</span>}
                         </div>
                         <p className="text-[10px] font-bold text-blue-200/60 leading-snug">
-                            I agree and consent to the <span className="text-white underline font-black">T&C and Privacy Policy</span>
+                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-white underline font-black cursor-pointer hover:text-[#60a5fa] transition-colors">T&C and Privacy Policy</span>
                         </p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full h-14 bg-[#60a5fa] hover:bg-[#3b82f6] text-[#1e1b4b] font-black text-xl tracking-widest disabled:opacity-50 transition-all duration-300 shadow-[0_8px_0_#1e3a8a] active:translate-y-1 active:shadow-none rounded-2xl border-none uppercase italic"
+                        className="w-full h-14 bg-[#60a5fa] hover:bg-[#3b82f6] text-[#1e1b4b] font-black text-xl tracking-widest disabled:opacity-50 transition-all duration-300 shadow-[0_8px_0_#1e3a8a] active:scale-[0.98] active:shadow-none rounded-2xl border-none uppercase italic"
                     >
                         {isSubmitting ? 'Processing...' : 'Get Results!'}
                     </button>
 
                     {errors.submit && <p className="text-red-400 text-sm font-black text-center mt-2">{errors.submit}</p>}
+                    {errors.terms && !isTermsAccepted && <p className="text-red-400 text-[10px] font-black uppercase text-center">{errors.terms}</p>}
                 </form>
             </motion.div>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </div>
     );
 };

@@ -25,7 +25,18 @@ export function FormInput({ id, label, error, className = '', ...inputProps }) {
 /**
  * Checkbox component
  */
-export function Checkbox({ id, label, checked, onChange }) {
+export function Checkbox({ id, label, checked, onChange, onClickLabel }) {
+    const handleLabelClick = (e) => {
+        // If the click is on a span with the terms-link class, call onClickLabel
+        if (e.target.classList.contains('terms-link')) {
+            e.stopPropagation();
+            if (onClickLabel) onClickLabel();
+        } else {
+            // Otherwise toggle the checkbox
+            onChange(!checked);
+        }
+    };
+
     return (
         <div className="form-group">
             <div
@@ -33,13 +44,16 @@ export function Checkbox({ id, label, checked, onChange }) {
                 role="checkbox"
                 aria-checked={checked}
                 tabIndex={0}
-                onClick={() => onChange(!checked)}
                 onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onChange(!checked); } }}
             >
-                <div className={`checkbox-box ${checked ? 'checkbox-box--checked' : ''}`} />
+                <div
+                    className={`checkbox-box ${checked ? 'checkbox-box--checked' : ''}`}
+                    onClick={() => onChange(!checked)}
+                />
                 <span
                     className="checkbox-label"
                     dangerouslySetInnerHTML={{ __html: label }}
+                    onClick={handleLabelClick}
                 />
             </div>
         </div>

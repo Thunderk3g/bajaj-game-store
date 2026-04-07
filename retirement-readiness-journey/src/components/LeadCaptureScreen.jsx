@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from './ui/Button';
 import { submitToLMS } from '../utils/api';
+import TermsModal from './TermsModal';
 
 const LeadCaptureScreen = ({ onSuccess }) => {
     const [name, setName] = useState('');
@@ -9,6 +10,7 @@ const LeadCaptureScreen = ({ onSuccess }) => {
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const validate = () => {
         const newErrors = {};
@@ -95,20 +97,23 @@ const LeadCaptureScreen = ({ onSuccess }) => {
                         {isTermsAccepted && <span className="text-blue-600 font-black text-xs">✓</span>}
                     </div>
                     <p className="text-[10px] font-bold text-white/90 leading-snug">
-                        I agree and consent to the <span className="text-white underline font-black">T&C and Privacy Policy</span>
+                        I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-white underline font-black cursor-pointer hover:text-yellow-400 transition-colors">T&C and Privacy Policy</span>
                     </p>
                 </div>
 
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-14 bg-white hover:bg-white/90 text-blue-600 font-black text-lg tracking-widest disabled:opacity-50 transition-all duration-300 shadow-[0_8px_0_rgba(255,255,255,0.2)] active:translate-y-1 active:shadow-none rounded-2xl border-none uppercase"
+                    className="w-full h-14 bg-white hover:bg-white/90 text-blue-600 font-black text-lg tracking-widest disabled:opacity-50 transition-all duration-300 shadow-[0_8px_0_rgba(255,255,255,0.2)] active:scale-[0.98] active:shadow-none rounded-2xl border-none uppercase"
                 >
                     {isSubmitting ? 'Reveal Results...' : 'See Results!'}
                 </Button>
 
                 {errors.submit && <p className="text-red-400 text-sm font-black text-center mt-2">{errors.submit}</p>}
+                {errors.terms && !isTermsAccepted && <p className="text-red-400 text-[10px] font-black uppercase text-center">{errors.terms}</p>}
             </form>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </div>
     );
 };

@@ -28,10 +28,10 @@ const GameOverOverlay = () => {
             timers.push(t);
         });
 
-        // Auto-transition to result screen 5s after last message
+        // Auto-transition to lead capture 5s after last message
         const lastMsg = GAME_OVER_MESSAGES[GAME_OVER_MESSAGES.length - 1];
         const autoTransition = setTimeout(() => {
-            setStatus(GAME_STATUS.CTA);
+            setStatus(GAME_STATUS.POST_GAME_LEAD);
         }, lastMsg.delay + 800 + 5000);
         timers.push(autoTransition);
 

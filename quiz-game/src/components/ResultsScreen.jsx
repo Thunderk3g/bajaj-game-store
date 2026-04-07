@@ -335,20 +335,27 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                                 >
                                                     <option value="">Choose a slot</option>
                                                     {timeSlots.map(slot => {
-                                                        const now = new Date();
                                                         const isToday = bookingData.date === today;
-                                                        const currentHour = now.getHours();
+                                                        if (isToday) {
+                                                            const [startTime] = slot.split(' - ');
+                                                            const slotHour = parseInt(startTime.split(':')[0]);
+                                                            const isPM = startTime.includes('PM');
+                                                            const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
 
-                                                        // Parse "9:00 AM - 10:00 AM" -> start hour is 9
-                                                        const startHourStr = slot.split(':')[0];
-                                                        let startHour = parseInt(startHourStr);
-                                                        if (slot.includes('PM') && startHour !== 12) startHour += 12;
-                                                        if (slot.includes('AM') && startHour === 12) startHour = 0;
-
-                                                        if (isToday && startHour <= currentHour) return null;
+                                                            if (normalizedHour <= new Date().getHours()) return null;
+                                                        }
 
                                                         return <option key={slot} value={slot}>{slot}</option>;
                                                     }).filter(Boolean)}
+                                                    {bookingData.date === today && timeSlots.filter(slot => {
+                                                        const [startTime] = slot.split(' - ');
+                                                        const slotHour = parseInt(startTime.split(':')[0]);
+                                                        const isPM = startTime.includes('PM');
+                                                        const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                                                        return normalizedHour > new Date().getHours();
+                                                    }).length === 0 && (
+                                                            <option disabled className="bg-white text-gray-400 italic">No slots available for today</option>
+                                                        )}
                                                 </select>
                                                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
                                                 {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}

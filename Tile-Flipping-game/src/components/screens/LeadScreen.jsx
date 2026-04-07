@@ -4,18 +4,20 @@ import { useGame } from '../../context/GameContext';
 import { SCREENS } from '../../constants/game';
 import { submitToLMS } from '../../utils/api';
 import styles from './LeadScreen.module.css';
+import TermsModal from '../modals/TermsModal';
 
 // Importing UI components
 import Button from '../ui/Button';
 import { FormInput, Checkbox } from '../ui/FormFields';
 
 const LeadScreen = () => {
-    const { navigate } = useGame();
+    const { navigate, setUser } = useGame();
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const validate = () => {
         const newErrors = {};
@@ -48,6 +50,10 @@ const LeadScreen = () => {
                     sessionStorage.setItem('tileFlippingLeadNo', responseData.leadNo || responseData.LeadNo);
                 }
                 sessionStorage.setItem('tileFlippingUserName', name.trim());
+
+                // Update global state
+                setUser({ name: name.trim(), phone: phone });
+
                 navigate(SCREENS.SCORE);
             } else {
                 setErrors({ submit: result.error || 'Submission failed' });
@@ -69,9 +75,9 @@ const LeadScreen = () => {
                 >
                     <div className={styles.header}>
                         <h2 className={styles.title}>
-                            Perfect Match!
+                            Enter Details
                         </h2>
-                        <p className={styles.subtitle}>Enter details to claim your reward</p>
+                        <p className={styles.subtitle}>To see the results</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className={styles.form}>
@@ -97,9 +103,10 @@ const LeadScreen = () => {
 
                         <Checkbox
                             id="lead-terms"
-                            label='I agree and consent to the <span style="color: #F97316; font-weight: 900; text-decoration: underline;">T&C and Privacy Policy</span>'
+                            label='I agree and consent to the <span class="terms-link" style="color: #F97316; font-weight: 900; text-decoration: underline; cursor: pointer;">T&C and Privacy Policy</span>'
                             checked={isTermsAccepted}
                             onChange={setIsTermsAccepted}
+                            onClickLabel={() => setIsTermsModalOpen(true)}
                         />
 
                         <Button
@@ -107,14 +114,19 @@ const LeadScreen = () => {
                             loading={isSubmitting}
                             className={styles.submitBtn}
                             fullWidth
+                            onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.98)')}
+                            onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                         >
                             See Results!
                         </Button>
 
                         {errors.submit && <p className="form-error" style={{ textAlign: 'center', marginTop: '1rem' }}>{errors.submit}</p>}
+                        {errors.terms && !isTermsAccepted && <p className="form-error" style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '10px', color: '#EF4444', fontWeight: '900' }}>{errors.terms}</p>}
                     </form>
                 </motion.div>
             </div>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </div>
     );
 };

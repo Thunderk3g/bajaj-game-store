@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import TermsModal from './TermsModal';
 
 const LeadCaptureScreen = ({ onLeadSubmit }) => {
     const [formData, setFormData] = useState({ name: '', phone: '' });
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const validate = () => {
         const newErrors = {};
@@ -48,9 +50,9 @@ const LeadCaptureScreen = ({ onLeadSubmit }) => {
             >
                 <div className="text-center mb-8">
                     <h2 className="text-[#005BAC] text-2xl font-black mb-1 tracking-tight uppercase leading-tight">
-                        Enter Your Details
+                        Enter Details
                     </h2>
-                    <p className="text-slate-500 font-bold text-lg">to reveal your score</p>
+                    <p className="text-slate-500 font-bold text-lg text-center">To see the results</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6 text-left">
@@ -87,22 +89,25 @@ const LeadCaptureScreen = ({ onLeadSubmit }) => {
                             {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
                         </div>
                         <p className="text-[10px] font-bold text-slate-600 leading-snug">
-                            I agree and consent to the <span className="text-[#00B4D8] underline font-black">T&C and Privacy Policy</span>
+                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-[#00B4D8] underline font-black cursor-pointer hover:text-[#0077b6] transition-colors">T&C and Privacy Policy</span>
                         </p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg"
+                        className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg active:scale-[0.98]"
                         style={{ background: 'linear-gradient(135deg, #00B4D8 0%, #0077b6 100%)' }}
                     >
                         {isSubmitting ? 'Loading...' : 'See Results!'}
                     </button>
 
                     {errors.submit && <p className="text-red-500 text-sm font-black text-center mt-2">{errors.submit}</p>}
+                    {errors.terms && !isTermsAccepted && <p className="text-red-500 text-[10px] font-black uppercase text-center">{errors.terms}</p>}
                 </form>
             </motion.div>
+
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </motion.div>
     );
 };

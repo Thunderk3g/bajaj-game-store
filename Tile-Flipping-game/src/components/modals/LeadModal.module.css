@@ -321,14 +321,21 @@
 }
 
 .termsTitle {
-    color: #0066B2;
+    color: #005BAC;
     font-weight: 900;
     font-size: 18px;
     /* text-lg */
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 4px;
     letter-spacing: -0.025em;
     /* tracking-tight */
+}
+
+.termsDivider {
+    height: 1px;
+    background: #E2E8F0;
+    margin: 12px 0;
+    width: 100%;
 }
 
 .termsContent {
@@ -348,7 +355,7 @@
     width: 100%;
     margin-top: 24px;
     padding: 12px;
-    background-color: #0066B2;
+    background-color: #005BAC;
     color: white;
     font-weight: 700;
     border-radius: 8px;
@@ -361,6 +368,5 @@
 }
 
 .agreeBtn:hover {
-    background-color: #1d4ed8;
-    /* blue-700 */
+    background-color: #004c8f;
 }

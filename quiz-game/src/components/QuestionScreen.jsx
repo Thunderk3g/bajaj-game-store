@@ -1,8 +1,19 @@
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QuizProgressBar from './QuizProgressBar';
 import gstBackground from '../assets/gst_background.png';
 
 const QuestionScreen = ({ question, currentQuestion, totalQuestions, onAnswerSelect, selectedAnswer }) => {
+    const [canClick, setCanClick] = useState(false);
+
+    useEffect(() => {
+        setCanClick(false);
+        const timer = setTimeout(() => {
+            setCanClick(true);
+        }, 1000); // Wait for stagger animations to complete
+        return () => clearTimeout(timer);
+    }, [question]);
+
     if (!question) return null;
 
     const containerVariants = {
@@ -72,15 +83,16 @@ const QuestionScreen = ({ question, currentQuestion, totalQuestions, onAnswerSel
                                 <motion.button
                                     key={`${currentQuestion}-${index}`}
                                     variants={itemVariants}
-                                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255, 255, 255, 0.2)" }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => onAnswerSelect(index)}
-                                    disabled={selectedAnswer !== null}
+                                    whileHover={canClick && selectedAnswer === null ? { scale: 1.02, backgroundColor: "rgba(255, 255, 255, 0.2)" } : {}}
+                                    whileTap={canClick && selectedAnswer === null ? { scale: 0.98 } : {}}
+                                    onClick={() => canClick && onAnswerSelect(index)}
+                                    disabled={selectedAnswer !== null || !canClick}
                                     className={`
                                         group relative flex items-center gap-4 p-4 sm:p-5 rounded-[24px] transition-all duration-300
                                         ${selectedAnswer === index
                                             ? 'bg-brand-blue/95 border-brand-blue shadow-[0_0_25px_rgba(28,176,246,0.5)] ring-2 ring-white/40'
                                             : 'bg-white/20 backdrop-blur-xl border border-white/20 hover:border-white/40 shadow-sm'}
+                                        ${!canClick ? 'cursor-default' : 'cursor-pointer'}
                                     `}
                                 >
                                     <div className={`
