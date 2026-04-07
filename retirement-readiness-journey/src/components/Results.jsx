@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import { Button } from './ui/Button';
 import { Share2, Phone, Calendar, RotateCcw, CheckCircle2 } from 'lucide-react';
@@ -26,7 +27,8 @@ const Results = ({ score, onReset, userInfo }) => {
     };
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const shareData = {
             title: 'Retirement Readiness',

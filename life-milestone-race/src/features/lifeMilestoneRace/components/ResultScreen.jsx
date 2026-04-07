@@ -4,6 +4,7 @@ import { Phone, CheckCircle, Share2, RefreshCw, Calendar, X, Check, ChevronDown 
 import Confetti from './Confetti';
 import TermsModal from './TermsModal';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import Speedometer from './Speedometer';
 import { submitToLMS, updateLeadNew } from '../../../utils/api';
 
@@ -108,7 +109,8 @@ const ResultScreen = ({
     };
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const shareData = {
             title: 'Life Milestone Race',

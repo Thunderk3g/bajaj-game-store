@@ -10,6 +10,7 @@ import ScoreRing from '../components/ScoreRing.jsx';
 import InsuranceCards from '../components/InsuranceCards.jsx';
 import { submitToLMS, updateLeadNew } from '../../../utils/api.js';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 
 function getZone(pct) {
     return ZONES.find((z) => pct < z.maxPct) || ZONES[ZONES.length - 1];
@@ -195,7 +196,8 @@ export default function GameOverPage() {
 
     // -- Original Logic --
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawShareUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {

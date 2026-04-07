@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, PhoneCall, Calendar, Trophy, RotateCcw, Star, Medal, AlertCircle, Phone, Clock, ChevronDown, ShieldCheck, X } from 'lucide-react';
 import ScoreCard from './ScoreCard';
@@ -42,7 +43,8 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
     ];
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawShareUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const shareMessage = `Hi,\nI just played Blocks of Wealth and achieved ${Math.round(score)} milestones.\nSee how many milestones you can reach — try it here: ${shareUrl}\n\n${senderName}`.trim();
 

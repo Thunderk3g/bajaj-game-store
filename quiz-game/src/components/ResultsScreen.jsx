@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RotateCcw, Phone, Calendar, Clock, X, CheckCircle2, ChevronDown, Share2, ShieldCheck, Medal, Star, AlertCircle } from "lucide-react";
 import ScoreCard from './ScoreCard';
@@ -43,7 +44,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
     ];
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const shareMessage = `Hi,\nI tried this GST quiz related to Life Insurance and got ${Math.round(score)}/${total}.\nThink you can beat my score? Take the quiz here: ${shareUrl}\n\n${senderName}`.trim();
 

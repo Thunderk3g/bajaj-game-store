@@ -3,6 +3,7 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Share2, RefreshCw, Calendar, X, ChevronDown } from 'lucide-react';
 import { submitToLMS } from '../services/apiClient.js';
@@ -103,25 +104,25 @@ const ResultScreen = ({
     };
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
-        const shareText = `Checkout my life goal score: ${Math.round(displayScore)}% on Secure Saga!`.trim();
-
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
+        const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list. Click here ${shareUrl}`.trim();
         if (navigator.share) {
             try {
                 // Ensure text AND url are both passed explicitly as some mobile OS's require one or both.
                 await navigator.share({
                     title: 'Secure Saga',
-                    text: shareText,
+                    text: text,
                     url: shareUrl
                 });
             } catch (err) {
                 // If user cancels, we do nothing. If error, fallback.
                 if (err.name !== 'AbortError') {
-                    copyToClipboard(shareText + " " + shareUrl);
+                    copyToClipboard(text + " " + shareUrl);
                 }
             }
         } else {
-            copyToClipboard(shareText + " " + shareUrl);
+            copyToClipboard(text + " " + shareUrl);
         }
     };
 

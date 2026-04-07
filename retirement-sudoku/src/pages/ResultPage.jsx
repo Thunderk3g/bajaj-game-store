@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, X, Calendar, Star, Phone, Check, Loader2 } from 'lucide-react';
@@ -448,7 +449,8 @@ const ResultPage = memo(function ResultPage() {
 
     /* Share handler — Web Share API with clipboard fallback + in-app toast */
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.origin;
+        const rawUrl = buildShareUrl() || window.location.origin;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const text = `Hi,\nI managed to balance my retirement pillars and scored ${Math.round(scenario.points !== undefined ? scenario.points : score)} in this Sudoku-style retirement challenge.\nCan you beat my score? — try it here: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {

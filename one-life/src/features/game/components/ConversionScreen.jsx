@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Phone, Calendar, X, RefreshCw } from 'lucide-react';
 import Modal from './Modal';
@@ -33,7 +34,8 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
     ];
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const shareMessage = `Hi,\nI just experienced this eye-opening truth about life's uncertainties and protection.\nIt takes less than a minute — give it a try: ${shareUrl}\n\nRegards,\n${senderName}`.trim();
         if (navigator.share) {

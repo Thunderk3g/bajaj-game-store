@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Share2, Phone, CalendarClock } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -27,7 +28,8 @@ const ConversionScreen = memo(function ConversionScreen({
     onBookSlot,
 }) {
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const shareText = `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}\n\n${senderName}`.trim();
         const shareData = {

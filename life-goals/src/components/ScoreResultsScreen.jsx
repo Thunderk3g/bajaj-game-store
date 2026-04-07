@@ -7,6 +7,7 @@ import { isValidPhone } from '../utils/helpers';
 import Speedometer from './Speedometer';
 import { submitToLMS, updateLeadNew } from '../utils/api';
 import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 import * as Dialog from '@radix-ui/react-dialog';
 
 const TermsModal = () => (
@@ -159,10 +160,11 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
 
     const handleShare = async () => {
         // Build share URL with re-encrypted token (referral=Y)
-        const shareUrl = buildShareUrl() || (typeof window !== 'undefined'
+        const rawUrl = buildShareUrl() || (typeof window !== 'undefined'
             ? new URL(import.meta.env.BASE_URL || './', window.location.href).href
             : '/');
 
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
 
         const shareData = {
