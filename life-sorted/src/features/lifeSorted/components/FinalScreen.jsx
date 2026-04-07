@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Phone, Calendar, Clock, ChevronDown, ShieldCheck, X, RefreshCw, Trophy, Star, Target } from 'lucide-react';
 import Modal from './Modal';
@@ -44,7 +45,8 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
     ];
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const text = `Hi,\nI just tried this life finance sorting challenge — it really shows why savings, goals and risks shouldn't be mixed together.\nGive it a try: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {

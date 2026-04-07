@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Calendar, Share2, RotateCcw, X, ChevronDown, Shield, Heart, Clock, Zap, CheckSquare } from 'lucide-react';
 import Confetti from './Confetti.jsx';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 
 const ResultScreen = memo(function ResultScreen({
     finalScore,
@@ -104,7 +105,8 @@ const ResultScreen = memo(function ResultScreen({
     };
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const shareText = `Hi,\nI just realized the importance of riders to protect from life risks. You should try this interesting game. ${shareUrl}\n\n${senderName}`.trim();
         try {

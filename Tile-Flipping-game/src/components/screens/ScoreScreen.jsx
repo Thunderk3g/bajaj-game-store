@@ -3,6 +3,7 @@ import { useGame } from '../../context/GameContext';
 import { useGameEngine } from '../../hooks/useGameEngine';
 import { getFlipStars, getScoreMessage, formatTime, getScoreScenario } from '../../utils/gameUtils';
 import { buildShareUrl } from '../../utils/crypto';
+import { shortenUrl } from '../../utils/shortener';
 import { TOTAL_PAIRS, SCREENS } from '../../constants/game';
 import { ACTION } from '../../context/GameContext';
 import { submitToLMS } from '../../utils/api';
@@ -72,7 +73,8 @@ export default function ScoreScreen({ showToast }) {
     }
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawShareUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
 
         const shareData = {

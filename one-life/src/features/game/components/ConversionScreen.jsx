@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Phone, Calendar, X, RefreshCw } from 'lucide-react';
 import Modal from './Modal';
@@ -33,7 +34,8 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
     ];
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
         const shareMessage = `Hi,\nI just experienced this eye-opening truth about life's uncertainties and protection.\nIt takes less than a minute — give it a try: ${shareUrl}\n\nRegards,\n${senderName}`.trim();
         if (navigator.share) {
@@ -117,7 +119,7 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                 <footer className="footer-section">
                     <div className="bg-white p-4 shadow-2xl rounded-[12px] border border-slate-100 w-full mb-3">
                         <p className="text-slate-800 text-[11px] sm:text-xs font-black text-center leading-tight uppercase tracking-tight mb-3">
-                            Let's secure your family's future against unexcepted event 
+                            Let's secure your family's future against unexcepted event
                         </p>
                         <div className="flex flex-col gap-2.5">
                             <a href="tel:18002097272" className="block w-full">

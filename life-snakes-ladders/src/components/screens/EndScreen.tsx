@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { buildShareUrl } from '../../utils/crypto';
+import { shortenUrl } from '../../utils/shortener';
 import { Trophy, Shield, AlertTriangle, Share2, X } from 'lucide-react';
 import LeadModal from '../modals/LeadModal';
 interface EndScreenProps {
@@ -33,9 +34,11 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, playerName, playerMobi
     const [isStatsOpen, setIsStatsOpen] = useState(false);
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || ((typeof window !== 'undefined')
+        const rawUrl = buildShareUrl() || ((typeof window !== 'undefined')
             ? new URL((import.meta as any).env.BASE_URL || './', window.location.href).href
             : '/');
+
+        const shareUrl = await shortenUrl(rawUrl);
 
         const senderName = typeof window !== 'undefined' ? sessionStorage.getItem('gamification_emp_name') || '' : '';
         const shareText = `Hi,\nI used ${Math.round(totalShieldsUsed)} shields to avoid snakes in this life Snakes & Ladders challenge.\nIt really shows how protection helps in life's ups and downs — try it here: ${shareUrl}\n\n${senderName}`.trim();

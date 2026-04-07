@@ -3,6 +3,7 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Share2, RefreshCw, Calendar, X, ChevronDown } from 'lucide-react';
 import { submitToLMS } from '../services/apiClient.js';
@@ -103,7 +104,8 @@ const ResultScreen = ({
     };
 
     const handleShare = async () => {
-        const shareUrl = buildShareUrl() || window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list. Click here ${shareUrl}`.trim();
         if (navigator.share) {
             try {
