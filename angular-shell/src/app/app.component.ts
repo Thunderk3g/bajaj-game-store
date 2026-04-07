@@ -18,6 +18,8 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     console.log('🎮 UAT Deployed Gamification  -> 7th April 2026 , 13:10 PM');
+        console.log('🎮 PROD Deployed Gamification  -> 7th April 2026 , 9:10 PM');
+
     console.log('[AppComponent] Application initialized');
 
     // Log initial asset status after a short delay to allow assets to load
