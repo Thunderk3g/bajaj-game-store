@@ -2,7 +2,7 @@
  * BalanceBuilderPage — Main orchestrator.
  * Flow: Landing → Entry Popup → How To Play → 2-min Gameplay → Result → ThankYou
  */
-import { memo, useCallback, useState, useRef, useEffect } from 'react';
+import { memo, useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import LandingPage from './components/LandingPage.jsx';
@@ -63,6 +63,18 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
     const completionAudioRef = useRef(null);
     const [isPlayingBGM, setIsPlayingBGM] = useState(false);
 
+    // ── Idle Engagement Popup ──────────────────────────────────────
+    const IDLE_MESSAGES = useMemo(() => [
+        '⏳ Hurry up! Time is ticking fast!',
+        '🎯 Make your move! Match 3 to score!',
+        '🔥 Keep going! Your goals are waiting!',
+        '💡 Swipe a tile to fill your bucket!',
+        "⚡ Don't stop now — you're so close!",
+    ], []);
+    const idleTimerRef = useRef(null);
+    const [idleMessage, setIdleMessage] = useState(null);
+    const idleMsgIndexRef = useRef(0);
+
     const prevBucketsRef = useRef(null);
 
     // 3. Reset bucket tracking ref on restart
@@ -71,6 +83,39 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
             prevBucketsRef.current = null;
         }
     }, [gameStatus]);
+
+    // Helper: reset idle timer
+    const resetIdleTimer = useCallback(() => {
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+        setIdleMessage(null);
+
+        if (gameStatus === GAME_PHASES.PLAYING) {
+            // Wait 4s of absolute silence
+            idleTimerRef.current = setTimeout(() => {
+                const msg = IDLE_MESSAGES[idleMsgIndexRef.current % IDLE_MESSAGES.length];
+                idleMsgIndexRef.current = (idleMsgIndexRef.current + 1) % IDLE_MESSAGES.length;
+                setIdleMessage(msg);
+
+                // Show for 3s then CLEAR AND RESTART the idle cycle
+                idleTimerRef.current = setTimeout(() => {
+                    setIdleMessage(null);
+                    // Recursive call to start a new 4s wait period if still silent
+                    resetIdleTimer();
+                }, 3000);
+            }, 4000);
+        }
+    }, [gameStatus, IDLE_MESSAGES]);
+
+    // Start idle timer when game starts, clear when game ends
+    useEffect(() => {
+        if (gameStatus === GAME_PHASES.PLAYING) {
+            resetIdleTimer();
+        } else {
+            if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+            setIdleMessage(null);
+        }
+        return () => { if (idleTimerRef.current) clearTimeout(idleTimerRef.current); };
+    }, [gameStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // ── Audio Management ──────────────────────────────────────────
 
@@ -146,6 +191,16 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
         handleEntryDone('', '');
     }, [handleUserInteraction, handleEntryDone]);
 
+    const handleTileSwipe = useCallback((...args) => {
+        resetIdleTimer();
+        handleCellSwipe(...args);
+    }, [resetIdleTimer, handleCellSwipe]);
+
+    const handleTileTap = useCallback((...args) => {
+        resetIdleTimer();
+        handleCellTap(...args);
+    }, [resetIdleTimer, handleCellTap]);
+
     const handleEntryClose = useCallback(() => {
         setShowEntry(false);
     }, []);
@@ -220,6 +275,35 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                             />
 
                             <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0 mt-2">
+                                {/* Idle Engagement Popup — between subtitle and game grid */}
+                                <div style={{ minHeight: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px', width: '100%' }}>
+                                    {idleMessage && (
+                                        <motion.div
+                                            key={idleMessage}
+                                            initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                                            transition={{ duration: 0.3 }}
+                                            style={{
+                                                background: 'linear-gradient(90deg, rgba(212,160,23,0.18) 0%, rgba(212,160,23,0.32) 50%, rgba(212,160,23,0.18) 100%)',
+                                                border: '1.5px solid #D4A017',
+                                                borderRadius: '20px',
+                                                padding: '5px 18px',
+                                                color: '#FFE57A',
+                                                fontFamily: "'Outfit', sans-serif",
+                                                fontSize: '12px',
+                                                fontWeight: 700,
+                                                letterSpacing: '0.5px',
+                                                textAlign: 'center',
+                                                boxShadow: '0 2px 12px rgba(212,160,23,0.25)',
+                                                whiteSpace: 'nowrap',
+                                            }}
+                                        >
+                                            {idleMessage}
+                                        </motion.div>
+                                    )}
+                                </div>
+
                                 {/* Auto-scaler for iPhone SE checking BOTH horizontal tightness and vertical shortness */}
                                 <div className="flex justify-center items-center" style={{ transform: 'scale(min(1, calc(100vw / 360), calc(100dvh / 680)))', transformOrigin: 'top center' }}>
                                     <GameGrid
@@ -230,8 +314,8 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                                         invalidSwapping={invalidSwapping}
                                         floatingScores={floatingScores}
                                         activePraise={activePraise}
-                                        onCellTap={handleCellTap}
-                                        onCellSwipe={handleCellSwipe}
+                                        onCellTap={handleTileTap}
+                                        onCellSwipe={handleTileSwipe}
                                     />
                                 </div>
                             </div>

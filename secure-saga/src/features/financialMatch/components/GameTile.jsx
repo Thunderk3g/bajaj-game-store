@@ -1,7 +1,8 @@
 /**
  * GameTile — Uses explicit file assets from assets/image/tiles, strictly transparent background configuration.
+ * Swipe: directional-only (no free drag). Pointer events detect dominant axis on release.
  */
-import { memo, useState } from 'react';
+import { memo, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -27,7 +28,11 @@ const GameTile = memo(function GameTile({
     cellSize,
     gridGap,
 }) {
-    const [isDragging, setIsDragging] = useState(false);
+    // Pointer-based swipe detection — tile does NOT move freely
+    const pointerStart = useRef(null);
+    const hasSwiped = useRef(false);
+
+    const SWIPE_THRESHOLD = 20;
 
     if (!tile || !tile.type) {
         return <div style={{ width: cellSize, height: cellSize }} />;
@@ -39,41 +44,43 @@ const GameTile = memo(function GameTile({
     const leftPos = col * (cellSize + gridGap);
     const topPos = row * (cellSize + gridGap);
 
-    const isSelectedClass = isSelected && !isDragging ? 'ring-[2px] ring-white/80 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : '';
+    const isSelectedClass = isSelected ? 'ring-[2px] ring-white/80 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : '';
 
-    const SWIPE_THRESHOLD = 30;
+    const handlePointerDown = useCallback((e) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        pointerStart.current = { x: e.clientX, y: e.clientY };
+        hasSwiped.current = false;
+    }, []);
 
-    const handleDragStart = () => {
-        setIsDragging(true);
-    };
-
-    const handleDragEnd = (event, info) => {
-        setIsDragging(false);
-        const { offset } = info;
-        const absX = Math.abs(offset.x);
-        const absY = Math.abs(offset.y);
+    const handlePointerUp = useCallback((e) => {
+        if (!pointerStart.current) return;
+        const dx = e.clientX - pointerStart.current.x;
+        const dy = e.clientY - pointerStart.current.y;
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+        pointerStart.current = null;
 
         if (absX > SWIPE_THRESHOLD || absY > SWIPE_THRESHOLD) {
+            hasSwiped.current = true;
             let targetRow = row;
             let targetCol = col;
-
             if (absX > absY) {
-                targetCol = offset.x > 0 ? col + 1 : col - 1;
+                targetCol = dx > 0 ? col + 1 : col - 1;
             } else {
-                targetRow = offset.y > 0 ? row + 1 : row - 1;
+                targetRow = dy > 0 ? row + 1 : row - 1;
             }
-
             if (targetRow >= 0 && targetRow < 6 && targetCol >= 0 && targetCol < 6) {
                 if (onSwipe) onSwipe(row, col, targetRow, targetCol);
             }
         }
-    };
+    }, [row, col, onSwipe]);
 
-    const handleClick = () => {
-        if (!isDragging) {
+    const handleClick = useCallback(() => {
+        if (!hasSwiped.current) {
             onTap(row, col);
         }
-    };
+        hasSwiped.current = false;
+    }, [row, col, onTap]);
 
     // ── Build Animation Constraints ──
 
@@ -81,8 +88,8 @@ const GameTile = memo(function GameTile({
         left: leftPos,
         top: topPos,
         scale: isExploding ? [1, 1.15, 0.3] : isSelected ? 0.94 : 1,
-        opacity: isExploding ? [1, 1, 0] : isDragging ? 0.85 : 1,
-        zIndex: isDragging || isExploding ? 500 : isSelected ? 50 : 10,
+        opacity: isExploding ? [1, 1, 0] : 1,
+        zIndex: isExploding ? 500 : isSelected ? 50 : 10,
     };
 
     // Dynamic framer times tracking for Invalid Swap (500ms max sequence)
@@ -134,22 +141,10 @@ const GameTile = memo(function GameTile({
 
     return (
         <>
-            {/* Native 30% ghost rendering underneath explicitly mimicking mechanics during active drags entirely passively */}
-            {isDragging && (
-                <div
-                    className="absolute flex items-center justify-center bg-transparent drop-shadow-md pointer-events-none opacity-30"
-                    style={{ left: leftPos, top: topPos, width: cellSize, height: cellSize, filter: 'brightness(1.35) saturate(1.45)' }}
-                >
-                    <img src={imgSrc} className="w-[125%] h-[125%] object-contain" alt="" />
-                </div>
-            )}
 
             <motion.div
-                drag
-                dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
-                dragElastic={0.8} // Highly interactive fluid drag pull
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
                 onClick={handleClick}
                 layoutId={tile.id}
                 initial={{ left: leftPos, top: topPos - 40, opacity: 0 }}
@@ -161,9 +156,10 @@ const GameTile = memo(function GameTile({
                     width: cellSize,
                     height: cellSize,
                     filter: 'brightness(1.35) saturate(1.45)',
-                    cursor: 'grab'
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    touchAction: 'none',
                 }}
-                whileDrag={{ cursor: 'grabbing' }}
             >
                 {/* Visual Overlays logic purely for FX (Red Flash / Green Flash) */}
                 <AnimatePresence>
