@@ -7,6 +7,7 @@ export const GAME_PHASES = {
     PLAYING: 'playing',
     WON: 'won',
     TIMEUP: 'timeup',
+    LEAD_CAPTURE: 'lead_capture',
 };
 
 export const ACTIONS = {

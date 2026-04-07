@@ -17,33 +17,22 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
     const finalScore = Math.min(Math.max(normalizedScore, 0), 5);
     const name = firstName || "BAJAJ";
 
-    // Dynamic Heading & Subtext based on score
-    let heading = "";
+    // Dynamic Subtext based on score
     let subtext = "";
 
     if (finalScore === 0) {
-        heading = "Bad";
-        subtext = "You can do better.";
-    } else if (finalScore === 1 || finalScore === 2) {
-        heading = "Not up the mark";
-        // FIXED: corrected from "You can do it better." to "You can do better."
-        subtext = "You can do better.";
-    } else if (finalScore === 3) {
-        heading = "Good";
-        subtext = "You can do better.";
-    } else if (finalScore === 4) {
-        heading = "Good Job";
-        subtext = "You have learned important\nfinancial and insurance concepts.";
+        subtext = "It's ok! You learned something new";
+    } else if (finalScore >= 1 && finalScore <= 4) {
+        subtext = "You did well but you can surely do better!";
     } else if (finalScore === 5) {
-        heading = "Excellent";
-        subtext = "You have learned important\nfinancial and insurance concepts.";
+        subtext = "You know a lot of insurance related concepts, keep going";
     }
 
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = sessionStorage.getItem('gamification_emp_name') || '';
-        const shareText = `Hi,\nI just tried this word-unscramble challenge on life insurance and scored ${(score)}/5.\nSee if you can beat my score — try it here: ${shareUrl}\n\n${senderName}`.trim();
+        const shareText = `Hi,\nI just tried this word-unscramble challenge on life insurance and scored ${(finalScore)}/5.\nSee if you can beat my score — try it here: ${shareUrl}\n\n${senderName}`.trim();
         const shareData = {
             title: 'Unscrambled Financial Words',
             text: shareText,
@@ -116,13 +105,7 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
                 {/* Gap 12px (after shield visual space) */}
                 <div className="h-3 shrink-0"></div>
 
-                {/* Heading (Excellent) */}
-                <h2 className="text-xl font-bold text-white tracking-wide leading-tight">
-                    {heading}
-                </h2>
 
-                {/* Gap 8px */}
-                <div className="h-2 shrink-0"></div>
 
                 {/* Description */}
                 <div className="w-full">
@@ -185,7 +168,8 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
                         onClick={onRestart}
                         className="text-white/70 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors underline underline-offset-4 mt-2"
                     >
-                        Try Again
+                        Play Again
+
                     </button>
 
                     {/* Disclaimer */}

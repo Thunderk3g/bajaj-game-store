@@ -23,38 +23,17 @@ console.log('UAT DEPLOYMENT DATE: 11th Feb 2026 , 16:48');
     // Decrypt the AES token and store the full payload
     const token = params.get('token');
     if (token) {
-        hasParams = true;
-        // Store the raw token for potential re-use
-        sessionStorage.setItem('gamification_rawToken', token);
-
-        const payload = decryptToken(token);
-        if (payload) {
-            console.log('[main] Token decrypted successfully:', payload);
-            // Store each field from the decrypted payload
-            const fieldMap = {
-                game_id: 'game_id',
-                emp_id: 'emp_id',
-                emp_name: 'emp_name',
-                emp_mobile: 'emp_mobile',
-                location: 'location',
-                zone: 'zone',
-            };
-            Object.entries(fieldMap).forEach(([payloadKey, storageKey]) => {
-                if (payload[payloadKey] != null) {
-                    sessionStorage.setItem(`gamification_${storageKey}`, String(payload[payloadKey]));
+            hasParams = true;
+            if (token !== 'GUEST_SESSION') {
+                sessionStorage.setItem('gamification_rawToken', token);
+                const payload = decryptToken(token);
+                if (payload) {
+                    ['game_id', 'emp_id', 'emp_name', 'emp_mobile', 'location', 'zone'].forEach(k => { if (payload[k] != null) sessionStorage.setItem(`gamification_${k}`, String(payload[k])); });
+                    sessionStorage.setItem('gamification_referral', payload.referral || 'N');
                 }
-            });
-
-            // Set referral flag — 'N' on first visit, preserve if already 'Y' from a shared link
-            const existingReferral = payload.referral;
-            sessionStorage.setItem('gamification_referral', existingReferral || 'N');
-        } else {
-            console.error('[main] Failed to decrypt gamification token');
+            }
         }
-    }
-
-    // Clean the URL to remove query params
-    if (hasParams) {
+        if (hasParams) {
         window.history.replaceState({}, '', window.location.pathname);
     }
 })();

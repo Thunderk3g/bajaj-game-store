@@ -262,6 +262,9 @@ export function useRaceEngine() {
         showLeadForm,
         showThankYou,
         restartGame,
+        setUserName,
+        setUserPhone,
+        setPhase,
     };
 }
 

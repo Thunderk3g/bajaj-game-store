@@ -4,7 +4,7 @@ export const quizQuestions = [
                 id: 1,
                 category: 'GST',
                 difficulty: 'medium',
-                question: 'What is the current GST rate on Life Insurance premiums in India after the recent 0% GST policy?',
+                question: 'What is the current GST rate applicable on Life Insurance premiums in India?',
                 options: [
                         '5%',
                         '0% (Exempt)',

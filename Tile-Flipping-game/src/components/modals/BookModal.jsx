@@ -85,7 +85,20 @@ export default function BookModal({ onClose, showToast }) {
                 <FormInput id="book-date" label="Preferred Date" type="date"
                     min={today} value={date} onChange={(e) => setDate(e.target.value)} error={errors.date} />
                 <FormInput id="book-time" label="Preferred Time" type="time"
-                    value={time} onChange={(e) => setTime(e.target.value)} error={errors.time} />
+                    value={time} onChange={(e) => {
+                        const newTime = e.target.value;
+                        const t = new Date();
+                        const isToday = date === today;
+                        if (isToday) {
+                            const [h, m] = newTime.split(':').map(Number);
+                            if (h < t.getHours() || (h === t.getHours() && m <= t.getMinutes())) {
+                                setErrors(prev => ({ ...prev, time: 'Please select a future time for today' }));
+                            } else {
+                                setErrors(prev => ({ ...prev, time: null }));
+                            }
+                        }
+                        setTime(newTime);
+                    }} error={errors.time} />
                 <Checkbox id="book-tc"
                     label='I agree to the <a href="#" onclick="event.preventDefault()">Terms and Conditions</a>.'
                     checked={agreed} onChange={setAgreed} />

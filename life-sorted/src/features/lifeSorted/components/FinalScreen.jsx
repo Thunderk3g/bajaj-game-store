@@ -109,6 +109,14 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                 animate={{ opacity: 1 }}
             >
 
+                {/* Top Right Share Button */}
+                <button
+                    onClick={handleShare}
+                    className="absolute top-6 right-6 p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all active:scale-95 z-50 border border-white/10 shadow-lg backdrop-blur-md"
+                    aria-label="Share performance"
+                >
+                    <Share2 className="w-5 h-5 text-gold" />
+                </button>
 
                 <div className="w-full max-w-md flex flex-col items-center flex-1 gap-y-6 z-10 px-4">
                     <div className="text-center">
@@ -254,7 +262,24 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                                             className={`w-full block bg-white/5 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-gold appearance-none text-sm min-h-[52px] ${errors.timeSlot ? 'border-red-500' : 'border-white/5'}`}
                                         >
                                             <option value="" className="bg-[#0B1221]">Choose a slot</option>
-                                            {timeSlots.map(s => <option key={s} value={s} className="bg-[#0B1221]">{s}</option>)}
+                                            {timeSlots.map(s => {
+                                                const isToday = bookingData.date === today;
+                                                if (isToday) {
+                                                    const slotHour = parseInt(s.split(':')[0]);
+                                                    const isPM = s.includes('PM') && slotHour !== 12;
+                                                    const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                                    if (normalizedHour <= new Date().getHours()) return null;
+                                                }
+                                                return <option key={s} value={s} className="bg-[#0B1221]">{s}</option>;
+                                            }).filter(Boolean)}
+                                            {bookingData.date === today && timeSlots.every(s => {
+                                                const slotHour = parseInt(s.split(':')[0]);
+                                                const isPM = s.includes('PM') && slotHour !== 12;
+                                                const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                                return normalizedHour <= new Date().getHours();
+                                            }) && (
+                                                    <option disabled className="bg-[#0B1221] text-white/30 italic">No slots available for today</option>
+                                                )}
                                         </select>
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                             <ChevronDown className="w-5 h-5 text-white/40" />

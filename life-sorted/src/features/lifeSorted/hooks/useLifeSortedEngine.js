@@ -54,9 +54,19 @@ export const useLifeSortedEngine = (currentLevelIndex, onLevelWin, showToast, tr
                     const sourceTube = newTubes[selectedTube];
                     const targetTube = newTubes[index];
 
-                    // CRITICAL: Move only ONE segment per tap
-                    const segment = sourceTube.pop();
-                    targetTube.push(segment);
+                    // Move multiple segments if they match and there's space
+                    const segmentToMove = sourceTube[sourceTube.length - 1];
+                    const targetSpace = config.capacity - targetTube.length;
+                    let movedCount = 0;
+
+                    while (
+                        sourceTube.length > 0 &&
+                        sourceTube[sourceTube.length - 1].category === segmentToMove.category &&
+                        movedCount < targetSpace
+                    ) {
+                        targetTube.push(sourceTube.pop());
+                        movedCount++;
+                    }
 
                     setTubes(newTubes);
                     setSelectedTube(null);

@@ -72,10 +72,7 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
 
     return (
         <div className="w-full min-h-[100dvh] h-full flex flex-col items-center relative bg-gradient-to-b from-[#00509E] to-[#003366] overflow-y-auto overflow-x-hidden">
-            {/* Header Share Button Support */}
-            <button onClick={handleShare} className="absolute top-4 right-4 z-50 text-white p-2">
-                <Share2 className="w-6 h-6" />
-            </button>
+
 
             {/* Flexible Single Screen Container */}
             <div className="w-full max-w-[420px] mx-auto min-h-full flex flex-col px-5 py-4 safe-p-top safe-p-bottom justify-between">
@@ -138,15 +135,15 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                     </div>
 
                     <div className="flex flex-col items-center space-y-3">
+                        <button onClick={() => onRestart && onRestart()} className="text-white text-[12px] sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 underline underline-offset-4 decoration-white/30">
+                            <RefreshCw className="w-4 h-4" /> PLAY AGAIN
+                        </button>
+
                         <div className="px-1">
                             <p className="opacity-60 text-[6.5px] sm:text-[7.5px] text-white text-center leading-tight max-w-[380px] uppercase font-medium">
                                 The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes
                             </p>
                         </div>
-
-                        <button onClick={() => onRestart && onRestart()} className="text-white text-[12px] sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 underline underline-offset-4 decoration-white/30">
-                            <RefreshCw className="w-4 h-4" /> TRY AGAIN
-                        </button>
                     </div>
                 </footer>
             </div>
@@ -178,7 +175,24 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                             <input type="date" min={today} value={bookingData.date} onChange={e => setBookingData(p => ({ ...p, date: e.target.value, bookingError: '' }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none" />
                             <select value={bookingData.timeSlot} onChange={e => setBookingData(p => ({ ...p, timeSlot: e.target.value }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none">
                                 <option value="" className="text-black">Select Time</option>
-                                {timeSlots.map(s => <option key={s} value={s} className="text-black">{s}</option>)}
+                                {timeSlots.map(s => {
+                                    const isToday = bookingData.date === today;
+                                    if (isToday) {
+                                        const slotHour = parseInt(s.split(':')[0]);
+                                        const isPM = s.includes('PM') && slotHour !== 12;
+                                        const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                        if (normalizedHour <= new Date().getHours()) return null;
+                                    }
+                                    return <option key={s} value={s} className="text-black">{s}</option>;
+                                }).filter(Boolean)}
+                                {bookingData.date === today && timeSlots.every(s => {
+                                    const slotHour = parseInt(s.split(':')[0]);
+                                    const isPM = s.includes('PM') && slotHour !== 12;
+                                    const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && s.includes('AM') ? 0 : slotHour);
+                                    return normalizedHour <= new Date().getHours();
+                                }) && (
+                                        <option disabled className="text-black italic">No slots available for today</option>
+                                    )}
                             </select>
                         </div>
                         <button type="submit" disabled={isSubmitting || !bookingData.date || !bookingData.timeSlot || bookingData.mobile_no.length !== 10} className="w-full bg-[#FF8C00] text-white font-black py-4 shadow-[0_5px_0_#993D00] active:translate-y-1 transition-all uppercase tracking-widest text-sm mt-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">

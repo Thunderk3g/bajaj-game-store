@@ -7,12 +7,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import LandingPage from './components/LandingPage.jsx';
 import EntryPopup from './components/EntryForm.jsx';
-import HowToPlay from './components/HowToPlay.jsx';
 import GameHUD from './components/GameHUD.jsx';
 import GameGrid from './components/GameGrid.jsx';
 import BucketBar from './components/BucketBar.jsx';
 import AlertPopup from './components/AlertPopup.jsx';
 import ResultScreen from './components/ResultScreen.jsx';
+import PostGameLeadCapture from './components/PostGameLeadCapture.jsx';
 import ThankYou from './components/ThankYou.jsx';
 import Background from './components/Background.jsx';
 
@@ -40,6 +40,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
         exitGame,
         restartGame,
         showThankYou,
+        handleLeadSuccess,
         handleBookSlot,
     } = useMatchGame();
 
@@ -47,10 +48,12 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
         gameStatus,
         timeLeft,
         grid,
+        totalMatches,
         selectedCell,
         explodingCells,
         floatingScores,
         activePraise,
+        invalidSwapping,
         buckets,
         entryDetails,
     } = state;
@@ -60,56 +63,7 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
     const completionAudioRef = useRef(null);
     const [isPlayingBGM, setIsPlayingBGM] = useState(false);
 
-    // Alert popup state
-    const [alertMessage, setAlertMessage] = useState(null);
-    const [alertColor, setAlertColor] = useState(null);
-    const alertTimeoutRef = useRef(null);
     const prevBucketsRef = useRef(null);
-
-    // 1. Contextual Bucket Alerts (Triggered by Large Bursts / Praise)
-    useEffect(() => {
-        if (!activePraise) return;
-
-        const prev = prevBucketsRef.current || {};
-        const changedTypes = Object.keys(buckets).filter(
-            (type) => (buckets[type] || 0) > (prev[type] || 0)
-        );
-
-        if (changedTypes.length > 0) {
-            const type = changedTypes[0];
-            const msgs = BUCKET_MESSAGES[type];
-            const advice = msgs[Math.floor(Math.random() * msgs.length)];
-            const meta = TILE_META[type];
-
-            // Combine Praise (Excellent!) with Bucket Advice
-            setAlertMessage(`${activePraise} ${advice}`);
-            setAlertColor(`${meta.color}44`);
-
-            if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
-            alertTimeoutRef.current = setTimeout(() => {
-                setAlertMessage(null);
-                setAlertColor(null);
-            }, 5000);
-        }
-        prevBucketsRef.current = { ...buckets };
-    }, [activePraise, buckets]);
-
-    // 2. Idle Urgency Alerts (If user doesn't move for 4 seconds)
-    useEffect(() => {
-        if (gameStatus !== GAME_PHASES.PLAYING) return;
-
-        if (state.idleSeconds >= 6 && !alertMessage) {
-            const msg = URGENCY_MESSAGES[Math.floor(Math.random() * URGENCY_MESSAGES.length)];
-            setAlertMessage(`⚡ ${msg}`);
-            setAlertColor('rgba(239, 68, 68, 0.4)');
-
-            if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
-            alertTimeoutRef.current = setTimeout(() => {
-                setAlertMessage(null);
-                setAlertColor(null);
-            }, 5000);
-        }
-    }, [state.idleSeconds, gameStatus]);
 
     // 3. Reset bucket tracking ref on restart
     useEffect(() => {
@@ -177,15 +131,6 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
 
     // ── Handlers ──────────────────────────────────────────────────
 
-    const handleLandingStart = useCallback(() => {
-        handleUserInteraction();
-        setShowEntry(true);
-    }, [handleUserInteraction]);
-
-    const handleEntryClose = useCallback(() => {
-        setShowEntry(false);
-    }, []);
-
     const handleEntryDone = useCallback(
         async (name, mobile) => {
             handleUserInteraction();
@@ -195,171 +140,187 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
         [handleEntrySubmit, handleUserInteraction]
     );
 
+    const handleLandingStart = useCallback(() => {
+        handleUserInteraction();
+        // Lead popup disabled — start game directly
+        handleEntryDone('', '');
+    }, [handleUserInteraction, handleEntryDone]);
+
+    const handleEntryClose = useCallback(() => {
+        setShowEntry(false);
+    }, []);
+
     return (
-        <div
-            className="fixed inset-0 flex flex-col items-center overflow-hidden text-white font-sans"
-            onClick={handleUserInteraction}
-        >
-            {/* ── Global Background ── */}
-            <Background />
+        <div className="fixed inset-0 bg-black flex items-center justify-center">
+            {/* Fully responsive output frame locking — caps at 390x844 but shrinks gracefully on small phones like iPhone SE */}
+            <div
+                className="relative overflow-hidden text-white font-sans"
+                style={{ width: '100%', maxWidth: '390px', height: '100dvh', maxHeight: '844px' }}
+                onClick={handleUserInteraction}
+            >
+                {/* ── Global Background ── */}
+                <Background />
 
-            {/* ── Audio Elements ── */}
-            <audio ref={audioRef} src={bgmUrl} loop />
-            <audio ref={completionAudioRef} src={completionUrl} />
+                {/* ── Audio Elements ── */}
+                <audio ref={audioRef} src={bgmUrl} loop />
+                <audio ref={completionAudioRef} src={completionUrl} />
 
-            <AnimatePresence>
+                <AnimatePresence>
 
-                {/* ── LANDING (with popup overlay) ── */}
-                {gameStatus === GAME_PHASES.LANDING && (
-                    <motion.div
-                        key="landing"
-                        variants={pageVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        className="flex-1 w-full relative z-10"
-                    >
-                        <LandingPage onStart={handleLandingStart} />
+                    {/* ── LANDING (with popup overlay) ── */}
+                    {gameStatus === GAME_PHASES.LANDING && (
+                        <motion.div
+                            key="landing"
+                            variants={pageVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            className="flex-1 w-full relative z-10 h-full"
+                        >
+                            <LandingPage onStart={handleLandingStart} />
 
-                        <AnimatePresence>
-                            {showEntry && (
-                                <EntryPopup onSubmit={handleEntryDone} onClose={handleEntryClose} />
-                            )}
-                        </AnimatePresence>
-                    </motion.div>
-                )}
+                            <AnimatePresence>
+                                {showEntry && (
+                                    <EntryPopup onSubmit={handleEntryDone} onClose={handleEntryClose} />
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
 
-                {/* ── ENTRY TRANSITION ── */}
-                {gameStatus === GAME_PHASES.ENTRY && (
-                    <motion.div
-                        key="entry-transition"
-                        variants={pageVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        className="flex-1 w-full relative z-10"
-                    >
-                        <LandingPage onStart={() => { }} />
-                    </motion.div>
-                )}
+                    {/* ── ENTRY TRANSITION ── */}
+                    {gameStatus === GAME_PHASES.ENTRY && (
+                        <motion.div
+                            key="entry-transition"
+                            variants={pageVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            className="flex-1 w-full relative z-10 h-full"
+                        >
+                            <LandingPage onStart={() => { }} />
+                        </motion.div>
+                    )}
 
-                {/* ── HOW TO PLAY ── */}
-                {gameStatus === GAME_PHASES.HOW_TO_PLAY && (
-                    <motion.div
-                        key="htp"
-                        variants={pageVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        className="fixed inset-0 z-[1500] w-full h-[100dvh]"
-                    >
-                        <HowToPlay onStart={startGame} />
-                    </motion.div>
-                )}
+                    {/* How-To-Play screen deleted as requested */}
 
-                {/* ── PLAYING ── */}
-                {gameStatus === GAME_PHASES.PLAYING && (
-                    <motion.div
-                        key="playing"
-                        variants={pageVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        className="flex-1 w-full flex flex-col items-center justify-between pb-4 relative z-10"
-                    >
-                        <GameHUD
-                            timeLeft={timeLeft}
-                            userName={entryDetails?.name}
-                        />
-
-                        <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0 -mt-2 sm:-mt-4">
-                            <GameGrid
-                                grid={grid}
-                                selectedCell={selectedCell}
-                                explodingCells={explodingCells}
-                                floatingScores={floatingScores}
-                                activePraise={activePraise}
-                                onCellTap={handleCellTap}
-                                onCellSwipe={handleCellSwipe}
+                    {/* ── PLAYING ── */}
+                    {gameStatus === GAME_PHASES.PLAYING && (
+                        <motion.div
+                            key="playing"
+                            variants={pageVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            // TASK 9: 16px gap spacing specifically explicitly between header, grid, and footer 
+                            className="flex-1 w-full h-full max-w-[390px] mx-auto flex flex-col items-center justify-between pb-0 relative z-10 gap-2"
+                        >
+                            <GameHUD
+                                timeLeft={timeLeft}
+                                userName={entryDetails?.name}
                             />
-                        </div>
 
-                        {/* Global Alert Area — Lightweight Floating UI */}
-                        <AlertPopup
-                            message={alertMessage}
-                            color={alertColor}
-                            onClear={() => {
-                                setAlertMessage(null);
-                                setAlertColor(null);
-                            }}
-                        />
+                            <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0 mt-2">
+                                {/* Auto-scaler for iPhone SE checking BOTH horizontal tightness and vertical shortness */}
+                                <div className="flex justify-center items-center" style={{ transform: 'scale(min(1, calc(100vw / 360), calc(100dvh / 680)))', transformOrigin: 'top center' }}>
+                                    <GameGrid
+                                        grid={grid}
+                                        totalMatches={totalMatches}
+                                        selectedCell={selectedCell}
+                                        explodingCells={explodingCells}
+                                        invalidSwapping={invalidSwapping}
+                                        floatingScores={floatingScores}
+                                        activePraise={activePraise}
+                                        onCellTap={handleCellTap}
+                                        onCellSwipe={handleCellSwipe}
+                                    />
+                                </div>
+                            </div>
 
-                        <BucketBar buckets={buckets} />
-                    </motion.div>
-                )}
+                            {/* TASK 2: AlertPopup fully removed to eradicate red banner notifications */}
 
-                {/* ── FINISHED (brief transition) ── */}
-                {gameStatus === GAME_PHASES.FINISHED && (
-                    <motion.div
-                        key="finished"
-                        variants={pageVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        className="flex-1 w-full flex items-center justify-center relative z-10"
-                    >
-                        {/* Simple Loading Spinner for results */}
-                        <div className="flex flex-col items-center gap-4">
-                            <div className="w-12 h-12 border-4 border-t-bb-gold border-white/10 rounded-full animate-spin" />
-                            <motion.div
-                                animate={{ opacity: [0.5, 1, 0.5] }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                                className="text-white/60 font-game text-xl tracking-wider uppercase"
-                            >
-                                Calculated...
-                            </motion.div>
-                        </div>
-                    </motion.div>
-                )}
+                            <BucketBar buckets={buckets} />
+                        </motion.div>
+                    )}
 
-                {/* ── THANK YOU ── */}
-                {gameStatus === GAME_PHASES.THANK_YOU && (
-                    <motion.div
-                        key="thankyou"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, pointerEvents: 'none' }}
-                        className="fixed inset-0 z-[2000] bg-[#003366] overflow-hidden flex flex-col"
-                    >
-                        <ThankYou
-                            userName={entryDetails?.name}
-                            onRestart={restartGame}
-                        />
-                    </motion.div>
-                )}
+                    {/* ── FINISHED (brief transition) ── */}
+                    {gameStatus === GAME_PHASES.FINISHED && (
+                        <motion.div
+                            key="finished"
+                            variants={pageVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            className="flex-1 w-full flex items-center justify-center relative z-10"
+                        >
+                            {/* Simple Loading Spinner for results */}
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="w-12 h-12 border-4 border-t-bb-gold border-white/10 rounded-full animate-spin" />
+                                <motion.div
+                                    animate={{ opacity: [0.5, 1, 0.5] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                    className="text-white/60 font-game text-xl tracking-wider uppercase"
+                                >
+                                    Calculated...
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    )}
 
-                {/* ── RESULT / EXITED ── */}
-                {(gameStatus === GAME_PHASES.RESULT || gameStatus === GAME_PHASES.EXITED) && (
-                    <motion.div
-                        key="result"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, pointerEvents: 'none' }}
-                        className="fixed inset-0 z-[1000] bg-[#003366] overflow-hidden flex flex-col"
-                    >
-                        <ResultScreen
-                            finalScore={finalScore}
-                            buckets={buckets}
-                            userName={entryDetails?.name}
-                            userPhone={entryDetails?.mobile}
-                            onRestart={restartGame}
-                            onBookSlot={handleBookSlot}
-                        />
-                    </motion.div>
-                )}
+                    {/* ── POST-GAME LEAD CAPTURE ── */}
+                    {gameStatus === GAME_PHASES.POST_GAME_LEAD && (
+                        <motion.div
+                            key="post-game-lead"
+                            variants={pageVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            className="absolute inset-0 z-[2000]"
+                        >
+                            <PostGameLeadCapture
+                                score={finalScore}
+                                onSuccess={handleLeadSuccess}
+                            />
+                        </motion.div>
+                    )}
 
-            </AnimatePresence>
+                    {/* ── THANK YOU ── */}
+                    {gameStatus === GAME_PHASES.THANK_YOU && (
+                        <motion.div
+                            key="thankyou"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0, pointerEvents: 'none' }}
+                            className="fixed inset-0 z-[2000] bg-[#003366] overflow-hidden flex flex-col"
+                        >
+                            <ThankYou
+                                userName={entryDetails?.name}
+                                onRestart={restartGame}
+                            />
+                        </motion.div>
+                    )}
 
+                    {/* ── RESULT / EXITED ── */}
+                    {(gameStatus === GAME_PHASES.RESULT || gameStatus === GAME_PHASES.EXITED) && (
+                        <motion.div
+                            key="result"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0, pointerEvents: 'none' }}
+                            className="fixed inset-0 z-[1000] bg-[#003366] overflow-hidden flex flex-col"
+                        >
+                            <ResultScreen
+                                finalScore={finalScore}
+                                buckets={buckets}
+                                userName={entryDetails?.name}
+                                userPhone={entryDetails?.mobile}
+                                onRestart={restartGame}
+                                onBookSlot={handleBookSlot}
+                            />
+                        </motion.div>
+                    )}
+
+                </AnimatePresence>
+            </div>
         </div>
     );
 });

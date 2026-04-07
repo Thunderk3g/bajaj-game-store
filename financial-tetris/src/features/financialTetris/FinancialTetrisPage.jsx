@@ -9,6 +9,7 @@ import GameOverScreen from './components/GameOverScreen';
 import WinScreen from './components/WinScreen';
 import ConversionScreen from './components/ConversionScreen';
 import TutorialOverlay from './components/TutorialOverlay';
+import LeadCaptureScreen from './components/LeadCaptureScreen';
 
 import { useTetrisEngine } from './hooks/useTetrisEngine';
 import { useGameTimer } from './hooks/useGameTimer';
@@ -65,8 +66,7 @@ const FinancialTetrisPage = () => {
         spawnPiece();
     };
 
-    const handleStart = (userData) => {
-        setLeadData(userData);
+    const handleStart = () => {
         startGame(); // Initialize board and pieces
         setGameStatus(GAME_STATUS.TUTORIAL); // Override to pause engine
         setShowTutorial(true);
@@ -81,7 +81,6 @@ const FinancialTetrisPage = () => {
     const handleRestart = useCallback(() => {
         resetGame(); // This sets status to PLAYING and initializes board
         resetTimer(); // This resets the timer to 60s
-        // We removed setGameStatus(IDLE) so it starts playing immediately
     }, [resetGame, resetTimer]);
 
     const handleBookSlot = useCallback(async (bookingInfo) => {
@@ -110,16 +109,35 @@ const FinancialTetrisPage = () => {
         }
     }, [leadData, linesCleared]);
 
+    const handleLeadSubmit = async (name, phone) => {
+        const result = await submitToLMS({
+            name,
+            mobile_no: phone,
+            summary_dtls: 'Financial Tetris - Post Game Lead'
+        });
+
+        if (result.success) {
+            setLeadData({ name, phone });
+            const responseData = result.data || result;
+            const ln = responseData.leadNo || responseData.LeadNo;
+            if (ln) {
+                sessionStorage.setItem('tetrisLeadNo', ln);
+            }
+            setGameStatus('results');
+        }
+        return result;
+    };
+
     const handleNextFromResults = useCallback(() => {
+        setGameStatus(GAME_STATUS.LEAD_CAPTURE);
         setTimeAtCompletion(GAME_DURATION - timeLeft);
-        setGameStatus('results');
     }, [timeLeft, setGameStatus]);
 
-    // Handle Auto-transition to results
+    // Handle Auto-transition to lead capture
     useEffect(() => {
         if (gameStatus === GAME_STATUS.LOST || gameStatus === GAME_STATUS.WON) {
             const timer = setTimeout(() => {
-                setGameStatus('results');
+                setGameStatus(GAME_STATUS.LEAD_CAPTURE);
                 setTimeAtCompletion(GAME_DURATION - timeLeft);
             }, 6000);
             return () => clearTimeout(timer);
@@ -168,59 +186,61 @@ const FinancialTetrisPage = () => {
                     <IntroScreen key="intro" onStart={handleStart} />
                 )}
 
-                {(gameStatus !== GAME_STATUS.IDLE && gameStatus !== 'results') && (
-                    <motion.div
-                        key="gameplay"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="w-full relative h-full flex flex-col pt-safe px-3"
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
-                    >
-                        <div className="px-3 mt-16">
-                            <ScoreDisplay
-                                score={linesCleared}
-                                timeLeft={timeLeft}
-                                formatTime={formatTime}
-                                nextPiece={nextPiece}
-                            />
-                        </div>
-
-                        <div className="flex-grow flex items-center justify-center px-4 relative">
-                            <div className="w-full max-w-[320px] mx-auto">
-                                <GameBoard
-                                    grid={grid}
-                                    currentPiece={currentPiece}
-                                    ghostPiece={ghostPiece}
-                                    onBoardClick={rotatePiece}
+                {(gameStatus !== GAME_STATUS.IDLE &&
+                    gameStatus !== 'results' &&
+                    gameStatus !== GAME_STATUS.LEAD_CAPTURE) && (
+                        <motion.div
+                            key="gameplay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="w-full relative h-full flex flex-col pt-safe px-3"
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
+                        >
+                            <div className="px-3 mt-16">
+                                <ScoreDisplay
+                                    score={linesCleared}
+                                    timeLeft={timeLeft}
+                                    formatTime={formatTime}
+                                    nextPiece={nextPiece}
                                 />
                             </div>
-                        </div>
 
-                        <MilestoneOverlay
-                            isVisible={gameStatus === GAME_STATUS.LINE_CLEARED}
-                            message={milestone}
-                            onDismiss={handleMilestoneDismiss}
-                        />
+                            <div className="flex-grow flex items-center justify-center px-4 relative">
+                                <div className="w-full max-w-[320px] mx-auto">
+                                    <GameBoard
+                                        grid={grid}
+                                        currentPiece={currentPiece}
+                                        ghostPiece={ghostPiece}
+                                        onBoardClick={rotatePiece}
+                                    />
+                                </div>
+                            </div>
 
-                        <TutorialOverlay
-                            isVisible={showTutorial}
-                            onStart={handleTutorialComplete}
-                        />
+                            <MilestoneOverlay
+                                isVisible={gameStatus === GAME_STATUS.LINE_CLEARED}
+                                message={milestone}
+                                onDismiss={handleMilestoneDismiss}
+                            />
 
-                        {/* Game Over / Win Overlays */}
-                        <AnimatePresence>
-                            {gameStatus === GAME_STATUS.LOST && (
-                                <GameOverScreen key="game-over" score={linesCleared} onNext={handleNextFromResults} />
-                            )}
-                            {gameStatus === GAME_STATUS.WON && (
-                                <WinScreen key="win" onNext={handleNextFromResults} />
-                            )}
-                        </AnimatePresence>
-                    </motion.div>
-                )}
+                            <TutorialOverlay
+                                isVisible={showTutorial}
+                                onStart={handleTutorialComplete}
+                            />
+
+                            {/* Game Over / Win Overlays */}
+                            <AnimatePresence mode="wait">
+                                {gameStatus === GAME_STATUS.LOST && (
+                                    <GameOverScreen key="game-over" score={linesCleared} onNext={handleNextFromResults} />
+                                )}
+                                {gameStatus === GAME_STATUS.WON && (
+                                    <WinScreen key="win" onNext={handleNextFromResults} />
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
 
                 {gameStatus === 'results' && (
                     <ConversionScreen
@@ -230,6 +250,13 @@ const FinancialTetrisPage = () => {
                         leadData={leadData}
                         onRestart={handleRestart}
                         onBookSlot={handleBookSlot}
+                    />
+                )}
+
+                {gameStatus === GAME_STATUS.LEAD_CAPTURE && (
+                    <LeadCaptureScreen
+                        key="lead-capture"
+                        onLeadSubmit={handleLeadSubmit}
                     />
                 )}
             </AnimatePresence>

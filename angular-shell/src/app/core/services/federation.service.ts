@@ -112,39 +112,52 @@ export class FederationService {
    * 2. Fallback to manifest-based URL (lobby flow) → /assets/games/{gameId}/index.html
    */
   getGameUrl(gameId: string): string | null {
-    // ── JWT-dispatched flow ──
-    // If the store has a constructed URL from JWT data, use that
+    const entry = this.getGameManifest(gameId);
+
+    // ── Priority 1: Manifest flow (bundled games) ──
+    if (entry) {
+      const basePath = entry.remoteEntry.substring(
+        0,
+        entry.remoteEntry.lastIndexOf('/') + 1,
+      );
+
+      const storeState = this.store.getSnapshot();
+      const params = new URLSearchParams();
+
+      if (storeState && storeState.salesPerson) {
+        params.set('userId', storeState.salesPerson.id || 'GUEST_USER');
+        params.set('gameId', gameId);
+        params.set('empName', storeState.salesPerson.name || '');
+        params.set('empMobile', storeState.salesPerson.mobile || '');
+        params.set('location', storeState.salesPerson.region || '');
+        params.set('zone', storeState.salesPerson.zone || '');
+        params.set('token', storeState.rawToken || '');
+      } else {
+        const salesPersonId = this.store.getSalesPersonId() || 'GUEST_USER';
+        params.set('salesPersonId', salesPersonId);
+        params.set('gameId', gameId);
+      }
+
+      const manifestUrl = `${this.baseHref}${basePath}?${params.toString()}`;
+      console.log(
+        `[FederationService] 🔗 Using manifest URL for game "${gameId}": ${manifestUrl}`,
+      );
+      return manifestUrl;
+    }
+
+    // ── Priority 2: JWT-dispatched flow (remote/unknown games) ──
     const storeUrl = this.store.getConstructedGameUrl();
     if (storeUrl) {
       console.log(
-        `[FederationService] 🔗 Using store URL for game "${gameId}": ${storeUrl}`,
+        `[FederationService] 🔗 Using store URL for remote game "${gameId}": ${storeUrl}`,
       );
       return storeUrl;
     }
 
-    // ── Lobby / manifest fallback ──
-    const entry = this.getGameManifest(gameId);
-    if (!entry) {
-      console.error(
-        `[FederationService] ❌ Cannot construct game URL - no manifest entry for ${gameId}`,
-      );
-      return null;
-    }
-
-    // Extract base path from remoteEntry
-    // e.g., "assets/games/scramble-words/index.js" → "assets/games/scramble-words/"
-    const basePath = entry.remoteEntry.substring(
-      0,
-      entry.remoteEntry.lastIndexOf('/') + 1,
+    console.error(
+      `[FederationService] ❌ Cannot construct game URL - no manifest entry for ${gameId}`,
     );
-
-    // Prepend base href (e.g. /gamification/) and append query params
-    const salesPersonId = this.store.getSalesPersonId() || 'GUEST_USER';
-    const fallbackUrl = `${this.baseHref}${basePath}index.html?salesPersonId=${encodeURIComponent(salesPersonId)}&gameId=${encodeURIComponent(gameId)}`;
-    console.log(
-      `[FederationService] 🔗 Using manifest URL for game "${gameId}": ${fallbackUrl}`,
-    );
-    return fallbackUrl;
+    return null;
   }
 
   /**

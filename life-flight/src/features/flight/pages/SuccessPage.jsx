@@ -72,7 +72,7 @@ export default function SuccessPage() {
                             }}
                         >
                             <RotateCcw className="w-4 h-4" />
-                            <span>TRY AGAIN</span>
+                            <span>Play Again</span>
                         </button>
                     </div>
                 </div>

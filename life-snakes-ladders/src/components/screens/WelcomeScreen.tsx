@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
-import LeadModal from '../modals/LeadModal';
+import React from 'react';
 
 interface WelcomeScreenProps {
     onStart: (data: { name: string; mobile: string; isProtected?: boolean }) => void;
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
-    const [showLeadModal, setShowLeadModal] = useState(false);
-
     return (
         <>
             <div
@@ -67,7 +64,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
                     }}
                 >
                     <button
-                        onClick={() => setShowLeadModal(true)}
+                        onClick={() => onStart({ name: '', mobile: '', isProtected: false })}
                         style={{
                             width: '100%',
                             maxWidth: 340,
@@ -94,22 +91,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
                     </button>
                 </div>
             </div>
-
-            {/* Lead capture modal - Step 1 */}
-            {showLeadModal && (
-                <LeadModal
-                    onClose={() => setShowLeadModal(false)}
-                    onSubmit={(data) => {
-                        setShowLeadModal(false);
-                        onStart({
-                            ...data,
-                            isProtected: false
-                        });
-                    }}
-                />
-            )}
-
-
         </>
     );
 };

@@ -88,17 +88,17 @@ const QuestionScreen = memo(function QuestionScreen({
             }}
         >
             {/* ================= HEADER ================= */}
-            <div className="w-full max-w-sm pt-4 text-center z-20 shrink-0">
-                <h2 className="text-[1.4rem] font-extrabold text-white uppercase tracking-wider flex justify-center items-center gap-2 drop-shadow-sm leading-tight">
-                    {config.label} <span className="text-[1.4rem]">{config.icon}</span>
+            <div className="w-full flex flex-col items-center shrink-0 z-20 pt-4 px-4 text-center">
+                <h2 className="text-[1.4rem] font-extrabold text-white uppercase tracking-wider drop-shadow-sm leading-tight block mx-auto">
+                    {config.label}
                 </h2>
-                <p className="text-[0.6rem] text-blue-200 font-bold uppercase tracking-[0.2em] mt-0.5 opacity-90">
+                <p className="text-[0.65rem] text-blue-200 font-extrabold uppercase tracking-[0.25em] mt-2 opacity-90 block">
                     FINANCIAL RISK AHEAD
                 </p>
 
                 {/* Progress */}
-                <div className="mt-3 w-full max-w-[280px] mx-auto">
-                    <div className="flex justify-between text-[0.65rem] font-bold text-white mb-1 px-0.5 opacity-90">
+                <div className="mt-5 w-full max-w-[280px] mx-auto">
+                    <div className="flex justify-between text-[0.65rem] font-bold text-white mb-2.5 px-0.5 opacity-90">
                         <span>QUESTION {questionNumber}/{totalQuestions}</span>
                         <span>{progressPercentage}%</span>
                     </div>
@@ -113,22 +113,8 @@ const QuestionScreen = memo(function QuestionScreen({
                 </div>
             </div>
 
-            {/* ================= HERO IMAGE ================= */}
-            {/* Using flex-1 and min-h-0 allows the image container to shrink if needed, preventing overflow */}
-            <div className="flex-1 min-h-0 flex justify-center w-full z-30 pointer-events-none items-center -mt-6 sm:-mt-10 mb-2 relative">
-                <motion.img
-                    key={stageData?.id}
-                    src={StageImage}
-                    alt={config.label}
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="h-full w-auto max-h-[350px] object-contain drop-shadow-xl"
-                />
-            </div>
-
             {/* ================= QUESTION CARD ================= */}
-            <div className="relative w-full max-w-sm shrink-0 z-20 mb-2">
+            <div className="relative w-full max-w-sm shrink-0 z-20 mt-10">
                 <motion.div
                     key={currentEvent?.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -137,9 +123,9 @@ const QuestionScreen = memo(function QuestionScreen({
                     className="bg-white rounded-[1.5rem] px-6 pt-9 pb-10 shadow-lg text-center relative mx-1"
                 >
                     {/* Impact Badge */}
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-max">
                         <div
-                            className="text-white text-[0.6rem] font-extrabold px-3 py-1 rounded-full shadow-sm flex items-center gap-1 uppercase tracking-widest"
+                            className="text-white text-[0.6rem] font-extrabold px-3 py-1 rounded-full shadow-sm flex items-center justify-center gap-1 uppercase tracking-widest"
                             style={{ backgroundColor: impact.bg }}
                         >
                             {impact.label}
@@ -182,26 +168,39 @@ const QuestionScreen = memo(function QuestionScreen({
                 </div>
             </div>
 
+            {/* ================= HERO IMAGE ================= */}
+            <div className="flex-1 min-h-0 flex justify-center w-full z-30 pointer-events-none items-center mt-16 relative">
+                <motion.img
+                    key={stageData?.id}
+                    src={StageImage}
+                    alt={config.label}
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="h-full w-auto max-h-[220px] object-contain drop-shadow-xl"
+                />
+            </div>
+
             {/* ================= BUTTONS ================= */}
-            <div className="w-full max-w-sm flex flex-col gap-3 z-30 pb-2 px-1 mt-8 shrink-0">
+            <div className="w-full max-w-sm flex flex-row gap-3 z-30 pb-2 px-1 mt-10 shrink-0">
                 <motion.button
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onDecision('protected')}
-                    className="py-3.5 rounded-xl bg-[#e65100] text-white font-extrabold text-[1rem] shadow-md active:scale-95 transition flex items-center justify-center gap-2 relative overflow-hidden"
-                    style={{ background: 'linear-gradient(to right, #ea580c, #c2410c)' }}
+                    className="flex-1 py-4 rounded-xl text-white font-extrabold text-[0.8rem] sm:text-[0.9rem] shadow-lg active:scale-95 transition flex flex-col items-center justify-center gap-1.5 relative overflow-hidden border-b-4 border-green-700"
+                    style={{ background: 'linear-gradient(to bottom, #16a34a, #15803d)' }}
                 >
-                    <CheckCircle size={18} strokeWidth={3} className="text-white/90" />
-                    <span>I&apos;M PROTECTED</span>
+                    <CheckCircle size={20} strokeWidth={3} className="text-white/90" />
+                    <span className="uppercase tracking-tight leading-none">I&apos;M PROTECTED</span>
                 </motion.button>
 
                 <motion.button
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onDecision('exposed')}
-                    className="py-3.5 rounded-xl bg-[#004A80] text-white font-extrabold text-[1rem] shadow-md active:scale-95 transition flex items-center justify-center gap-2 relative overflow-hidden"
-                    style={{ background: 'linear-gradient(to right, #00509E, #003366)' }}
+                    className="flex-1 py-4 rounded-xl text-white font-extrabold text-[0.8rem] sm:text-[0.9rem] shadow-lg active:scale-95 transition flex flex-col items-center justify-center gap-1.5 relative overflow-hidden border-b-4 border-red-800"
+                    style={{ background: 'linear-gradient(to bottom, #dc2626, #b91c1c)' }}
                 >
-                    <AlertCircle size={18} strokeWidth={3} className="text-white/90" />
-                    <span>I&apos;M EXPOSED</span>
+                    <AlertCircle size={20} strokeWidth={3} className="text-white/90" />
+                    <span className="uppercase tracking-tight leading-none">I&apos;M EXPOSED</span>
                 </motion.button>
             </div>
         </div>

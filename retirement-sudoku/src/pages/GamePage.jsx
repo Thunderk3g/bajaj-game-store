@@ -235,7 +235,7 @@ const GamePage = memo(function GamePage() {
                         </p>
                     </div>
                     <div style={{ display: 'flex', gap: '0.35rem', fontSize: 'clamp(1rem, 4vw, 1.25rem)', opacity: 0.9 }}>
-                        <span>🏦</span><span>🏠</span><span>💰</span><span>🏥</span><span>✈️</span>
+                        <span>🏦</span><span>🏠</span><span>₹</span><span>🏥</span><span>✈️</span>
                     </div>
                 </div>
 

@@ -79,9 +79,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
         }
 
         if (!bookingData.mobile_no.trim()) {
-            errs.mobile_no = "Mobile is required";
+            errs.mobile_no = "Mobile Number is required";
         } else if (!/^[6-9]\d{9}$/.test(bookingData.mobile_no)) {
-            errs.mobile_no = "Invalid 10-digit number";
+            errs.mobile_no = "Enter a Valid Mobile Number";
         }
 
         if (!bookingData.date) {
@@ -149,12 +149,6 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             {percentage >= 60 && <Confetti />}
 
             {/* Top Right Share Button */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 p-2 bg-white/50 backdrop-blur-sm rounded-full text-brand-blue hover:bg-white shadow-sm transition-all active:scale-95 z-10"
-            >
-                <Share2 className="w-5 h-5" />
-            </button>
 
             {/* Content Wrapper for consistency across heights */}
             <div className="w-full max-w-sm flex flex-col justify-between mx-auto py-4">
@@ -219,21 +213,23 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                         </div>
                     </div>
 
+                    {/* Play again Text Link */}
+                    <div
+                        onClick={onRestart}
+                        className="text-white font-black uppercase tracking-[0.2em] text-sm cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center gap-3 mb-3"
+                    >
+                        <RotateCcw className="w-5 h-5" />
+                        <span>play again</span>
+                    </div>
+
                     {/* Disclaimer */}
-                    <div className="w-full px-6 opacity-40 mt-4">
+                    <div className="w-full px-6 opacity-40 mt-2">
                         <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
                             <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                         </p>
                     </div>
 
-                    {/* Large Retake Button */}
-                    <button
-                        onClick={onRestart}
-                        className="game-btn w-full py-4 text-xl flex items-center justify-center gap-3 rounded-[16px]"
-                    >
-                        <RotateCcw className="w-6 h-6" />
-                        <span>Retake quiz</span>
-                    </button>
+
                 </div>
             </div>
 
@@ -255,12 +251,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     <X className="w-6 h-6" />
                                 </button>
 
-                                <Dialog.Title className="text-3xl font-black text-gray-800 text-center mb-1 tracking-tight">
-                                    Book a slot
+                                <Dialog.Title className="text-xl sm:text-2xl font-black text-gray-800 text-center mb-6 tracking-tight pr-6 whitespace-nowrap">
+                                    Book a Slot
                                 </Dialog.Title>
-                                <p className="text-center text-gray-400 font-bold mb-8 text-sm">
-                                    Pick your preferred time
-                                </p>
 
                                 <form onSubmit={handleSubmit} className="space-y-5">
                                     <div className="grid grid-cols-1 gap-4">
@@ -295,9 +288,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                                 onChange={(e) => {
                                                     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
                                                     setBookingData(prev => ({ ...prev, mobile_no: val }));
-                                                    if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile is required" }));
-                                                    else if (val.length > 0 && val.length < 10) setErrors(prev => ({ ...prev, mobile_no: "Enter 10 digits" }));
-                                                    else if (val.length === 10 && !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Must start 6-9" }));
+                                                    if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile Number is required" }));
+                                                    else if (val.length < 10 || !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Enter a Valid Mobile Number" }));
                                                     else setErrors(prev => ({ ...prev, mobile_no: null }));
                                                 }}
                                                 placeholder="Mobile number"
@@ -308,53 +300,71 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     </div>
 
                                     <div className="flex flex-col gap-4">
-                                        <div className="relative">
-                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
-                                            <input
-                                                type="date"
-                                                id="booking-date"
-                                                name="date"
-                                                value={bookingData.date}
-                                                min={today}
-                                                max={maxDate}
-                                                onChange={(e) => {
-                                                    setBookingData(prev => ({ ...prev, date: e.target.value }));
-                                                    setErrors(prev => ({ ...prev, date: null }));
-                                                }}
-                                                className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none transition-colors appearance-none ${errors.date ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
-                                            />
-                                            {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
+                                        <div className="space-y-1">
+                                            <label htmlFor="booking-date" className="text-sm font-bold text-gray-500 block text-left mb-1 ml-1">Booking Date</label>
+                                            <div className="relative">
+                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
+                                                <input
+                                                    type="date"
+                                                    id="booking-date"
+                                                    name="date"
+                                                    value={bookingData.date}
+                                                    min={today}
+                                                    max={maxDate}
+                                                    onChange={(e) => {
+                                                        setBookingData(prev => ({ ...prev, date: e.target.value }));
+                                                        setErrors(prev => ({ ...prev, date: null }));
+                                                    }}
+                                                    className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none transition-colors appearance-none ${errors.date ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
+                                                />
+                                                {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
+                                            </div>
                                         </div>
 
-                                        <div className="relative">
-                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
-                                            <select
-                                                id="booking-timeslot"
-                                                name="timeSlot"
-                                                value={bookingData.timeSlot}
-                                                onChange={(e) => {
-                                                    setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
-                                                    setErrors(prev => ({ ...prev, timeSlot: null }));
-                                                }}
-                                                className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-10 py-3 text-gray-800 font-bold focus:outline-none appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
-                                            >
-                                                <option value="">Choose a slot</option>
-                                                {timeSlots.map(slot => (
-                                                    <option key={slot} value={slot}>{slot}</option>
-                                                ))}
-                                            </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-                                            {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}
+                                        <div className="space-y-1">
+                                            <label htmlFor="booking-timeslot" className="text-sm font-bold text-gray-500 block text-left mb-1 ml-1">Preferred Time Slot</label>
+                                            <div className="relative">
+                                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
+                                                <select
+                                                    id="booking-timeslot"
+                                                    name="timeSlot"
+                                                    value={bookingData.timeSlot}
+                                                    onChange={(e) => {
+                                                        setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
+                                                        setErrors(prev => ({ ...prev, timeSlot: null }));
+                                                    }}
+                                                    className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-10 py-3 text-gray-800 font-bold focus:outline-none appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
+                                                >
+                                                    <option value="">Choose a slot</option>
+                                                    {timeSlots.map(slot => {
+                                                        const now = new Date();
+                                                        const isToday = bookingData.date === today;
+                                                        const currentHour = now.getHours();
+
+                                                        // Parse "9:00 AM - 10:00 AM" -> start hour is 9
+                                                        const startHourStr = slot.split(':')[0];
+                                                        let startHour = parseInt(startHourStr);
+                                                        if (slot.includes('PM') && startHour !== 12) startHour += 12;
+                                                        if (slot.includes('AM') && startHour === 12) startHour = 0;
+
+                                                        if (isToday && startHour <= currentHour) return null;
+
+                                                        return <option key={slot} value={slot}>{slot}</option>;
+                                                    }).filter(Boolean)}
+                                                </select>
+                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                                {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <div className="flex items-start gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
+                                        <div className="flex justify-center items-center gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
                                             <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : 'border-slate-100 bg-gray-50'}`}>
                                                 {bookingTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
                                             </div>
                                             <div className="text-[11px] text-gray-400 font-bold leading-tight underline-offset-2">
-                                                I agree to the <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}>Terms & Conditions</span> and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                                I agree and consent to the <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}>T&C and Privacy Policy</span>
                                             </div>
                                         </div>
                                         {errors.terms && <p className="text-red-500 text-xs font-bold ml-2">{errors.terms}</p>}
@@ -366,7 +376,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                         disabled={isSubmitting}
                                         className={`w-full py-4 rounded-2xl text-xl font-black text-white transition-all ${isSubmitting ? 'opacity-50' : 'bg-brand-green hover:bg-[#45a049] shadow-[0_4px_0_0_#45a049] active:translate-y-1 active:shadow-none'}`}
                                     >
-                                        {isSubmitting ? 'Booking...' : 'Confirm booking'}
+                                        {isSubmitting ? 'Booking...' : 'Book a slot'}
                                     </motion.button>
                                 </form>
                             </motion.div>
@@ -399,8 +409,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     </button>
                                 </div>
                                 <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200 text-left">
-                                    <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
-                                    <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.</p>
+                                    <p>I hereby authorize Bajaj Life Insurance Limited. to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business</p>
+                                    <p>Please refer to Bajaj Life <a href="https://www.bajajlifeinsurance.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">Privacy Policy</a>.</p>
                                 </div>
                                 <div className="mt-6">
                                     <button

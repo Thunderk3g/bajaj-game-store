@@ -210,19 +210,33 @@ const BookingModal = memo(function BookingModal({
                                             <div className="space-y-1.5">
                                                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Time Slot</label>
                                                 <div className="grid grid-cols-2 gap-2">
-                                                    {TIME_SLOTS.map((slot) => (
-                                                        <button
-                                                            key={slot}
-                                                            type="button"
-                                                            onClick={() => handleChange('preferredSlot', slot)}
-                                                            className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${formData.preferredSlot === slot
-                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                                                                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
-                                                                }`}
-                                                        >
-                                                            {slot}
-                                                        </button>
-                                                    ))}
+                                                    {TIME_SLOTS.map((slot) => {
+                                                        // Filter logic: if today, check if slot start time has passed
+                                                        const now = new Date();
+                                                        const isToday = formData.preferredDate === today;
+                                                        const currentHour = now.getHours();
+
+                                                        // Robust parsing
+                                                        const slotHour = parseInt(slot.split(':')[0]);
+                                                        const isPM = slot.includes('PM') && slotHour !== 12;
+                                                        const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+
+                                                        if (isToday && normalizedHour <= currentHour) return null;
+
+                                                        return (
+                                                            <button
+                                                                key={slot}
+                                                                type="button"
+                                                                onClick={() => handleChange('preferredSlot', slot)}
+                                                                className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${formData.preferredSlot === slot
+                                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                                                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                                                    }`}
+                                                            >
+                                                                {slot}
+                                                            </button>
+                                                        );
+                                                    }).filter(Boolean)}
                                                 </div>
                                                 {errors.preferredSlot && <p className="text-red-500 text-xs">{errors.preferredSlot}</p>}
                                             </div>

@@ -9,6 +9,7 @@ export const SCREENS = {
     WELCOME: 'welcome',
     QUESTION: 'question',
     FEEDBACK: 'feedback',
+    LEAD_CAPTURE: 'lead_capture',
     RESULTS: 'results',
     THANK_YOU: 'thank_you'
 };
@@ -104,10 +105,10 @@ export const QuizProvider = ({ children }) => {
             if (score > highScore) {
                 setHighScore(score);
             }
-            setCurrentScreen(SCREENS.RESULTS);
+            setCurrentScreen(SCREENS.LEAD_CAPTURE);
             playSound('complete');
         }
-    }, [currentQuestionIndex, totalQuestions, userAnswers, currentQuestion, selectedAnswer, highScore, setHighScore, playSound]);
+    }, [currentQuestionIndex, totalQuestions, userAnswers, score, highScore, setHighScore, playSound]);
 
     const handleRestart = useCallback(() => {
         const shuffled = getShuffledQuestions();
@@ -161,16 +162,15 @@ export const QuizProvider = ({ children }) => {
             setLeadName(name);
             setLeadPhone(phone);
             setIsLeadSubmitted(true);
-            // leadNo comes nested inside result.data (the raw API JSON response)
+
             const responseData = result.data || result;
             const ln = responseData.leadNo || responseData.LeadNo;
             if (ln) {
-                console.log('[QuizContext] Captured leadNo:', ln);
                 setLeadNo(ln);
                 sessionStorage.setItem('quizLeadNo', ln);
-            } else {
-                console.warn('[QuizContext] No leadNo found in API response:', result);
             }
+
+            setCurrentScreen(SCREENS.RESULTS);
         }
 
         return result;

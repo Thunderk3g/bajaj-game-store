@@ -81,7 +81,7 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
                 transition={{ duration: 0.5, ease: 'easeOut' }}
             >
                 <h1 className="font-game text-[1.75rem] sm:text-[2.25rem] text-white drop-shadow-lg tracking-wide leading-tight mb-0.5 uppercase">
-                    Select Your Stage
+                    Select Your Life Stage
                 </h1>
                 <p className="text-blue-900 font-game-body font-black text-[0.625rem] sm:text-[0.6875rem] uppercase tracking-widest opacity-80">
                     Tap a milestone to start the race

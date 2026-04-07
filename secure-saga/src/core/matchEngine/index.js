@@ -265,9 +265,22 @@ export function createMatchEngine(config) {
         specialRules = {},
         stageGoal = {},
         maxMoves = 20,
+        exactGrid = null,
     } = config;
 
-    const grid = generateInitialGrid(tileTypes);
+    let grid;
+    if (exactGrid) {
+        // Hydrate from string representation
+        const size = exactGrid.length;
+        grid = Array.from({ length: size }, (_, r) =>
+            Array.from({ length: size }, (_, c) => {
+                const type = exactGrid[r][c];
+                return type ? createTile(type, r, c) : null;
+            })
+        );
+    } else {
+        grid = generateInitialGrid(tileTypes);
+    }
 
     return {
         config,

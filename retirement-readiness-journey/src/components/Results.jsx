@@ -98,7 +98,7 @@ const Results = ({ score, onReset, userInfo }) => {
                     className="w-full max-w-[280px] h-[4.5rem] bg-[#ff6600] hover:bg-[#ff7711] text-white font-extrabold rounded-2xl shadow-[0_6px_0_#993d00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xl uppercase tracking-wider"
                 >
                     <RotateCcw className="w-6 h-6" />
-                    RETAKE
+                    Play Again
                 </button>
 
             </div>
@@ -123,12 +123,6 @@ const Results = ({ score, onReset, userInfo }) => {
                             YOUR RETIREMENT READINESS SCORE
                         </div>
                     </h2>
-                    <button
-                        onClick={handleShare}
-                        className="absolute right-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:bg-white/30 transition-colors max-[640px]:w-8 max-[640px]:h-8"
-                    >
-                        <Share2 className="w-5 h-5 max-[640px]:w-4 max-[640px]:h-4" />
-                    </button>
                 </div>
 
                 {/* SVG Circle Meter */}
@@ -166,14 +160,9 @@ const Results = ({ score, onReset, userInfo }) => {
                     </div>
                 </div>
 
-                {/* Large Band Text with Emoji */}
+                {/* Large Band Text */}
                 <div className="space-y-2 max-[640px]:space-y-1">
-                    <div className="flex items-center justify-center gap-2 sm:gap-3">
-                        {band.icon.includes('.png') ? (
-                            <img src={band.icon} alt={band.label} className="w-[2.5rem] h-[2.5rem] sm:w-[3.5rem] sm:h-[3.5rem] object-contain drop-shadow-sm" />
-                        ) : (
-                            <span className="text-[2rem] sm:text-[3rem] drop-shadow-sm">{band.icon}</span>
-                        )}
+                    <div className="flex items-center justify-center">
                         <h2 className="text-[2.2rem] sm:text-[3rem] font-bold tracking-wide text-[#ff6600] uppercase drop-shadow-md leading-none max-[640px]:text-[1.8rem]">
                             {band.label}
                         </h2>
@@ -199,7 +188,7 @@ const Results = ({ score, onReset, userInfo }) => {
                 max-[640px]:p-3 max-[640px]:rounded-[1.25rem] max-[640px]:space-y-2.5">
                 <div className="text-center">
                     <p className="text-slate-700 font-bold text-sm leading-relaxed max-[640px]:text-[0.7rem] max-[640px]:px-1 max-[640px]:leading-snug">
-                        To Know more about retirement focussed products, connect with our Relationship Manager NOW!
+                        To Know more about retirement focused products, connect with our Relationship Manager NOW!
                     </p>
                 </div>
 
@@ -232,7 +221,7 @@ const Results = ({ score, onReset, userInfo }) => {
                     className="w-full flex items-center justify-center gap-2 text-slate-400 text-[0.75rem] font-semibold uppercase tracking-widest hover:text-blue-500 transition-colors pt-4 max-[640px]:pt-2 max-[640px]:text-[0.65rem]"
                 >
                     <RotateCcw className="w-4 h-4" />
-                    RETAKE ASSESSMENT
+                    Play Again
                 </button>
             </div>
 

@@ -93,7 +93,7 @@ const GoalSelectionScreen = ({ onProceed }) => {
                         animate={{ y: 0, opacity: 1 }}
                         className="text-xl sm:text-2xl md:text-3xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)] leading-tight italic"
                     >
-                        Select Top 3 Goals
+                        Select Your Top 3 Goals or Financial Priorities
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0 }}
@@ -101,7 +101,7 @@ const GoalSelectionScreen = ({ onProceed }) => {
                         transition={{ delay: 0.2 }}
                         className="text-blue-100 text-[10px] sm:text-xs md:text-sm font-bold mt-1 opacity-90 uppercase tracking-widest"
                     >
-                        Choose your financial priorities
+                        (You can select multiple options)
                     </motion.p>
                 </header>
 
@@ -208,12 +208,8 @@ const GoalSelectionScreen = ({ onProceed }) => {
                         disabled={selectedGoals.length !== 3}
                         className="btn-primary-3d w-full !py-4 sm:!py-6 !text-lg sm:!text-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Continue
+                        CONTINUE
                     </button>
-
-                    <p className="text-center text-blue-100 font-black uppercase tracking-[0.3em] mt-3 opacity-60 text-[10px] sm:text-xs">
-                        {selectedGoals.length}/3 Selected
-                    </p>
                 </div>
 
             </div>

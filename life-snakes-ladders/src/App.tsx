@@ -64,9 +64,13 @@ const App: React.FC<AppProps> = ({
 
         audioService.playDiceRoll();
         const dice = Math.floor(Math.random() * 6) + 1;
+
+        let stepsToMove = dice;
+        let message = `You rolled a ${dice}!`;
+
         const requiredToWin = BOARD_SIZE - gameState.playerPosition;
 
-        if (dice > requiredToWin) {
+        if (stepsToMove > requiredToWin) {
             setGameState(prev => ({
                 ...prev,
                 lastDiceValue: dice,
@@ -78,11 +82,13 @@ const App: React.FC<AppProps> = ({
         setGameState(prev => ({
             ...prev,
             lastDiceValue: dice,
-            isMoving: true,
-            message: `You rolled a ${dice}!`
+            isMoving: stepsToMove > 0,
+            message: message
         }));
 
-        animateMove(gameState.playerPosition, dice);
+        if (stepsToMove > 0) {
+            animateMove(gameState.playerPosition, stepsToMove);
+        }
     };
 
     const animateMove = (startPos: number, steps: number) => {
@@ -167,7 +173,7 @@ const App: React.FC<AppProps> = ({
                         ...prev,
                         isMoving: false,
                         isGameOver: true,
-                        currentScreen: 'end',
+                        currentScreen: 'lead-capture',
                         hadShieldAtEnd: prev.hasShield,
                         playerPosition: actualEndPos
                     };
@@ -217,7 +223,7 @@ const App: React.FC<AppProps> = ({
                 ...prev,
                 playerPosition: nextPos,
                 activeEvent: undefined,
-                currentScreen: isOver ? 'end' : 'game',
+                currentScreen: isOver ? 'lead-capture' : 'game',
                 isGameOver: isOver,
                 hadShieldAtEnd: isOver ? prev.hasShield : false,
                 frozenSnakes: currentFrozenSnakes,
@@ -267,7 +273,7 @@ const App: React.FC<AppProps> = ({
         }
 
         if (onLeadSubmitted) onLeadSubmitted(payload);
-        setGameState(prev => ({ ...prev, currentScreen: 'thank-you' }));
+        setGameState(prev => ({ ...prev, currentScreen: 'end' }));
     };
 
     const handleBookingSubmit = async (data: any) => {
@@ -342,35 +348,15 @@ const App: React.FC<AppProps> = ({
             return (
                 <WelcomeScreen
                     onStart={async (data) => {
-                        const payload = { ...data, stage: 'pre-game' };
-
-                        try {
-                            const res = await submitToLMS(payload);
-                            if (res && res.leadNo) {
-                                sessionStorage.setItem('snakesLeadNo', res.leadNo);
-                            } else if (res && res.success) {
-                                sessionStorage.setItem('snakesLeadNo', data.mobile);
-                            }
-                        } catch (error) {
-                            console.error("Error submitting start lead to LMS:", error);
-                        }
-
-                        if (onLeadSubmitted) onLeadSubmitted(payload);
-
-                        // If the mode choice was made in the popup itself
-                        if (data.isProtected !== undefined) {
-                            setGameState(prev => ({
-                                ...prev,
-                                playerName: data.name,
-                                playerMobile: data.mobile,
-                                hasShield: data.isProtected!,
-                                currentScreen: 'game'
-                            }));
-                            if (onGameStart) onGameStart();
-                        } else {
-                            // Fallback to old behavior
-                            setGameState(prev => ({ ...prev, currentScreen: 'shield-choice', playerName: data.name, playerMobile: data.mobile }));
-                        }
+                        // Bypass initial lead submission and shield choice screen
+                        setGameState(prev => ({
+                            ...prev,
+                            playerName: data.name,
+                            playerMobile: data.mobile,
+                            hasShield: data.isProtected || false,
+                            currentScreen: 'game'
+                        }));
+                        if (onGameStart) onGameStart();
                     }}
                 />
             );

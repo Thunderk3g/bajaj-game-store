@@ -8,6 +8,16 @@
 
 export const TILE_TYPES = ['GREEN', 'BLUE', 'YELLOW', 'RED'];
 
+// Map reference elements to types
+export const EXACT_INITIAL_GRID = [
+    ['GREEN', 'BLUE', 'GREEN', 'RED', 'YELLOW', 'YELLOW'],
+    ['BLUE', 'BLUE', 'GREEN', 'RED', 'RED', 'GREEN'],
+    ['GREEN', 'YELLOW', 'BLUE', 'YELLOW', 'YELLOW', 'GREEN'],
+    ['YELLOW', 'GREEN', 'YELLOW', 'BLUE', 'RED', 'BLUE'],
+    ['GREEN', 'GREEN', 'BLUE', 'GREEN', 'YELLOW', 'YELLOW'],
+    ['YELLOW', 'BLUE', 'GREEN', 'GREEN', 'RED', null]
+];
+
 export const TILE_META = {
     GREEN: {
         label: 'Family Protection',
@@ -113,6 +123,7 @@ export const GAME_PHASES = {
     HOW_TO_PLAY: 'how_to_play',
     PLAYING: 'playing',
     FINISHED: 'finished',
+    POST_GAME_LEAD: 'post_game_lead',
     RESULT: 'result',
     THANK_YOU: 'thank_you',
     EXITED: 'exited',
@@ -139,8 +150,13 @@ export function computeFinalScore(buckets) {
 
 export function allBucketsFull(buckets) {
     if (!buckets) return false;
-    // Check if ALL buckets reached BUCKET_MAX
-    return TILE_TYPES.every(type => (buckets[type] || 0) >= BUCKET_MAX);
+    // Check if ALL buckets reached 100% based on UI rounding (Math.round((val / BUCKET_MAX) * 100) >= 100)
+    // This is equivalent to val >= BUCKET_MAX * 0.995 (398 if BUCKET_MAX is 400)
+    return TILE_TYPES.every(type => {
+        const val = buckets[type] || 0;
+        const pct = Math.round((val / BUCKET_MAX) * 100);
+        return pct >= 100;
+    });
 }
 
 export function clamp(value, min, max) {

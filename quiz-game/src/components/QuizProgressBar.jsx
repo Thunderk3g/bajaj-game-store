@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 
-const QuizProgressBar = ({ currentQuestion, totalQuestions }) => {
-    const percentage = (currentQuestion / totalQuestions) * 100;
+const QuizProgressBar = ({ currentQuestion, totalQuestions, selectedAnswer }) => {
+    const progressCount = (selectedAnswer !== null && selectedAnswer !== undefined)
+        ? currentQuestion
+        : currentQuestion - 1;
+    const percentage = (progressCount / totalQuestions) * 100;
 
     return (
         <div className="w-full px-2 pt-6 pb-2">

@@ -14,7 +14,7 @@ const WinModal = memo(function WinModal() {
 
     useEffect(() => {
         if (state.phase === GAME_PHASES.WON) {
-            navigate('/result');
+            navigate('/lead');
         }
     }, [state.phase, navigate]);
 

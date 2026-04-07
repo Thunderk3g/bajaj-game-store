@@ -14,7 +14,7 @@ const TimeUpModal = memo(function TimeUpModal() {
 
     useEffect(() => {
         if (state.phase === GAME_PHASES.TIMEUP) {
-            navigate('/result');
+            navigate('/lead');
         }
     }, [state.phase, navigate]);
 

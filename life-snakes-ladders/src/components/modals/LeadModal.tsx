@@ -124,7 +124,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
                         {isBooking ? 'Book a Slot' : 'Welcome!'}
                     </h2>
                     <p style={{ fontSize: 'clamp(14px, 2.5vh, 16px)', color: T.muted, margin: 0, fontWeight: 500 }}>
-                        {isBooking ? 'Select a time for our advisor to connect with you.' : 'Enter your details to start'}
+                        {isBooking ? 'Select a time for our advisor to connect with you' : 'Enter your details to start'}
                     </p>
                 </div>
 
@@ -203,18 +203,25 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
                                         style={{ ...inputStyle(false), padding: 'clamp(10px, 2.5vh, 14px) 8px' }}
                                     >
                                         <option value="">Select Time</option>
-                                        <option value="08:00 AM - 09:00 AM">08:00 - 09:00 AM</option>
-                                        <option value="09:00 AM - 10:00 AM">09:00 - 10:00 AM</option>
-                                        <option value="10:00 AM - 11:00 AM">10:00 - 11:00 AM</option>
-                                        <option value="11:00 AM - 12:00 PM">11:00 - 12:00 PM</option>
-                                        <option value="12:00 PM - 01:00 PM">12:00 - 01:00 PM</option>
-                                        <option value="01:00 PM - 02:00 PM">01:00 - 02:00 PM</option>
-                                        <option value="02:00 PM - 03:00 PM">02:00 - 03:00 PM</option>
-                                        <option value="03:00 PM - 04:00 PM">03:00 - 04:00 PM</option>
-                                        <option value="04:00 PM - 05:00 PM">04:00 - 05:00 PM</option>
-                                        <option value="05:00 PM - 06:00 PM">05:00 - 06:00 PM</option>
-                                        <option value="06:00 PM - 07:00 PM">06:00 - 07:00 PM</option>
-                                        <option value="07:00 PM - 08:00 PM">07:00 - 08:00 PM</option>
+                                        {[
+                                            { v: "08:00 AM - 09:00 AM", h: 8 },
+                                            { v: "09:00 AM - 10:00 AM", h: 9 },
+                                            { v: "10:00 AM - 11:00 AM", h: 10 },
+                                            { v: "11:00 AM - 12:00 PM", h: 11 },
+                                            { v: "12:00 PM - 01:00 PM", h: 12 },
+                                            { v: "01:00 PM - 02:00 PM", h: 13 },
+                                            { v: "02:00 PM - 03:00 PM", h: 14 },
+                                            { v: "03:00 PM - 04:00 PM", h: 15 },
+                                            { v: "04:00 PM - 05:00 PM", h: 16 },
+                                            { v: "05:00 PM - 06:00 PM", h: 17 },
+                                            { v: "06:00 PM - 07:00 PM", h: 18 },
+                                            { v: "07:00 PM - 08:00 PM", h: 19 },
+                                        ].map(slot => {
+                                            const now = new Date();
+                                            const isToday = preferredDate === new Date().toISOString().split('T')[0];
+                                            if (isToday && slot.h <= now.getHours()) return null;
+                                            return <option key={slot.v} value={slot.v}>{slot.v.replace('AM - ', '- ').replace('PM - ', '- ')}</option>;
+                                        })}
                                     </select>
                                 </div>
                             </div>

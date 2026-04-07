@@ -9,6 +9,7 @@ export const GAME_STATUS = {
     PAUSED: 'PAUSED',
     REFLECTION: 'REFLECTION',
     GAMEOVER: 'GAMEOVER',
+    LEAD_CAPTURE: 'LEAD_CAPTURE',
     CTA: 'CTA'
 };
 

@@ -248,12 +248,12 @@ const IntroScreen = ({ onStart }) => {
                                     fontWeight: 900,
                                     marginBottom: '4px',
                                     lineHeight: 1.2,
-                                }}>Welcome!</h2>
+                                }}>Stay Protected,<br />Tell Us About You</h2>
                                 <p style={{
                                     color: '#64748b',
                                     fontWeight: 700,
                                     fontSize: '13px',
-                                }}>Enter your details to start</p>
+                                }}>Secure your future and connect with the right protection plan</p>
                             </div>
 
                             {/* Form */}

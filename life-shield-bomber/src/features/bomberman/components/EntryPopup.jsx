@@ -106,8 +106,8 @@ const EntryPopup = memo(function EntryPopup({ onSubmit, onClose }) {
                         <div className="w-14 h-14 min-[375px]:w-16 min-[375px]:h-16 sm:w-20 sm:h-20 bg-[#0066B2] flex items-center justify-center mx-auto mb-3 min-[375px]:mb-4 shadow-xl border-4 border-white rounded-full">
                             <span className="text-2xl min-[375px]:text-3xl sm:text-4xl">🛡️</span>
                         </div>
-                        <h2 className="text-[#0066B2] text-lg min-[375px]:text-xl sm:text-2xl font-black mb-1">Welcome!</h2>
-                        <p className="text-slate-500 font-bold text-xs min-[375px]:text-sm sm:text-base">Enter your details to start</p>
+                        <h2 className="text-[#0066B2] text-lg min-[375px]:text-xl sm:text-2xl font-black mb-1 leading-tight">Stay Protected,<br />Tell Us About You</h2>
+                        <p className="text-slate-500 font-bold text-xs min-[375px]:text-sm sm:text-base">Secure your future and connect with the right protection plan</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-3 min-[375px]:space-y-4">

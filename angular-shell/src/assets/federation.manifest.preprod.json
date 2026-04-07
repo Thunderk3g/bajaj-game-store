@@ -1,147 +1,146 @@
 {
-    "scramble-words": {
-        "remoteEntry": "assets/games/scramble-words/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Scramble Words",
-        "popular": false,
-        "gameId": "GAME_003",
-        "assets": []
-    },
-    "life-goals": {
-        "remoteEntry": "assets/games/life-goals/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Life Goals Preparedness",
-        "popular": true,
-        "gameId": "GAME_001",
-        "assets": [
-            "assets/games/life-goals/assets/videos/business.mp4",
-            "assets/games/life-goals/assets/videos/child_edu.mp4",
-            "assets/games/life-goals/assets/videos/child_marriage.mp4",
-            "assets/games/life-goals/assets/videos/dream_car.mp4",
-            "assets/games/life-goals/assets/videos/financial_security.mp4",
-            "assets/games/life-goals/assets/videos/health.mp4",
-            "assets/games/life-goals/assets/videos/house.mp4",
-            "assets/games/life-goals/assets/videos/retirement.mp4",
-            "assets/games/life-goals/assets/videos/travel.mp4"
-        ]
-    },
-    "quiz-game": {
-        "remoteEntry": "assets/games/quiz-game/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Quiz Challenge",
-        "popular": true,
-        "gameId": "GAME_002",
-        "assets": [
-            "assets/games/quiz-game/assets/bajaj.png",
-            "assets/games/quiz-game/assets/Quiz-bg.png"
-        ]
-    },
-    "life-milestone-race": {
-        "remoteEntry": "assets/games/life-milestone-race/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Life Milestone Race",
-        "popular": true,
-        "gameId": "GAME_004",
-        "assets": []
-    },
-    "retirement-readiness-journey": {
-        "remoteEntry": "assets/games/retirement-readiness-journey/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Retirement Readiness Journey",
-        "popular": true,
-        "gameId": "GAME_005",
-        "assets": []
-    },
-    "secure-saga": {
-        "remoteEntry": "assets/games/secure-saga/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Secure Saga",
-        "popular": true,
-        "gameId": "GAME_006",
-        "assets": []
-    },
-    "retirement-sudoku": {
-        "remoteEntry": "assets/games/retirement-sudoku/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Retirement Sudoku",
-        "popular": true,
-        "gameId": "GAME_007",
-        "assets": []
-    },
-    "financial-tetris": {
-        "remoteEntry": "assets/games/financial-tetris/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Financial Tetris",
-        "popular": true,
-        "gameId": "GAME_008",
-        "assets": []
-    },
-    "life-shield-bomber": {
-        "remoteEntry": "assets/games/life-shield-bomber/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Life Shield Bomber",
-        "popular": true,
-        "gameId": "GAME_009",
-        "assets": []
-    },
-    "tile-flipping-game": {
-        "remoteEntry": "assets/games/tile-flipping-game/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Tile Flipping Game",
-        "popular": true,
-        "gameId": "GAME_010",
-        "assets": []
-    },
-    "Snake-Life": {
-        "remoteEntry": "assets/games/Snake-Life/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Snake Life Game"
-    },
-    "life-flight": {
-        "remoteEntry": "assets/games/life-flight/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Life Flight",
-        "popular": true,
-        "gameId": "GAME_011",
-        "assets": []
-    },
-    "life-snakes-ladders": {
-        "remoteEntry": "assets/games/life-snakes-ladders/index.js",
-        "exposedModule": "./LifeSnakesLaddersModule",
-        "type": "react",
-        "displayName": "Life Snakes & Ladders",
-        "popular": true,
-        "gameId": "GAME_012",
-        "assets": []
-    },
-    "one-life": {
-        "remoteEntry": "assets/games/one-life/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "One Life",
-        "popular": true,
-        "gameId": "GAME_013",
-        "assets": []
-    },
-    "life-sorted": {
-        "remoteEntry": "assets/games/life-sorted/index.js",
-        "exposedModule": "./GameEntry",
-        "type": "react",
-        "displayName": "Life Sorted",
-        "popular": true,
-        "gameId": "GAME_014",
-        "assets": []
-    }
+  "scramble-words": {
+    "remoteEntry": "assets/games/scramble-words/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Scramble Words",
+    "popular": false,
+    "gameId": "GAME_003",
+    "assets": []
+  },
+  "life-goals": {
+    "remoteEntry": "assets/games/life-goals/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Life Goals Preparedness",
+    "popular": true,
+    "gameId": "GAME_001",
+    "assets": [
+      "assets/games/life-goals/assets/videos/business.mp4",
+      "assets/games/life-goals/assets/videos/child_edu.mp4",
+      "assets/games/life-goals/assets/videos/child_marriage.mp4",
+      "assets/games/life-goals/assets/videos/dream_car.mp4",
+      "assets/games/life-goals/assets/videos/financial_security.mp4",
+      "assets/games/life-goals/assets/videos/health.mp4",
+      "assets/games/life-goals/assets/videos/house.mp4",
+      "assets/games/life-goals/assets/videos/retirement.mp4",
+      "assets/games/life-goals/assets/videos/travel.mp4"
+    ]
+  },
+  "quiz-game": {
+    "remoteEntry": "assets/games/quiz-game/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Quiz Challenge",
+    "popular": true,
+    "gameId": "GAME_002",
+    "assets": [
+      "assets/games/quiz-game/assets/bajaj.png"
+    ]
+  },
+  "life-milestone-race": {
+    "remoteEntry": "assets/games/life-milestone-race/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Life Milestone Race",
+    "popular": true,
+    "gameId": "GAME_004",
+    "assets": []
+  },
+  "retirement-readiness-journey": {
+    "remoteEntry": "assets/games/retirement-readiness-journey/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Retirement Readiness Journey",
+    "popular": true,
+    "gameId": "GAME_005",
+    "assets": []
+  },
+  "secure-saga": {
+    "remoteEntry": "assets/games/secure-saga/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Secure Saga",
+    "popular": true,
+    "gameId": "GAME_006",
+    "assets": []
+  },
+  "retirement-sudoku": {
+    "remoteEntry": "assets/games/retirement-sudoku/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Retirement Sudoku",
+    "popular": true,
+    "gameId": "GAME_007",
+    "assets": []
+  },
+  "financial-tetris": {
+    "remoteEntry": "assets/games/financial-tetris/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Financial Tetris",
+    "popular": true,
+    "gameId": "GAME_008",
+    "assets": []
+  },
+  "life-shield-bomber": {
+    "remoteEntry": "assets/games/life-shield-bomber/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Life Shield Bomber",
+    "popular": true,
+    "gameId": "GAME_009",
+    "assets": []
+  },
+  "tile-flipping-game": {
+    "remoteEntry": "assets/games/tile-flipping-game/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Tile Flipping Game",
+    "popular": true,
+    "gameId": "GAME_010",
+    "assets": []
+  },
+  "Snake-Life": {
+    "remoteEntry": "assets/games/Snake-Life/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Snake Life Game"
+  },
+  "life-flight": {
+    "remoteEntry": "assets/games/life-flight/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Life Flight",
+    "popular": true,
+    "gameId": "GAME_011",
+    "assets": []
+  },
+  "life-snakes-ladders": {
+    "remoteEntry": "assets/games/life-snakes-ladders/index.js",
+    "exposedModule": "./LifeSnakesLaddersModule",
+    "type": "react",
+    "displayName": "Life Snakes & Ladders",
+    "popular": true,
+    "gameId": "GAME_012",
+    "assets": []
+  },
+  "one-life": {
+    "remoteEntry": "assets/games/one-life/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "One Life",
+    "popular": true,
+    "gameId": "GAME_013",
+    "assets": []
+  },
+  "life-sorted": {
+    "remoteEntry": "assets/games/life-sorted/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Life Sorted",
+    "popular": true,
+    "gameId": "GAME_014",
+    "assets": []
+  }
 }

@@ -2,12 +2,11 @@ import Button from '../ui/Button';
 import { useGame } from '../../context/GameContext';
 import { useGameEngine } from '../../hooks/useGameEngine';
 import { SCREENS } from '../../constants/game';
-import { useNavigate } from 'react-router-dom';
 import styles from './IntroScreen.module.css';
 
 export default function IntroScreen() {
     const { initGame } = useGameEngine();
-    const navigate = useNavigate();
+    const { navigate } = useGame();
 
     const handleStartClick = () => {
         // Lead popup disabled — start game directly

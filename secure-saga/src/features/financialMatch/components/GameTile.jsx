@@ -1,141 +1,208 @@
 /**
- * GameTile — Premium 14px rounded block with gloss, inner glow, and 3D depth.
- * "Tactile Fintech Gem" style.
+ * GameTile — Uses explicit file assets from assets/image/tiles, strictly transparent background configuration.
  */
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Tile Metadata with Tailwind gradients
-const TILE_STYLES = {
-    GREEN: { bg: 'bg-tile-green', shadow: 'shadow-green-900/40', icon: 'Family' },
-    BLUE: { bg: 'bg-tile-blue', shadow: 'shadow-blue-900/40', icon: 'Edu' },
-    YELLOW: { bg: 'bg-tile-yellow', shadow: 'shadow-amber-900/40', icon: 'Retire' },
-    RED: { bg: 'bg-tile-red', shadow: 'shadow-red-900/40', icon: 'Emerg' },
-};
+import greenShield from '../../assets/image/tiles/green_shield.png';
+import blueCap from '../../assets/image/tiles/blue_graduation.png';
+import goldCoin from '../../assets/image/tiles/gold_coin.png';
+import redBriefcase from '../../assets/image/tiles/red_briefcase.png';
 
-// Simple Icon Placeholders (Use Lucide, or keep minimal shapes)
-// For max performance & cleanliness, let's use minimal SVG shapes.
-
-const TileIcon = ({ type }) => {
-    const stroke = "rgba(255,255,255,0.9)";
-    const fill = "rgba(255,255,255,0.15)";
-
-    if (type === 'GREEN') return (
-        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[55%] h-[55%] drop-shadow-md">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill={fill} />
-            <circle cx="9" cy="7" r="4" fill={fill} />
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-    ); // Users
-    if (type === 'BLUE') return (
-        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[50%] h-[50%] drop-shadow-md">
-            <path d="M22 10v6M2 10l10-5 10 5-10 5z" fill={fill} />
-            <path d="M6 12v5c3 3 9 3 12 0v-5" />
-        </svg>
-    ); // Graduation Cap
-    if (type === 'YELLOW') return (
-        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[55%] h-[55%] drop-shadow-md">
-            <circle cx="12" cy="12" r="10" fill={fill} />
-            <path d="M12 6v6l4 2" />
-        </svg>
-    ); // Clock/Time/Coin
-    if (type === 'RED') return (
-        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[50%] h-[50%] drop-shadow-md">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" fill={fill} />
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-        </svg>
-    ); // Medkit/Briefcase
-    return null;
+const TILE_ASSETS = {
+    GREEN: greenShield,
+    BLUE: blueCap,
+    YELLOW: goldCoin,
+    RED: redBriefcase,
 };
 
 const GameTile = memo(function GameTile({
     tile,
     isSelected,
     isExploding,
+    invalidSwapTarget,
     onTap,
     onSwipe,
-    cellSize
+    cellSize,
+    gridGap,
 }) {
-    if (!tile || !tile.type) return <div style={{ width: cellSize, height: cellSize }} />;
+    const [isDragging, setIsDragging] = useState(false);
 
-    const style = TILE_STYLES[tile.type] || TILE_STYLES.GREEN;
-    const isSelectedClass = isSelected ? 'scale-95 ring-[2px] ring-white/60 z-20 brightness-110 shadow-[0_0_20px_rgba(255,255,255,0.3)]' : '';
-    const animClass = isExploding ? 'animate-tile-pop opacity-0' : '';
+    if (!tile || !tile.type) {
+        return <div style={{ width: cellSize, height: cellSize }} />;
+    }
 
-    // Swipe Threshold
-    const SWIPE_THRESHOLD = 25;
+    const { type, row, col } = tile;
+    const imgSrc = TILE_ASSETS[type] || greenShield;
 
-    const handlePanEnd = (event, info) => {
-        // Only process pan if there's a significant offset (mobile-style sliding)
+    const leftPos = col * (cellSize + gridGap);
+    const topPos = row * (cellSize + gridGap);
+
+    const isSelectedClass = isSelected && !isDragging ? 'ring-[2px] ring-white/80 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : '';
+
+    const SWIPE_THRESHOLD = 30;
+
+    const handleDragStart = () => {
+        setIsDragging(true);
+    };
+
+    const handleDragEnd = (event, info) => {
+        setIsDragging(false);
         const { offset } = info;
         const absX = Math.abs(offset.x);
         const absY = Math.abs(offset.y);
 
         if (absX > SWIPE_THRESHOLD || absY > SWIPE_THRESHOLD) {
-            let targetRow = tile.row;
-            let targetCol = tile.col;
+            let targetRow = row;
+            let targetCol = col;
 
             if (absX > absY) {
-                targetCol = offset.x > 0 ? tile.col + 1 : tile.col - 1;
+                targetCol = offset.x > 0 ? col + 1 : col - 1;
             } else {
-                targetRow = offset.y > 0 ? tile.row + 1 : tile.row - 1;
+                targetRow = offset.y > 0 ? row + 1 : row - 1;
             }
 
             if (targetRow >= 0 && targetRow < 6 && targetCol >= 0 && targetCol < 6) {
-                if (onSwipe) onSwipe(tile.row, tile.col, targetRow, targetCol);
+                if (onSwipe) onSwipe(row, col, targetRow, targetCol);
             }
         }
     };
 
-    const handleClick = (e) => {
-        // Desktop / Tap selection
-        onTap(tile.row, tile.col);
+    const handleClick = () => {
+        if (!isDragging) {
+            onTap(row, col);
+        }
     };
 
+    // ── Build Animation Constraints ──
+
+    let animateConfig = {
+        left: leftPos,
+        top: topPos,
+        scale: isExploding ? [1, 1.15, 0.3] : isSelected ? 0.94 : 1,
+        opacity: isExploding ? [1, 1, 0] : isDragging ? 0.85 : 1,
+        zIndex: isDragging || isExploding ? 500 : isSelected ? 50 : 10,
+    };
+
+    // Dynamic framer times tracking for Invalid Swap (500ms max sequence)
+    let explicitTransition = {
+        type: 'spring',
+        stiffness: isExploding ? 300 : 500,
+        damping: isExploding ? 20 : 35,
+        mass: 0.8,
+        opacity: { duration: isExploding ? 0.2 : 0.1 }
+    };
+
+    if (isExploding) {
+        explicitTransition = {
+            duration: 0.35,
+            times: [0, 0.5, 1], // 1.0 -> 1.15 -> 0.3
+            ease: "easeInOut"
+        };
+    }
+
+    if (invalidSwapTarget) {
+        const targetLeft = invalidSwapTarget.col * (cellSize + gridGap);
+        const targetTop = invalidSwapTarget.row * (cellSize + gridGap);
+        const dX = leftPos - targetLeft;
+        const dY = topPos - targetTop;
+
+        const timesArray = [0, 0.3, 0.4, 0.5, 0.7, 0.84, 0.88, 0.92, 0.96, 1];
+
+        animateConfig = {
+            ...animateConfig,
+            left: [
+                leftPos, targetLeft, targetLeft, targetLeft,
+                leftPos + dX * 0.08, leftPos,
+                leftPos - 3, leftPos + 3, leftPos - 2, leftPos
+            ],
+            top: [
+                topPos, targetTop, targetTop, targetTop,
+                topPos + dY * 0.08, topPos,
+                topPos, topPos, topPos, topPos
+            ],
+            scale: [1, 1, 1.05, 1, 1, 1, 1, 1, 1, 1]
+        };
+
+        explicitTransition = {
+            duration: 0.5,
+            times: timesArray,
+            ease: "easeInOut"
+        };
+    }
+
     return (
-        <motion.div
-            layout="position"
-            layoutId={tile.id}
-            onPanEnd={handlePanEnd}
-            onClick={handleClick}
-            whileTap={{ scale: 0.94 }}
-            className={`relative flex items-center justify-center 
-                ${style.bg} ${style.shadow} ${isSelectedClass} ${animClass} 
-                tile-premium select-none touch-none`}
-            style={{
-                width: cellSize,
-                height: cellSize,
-            }}
-            initial={false}
-            animate={{
-                scale: isExploding ? 1 : 1,
-                opacity: isExploding ? 0 : 1,
-            }}
-            transition={{
-                type: 'spring',
-                stiffness: 500,
-                damping: 30,
-                mass: 0.8
-            }}
-        >
-            {/* Gloss Highlight Overlay */}
-            <div className="absolute inset-x-1 top-1 h-[25%] bg-white/20 rounded-full blur-[1px] pointer-events-none" />
-
-            {/* Icon content */}
-            <div className="relative z-10 w-full h-full flex items-center justify-center p-[20%]">
-                <TileIcon type={tile.type} />
-            </div>
-
-            {/* Selection Glow Overlay */}
-            {isSelected && (
-                <motion.div
-                    layoutId="select-glow"
-                    className="absolute inset-[-4px] rounded-[18px] bg-white/20 border-2 border-white/50 shadow-[0_0_15px_rgba(255,255,255,0.5)] z-[-1]"
-                />
+        <>
+            {/* Native 30% ghost rendering underneath explicitly mimicking mechanics during active drags entirely passively */}
+            {isDragging && (
+                <div
+                    className="absolute flex items-center justify-center bg-transparent drop-shadow-md pointer-events-none opacity-30"
+                    style={{ left: leftPos, top: topPos, width: cellSize, height: cellSize, filter: 'brightness(1.35) saturate(1.45)' }}
+                >
+                    <img src={imgSrc} className="w-[125%] h-[125%] object-contain" alt="" />
+                </div>
             )}
-        </motion.div>
+
+            <motion.div
+                drag
+                dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
+                dragElastic={0.8} // Highly interactive fluid drag pull
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onClick={handleClick}
+                layoutId={tile.id}
+                initial={{ left: leftPos, top: topPos - 40, opacity: 0 }}
+                animate={animateConfig}
+                transition={explicitTransition}
+                className={`absolute flex items-center justify-center bg-transparent
+                    ${isSelectedClass} select-none overflow-visible touch-none`}
+                style={{
+                    width: cellSize,
+                    height: cellSize,
+                    filter: 'brightness(1.35) saturate(1.45)',
+                    cursor: 'grab'
+                }}
+                whileDrag={{ cursor: 'grabbing' }}
+            >
+                {/* Visual Overlays logic purely for FX (Red Flash / Green Flash) */}
+                <AnimatePresence>
+                    {isExploding && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 0] }}
+                            transition={{ duration: 0.35, times: [0, 0.5, 1] }}
+                            className="absolute inset-[10%] rounded-[12px] border-2 border-green-400 shadow-[0_0_15px_rgba(34,197,94,0.8)] z-30 pointer-events-none"
+                        />
+                    )}
+
+                    {invalidSwapTarget && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0] }}
+                            transition={{ duration: 0.5, times: [0, 0.2, 0.6, 0.8] }}
+                            className="absolute inset-[10%] rounded-[12px] border-2 border-red-500 bg-[#FF3300]/25 shadow-[0_0_15px_rgba(255,50,50,0.8)] z-30 pointer-events-none"
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* Glossy Specular */}
+                <div
+                    className="absolute top-[8%] left-[8%] w-[45%] h-[20%] rounded-[50%] z-20 pointer-events-none"
+                    style={{
+                        background: 'radial-gradient(ellipse at top left, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 80%)',
+                        transform: 'rotate(-15deg)',
+                    }}
+                />
+
+                <img
+                    src={imgSrc}
+                    alt={type}
+                    className="w-[125%] h-[125%] object-contain pointer-events-none drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] bg-transparent"
+                    draggable={false}
+                />
+            </motion.div>
+        </>
     );
 });
 
@@ -143,9 +210,11 @@ GameTile.propTypes = {
     tile: PropTypes.object,
     isSelected: PropTypes.bool,
     isExploding: PropTypes.bool,
+    invalidSwapTarget: PropTypes.object,
     onTap: PropTypes.func.isRequired,
     onSwipe: PropTypes.func,
     cellSize: PropTypes.number.isRequired,
+    gridGap: PropTypes.number.isRequired,
 };
 
 export default GameTile;

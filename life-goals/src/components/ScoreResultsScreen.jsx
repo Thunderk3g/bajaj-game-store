@@ -13,7 +13,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 const TermsModal = () => (
     <Dialog.Root>
         <Dialog.Trigger asChild>
-            <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => e.stopPropagation()}>Terms & Conditions</span>
+            <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => e.stopPropagation()}>T&C and Privacy Policy</span>
         </Dialog.Trigger>
         <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 z-[200] bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" />
@@ -30,10 +30,10 @@ const TermsModal = () => (
                 </div>
                 <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
                     <p>
-                        I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.
+                        I hereby authorize Bajaj Life Insurance Limited. to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business
                     </p>
                     <p>
-                        Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.
+                        Please refer to Bajaj Life <a href="https://www.bajajlifeinsurance.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">Privacy Policy</a>.
                     </p>
                 </div>
                 <div className="mt-6">
@@ -114,7 +114,11 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
         } else if (!/^[A-Za-z\s]+$/.test(formData.name.trim())) {
             errs.name = "Invalid name (letters only)";
         }
-        if (!isValidPhone(formData.mobile)) errs.mobile = "Invalid Mobile Number";
+        if (!formData.mobile.trim()) {
+            errs.mobile = "Mobile Number is required";
+        } else if (!isValidPhone(formData.mobile)) {
+            errs.mobile = "Enter a valid Mobile Number";
+        }
         if (!formData.date) errs.date = "Preferred Date is required";
         if (!formData.time) errs.time = "Preferred Time is required";
         setErrors(errs);
@@ -196,12 +200,6 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
             <Confetti />
 
             {/* Top Right Share Icon */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 z-50 text-white/90 hover:text-white transition-opacity p-2"
-            >
-                <Share2 className="w-6 h-6 sm:w-7 sm:h-7 drop-shadow-md" strokeWidth={2.5} />
-            </button>
 
             {/* Background Pattern */}
             <div className="bg-burst"></div>
@@ -210,13 +208,13 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
             <div className="results-container ghibli-content justify-between sm:justify-center py-4 sm:py-8 min-h-0">
 
                 {/* Header Section - Heading above speedometer */}
-                <div className="results-header text-center mb-3 sm:mb-4 shrink-0">
+                <div className="results-header text-center mb-3 sm:mb-4 shrink-0 mt-4 sm:mt-8">
                     {/* Heading Text - Above Speedometer - Two lines */}
-                    <h1 className="results-title text-base sm:text-lg md:text-xl font-medium text-white uppercase tracking-wide italic mb-2">
+                    <h1 className="results-title text-base sm:text-lg md:text-xl font-medium text-white tracking-wide italic mb-2">
                         Hi <span className="ml-1 text-2xl sm:text-3xl md:text-4xl font-black">{userName || 'Bajaj'}!</span>
                     </h1>
-                    <h2 className="results-subtitle text-base sm:text-lg md:text-xl text-white uppercase tracking-wide italic mb-3 sm:mb-4">
-                        Your <span className="font-black text-lg sm:text-xl md:text-2xl text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.8)]">life goals</span> score is
+                    <h2 className="results-subtitle text-base sm:text-lg md:text-xl text-white tracking-wide italic mb-3 sm:mb-4">
+                        Your <span className="font-black text-lg sm:text-xl md:text-2xl text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.8)] first-letter:uppercase lowercase">Life Goals</span> Score Is
                     </h2>
 
                     {/* Speedometer */}
@@ -252,7 +250,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                     className="contact-box bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-3 shrink-0"
                 >
                     <p className="text-slate-600 text-[15px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
-                        Want to achieve your LIFE GOALS in Real Life?
+                        Want to achieve your life goals in real life?
                     </p>
 
                     {/* Call Action */}
@@ -272,25 +270,24 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                         onClick={() => setShowBooking(true)}
                         className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 sm:py-4 transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest"
                     >
-                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> BOOK A CONVENIENT SLOT
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> BOOK A SLOT
                     </button>
                 </motion.div>
+
+                <div className="restart-container shrink-0 text-center pb-4 mt-6">
+                    <button
+                        onClick={onRestart}
+                        className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 mx-auto drop-shadow-md pb-2"
+                    >
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> PLAY AGAIN
+                    </button>
+                </div>
 
                 {/* Disclaimer */}
                 <div className="w-full px-6 opacity-60 mt-4">
                     <p className="text-[8px] sm:text-[9px] text-white leading-relaxed text-center max-w-[400px] mx-auto">
                         <span className="font-bold mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                     </p>
-                </div>
-
-                {/* Restart Option */}
-                <div className="restart-container shrink-0 text-center pb-4">
-                    <button
-                        onClick={onRestart}
-                        className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 mx-auto drop-shadow-md py-4 px-8 bg-white/5 hover:bg-white/10 rounded-xl"
-                    >
-                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> Retake Quiz
-                    </button>
                 </div>
             </div>
 
@@ -309,11 +306,11 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                             <X className="w-5 h-5" />
                         </button>
 
-                        <h2 className="text-[#0066B2] font-black text-center mb-6 text-sm sm:text-base uppercase tracking-tight pt-2">Book a convenient slot</h2>
+                        <h2 className="text-[#0066B2] font-black text-center mb-6 text-sm sm:text-base uppercase tracking-tight pt-2">Book a Slot</h2>
 
                         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 pb-12 sm:pb-24">
                             <div className="space-y-0.5">
-                                <label htmlFor="booking-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your Name</label>
+                                <label htmlFor="booking-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your name</label>
                                 <div className="relative">
                                     <Input
                                         id="booking-name"
@@ -338,7 +335,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                 </div>
                             </div>
                             <div className="space-y-0.5">
-                                <label htmlFor="booking-mobile" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
+                                <label htmlFor="booking-mobile" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile number</label>
                                 <div className="relative">
                                     <Input
                                         id="booking-mobile"
@@ -349,11 +346,11 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                             updateField('mobile', val);
 
                                             if (!val.trim()) {
-                                                setErrors(p => ({ ...p, mobile: "Mobile is required" }));
+                                                setErrors(p => ({ ...p, mobile: "Mobile Number is required" }));
                                             } else if (val.length > 0 && !/^[6-9]/.test(val)) {
-                                                setErrors(p => ({ ...p, mobile: "Must start with 6-9" }));
+                                                setErrors(p => ({ ...p, mobile: "Enter a valid Mobile Number" }));
                                             } else if (val.length > 0 && val.length < 10) {
-                                                setErrors(p => ({ ...p, mobile: "Enter 10 digits" }));
+                                                setErrors(p => ({ ...p, mobile: "Enter a valid Mobile Number" }));
                                             } else {
                                                 setErrors(p => ({ ...p, mobile: null }));
                                             }
@@ -369,8 +366,9 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                 </div>
                             </div>
                             <div className="space-y-0.5">
+                                <label htmlFor="booking-date" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Booking date</label>
                                 <div className="relative">
-                                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none z-10" />
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500 pointer-events-none z-10" strokeWidth={2.5} />
                                     <Input
                                         id="booking-date"
                                         name="date"
@@ -379,14 +377,35 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                         max={maxDate}
                                         value={formData.date}
                                         onChange={e => updateField('date', e.target.value)}
-                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-4 pr-11`}
+                                        ref={(el) => {
+                                            if (el) {
+                                                // We can store it in a local variable or use a ref if needed, 
+                                                // but for a single click handler, we can find it via parent
+                                            }
+                                        }}
+                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-12 pr-12 uppercase text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
+                                        placeholder="DD-MM-YYYY"
                                     />
+                                    <div
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-1"
+                                        onClick={() => {
+                                            const input = document.getElementById('booking-date');
+                                            if (input && input.showPicker) {
+                                                input.showPicker();
+                                            } else if (input) {
+                                                input.click();
+                                            }
+                                        }}
+                                    >
+                                        <Calendar className="w-5 h-5 text-slate-800" strokeWidth={2.5} />
+                                    </div>
                                 </div>
                                 <div className="min-h-[18px]">
                                     {errors.date && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{errors.date}</p>}
                                 </div>
                             </div>
                             <div className="space-y-0.5">
+                                <label htmlFor="booking-time" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred time slot</label>
                                 <div className="relative" ref={dropdownRef}>
                                     <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none z-10" />
                                     <div
@@ -413,28 +432,40 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                                     onScroll={checkScroll}
                                                     className="py-1 max-h-[220px] overflow-y-auto scrollbar-hide relative"
                                                 >
-                                                    {[...Array(12)].map((_, i) => {
-                                                        const start = 9 + i;
-                                                        const end = start + 1;
-                                                        const formatTime = (h) => {
-                                                            const amp = h >= 12 ? 'PM' : 'AM';
-                                                            const hour = h > 12 ? h - 12 : h;
-                                                            return `${hour}:00 ${amp}`;
-                                                        };
-                                                        const label = `${formatTime(start)} - ${formatTime(end)}`;
-                                                        return (
-                                                            <div
-                                                                key={start}
-                                                                onClick={() => {
-                                                                    updateField('time', label);
-                                                                    setIsTimeDropdownOpen(false);
-                                                                }}
-                                                                className={`px-4 py-2 text-sm font-bold cursor-pointer hover:bg-slate-100 transition-colors ${formData.time === label ? 'bg-blue-50 text-blue-600' : 'text-slate-800'}`}
-                                                            >
-                                                                {label}
-                                                            </div>
-                                                        );
-                                                    })}
+                                                    {(() => {
+                                                        const slots = [...Array(12)].map((_, i) => {
+                                                            const start = 9 + i;
+                                                            const end = start + 1;
+                                                            const formatTime = (h) => {
+                                                                const amp = h >= 12 ? 'PM' : 'AM';
+                                                                const hour = h > 12 ? h - 12 : h;
+                                                                return `${hour}:00 ${amp}`;
+                                                            };
+                                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                            // Filter logic: if today, only show slots that haven't passed
+                                                            const now = new Date();
+                                                            const isToday = formData.date === today;
+                                                            const currentHour = now.getHours();
+
+                                                            if (isToday && start <= currentHour) return null;
+
+                                                            return (
+                                                                <div
+                                                                    key={start}
+                                                                    onClick={() => {
+                                                                        updateField('time', label);
+                                                                        setIsTimeDropdownOpen(false);
+                                                                    }}
+                                                                    className={`px-4 py-2 text-sm font-bold cursor-pointer hover:bg-slate-100 transition-colors ${formData.time === label ? 'bg-blue-50 text-blue-600' : 'text-slate-800'}`}
+                                                                >
+                                                                    {label}
+                                                                </div>
+                                                            );
+                                                        }).filter(Boolean);
+
+                                                        return slots.length > 0 ? slots : <div className="px-4 py-2 text-sm text-slate-400 font-bold italic">No slots available for today</div>;
+                                                    })()}
                                                 </div>
 
                                                 {/* Floating Scroll Indicator Arrow */}
@@ -467,7 +498,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                             </div>
 
                             {/* Consent Checkbox - pre-checked */}
-                            <label htmlFor="booking-consent" className="flex items-start gap-2 cursor-pointer mt-1">
+                            <label htmlFor="booking-consent" className="flex justify-center items-center gap-2 cursor-pointer mt-1 text-center">
                                 <input
                                     id="booking-consent"
                                     name="consent"
@@ -477,7 +508,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     className="mt-0.5 w-4 h-4 accent-[#0066B2] cursor-pointer shrink-0"
                                 />
                                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">
-                                    I agree to the <TermsModal /> and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                    I agree and consent to the <TermsModal />
                                 </span>
                             </label>
 
@@ -486,7 +517,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                 disabled={isSubmitting}
                                 className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 transition-all uppercase tracking-widest text-sm mt-2"
                             >
-                                {isSubmitting ? 'Confirming...' : 'Book a Slot'}
+                                {isSubmitting ? 'CONFIRMING...' : 'BOOK A SLOT'}
                             </button>
                         </form>
                     </motion.div>

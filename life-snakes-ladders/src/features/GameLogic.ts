@@ -89,7 +89,7 @@ export const getCellData = (id: number): Cell => {
 
 export const getCellXY = (id: number) => {
     if (id <= 0) {
-        return { x: 45, y: -10 };
+        return { x: 0, y: 0 };
     }
     const index = id - 1;
     const row = Math.floor(index / 10);

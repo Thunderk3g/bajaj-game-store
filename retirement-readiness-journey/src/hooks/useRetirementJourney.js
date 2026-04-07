@@ -9,8 +9,9 @@ export const useRetirementJourney = () => {
     const [surprisesSubStep, setSurprisesSubStep] = useState(0);
     const currentStep = useMemo(() => {
         if (currentStepIndex === -1) return { id: JOURNEY_STEPS.INTRO };
-        if (currentStepIndex >= STEPS_DATA.length) return { id: JOURNEY_STEPS.RESULTS };
-        return STEPS_DATA[currentStepIndex];
+        if (currentStepIndex < STEPS_DATA.length) return STEPS_DATA[currentStepIndex];
+        if (currentStepIndex === STEPS_DATA.length) return { id: JOURNEY_STEPS.LEAD };
+        return { id: JOURNEY_STEPS.RESULTS };
     }, [currentStepIndex]);
 
     const goToNextStep = useCallback(() => {
@@ -18,7 +19,7 @@ export const useRetirementJourney = () => {
             setSurprisesSubStep(prev => prev + 1);
             return;
         }
-        if (currentStepIndex < STEPS_DATA.length) {
+        if (currentStepIndex < STEPS_DATA.length + 1) {
             setCurrentStepIndex(prev => prev + 1);
         } else {
             setIsFinished(true);

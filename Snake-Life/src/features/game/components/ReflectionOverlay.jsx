@@ -13,9 +13,9 @@ const ReflectionOverlay = () => {
                 setTimeout(() => setPhase(1), 500),   // Phase 1 (starts at 0.5s)
                 setTimeout(() => setPhase(2), 3000),  // Phase 2 (starts after 2.5s)
                 setTimeout(() => {
-                    setStatus(GAME_STATUS.CTA);
+                    setStatus(GAME_STATUS.LEAD_CAPTURE);
                     setPhase(0);
-                }, 8000) // Auto transition to CTA (starts after 5s)
+                }, 8000) // Auto transition to LEAD_CAPTURE (starts after 5s)
             ];
             return () => timers.forEach(clearTimeout);
         }
@@ -61,7 +61,7 @@ const ReflectionOverlay = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 bg-black text-white text-center cursor-pointer"
-                onClick={() => setStatus(GAME_STATUS.CTA)}
+                onClick={() => setStatus(GAME_STATUS.LEAD_CAPTURE)}
             >
                 <div className="max-w-[300px] w-full space-y-12 sh:space-y-6">
                     {phase >= 1 && (
