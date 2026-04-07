@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Phone, Calendar, X, RefreshCw } from 'lucide-react';
 import Modal from './Modal';
 import ThankYouScreen from './ThankYouScreen';
-import gameThumbnail from '../../../assets/images/TN_Expect_The_Unexpected-thumbnail.png';
+import gameThumbnail from '../assets/images/TN_Expect_The_Unexpected-thumbnail.png';
 
 const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
     const [isBookingOpen, setIsBookingOpen] = useState(false);
