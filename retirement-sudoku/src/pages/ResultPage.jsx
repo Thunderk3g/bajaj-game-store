@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { buildShareUrl } from '../utils/crypto';
 import { shortenUrl } from '../utils/shortener';
 import { useNavigate } from 'react-router-dom';
+import gameThumbnail from '../assets/images/Cover-Image.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, X, Calendar, Star, Phone, Check, Loader2 } from 'lucide-react';
 import { useGame } from '../features/game/context/GameContext.jsx';
@@ -455,9 +456,18 @@ const ResultPage = memo(function ResultPage() {
         const text = `Hi,\nI managed to balance my retirement pillars and scored ${Math.round(scenario.points !== undefined ? scenario.points : score)} in this Sudoku-style retirement challenge.\nCan you beat my score? — try it here: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({ title: 'Retirement Sudoku Score', text });
+                const sharePayload = { title: 'Retirement Sudoku Score', text };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 if (err.name !== 'AbortError') {
                     try {

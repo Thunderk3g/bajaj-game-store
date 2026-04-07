@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Phone, Calendar, X, RefreshCw } from 'lucide-react';
 import Modal from './Modal';
 import ThankYouScreen from './ThankYouScreen';
+import gameThumbnail from '../../../assets/images/TN_Expect_The_Unexpected-thumbnail.png';
 
 const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
     const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -40,12 +41,21 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
         const shareMessage = `Hi,\nI just experienced this eye-opening truth about life's uncertainties and protection.\nIt takes less than a minute — give it a try: ${shareUrl}\n\nRegards,\n${senderName}`.trim();
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({
+                const sharePayload = {
                     title: 'Expect the Unexpected',
                     text: shareMessage
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch { }
         } else {
             try { await navigator.clipboard.writeText(shareMessage); } catch { }

@@ -3,6 +3,8 @@ import { buildShareUrl } from '../../utils/crypto';
 import { shortenUrl } from '../../utils/shortener';
 import { Trophy, Shield, AlertTriangle, Share2, X } from 'lucide-react';
 import LeadModal from '../modals/LeadModal';
+
+const gameThumbnail = './assets/s&l intro-bg.png';
 interface EndScreenProps {
     hasShield: boolean;
     playerName?: string;
@@ -51,12 +53,21 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, playerName, playerMobi
 
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({
+                const sharePayload: any = {
                     title: shareData.title,
                     text: shareData.text
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 console.log('Error sharing:', err);
             }

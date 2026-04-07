@@ -7,6 +7,7 @@ import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
 import Speedometer from './Speedometer';
 import { submitToLMS, updateLeadNew } from '../../../utils/api';
+import gameThumbnail from '../../../assets/image/Life-Milestone-Race.png';
 
 const ResultScreen = ({
     score,
@@ -120,12 +121,21 @@ const ResultScreen = ({
 
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({
+                const sharePayload = {
                     title: shareData.title,
                     text: shareData.text
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 console.log('Error:', err);
             }

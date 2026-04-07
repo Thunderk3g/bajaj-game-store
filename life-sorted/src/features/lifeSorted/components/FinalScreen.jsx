@@ -7,6 +7,7 @@ import Modal from './Modal';
 import { updateLeadNew } from '../../../services/api';
 import { getArchetypeDetails } from '../utils/archetypeResolver';
 import ScoreRing from '../../../components/ui/ScoreRing';
+import gameThumbnail from '../../../assets/ls-bg.png';
 
 const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
     const archetype = getArchetypeDetails(results.archetype);
@@ -51,12 +52,21 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
         const text = `Hi,\nI just tried this life finance sorting challenge — it really shows why savings, goals and risks shouldn't be mixed together.\nGive it a try: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({
+                const sharePayload = {
                     title: 'Life Sorted 3D',
                     text: text
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 copyToClipboard(text);
             }

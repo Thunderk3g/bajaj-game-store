@@ -11,6 +11,7 @@ import InsuranceCards from '../components/InsuranceCards.jsx';
 import { submitToLMS, updateLeadNew } from '../../../utils/api.js';
 import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
+import gameThumbnail from '../../../assets/Life Leap Start Page.png';
 
 function getZone(pct) {
     return ZONES.find((z) => pct < z.maxPct) || ZONES[ZONES.length - 1];
@@ -202,12 +203,21 @@ export default function GameOverPage() {
         const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({
+                const sharePayload = {
                     title: 'Life Flight',
                     text: msg
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch { /* user cancelled */ }
         } else {
             try { await navigator.clipboard.writeText(shareUrl ? `${msg} ${shareUrl}` : msg); setShared(true); } catch { /* ignore */ }

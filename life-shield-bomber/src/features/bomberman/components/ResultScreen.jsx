@@ -9,6 +9,7 @@ import { Phone, Calendar, Share2, RotateCcw, X, ChevronDown, Shield, Heart, Cloc
 import Confetti from './Confetti.jsx';
 import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
+import gameThumbnail from '../assets/images/Shield-Man.png';
 
 const ResultScreen = memo(function ResultScreen({
     finalScore,
@@ -111,12 +112,21 @@ const ResultScreen = memo(function ResultScreen({
         const shareText = `Hi,\nI just realized the importance of riders to protect from life risks. You should try this interesting game. ${shareUrl}\n\n${senderName}`.trim();
         try {
             if (navigator.share) {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({
+                const sharePayload = {
                     title: 'Shield Man',
                     text: shareText
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } else {
                 await navigator.clipboard.writeText(shareText);
             }

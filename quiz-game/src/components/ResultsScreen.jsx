@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { buildShareUrl } from '../utils/crypto';
 import { shortenUrl } from '../utils/shortener';
+
+const gameThumbnail = './assets/Quiz-bg.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RotateCcw, Phone, Calendar, Clock, X, CheckCircle2, ChevronDown, Share2, ShieldCheck, Medal, Star, AlertCircle } from "lucide-react";
 import ScoreCard from './ScoreCard';
@@ -51,12 +53,21 @@ const ResultsScreen = ({ score, total, onRestart }) => {
 
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({
+                const sharePayload = {
                     title: 'GST Quiz',
                     text: shareMessage
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (error) {
                 console.log('Error sharing:', error);
             }

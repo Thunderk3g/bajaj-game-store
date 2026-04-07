@@ -11,6 +11,7 @@ import { submitScore } from '../../services/api';
 import Button from '../ui/Button';
 import LeadModal from '../modals/LeadModal';
 import styles from './ScoreScreen.module.css';
+import gameThumbnail from '../../assets/tile-bg.png';
 
 const CIRCUMFERENCE = 380;
 
@@ -85,12 +86,21 @@ export default function ScoreScreen({ showToast }) {
 
         if (navigator.share) {
             try {
-                // We exclude 'url' here because it's already included in the 'text' 
-                // and some platforms (Android/WhatsApp) append it twice if both are sent.
-                await navigator.share({
+                const sharePayload = {
                     title: shareData.title,
                     text: shareData.text
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 console.log('Error sharing:', err);
             }

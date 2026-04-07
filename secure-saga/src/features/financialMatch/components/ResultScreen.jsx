@@ -10,6 +10,7 @@ import { submitToLMS } from '../services/apiClient.js';
 import Speedometer from './ScoreRing.jsx';
 import Confetti from './Confetti.jsx';
 import { TILE_META, BUCKET_MAX } from '../config/gameConfig.js';
+import gameThumbnail from '../../assets/image/secure-thumbnail.png';
 
 const BUCKET_ORDER = ['GREEN', 'BLUE', 'YELLOW', 'RED'];
 
@@ -109,12 +110,22 @@ const ResultScreen = ({
         const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list. Click here ${shareUrl}`.trim();
         if (navigator.share) {
             try {
-                // Ensure text AND url are both passed explicitly as some mobile OS's require one or both.
-                await navigator.share({
+                const sharePayload = {
                     title: 'Secure Saga',
                     text: text,
                     url: shareUrl
-                });
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 // If user cancels, we do nothing. If error, fallback.
                 if (err.name !== 'AbortError') {
