@@ -112,17 +112,17 @@ const ResultScreen = ({
                 // Ensure text AND url are both passed explicitly as some mobile OS's require one or both.
                 await navigator.share({
                     title: 'Secure Saga',
-                    text: shareText,
+                    text: text,
                     url: shareUrl
                 });
             } catch (err) {
                 // If user cancels, we do nothing. If error, fallback.
                 if (err.name !== 'AbortError') {
-                    copyToClipboard(shareText + " " + shareUrl);
+                    copyToClipboard(text + " " + shareUrl);
                 }
             }
         } else {
-            copyToClipboard(shareText + " " + shareUrl);
+            copyToClipboard(text + " " + shareUrl);
         }
     };
 
