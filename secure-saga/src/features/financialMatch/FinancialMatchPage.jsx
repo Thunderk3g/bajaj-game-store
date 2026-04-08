@@ -272,40 +272,12 @@ const BalanceBuilderPage = memo(function BalanceBuilderPage() {
                             <GameHUD
                                 timeLeft={timeLeft}
                                 userName={entryDetails?.name}
+                                idleMessage={idleMessage}
                             />
 
                             <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0 mt-2">
-                                {/* Idle Engagement Popup — between subtitle and game grid */}
-                                <div style={{ minHeight: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px', width: '100%' }}>
-                                    {idleMessage && (
-                                        <motion.div
-                                            key={idleMessage}
-                                            initial={{ opacity: 0, y: -6, scale: 0.95 }}
-                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                            exit={{ opacity: 0, y: 6, scale: 0.95 }}
-                                            transition={{ duration: 0.3 }}
-                                            style={{
-                                                background: 'linear-gradient(90deg, rgba(212,160,23,0.18) 0%, rgba(212,160,23,0.32) 50%, rgba(212,160,23,0.18) 100%)',
-                                                border: '1.5px solid #D4A017',
-                                                borderRadius: '20px',
-                                                padding: '5px 18px',
-                                                color: '#FFE57A',
-                                                fontFamily: "'Outfit', sans-serif",
-                                                fontSize: '12px',
-                                                fontWeight: 700,
-                                                letterSpacing: '0.5px',
-                                                textAlign: 'center',
-                                                boxShadow: '0 2px 12px rgba(212,160,23,0.25)',
-                                                whiteSpace: 'nowrap',
-                                            }}
-                                        >
-                                            {idleMessage}
-                                        </motion.div>
-                                    )}
-                                </div>
-
                                 {/* Auto-scaler for iPhone SE checking BOTH horizontal tightness and vertical shortness */}
-                                <div className="flex justify-center items-center" style={{ transform: 'scale(min(1, calc(100vw / 360), calc(100dvh / 680)))', transformOrigin: 'top center' }}>
+                                <div className="flex justify-center items-center w-full" style={{ transform: 'scale(min(1, calc(100vw / 360), calc(100dvh / 680)))', transformOrigin: 'center center' }}>
                                     <GameGrid
                                         grid={grid}
                                         totalMatches={totalMatches}

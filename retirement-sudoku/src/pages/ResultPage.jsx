@@ -184,7 +184,7 @@ function ScoreShield({ tier }) {
 /* ─────────────────────────────────────────────────────────────────────────────
    Booking Modal — ported from Scramble-Words BookingModal.jsx
 ───────────────────────────────────────────────────────────────────────────── */
-function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile }) {
+function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile, onShowTerms }) {
     const [formData, setFormData] = useState({ name: initialName || '', mobile: initialMobile || '', date: '', time: '' });
     const [termsAccepted, setTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
@@ -249,7 +249,7 @@ function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile })
                     Book a Convenient Slot
                 </h2>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left' }}>
                     {/* Name */}
                     <div>
                         <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>Your Name</label>
@@ -317,11 +317,11 @@ function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile })
                     {/* Terms */}
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', background: '#f8fafc', padding: '0.75rem', border: '2px solid #e2e8f0' }}>
                         <input type="checkbox" checked={termsAccepted} onChange={e => { setTermsAccepted(e.target.checked); if (errors.terms) setErrors(p => ({ ...p, terms: null })); }} style={{ marginTop: '2px', cursor: 'pointer' }} />
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', lineHeight: 1.4 }}>
-                            I agree and consent to the <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" style={{ color: '#0066B2', textDecoration: 'underline' }}>T&C and Privacy Policy</a>
+                        <label>
+                            <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">I agree and consent to the <button type="button" onClick={onShowTerms} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#1e40af] transition-colors">T&amp;C and Privacy Policy</button></p>
                         </label>
                     </div>
-                    {errors.terms && <div style={{ fontSize: '0.625rem', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase', textAlign: 'center' }}>{errors.terms}</div>}
+                    {errors.terms && <div style={{ fontSize: '0.625rem', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase', textAlign: 'left' }}>{errors.terms}</div>}
 
                     <button
                         type="submit"
@@ -754,6 +754,7 @@ const ResultPage = memo(function ResultPage() {
                         onSubmit={handleBookingSubmit}
                         initialName={displayUserName}
                         initialMobile={sessionStorage.getItem('lastSubmittedPhone') || ''}
+                        onShowTerms={() => setShowTerms(true)}
                     />
                 </div>
             )}
@@ -761,7 +762,7 @@ const ResultPage = memo(function ResultPage() {
             {/* Terms & Conditions popup */}
             <AnimatePresence>
                 {showTerms && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md" onClick={() => setShowTerms(false)}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md" onClick={() => setShowTerms(false)}>
                         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={e => e.stopPropagation()} className="bg-white p-6 rounded-2xl max-w-md w-full shadow-2xl border-4 border-[#0066B2] relative text-left">
                             <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
                                 <h3 className="text-[#0066B2] text-xl font-black uppercase tracking-tight">Terms & Conditions</h3>

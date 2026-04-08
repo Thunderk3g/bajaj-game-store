@@ -44,6 +44,7 @@ const LeadCapturePage = () => {
                     sessionStorage.setItem('sudokuLeadNo', responseData.leadNo || responseData.LeadNo);
                 }
                 sessionStorage.setItem('sudokuUserName', name.trim());
+                sessionStorage.setItem('lastSubmittedPhone', phone);
                 navigate('/result');
             } else {
                 setErrors({ submit: result.error || 'Submission failed' });

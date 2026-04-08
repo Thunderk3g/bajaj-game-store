@@ -89,7 +89,7 @@ const GameGrid = memo(function GameGrid({
     };
 
     return (
-        <div ref={containerRef} className="relative flex items-center justify-center z-10 w-full" style={{ height: '50vh' }}>
+        <div ref={containerRef} className="relative flex justify-center z-10 w-full mt-2 mb-2 pt-2">
 
             {/* Soft dark shadow beneath the entire board */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[320px] bg-black/60 blur-[30px] rounded-[40px] z-[0] pointer-events-none" />
