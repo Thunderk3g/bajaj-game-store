@@ -238,7 +238,10 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                             <div className="space-y-4">
                                 <div className="w-full">
                                     <label className="text-sm font-bold text-white/40 block mb-1 pl-1">Preferred Date</label>
-                                    <div className="relative">
+                                    <div className="relative" onClick={(e) => {
+                                         const input = e.currentTarget.querySelector('input');
+                                         if (input && input.showPicker) input.showPicker();
+                                     }}>
                                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#005faa] pointer-events-none" strokeWidth={2.5} />
                                         <input
                                             type="date"
@@ -246,10 +249,10 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                                             max={maxDate}
                                             value={bookingData.date}
                                             onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
-                                            className={`w-full block bg-white/5 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-gold appearance-none uppercase text-sm min-h-[52px] [&::-webkit-calendar-picker-indicator]:opacity-0 ${errors.date ? 'border-red-500' : 'border-white/5'}`}
+                                            className={`w-full block bg-white/5 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-gold uppercase text-sm min-h-[52px] ${errors.date ? 'border-red-500' : 'border-white/5'}`}
                                         />
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                                            <Calendar className="w-4 h-4 text-white" />
+                                            <ChevronDown className="w-4 h-4 text-white/40" />
                                         </div>
                                     </div>
                                     {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}

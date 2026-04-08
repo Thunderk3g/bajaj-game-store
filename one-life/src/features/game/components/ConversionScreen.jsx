@@ -7,10 +7,15 @@ import Modal from './Modal';
 import ThankYouScreen from './ThankYouScreen';
 import gameThumbnail from '../assets/images/TN_Expect_The_Unexpected-thumbnail.png';
 
+import TermsModal from './TermsModal';
+import { ShieldCheck } from 'lucide-react';
+
 const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
     const [isBookingOpen, setIsBookingOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isBookingSuccess, setIsBookingSuccess] = useState(false);
+    const [isTermsAccepted, setIsTermsAccepted] = useState(true);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [bookingData, setBookingData] = useState({
         name: leadData?.name || '',
         mobile_no: leadData?.phone || '',
@@ -20,6 +25,9 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
     const [bookingError, setBookingError] = useState('');
 
     const today = new Date().toISOString().split("T")[0];
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+    const maxDate = thirtyDaysFromNow.toISOString().split("T")[0];
 
     const displayName = useMemo(() => {
         const rawName = (leadData?.name || 'Player').trim();
@@ -68,6 +76,11 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
 
         if (bookingData.date < today) {
             setBookingError('Please select a valid future date.');
+            return;
+        }
+
+        if (!isTermsAccepted) {
+            setBookingError('Please accept the terms and conditions.');
             return;
         }
 
@@ -167,6 +180,8 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                 )}
             </AnimatePresence>
 
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => { setIsTermsModalOpen(false); setIsTermsAccepted(true); }} />
+
             <Modal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)}>
                 <div className="bg-white p-6 w-[90%] max-w-[360px] mx-auto rounded-[12px] overflow-hidden relative text-left border-4 border-white/50 shadow-2xl">
                     <button onClick={() => setIsBookingOpen(false)} className="absolute right-4 top-4 text-slate-400 p-1"><X className="w-5 h-5" /></button>
@@ -182,7 +197,12 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                             <input type="tel" value={bookingData.mobile_no} onChange={e => setBookingData(p => ({ ...p, mobile_no: e.target.value.replace(/\D/g, '').slice(0, 10) }))} className="w-full bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-sm font-bold px-4 rounded-lg outline-none" />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <input type="date" min={today} value={bookingData.date} onChange={e => setBookingData(p => ({ ...p, date: e.target.value, bookingError: '' }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none" />
+                            <div onClick={(e) => {
+                                const input = e.currentTarget.querySelector('input');
+                                if (input && input.showPicker) input.showPicker();
+                            }}>
+                                <input type="date" min={today} max={maxDate} value={bookingData.date} onChange={e => setBookingData(p => ({ ...p, date: e.target.value, bookingError: '' }))} className="w-full bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none" />
+                            </div>
                             <select value={bookingData.timeSlot} onChange={e => setBookingData(p => ({ ...p, timeSlot: e.target.value }))} className="bg-slate-50 h-10 border-2 border-slate-100 text-slate-900 text-xs font-bold px-2 rounded-lg outline-none">
                                 <option value="" className="text-black">Select Time</option>
                                 {timeSlots.map(s => {
@@ -197,16 +217,16 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                                     }
                                     return <option key={s} value={s} className="text-black">{s}</option>;
                                 }).filter(Boolean)}
-                                {bookingData.date === today && timeSlots.filter(s => {
-                                    const [startTime] = s.split(' - ');
-                                    const slotHour = parseInt(startTime.split(':')[0]);
-                                    const isPM = startTime.includes('PM');
-                                    const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
-                                    return normalizedHour > new Date().getHours();
-                                }).length === 0 && (
-                                        <option disabled className="text-black italic">No slots available for today</option>
-                                    )}
                             </select>
+                        </div>
+                        {/* Terms and Conditions Checkbox */}
+                        <div className="flex items-start gap-2 pt-1 cursor-pointer" onClick={() => setIsTermsAccepted(!isTermsAccepted)}>
+                            <div className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center rounded transition-all ${isTermsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-white border-slate-200'}`}>
+                                {isTermsAccepted && <ShieldCheck className="w-4 h-4 text-white" />}
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-600 leading-snug">
+                                I agree to the <span onClick={(e) => { e.stopPropagation(); setIsTermsModalOpen(true); }} className="text-[#0066B2] underline font-black cursor-pointer">T&C and Privacy Policy</span>
+                            </p>
                         </div>
                         <button type="submit" disabled={isSubmitting || !bookingData.date || !bookingData.timeSlot || bookingData.mobile_no.length !== 10} className="w-full bg-[#FF8C00] text-white font-black py-4 shadow-[0_5px_0_#993D00] active:translate-y-1 transition-all uppercase tracking-widest text-sm mt-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
                             {isSubmitting ? '...' : 'Confirm Slot'}
