@@ -201,7 +201,7 @@ export default function GameOverPage() {
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
-        const senderName = sessionStorage.getItem('gamification_emp_name') || '';
+        const senderName = leadData?.name || '';
         const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {
             try {

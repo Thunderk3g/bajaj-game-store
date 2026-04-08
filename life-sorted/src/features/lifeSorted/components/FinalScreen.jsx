@@ -48,7 +48,7 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = sessionStorage.getItem('gamification_emp_name') || '';
+        const senderName = leadData?.name || '';
         const text = `Hi,\nI just tried this life finance sorting challenge — it really shows why savings, goals and risks shouldn't be mixed together.\nGive it a try: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {
             try {

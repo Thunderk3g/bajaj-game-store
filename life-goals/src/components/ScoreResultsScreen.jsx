@@ -168,7 +168,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
             : '/');
 
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = sessionStorage.getItem('gamification_emp_name') || '';
+        const senderName = leadData?.name || '';
 
         const shareData = {
             title: 'Life Goals Preparedness',
