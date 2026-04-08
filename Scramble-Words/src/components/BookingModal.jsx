@@ -2,12 +2,16 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar } from 'lucide-react';
 import { updateLeadNew, submitToLMS } from '../utils/api';
+import TermsModal from './TermsModal';
+import { useGameState } from '../hooks/useGameState';
 
 export default function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile }) {
     const [formData, setFormData] = useState({ name: initialName || '', mobile: initialMobile || '', date: '', time: '' });
     const [termsAccepted, setTermsAccepted] = useState(true);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { showToast } = useGameState();
 
     const updateField = (field, val) => {
         setFormData(p => ({ ...p, [field]: val }));
@@ -230,22 +234,22 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                             </div>
 
                             {/* Terms Checkbox */}
-                            <div className="flex items-start bg-slate-50 p-3 rounded-lg border-2 border-slate-100 gap-3">
-                                <div className="relative flex items-center mt-0.5">
-                                    <input
-                                        type="checkbox"
-                                        checked={termsAccepted}
-                                        onChange={(e) => {
-                                            setTermsAccepted(e.target.checked);
-                                            if (errors.terms) setErrors(p => ({ ...p, terms: null }));
-                                        }}
-                                        className="w-4 h-4 rounded border-slate-300 text-[#0066B2] focus:ring-[#0066B2] cursor-pointer"
-                                    />
+                            <div className="flex items-start gap-2 py-1">
+                                <div
+                                    onClick={() => {
+                                        const newVal = !termsAccepted;
+                                        setTermsAccepted(newVal);
+                                        if (errors.terms && newVal) setErrors(p => ({ ...p, terms: null }));
+                                    }}
+                                    className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center rounded cursor-pointer transition-all ${termsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-white border-slate-300'}`}
+                                >
+                                    {termsAccepted && <span className="text-white font-black text-[10px]">✓</span>}
                                 </div>
-                                <label className="text-[10px] sm:text-xs text-slate-500 leading-tight">
-                                    I authorize Bajaj Life Insurance to contact me for this request, overriding DND registry.
-                                </label>
+                                <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">
+                                    I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#1e40af] transition-colors">T&C and Privacy Policy</span>
+                                </p>
                             </div>
+                            {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider text-center">{errors.terms}</div>}
                             {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider text-center">{errors.terms}</div>}
 
                             <button
@@ -257,6 +261,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                             </button>
                         </form>
                     </motion.div>
+                    <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
                 </div>
             )}
         </AnimatePresence>
