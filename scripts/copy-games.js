@@ -157,7 +157,7 @@ const manifest = {
     type: "react",
     displayName: "Scramble Words",
     popular: false,
-    gameId: "GAME_003",
+    gameId: "GAME_001",
     assets: [],
   },
   "life-goals": {
@@ -166,7 +166,7 @@ const manifest = {
     type: "react",
     displayName: "Life Goals Preparedness",
     popular: true,
-    gameId: "GAME_001",
+    gameId: "GAME_002",
     assets: [
       "assets/games/life-goals/assets/videos/business.mp4",
       "assets/games/life-goals/assets/videos/child_edu.mp4",
@@ -185,7 +185,7 @@ const manifest = {
     type: "react",
     displayName: "Quiz Challenge",
     popular: true,
-    gameId: "GAME_002",
+    gameId: "GAME_003",
     assets: [
       "assets/games/quiz-game/assets/bajaj.png",
     ],
@@ -258,6 +258,7 @@ const manifest = {
     exposedModule: "./GameEntry",
     type: "react",
     displayName: "Snake Life Game",
+    gameId: "GAME_011"
   },
   "life-flight": {
     remoteEntry: "assets/games/life-flight/index.js",
@@ -265,7 +266,7 @@ const manifest = {
     type: "react",
     displayName: "Life Flight",
     popular: true,
-    gameId: "GAME_011",
+    gameId: "GAME_013",
     assets: [],
   },
   "life-snakes-ladders": {
@@ -283,7 +284,7 @@ const manifest = {
     type: "react",
     displayName: "One Life",
     popular: true,
-    gameId: "GAME_013",
+    gameId: "GAME_014",
     assets: [],
   },
   "life-sorted": {
@@ -292,7 +293,7 @@ const manifest = {
     type: "react",
     displayName: "Life Sorted",
     popular: true,
-    gameId: "GAME_014",
+    gameId: "GAME_015",
     assets: [],
   }
 };
