@@ -68,9 +68,9 @@ const LeadCapturePage = () => {
             >
                 <div className="text-center mb-10">
                     <h2 className="text-sudoku-accent text-2xl font-black mb-1 tracking-tight uppercase leading-tight text-left">
-                        Puzzle Solved!
+                        ENTER DETAILS
                     </h2>
-                    <p className="text-slate-500 font-bold text-lg text-left">Enter details to claim your reward</p>
+                    <p className="text-slate-500 font-bold text-lg text-left">To see the Results</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6 text-left">

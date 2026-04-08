@@ -96,10 +96,12 @@ export default function LandingPage() {
         }
     };
 
-    const isNameValid = validateField('name', userName);
-    const isPhoneValid = validateField('phone', phone);
-    const isTermsValid = validateField('terms', termsAccepted);
-    return isNameValid && isPhoneValid && isTermsValid;
+    const validateForm = () => {
+        const n = validateField('name', userName);
+        const p = validateField('phone', phone);
+        const t = validateField('terms', termsAccepted);
+        return n && p && t;
+    };
 
     const handleNameSubmit = async (e) => {
         e.preventDefault();
