@@ -76,7 +76,7 @@ export default function ScoreScreen({ showToast }) {
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
-        const senderName = sessionStorage.getItem('gamification_emp_name') || '';
+        const senderName = leadData?.name || '';
 
         const shareData = {
             title: 'Insurance Match',

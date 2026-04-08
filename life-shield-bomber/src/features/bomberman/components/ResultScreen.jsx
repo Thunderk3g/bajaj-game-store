@@ -108,7 +108,7 @@ const ResultScreen = memo(function ResultScreen({
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = sessionStorage.getItem('gamification_emp_name') || '';
+        const senderName = entryDetails?.name || '';
         const shareText = `Hi,\nI just realized the importance of riders to protect from life risks. You should try this interesting game. ${shareUrl}\n\n${senderName}`.trim();
         try {
             if (navigator.share) {

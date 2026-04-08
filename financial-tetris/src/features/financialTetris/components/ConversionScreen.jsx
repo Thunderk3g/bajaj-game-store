@@ -47,7 +47,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
-        const senderName = sessionStorage.getItem('gamification_emp_name') || '';
+        const senderName = leadData?.name || '';
         const shareMessage = `Hi,\nI just played Blocks of Wealth and achieved ${Math.round(score)} milestones.\nSee how many milestones you can reach — try it here: ${shareUrl}\n\n${senderName}`.trim();
 
         if (navigator.share) {
@@ -334,12 +334,8 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                                         setBookingData(prev => ({ ...prev, date: e.target.value }));
                                         setErrors(prev => ({ ...prev, date: null }));
                                     }}
-<<<<<<< HEAD
                                     placeholder="DD MM YYYY"
-                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none uppercase text-sm min-h-[52px] [&::-webkit-calendar-picker-indicator]:opacity-0 ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-800'}`}
-=======
-                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all uppercase text-sm min-h-[52px] ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
->>>>>>> 3a6220d4ca04c86404edac947d6466ac3d32f17e
+                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all uppercase text-sm min-h-[52px] ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-800'}`}
                                 />
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                     <ChevronDown className="w-4 h-4 text-white/40" />
