@@ -34,7 +34,7 @@ export async function shortenUrl(longUrl) {
         console.warn('[Shortener] Failed with status:', response.status);
         return longUrl;
     } catch (error) {
-        console.error('[Shortener] Error:', error);
+        console.error('[Shortener] Vspagy error (possible CORS):', error);
         return longUrl;
     }
 }

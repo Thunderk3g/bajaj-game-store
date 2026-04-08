@@ -45,7 +45,7 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = leadData?.name || '';
+        const senderName = (typeof leadData !== 'undefined' ? leadData?.name : '') || '';
         const shareMessage = `Hi,\nI just experienced this eye-opening truth about life's uncertainties and protection.\nIt takes less than a minute — give it a try: ${shareUrl}\n\nRegards,\n${senderName}`.trim();
         if (navigator.share) {
             try {

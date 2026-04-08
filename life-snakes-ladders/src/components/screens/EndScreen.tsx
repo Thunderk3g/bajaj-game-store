@@ -42,7 +42,7 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, playerName, playerMobi
 
         const shareUrl = await shortenUrl(rawUrl);
 
-        const senderName = playerName || '';
+        const senderName = (typeof playerName !== 'undefined' ? playerName : '') || '';
         const shareText = `Hi,\nI used ${Math.round(totalShieldsUsed)} shields to avoid snakes in this life Snakes & Ladders challenge.\nIt really shows how protection helps in life's ups and downs — try it here: ${shareUrl}\n\n${senderName}`.trim();
 
         const shareData = {

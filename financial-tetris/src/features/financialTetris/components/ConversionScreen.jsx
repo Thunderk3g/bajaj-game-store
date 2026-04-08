@@ -47,7 +47,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
-        const senderName = leadData?.name || '';
+        const senderName = (typeof leadData !== 'undefined' ? leadData?.name : '') || '';
         const shareMessage = `Hi,\nI just played Blocks of Wealth and achieved ${Math.round(score)} milestones.\nSee how many milestones you can reach — try it here: ${shareUrl}\n\n${senderName}`.trim();
 
         if (navigator.share) {

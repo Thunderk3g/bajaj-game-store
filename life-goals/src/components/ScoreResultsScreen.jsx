@@ -168,7 +168,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
             : '/');
 
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = leadData?.name || '';
+        const senderName = (typeof userName !== 'undefined' ? userName : '') || '';
 
         const shareData = {
             title: 'Life Goals Preparedness',

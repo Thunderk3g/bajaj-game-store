@@ -49,7 +49,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = leadData?.name || '';
+        const senderName = (typeof leadName !== 'undefined' ? leadName : '') || '';
         const shareMessage = `Hi,\nI tried this GST quiz related to Life Insurance and got ${Math.round(score)}/${total}.\nThink you can beat my score? Take the quiz here: ${shareUrl}\n\n${senderName}`.trim();
 
         if (navigator.share) {

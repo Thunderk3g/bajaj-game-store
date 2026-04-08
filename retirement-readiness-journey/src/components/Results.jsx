@@ -31,7 +31,7 @@ const Results = ({ score, onReset, userInfo }) => {
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = userInfo?.name || '';
+        const senderName = (typeof userInfo !== 'undefined' ? userInfo?.name : '') || '';
         const shareData = {
             title: 'Retirement Readiness',
             text: `Hi,\nI just tried this retirement preparedness test and scored ${Math.round(score)}/100. It really made me think about my retirement corpus!\nSee how prepared you are — try it here: ${shareUrl}\n\n${senderName}`.trim(),
