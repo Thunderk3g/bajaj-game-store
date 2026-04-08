@@ -32,7 +32,7 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
-        const senderName = sessionStorage.getItem('gamification_emp_name') || '';
+        const senderName = leadData?.name || '';
         const shareText = `Hi,\nI just tried this word-unscramble challenge on life insurance and scored ${(finalScore)}/5.\nSee if you can beat my score — try it here: ${shareUrl}\n\n${senderName}`.trim();
         const shareData = {
             title: 'Unscrambled Financial Words',
