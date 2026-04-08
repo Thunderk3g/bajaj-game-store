@@ -102,7 +102,7 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
                             {isTermsAccepted && <span className="text-[#1e1b4b] font-black text-xs">✓</span>}
                         </div>
                         <p className="text-[10px] font-bold text-blue-200/60 leading-snug">
-                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-white underline font-black cursor-pointer hover:text-[#60a5fa] transition-colors">T&C and Privacy Policy</span>
+                            I agree and consent to the <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-white underline font-black cursor-pointer hover:text-[#60a5fa] transition-colors">T&C and Privacy Policy</button>
                         </p>
                     </div>
 

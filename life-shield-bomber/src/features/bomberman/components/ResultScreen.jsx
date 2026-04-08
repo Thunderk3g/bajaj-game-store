@@ -10,6 +10,7 @@ import Confetti from './Confetti.jsx';
 import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
 import gameThumbnail from '../assets/images/Shield-Man.png';
+import TermsModal from './TermsModal';
 
 const ResultScreen = memo(function ResultScreen({
     finalScore,
@@ -48,6 +49,7 @@ const ResultScreen = memo(function ResultScreen({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     const [agreedTerms, setAgreedTerms] = useState(true);
+    const [showTermsModal, setShowTermsModal] = useState(false);
 
     const [bookingForm, setBookingForm] = useState({
         name: entryDetails?.name || '',
@@ -393,6 +395,9 @@ const ResultScreen = memo(function ResultScreen({
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Terms Modal */}
+            <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
         </div>
     );
 });
