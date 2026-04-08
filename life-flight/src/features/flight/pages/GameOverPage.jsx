@@ -66,6 +66,8 @@ export default function GameOverPage() {
 
     const handleLeadSubmit = async (e) => {
         e.preventDefault();
+        const validName = validateLeadField('name', leadName);
+        const validPhone = validateLeadField('phone', leadPhone);
         const validTerms = validateLeadField('terms', leadTerms);
         if (!validName || !validPhone || !validTerms) return;
 
@@ -201,7 +203,7 @@ export default function GameOverPage() {
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
-        const senderName = leadData?.name || '';
+        const senderName = sessionStorage.getItem('lastSubmittedName') || userName || '';
         const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}\n\n${senderName}`.trim();
         if (navigator.share) {
             try {

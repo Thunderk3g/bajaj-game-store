@@ -228,13 +228,20 @@ const LifeSortedPage = () => {
                                 {formErrors.phone && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{formErrors.phone}</p>}
                             </div>
 
-                            <div className="flex items-start gap-3 py-1 mb-2 cursor-pointer" onClick={() => setIsTermsAccepted(!isTermsAccepted)}>
-                                <div className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-md transition-all ${isTermsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : 'bg-white border-slate-200'}`}>
-                                    {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-start gap-3 py-1 mb-1 cursor-pointer" onClick={() => {
+                                    const newVal = !isTermsAccepted;
+                                    setIsTermsAccepted(newVal);
+                                    if (formErrors.terms) setFormErrors(prev => ({ ...prev, terms: '' }));
+                                }}>
+                                    <div className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-md transition-all ${isTermsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : `bg-white ${formErrors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-200'}`}`}>
+                                        {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
+                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">
+                                        I agree and consent to the <span onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }} className="text-[#00B4D8] underline font-black cursor-pointer hover:text-[#0077b6] transition-colors">T&C and Privacy Policy</span>
+                                    </p>
                                 </div>
-                                <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">
-                                    I agree and consent to the <span onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }} className="text-[#00B4D8] underline font-black cursor-pointer hover:text-[#0077b6] transition-colors">T&C and Privacy Policy</span>
-                                </p>
+                                {formErrors.terms && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1 mb-1 text-left">{formErrors.terms}</p>}
                             </div>
 
                             <button

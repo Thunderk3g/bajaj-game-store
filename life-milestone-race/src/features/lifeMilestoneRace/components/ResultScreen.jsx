@@ -381,6 +381,7 @@ const ResultScreen = ({
                                     I agree and consent to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] font-bold hover:underline inline">T&C and Privacy Policy</button>
                                 </div>
                             </div>
+                            {errors.terms && <p className="text-red-500 text-[10px] ml-1 font-black uppercase tracking-wider">{errors.terms}</p>}
 
                             <button
                                 type="submit"

@@ -224,10 +224,10 @@ export default function LeadModal({
                                             const todayIso = new Date().toLocaleDateString('en-CA');
                                             const isToday = preferredDate === todayIso;
                                             if (isToday) {
-                                                const slotHourStr = slot.split(':')[0];
-                                                const slotHour = parseInt(slotHourStr);
-                                                const isPM = slot.includes('PM') && slotHour !== 12;
-                                                const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+                                                const startTimeStr = slot.split(' - ')[0];
+                                                const slotHour = parseInt(startTimeStr.split(':')[0]);
+                                                const isPM = startTimeStr.includes('PM') && slotHour !== 12;
+                                                const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && startTimeStr.includes('AM') ? 0 : slotHour);
 
                                                 const currentHour = new Date().getHours();
                                                 if (normalizedHour <= currentHour) return null;
@@ -240,9 +240,10 @@ export default function LeadModal({
                                             "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM", "04:00 PM - 05:00 PM",
                                             "05:00 PM - 06:00 PM", "06:00 PM - 07:00 PM", "07:00 PM - 08:00 PM"
                                         ].every(slot => {
-                                            const slotHour = parseInt(slot.split(':')[0]);
-                                            const isPM = slot.includes('PM') && slotHour !== 12;
-                                            const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+                                            const startTimeStr = slot.split(' - ')[0];
+                                            const slotHour = parseInt(startTimeStr.split(':')[0]);
+                                            const isPM = startTimeStr.includes('PM') && slotHour !== 12;
+                                            const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && startTimeStr.includes('AM') ? 0 : slotHour);
                                             return normalizedHour <= new Date().getHours();
                                         }) && (
                                                 <option disabled>No slots available for today</option>

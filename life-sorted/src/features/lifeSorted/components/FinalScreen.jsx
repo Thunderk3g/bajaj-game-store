@@ -87,7 +87,7 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
         else if (!/^[6-9]\d{9}$/.test(bookingData.mobile_no)) errs.mobile_no = "Invalid 10-digit number";
         if (!bookingData.date) errs.date = "Select a date";
         if (!bookingData.timeSlot) errs.timeSlot = "Select a slot";
-        if (!bookingTermsAccepted) errs.terms = "Accept terms";
+        if (!bookingTermsAccepted) errs.terms = "Please accept to terms and conditions";
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -239,9 +239,9 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                                 <div className="w-full">
                                     <label className="text-sm font-bold text-white/40 block mb-1 pl-1">Preferred Date</label>
                                     <div className="relative" onClick={(e) => {
-                                         const input = e.currentTarget.querySelector('input');
-                                         if (input && input.showPicker) input.showPicker();
-                                     }}>
+                                        const input = e.currentTarget.querySelector('input');
+                                        if (input && input.showPicker) input.showPicker();
+                                    }}>
                                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#005faa] pointer-events-none" strokeWidth={2.5} />
                                         <input
                                             type="date"
