@@ -15,7 +15,7 @@ function validate(name, phone, date, time, agreed) {
     if (!date) errors.date = 'Please pick a date';
     else if (date < today) errors.date = 'Date must be today or later';
     if (!time) errors.time = 'Please pick a time';
-    if (!agreed) errors.agreed = 'Please accept the terms to proceed';
+    if (!agreed) errors.agreed = 'Please agree to Terms and Conditions';
     return errors;
 }
 
@@ -82,8 +82,18 @@ export default function BookModal({ onClose, showToast }) {
                     onChange={(e) => setName(e.target.value)} error={errors.name} />
                 <FormInput id="book-phone" label="Phone Number" type="tel" inputMode="numeric"
                     value={phone} onChange={(e) => setPhone(e.target.value)} error={errors.phone} maxLength={10} />
-                <FormInput id="book-date" label="Preferred Date" type="date"
-                    min={today} value={date} onChange={(e) => setDate(e.target.value)} error={errors.date} />
+                <FormInput
+                    id="book-date"
+                    label="Preferred Date"
+                    type={date ? "date" : "text"}
+                    onFocus={(e) => e.target.type = 'date'}
+                    onBlur={(e) => !date && (e.target.type = 'text')}
+                    placeholder="DD MM YYYY"
+                    min={today}
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    error={errors.date}
+                />
                 <FormInput id="book-time" label="Preferred Time" type="time"
                     value={time} onChange={(e) => {
                         const newTime = e.target.value;
@@ -100,13 +110,13 @@ export default function BookModal({ onClose, showToast }) {
                         setTime(newTime);
                     }} error={errors.time} />
                 <Checkbox id="book-tc"
-                    label='I agree to the <a href="#" onclick="event.preventDefault()">Terms and Conditions</a>.'
-                    checked={agreed} onChange={setAgreed} />
-                {errors.agreed && <div className="form-error">{errors.agreed}</div>}
+                    label='I agree and consent to the <a href="#" class="terms-link" onclick="event.preventDefault()">T&C and Privacy Policy</a>.'
+                    checked={agreed} onChange={setAgreed} error={errors.agreed} />
+                {errors.agreed && <div className="form-error" style={{ marginTop: '-12px', marginLeft: '32px' }}>{errors.agreed}</div>}
 
                 <div style={{ height: 8 }} />
                 <Button type="submit" variant="secondary" fullWidth loading={loading} id="btn-book-submit">
-                    {!loading && 'Confirm My Slot ✅'}
+                    {!loading && 'Confirm Booking'}
                 </Button>
             </form>
         </Modal>

@@ -57,6 +57,8 @@ export default function GameOverPage() {
         } else if (field === 'phone') {
             if (!value) msg = 'Mobile number is required';
             else if (!/^\d{10}$/.test(value)) msg = 'Enter a valid 10-digit number';
+        } else if (field === 'terms') {
+            if (!value) msg = 'Please agree to Terms and Conditions';
         }
         setLeadErrors(prev => ({ ...prev, [field]: msg }));
         return !msg;
@@ -64,9 +66,8 @@ export default function GameOverPage() {
 
     const handleLeadSubmit = async (e) => {
         e.preventDefault();
-        const validName = validateLeadField('name', leadName);
-        const validPhone = validateLeadField('phone', leadPhone);
-        if (!validName || !validPhone || !leadTerms) return;
+        const validTerms = validateLeadField('terms', leadTerms);
+        if (!validName || !validPhone || !validTerms) return;
 
         const lastPhone = sessionStorage.getItem('lastSubmittedPhone');
         if (lastPhone === leadPhone) {
@@ -142,6 +143,7 @@ export default function GameOverPage() {
             if (selected < todayCheck) errs.date = "Select today or future";
         }
         if (!formData.time) errs.time = "Required";
+        if (!termsAccepted) errs.terms = "Please agree to Terms and Conditions";
 
         setErrors(errs);
         return Object.keys(errs).length === 0;
@@ -281,8 +283,12 @@ export default function GameOverPage() {
 
                             <div className="flex items-start gap-3 py-1">
                                 <div
-                                    onClick={() => setLeadTerms(t => !t)}
-                                    className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center cursor-pointer transition-all rounded-sm ${leadTerms ? 'bg-[#00B4D8] border-[#00B4D8]' : 'bg-white border-slate-300'}`}
+                                    onClick={() => {
+                                        const newVal = !leadTerms;
+                                        setLeadTerms(newVal);
+                                        validateLeadField('terms', newVal);
+                                    }}
+                                    className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center cursor-pointer transition-all rounded-sm ${leadTerms ? 'bg-[#00B4D8] border-[#00B4D8]' : `bg-white ${leadErrors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'}`}`}
                                 >
                                     {leadTerms && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                 </div>
@@ -291,6 +297,7 @@ export default function GameOverPage() {
                                     <button type="button" onClick={() => setLeadShowTerms(true)} className="text-[#00B4D8] underline hover:text-[#0077b6]">T&C and Privacy Policy</button>
                                 </p>
                             </div>
+                            {leadErrors.terms && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-8 -mt-2">{leadErrors.terms}</p>}
 
                             <button
                                 type="submit"
@@ -520,12 +527,15 @@ export default function GameOverPage() {
                                     <div className="space-y-1">
                                         <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Preferred Date</label>
                                         <input
-                                            type="date"
+                                            type={formData.date ? "date" : "text"}
+                                            onFocus={(e) => e.target.type = 'date'}
+                                            onBlur={(e) => !formData.date && (e.target.type = 'text')}
                                             min={today}
                                             max={endLimit}
                                             value={formData.date} onChange={e => updateField('date', e.target.value)}
                                             style={{ colorScheme: 'light' }}
-                                            className="w-full bg-slate-50 h-11 border-2 border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#00B4D8] text-sm font-bold px-4 transition-all"
+                                            className={`w-full bg-slate-50 h-11 border-2 rounded-xl text-slate-800 placeholder:text-slate-300 focus:outline-none transition-all px-4 font-bold text-sm ${errors.date ? 'border-red-500' : 'border-slate-200 focus:border-[#00B4D8]'}`}
+                                            placeholder="DD MM YYYY"
                                         />
                                         {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                     </div>
@@ -564,19 +574,22 @@ export default function GameOverPage() {
 
                                 <div className="flex items-start gap-2 pt-2 text-left">
                                     <div className="relative flex items-center shrink-0 pt-0.5">
-                                        <input
-                                            id="modal-terms"
-                                            type="checkbox"
-                                            checked={termsAccepted}
-                                            onChange={(e) => setTermsAccepted(e.target.checked)}
-                                            className="peer h-5 w-5 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#00B4D8] checked:bg-[#00B4D8] hover:border-[#00B4D8]"
-                                        />
-                                        <Check className="pointer-events-none absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
+                                        <div
+                                            onClick={() => {
+                                                const newVal = !termsAccepted;
+                                                setTermsAccepted(newVal);
+                                                if (errors.terms) setErrors(p => ({ ...p, terms: null }));
+                                            }}
+                                            className={`h-5 w-5 cursor-pointer rounded border-2 transition-all flex items-center justify-center ${termsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : `${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'} bg-slate-50 hover:border-[#00B4D8]`}`}
+                                        >
+                                            {termsAccepted && <Check className="h-3.5 w-3.5 text-white" strokeWidth={4} />}
+                                        </div>
                                     </div>
-                                    <label htmlFor="modal-terms" className="text-[11px] font-bold text-slate-500 leading-snug select-none pr-1">
-                                        I agree to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#00B4D8] hover:underline font-black inline">Terms &amp; Conditions</button> and Privacy Policy.
-                                    </label>
+                                    <p className="text-[11px] font-bold text-slate-500 leading-snug select-none pr-1">
+                                        I agree and consent to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#00B4D8] hover:underline font-black inline">T&C and Privacy Policy</button>
+                                    </p>
                                 </div>
+                                {errors.terms && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-9 -mt-2">{errors.terms}</p>}
 
                                 <button
                                     type="submit"

@@ -5,10 +5,11 @@ import { useState, useRef, useEffect } from 'react';
 import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Share2, RefreshCw, Calendar, X, ChevronDown } from 'lucide-react';
+import { Phone, Share2, RefreshCw, Calendar, X, ChevronDown, Check } from 'lucide-react';
 import { submitToLMS } from '../services/apiClient.js';
 import Speedometer from './ScoreRing.jsx';
 import Confetti from './Confetti.jsx';
+import TermsModal from './TermsModal.jsx';
 import { TILE_META, BUCKET_MAX } from '../config/gameConfig.js';
 import gameThumbnail from '../../assets/image/secure-thumbnail.png';
 
@@ -52,6 +53,7 @@ const ResultScreen = ({
 
     const [showBooking, setShowBooking] = useState(false);
     const [showBreakdown, setShowBreakdown] = useState(false);
+    const [isTermsOpen, setIsTermsOpen] = useState(false);
 
     const [formData, setFormData] = useState({
         name: userName || '',
@@ -83,7 +85,7 @@ const ResultScreen = ({
         else if (!/^\d{10}$/.test(formData.mobile)) errs.mobile = "Invalid Mobile Number";
         if (!formData.date) errs.date = "Required";
         if (!formData.time) errs.time = "Required";
-        if (!formData.consent) errs.consent = "Consent is required";
+        if (!formData.consent) errs.consent = "Please agree to Terms and Conditions";
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -334,11 +336,14 @@ const ResultScreen = ({
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                         <input
-                                            type="date"
+                                            type={formData.date ? "date" : "text"}
+                                            onFocus={(e) => e.target.type = 'date'}
+                                            onBlur={(e) => !formData.date && (e.target.type = 'text')}
                                             min={today}
                                             max={endOfYear}
                                             value={formData.date} onChange={e => updateField('date', e.target.value)}
-                                            className="w-full bg-slate-50 h-10 border-2 border-slate-100 text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 text-[10px] font-bold px-2 rounded"
+                                            className={`w-full bg-slate-50 h-10 border-2 rounded text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 text-[10px] font-bold px-2 ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100'}`}
+                                            placeholder="DD MM YYYY"
                                         />
                                         {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                     </div>
@@ -355,39 +360,50 @@ const ResultScreen = ({
                                                 const end = start + 1;
                                                 const formatTime = (h) => {
                                                     const amp = h >= 12 ? 'PM' : 'AM';
-                                                    const hour = h > 12 ? h - 12 : h;
+                                                    const hour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
                                                     return `${hour}:00 ${amp}`;
                                                 };
                                                 const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                // Filter logic: if today, check if slot start time has passed
+                                                if (formData.date === today) {
+                                                    const currentHour = new Date().getHours();
+                                                    if (start <= currentHour) return null;
+                                                }
+
                                                 return <option key={start} value={label}>{label}</option>;
-                                            })}
+                                            }).filter(Boolean)}
+                                            {formData.date === today && [...Array(12)].filter((_, i) => (9 + i) > new Date().getHours()).length === 0 && (
+                                                <option disabled className="text-gray-400 italic">No slots available for today</option>
+                                            )}
                                         </select>
                                         {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                     </div>
                                 </div>
 
                                 {/* Consent Checkbox */}
-                                <div className="pt-1">
-                                    <label className="flex items-start gap-2 cursor-pointer group">
-                                        <div className="relative mt-0.5">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.consent}
-                                                onChange={e => updateField('consent', e.target.checked)}
-                                                className="peer sr-only"
-                                            />
-                                            <div className="w-4 h-4 border-2 border-slate-200 rounded bg-slate-50 peer-checked:bg-[#0066B2] peer-checked:border-[#0066B2] transition-all"></div>
-                                            <svg className="absolute top-0 left-0 w-4 h-4 text-white p-0.5 opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="20 6 9 17 4 12"></polyline>
-                                            </svg>
+                                <div className="flex items-start gap-2 pt-1">
+                                    <div
+                                        onClick={() => {
+                                            const newVal = !formData.consent;
+                                            updateField('consent', newVal);
+                                            if (newVal && errors.consent) setErrors(prev => {
+                                                const next = { ...prev };
+                                                delete next.consent;
+                                                return next;
+                                            });
+                                        }}
+                                        className="relative mt-0.5 shrink-0 cursor-pointer"
+                                    >
+                                        <div className={`w-5 h-5 border-2 rounded-lg transition-all flex items-center justify-center ${formData.consent ? 'bg-[#0066B2] border-[#0066B2]' : `bg-slate-50 border-slate-200 ${errors.consent ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : ''}`}`}>
+                                            {formData.consent && <span className="text-white font-black text-xs">✓</span>}
                                         </div>
-                                        <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight select-none">
-                                            I agree to receive communications from Bajaj Life Insurance regarding my booking and other products.
-                                            <span className="text-[#0066B2] hover:underline ml-1">T&C Apply.</span>
-                                        </span>
-                                    </label>
-                                    {errors.consent && <p className="text-[9px] text-red-500 mt-1 font-bold uppercase">{errors.consent}</p>}
+                                    </div>
+                                    <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight select-none">
+                                        I agree and consent to the <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}>T&C and Privacy Policy</span>
+                                    </p>
                                 </div>
+                                {errors.consent && <p className="text-red-500 text-[10px] font-black uppercase text-center -mt-1">{errors.consent}</p>}
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
@@ -400,6 +416,8 @@ const ResultScreen = ({
                     </div>
                 )}
             </AnimatePresence>
+
+            <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
         </div>
     );
 };

@@ -210,6 +210,11 @@
     border-color: #0066B2;
 }
 
+.customCheckboxBoxError {
+    border-color: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
 .customCheckboxIcon {
     width: 16px;
     height: 16px;

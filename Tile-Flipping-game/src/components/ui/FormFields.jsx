@@ -25,7 +25,7 @@ export function FormInput({ id, label, error, className = '', ...inputProps }) {
 /**
  * Checkbox component
  */
-export function Checkbox({ id, label, checked, onChange, onClickLabel }) {
+export function Checkbox({ id, label, checked, onChange, onClickLabel, error }) {
     const handleLabelClick = (e) => {
         // If the click is on a span with the terms-link class, call onClickLabel
         if (e.target.classList.contains('terms-link')) {
@@ -47,7 +47,7 @@ export function Checkbox({ id, label, checked, onChange, onClickLabel }) {
                 onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onChange(!checked); } }}
             >
                 <div
-                    className={`checkbox-box ${checked ? 'checkbox-box--checked' : ''}`}
+                    className={`checkbox-box ${checked ? 'checkbox-box--checked' : ''} ${error ? 'checkbox-box--error' : ''}`}
                     onClick={() => onChange(!checked)}
                 />
                 <span

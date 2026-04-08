@@ -18,7 +18,7 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
 
         if (!/^[6-9]\d{9}$/.test(phone)) newErrors.phone = 'Invalid 10-digit number';
 
-        if (!isTermsAccepted) newErrors.terms = 'Please accept terms';
+        if (!isTermsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -97,7 +97,7 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
                     <div className="flex items-start gap-4 py-1">
                         <div
                             onClick={() => setIsTermsAccepted(!isTermsAccepted)}
-                            className={`mt-1 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-lg cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#60a5fa] border-[#60a5fa]' : 'bg-transparent border-[#60a5fa]/30'}`}
+                            className={`mt-1 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-lg cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#60a5fa] border-[#60a5fa]' : `bg-transparent ${errors.terms ? 'border-red-500' : 'border-[#60a5fa]/30'}`}`}
                         >
                             {isTermsAccepted && <span className="text-[#1e1b4b] font-black text-xs">✓</span>}
                         </div>

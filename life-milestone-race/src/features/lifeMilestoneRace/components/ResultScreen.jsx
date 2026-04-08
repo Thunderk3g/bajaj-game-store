@@ -60,6 +60,7 @@ const ResultScreen = ({
 
         if (!formData.date) errs.date = "Required";
         if (!formData.time) errs.time = "Required";
+        if (!termsAccepted) errs.terms = "Please agree to Terms and Conditions";
 
         setErrors(errs);
         return Object.keys(errs).length === 0;
@@ -315,11 +316,14 @@ const ResultScreen = ({
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                     <input
-                                        type="date"
+                                        type={formData.date ? "date" : "text"}
+                                        onFocus={(e) => e.target.type = 'date'}
+                                        onBlur={(e) => !formData.date && (e.target.type = 'text')}
                                         min={today}
                                         max={endOfYear}
                                         value={formData.date} onChange={e => updateField('date', e.target.value)}
                                         className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4"
+                                        placeholder="DD MM YYYY"
                                     />
                                     {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                 </div>
@@ -365,19 +369,22 @@ const ResultScreen = ({
                                         id="modal-terms"
                                         type="checkbox"
                                         checked={termsAccepted}
-                                        onChange={(e) => setTermsAccepted(e.target.checked)}
-                                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2]"
+                                        onChange={(e) => {
+                                            setTermsAccepted(e.target.checked);
+                                            if (errors.terms && e.target.checked) setErrors(prev => ({ ...prev, terms: null }));
+                                        }}
+                                        className={`peer h-4 w-4 cursor-pointer appearance-none rounded border-2 bg-slate-50 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2] ${errors.terms ? 'border-red-500' : 'border-slate-300'}`}
                                     />
                                     <Check className="pointer-events-none absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
                                 </div>
-                                <label htmlFor="modal-terms" className="text-[9px] sm:text-[10px] font-semibold text-slate-500 leading-tight select-none">
+                                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 leading-tight select-none">
                                     I agree and consent to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] font-bold hover:underline inline">T&C and Privacy Policy</button>
-                                </label>
+                                </div>
                             </div>
 
                             <button
                                 type="submit"
-                                disabled={isSubmitting || !termsAccepted}
+                                disabled={isSubmitting}
                                 className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest text-sm mt-2 border-2 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Confirming...' : 'Book a Slot'}

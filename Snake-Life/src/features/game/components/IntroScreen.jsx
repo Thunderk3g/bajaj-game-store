@@ -21,7 +21,7 @@ const IntroScreen = ({ onStart }) => {
         if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number';
         else if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = 'Invalid 10-digit number (starts 6-9)';
 
-        if (!isTermsAccepted) newErrors.terms = 'Please accept terms';
+        if (!isTermsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

@@ -109,7 +109,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
             errs.timeSlot = "Select a slot";
         }
         if (!bookingTermsAccepted) {
-            errs.terms = "Accept terms";
+            errs.terms = "Please agree to Terms and Conditions";
         }
 
         setErrors(errs);
@@ -321,7 +321,9 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                                 <input
                                     id="booking-date"
                                     name="date"
-                                    type="date"
+                                    type={bookingData.date ? "date" : "text"}
+                                    onFocus={(e) => e.target.type = 'date'}
+                                    onBlur={(e) => !bookingData.date && (e.target.type = 'text')}
                                     value={bookingData.date}
                                     min={today}
                                     max={maxDate}
@@ -329,7 +331,8 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                                         setBookingData(prev => ({ ...prev, date: e.target.value }));
                                         setErrors(prev => ({ ...prev, date: null }));
                                     }}
-                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none uppercase text-sm min-h-[52px] [&::-webkit-calendar-picker-indicator]:opacity-0 ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
+                                    placeholder="DD MM YYYY"
+                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none uppercase text-sm min-h-[52px] [&::-webkit-calendar-picker-indicator]:opacity-0 ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-800'}`}
                                 />
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                     <Calendar className="w-4 h-4 text-white/40" />
@@ -382,7 +385,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
 
                         <div className="flex flex-col gap-2 py-1">
                             <div className="flex items-start gap-3 cursor-pointer" onClick={() => { setBookingTermsAccepted(!bookingTermsAccepted); setErrors(prev => ({ ...prev, terms: null })) }}>
-                                <div className={`mt-0.5 shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-green-600 border-green-600' : 'border-slate-800 bg-slate-900'}`}>
+                                <div className={`mt-0.5 shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-green-600 border-green-600' : `bg-slate-900 ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-800'}`}`}>
                                     {bookingTermsAccepted && <ShieldCheck className="w-4 h-4 text-white" />}
                                 </div>
                                 <div className="text-xs text-slate-400 font-bold leading-tight">
@@ -404,7 +407,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                             disabled={isSubmitting}
                             className={`w-full py-4 rounded-2xl text-xl font-black text-white transition-all ${isSubmitting ? 'bg-green-800 opacity-50' : 'bg-green-600 hover:bg-green-500 active:scale-95 shadow-lg'}`}
                         >
-                            {isSubmitting ? 'Booking...' : 'Confirm booking'}
+                            {isSubmitting ? 'Booking...' : 'Confirm Booking'}
                         </button>
                     </form>
                 </div>
@@ -433,7 +436,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                             onClick={() => { setIsTermsOpen(false); setBookingTermsAccepted(true); }}
                             className="w-full mt-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-500 transition-colors text-sm uppercase tracking-wider"
                         >
-                            I Agree
+                            I AGREE
                         </button>
                     </div>
                 </div>

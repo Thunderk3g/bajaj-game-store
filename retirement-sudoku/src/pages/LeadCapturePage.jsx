@@ -20,7 +20,7 @@ const LeadCapturePage = () => {
 
         if (!/^[6-9]\d{9}$/.test(phone)) newErrors.phone = 'Invalid 10-digit number';
 
-        if (!isTermsAccepted) newErrors.terms = 'Please accept terms';
+        if (!isTermsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

@@ -41,7 +41,7 @@ const TermsModal = () => (
                 <div className="mt-6">
                     <Dialog.Close asChild>
                         <button className="btn-primary-3d w-full !py-3 uppercase tracking-widest text-sm">
-                            Close
+                            I Agree
                         </button>
                     </Dialog.Close>
                 </div>
@@ -123,6 +123,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
         }
         if (!formData.date) errs.date = "Preferred Date is required";
         if (!formData.time) errs.time = "Preferred Time is required";
+        if (!formData.consent) errs.consent = "Please agree to Terms and Conditions";
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -383,19 +384,15 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     <Input
                                         id="booking-date"
                                         name="date"
-                                        type="date"
+                                        type={formData.date ? "date" : "text"}
+                                        onFocus={(e) => (e.target.type = "date")}
+                                        onBlur={(e) => !e.target.value && (e.target.type = "text")}
                                         min={today}
                                         max={maxDate}
                                         value={formData.date}
                                         onChange={e => updateField('date', e.target.value)}
-                                        ref={(el) => {
-                                            if (el) {
-                                                // We can store it in a local variable or use a ref if needed, 
-                                                // but for a single click handler, we can find it via parent
-                                            }
-                                        }}
                                         className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-12 pr-12 uppercase text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
-                                        placeholder="DD-MM-YYYY"
+                                        placeholder="DD MM YYYY"
                                     />
                                     <div
                                         className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-1"
@@ -509,7 +506,7 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                             </div>
 
                             {/* Consent Checkbox - pre-checked */}
-                            <label htmlFor="booking-consent" className="flex justify-center items-center gap-2 cursor-pointer mt-1 text-center">
+                            <div className="flex justify-center items-center gap-2 mt-1 text-center">
                                 <input
                                     id="booking-consent"
                                     name="consent"
@@ -521,7 +518,12 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">
                                     I agree and consent to the <TermsModal />
                                 </span>
-                            </label>
+                            </div>
+                            {errors.consent && (
+                                <p className="text-red-500 text-[10px] font-black uppercase tracking-wider text-center pt-1">
+                                    {errors.consent}
+                                </p>
+                            )}
 
                             <button
                                 type="submit"

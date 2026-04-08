@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar } from 'lucide-react';
 import { updateLeadNew, submitToLMS } from '../utils/api';
@@ -6,12 +6,23 @@ import TermsModal from './TermsModal';
 import { useGameState } from '../hooks/useGameState';
 
 export default function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile }) {
+    const { setLastSubmittedPhone, showToast } = useGameState();
     const [formData, setFormData] = useState({ name: initialName || '', mobile: initialMobile || '', date: '', time: '' });
+
+    useEffect(() => {
+        if (isOpen) {
+            setFormData(prev => ({
+                ...prev,
+                name: initialName || prev.name,
+                mobile: initialMobile || prev.mobile
+            }));
+        }
+    }, [isOpen, initialName, initialMobile]);
     const [termsAccepted, setTermsAccepted] = useState(true);
     const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { showToast } = useGameState();
+    const { setLeadNo } = useGameState();
 
     const updateField = (field, val) => {
         setFormData(p => ({ ...p, [field]: val }));
@@ -51,7 +62,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
 
         // 5. Terms Validation
         if (!termsAccepted) {
-            errs.terms = "Please accept the terms";
+            errs.terms = "Please agree to Terms and Conditions";
         }
 
         setErrors(errs);
@@ -189,11 +200,14 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                     <input
-                                        type="date"
+                                        type={formData.date ? "date" : "text"}
+                                        onFocus={(e) => e.target.type = 'date'}
+                                        onBlur={(e) => !formData.date && (e.target.type = 'text')}
                                         min={todayStr}
                                         value={formData.date}
                                         onChange={e => updateField('date', e.target.value)}
-                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-200 text-xs font-bold px-4 transition-colors"
+                                        className={`w-full bg-slate-50 h-11 border-2 rounded-xl text-slate-800 placeholder:text-slate-300 focus:outline-none transition-all px-4 font-bold text-sm ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100 focus:border-blue-200'}`}
+                                        placeholder="DD MM YYYY"
                                     />
                                     {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                 </div>
@@ -239,9 +253,13 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                     onClick={() => {
                                         const newVal = !termsAccepted;
                                         setTermsAccepted(newVal);
-                                        if (errors.terms && newVal) setErrors(p => ({ ...p, terms: null }));
+                                        if (errors.terms && newVal) setErrors(p => {
+                                            const next = { ...p };
+                                            delete next.terms;
+                                            return next;
+                                        });
                                     }}
-                                    className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center rounded cursor-pointer transition-all ${termsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-white border-slate-300'}`}
+                                    className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center rounded cursor-pointer transition-all ${termsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : `bg-white ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'}`}`}
                                 >
                                     {termsAccepted && <span className="text-white font-black text-[10px]">✓</span>}
                                 </div>
@@ -249,15 +267,14 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                     I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#1e40af] transition-colors">T&C and Privacy Policy</span>
                                 </p>
                             </div>
-                            {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider text-center">{errors.terms}</div>}
-                            {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider text-center">{errors.terms}</div>}
+                            {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider ml-8 -mt-2">{errors.terms}</div>}
 
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
                                 className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest text-sm mt-2 border-2 border-white/20"
                             >
-                                {isSubmitting ? 'Confirming...' : 'Book a Slot'}
+                                {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
                             </button>
                         </form>
                     </motion.div>

@@ -36,6 +36,8 @@ export default function LeadModal({
         if (!name.trim()) newErrors.name = 'Name is required';
         if (phone.length !== 10) newErrors.phone = 'Enter valid 10-digit number';
 
+        if (!termsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -191,11 +193,14 @@ export default function LeadModal({
                                     </label>
                                     <input
                                         id="preferredDate"
-                                        type="date"
+                                        type={preferredDate ? "date" : "text"}
+                                        onFocus={(e) => e.target.type = 'date'}
+                                        onBlur={(e) => !preferredDate && (e.target.type = 'text')}
                                         value={preferredDate}
                                         onChange={(e) => setPreferredDate(e.target.value)}
                                         className={styles.input}
                                         min={new Date().toISOString().split('T')[0]}
+                                        placeholder="DD MM YYYY"
                                     />
                                 </div>
                                 <div className={styles.field}>
@@ -252,10 +257,11 @@ export default function LeadModal({
                             <div className={styles.termsRow}>
                                 <div
                                     onClick={() => {
-                                        setTermsAccepted(!termsAccepted);
-                                        setErrors(prev => ({ ...prev, terms: null }));
+                                        const newVal = !termsAccepted;
+                                        setTermsAccepted(newVal);
+                                        if (errors.terms && newVal) setErrors({ ...errors, terms: null });
                                     }}
-                                    className={`${styles.customCheckboxBox} ${termsAccepted ? styles.customCheckboxBoxChecked : ''}`}
+                                    className={`${styles.customCheckboxBox} ${termsAccepted ? styles.customCheckboxBoxChecked : `${styles.customCheckboxBox} ${errors.terms ? styles.customCheckboxBoxError : ''}`}`}
                                 >
                                     {termsAccepted && <Check className={styles.customCheckboxIcon} strokeWidth={4} />}
                                 </div>
@@ -273,7 +279,7 @@ export default function LeadModal({
 
                         <button
                             type="submit"
-                            disabled={!name.trim() || phone.length !== 10 || (isBooking && (!preferredDate || !preferredTime)) || !termsAccepted || isSubmitting}
+                            disabled={isSubmitting}
                             className={styles.submitBtn}
                         >
                             {isSubmitting ? (
@@ -282,7 +288,7 @@ export default function LeadModal({
                                     <span>{isBooking ? "Booking..." : "Starting..."}</span>
                                 </>
                             ) : (
-                                isBooking ? "Book a Slot" : "Let's Go!"
+                                isBooking ? "Confirm Booking" : "Let's Go!"
                             )}
                         </button>
                     </form>
@@ -322,7 +328,7 @@ export default function LeadModal({
                                     className={styles.agreeBtn}
                                     onClick={() => setShowTerms(false)}
                                 >
-                                    I Agree
+                                    I AGREE
                                 </button>
                             </motion.div>
                         </div>

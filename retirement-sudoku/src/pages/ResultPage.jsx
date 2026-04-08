@@ -210,7 +210,7 @@ function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile })
             if (selected < today) errs.date = 'Select today or a future date';
         }
         if (!formData.time) errs.time = 'Time is required';
-        if (!termsAccepted) errs.terms = 'Please accept the terms';
+        if (!termsAccepted) errs.terms = 'Please agree to Terms and Conditions';
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };

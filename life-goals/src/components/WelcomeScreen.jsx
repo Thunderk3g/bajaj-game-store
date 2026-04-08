@@ -81,7 +81,7 @@ const WelcomeScreen = ({
         }
 
         if (!termsAccepted) {
-            newErrors.terms = 'Please accept the Terms & Conditions';
+            newErrors.terms = 'Please agree to Terms and Conditions';
         }
 
         if (Object.keys(newErrors).length > 0) {

@@ -50,7 +50,7 @@ const TermsModal = ({ isOpen, onClose }) => {
                                 onClick={onClose}
                                 className="w-full h-14 bg-[#fbbf24] hover:bg-[#fcd34d] text-[#003366] font-black text-lg tracking-[0.1em] transition-all duration-300 shadow-lg rounded-2xl border-none uppercase italic"
                             >
-                                I Agree
+                                I AGREE
                             </button>
                         </div>
                     </motion.div>

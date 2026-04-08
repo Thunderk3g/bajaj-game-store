@@ -51,7 +51,7 @@ const TermsModal = ({ isOpen, onClose }) => {
                                 className="w-full py-4 rounded-xl text-lg tracking-widest text-white uppercase font-black transition-all duration-300 shadow-lg"
                                 style={{ background: 'linear-gradient(135deg, #31CDEC 0%, #0096C7 100%)' }}
                             >
-                                I Agree
+                                I AGREE
                             </button>
                         </div>
                     </motion.div>

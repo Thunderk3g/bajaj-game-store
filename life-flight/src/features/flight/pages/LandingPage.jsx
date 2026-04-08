@@ -83,6 +83,8 @@ export default function LandingPage() {
         } else if (field === 'phone') {
             if (!value) errorMsg = 'Please enter mobile number';
             else if (!/^\d{10}$/.test(value)) errorMsg = 'Enter a valid 10-digit mobile number';
+        } else if (field === 'terms') {
+            if (!value) errorMsg = 'Please agree to Terms and Conditions';
         }
 
         if (errorMsg) {
@@ -94,11 +96,10 @@ export default function LandingPage() {
         }
     };
 
-    const validateForm = () => {
-        const isNameValid = validateField('name', userName);
-        const isPhoneValid = validateField('phone', phone);
-        return isNameValid && isPhoneValid;
-    };
+    const isNameValid = validateField('name', userName);
+    const isPhoneValid = validateField('phone', phone);
+    const isTermsValid = validateField('terms', termsAccepted);
+    return isNameValid && isPhoneValid && isTermsValid;
 
     const handleNameSubmit = async (e) => {
         e.preventDefault();
@@ -278,18 +279,19 @@ export default function LandingPage() {
                                     <div className="flex items-start gap-3">
                                         <div
                                             onClick={() => {
-                                                setTermsAccepted(!termsAccepted);
-                                                setErrors(prev => ({ ...prev, terms: null }));
+                                                const newVal = !termsAccepted;
+                                                setTermsAccepted(newVal);
+                                                validateField('terms', newVal);
                                             }}
-                                            className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${termsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : 'bg-white border-slate-300'}`}
+                                            className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${termsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : `bg-white ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'}`}`}
                                         >
                                             {termsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
                                         </div>
                                         <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight text-left">
-                                            I agree to the{' '}
+                                            I agree and consent to the{' '}
                                             <button type="button" onClick={() => setShowTerms(true)} className="text-[#00B4D8] underline cursor-pointer hover:text-[#0090ac]">
-                                                Terms & Conditions
-                                            </button>{' '}
+                                                T&C and Privacy Policy
+                                            </button>
                                             and allow Bajaj Life Insurance to contact me even if registered on DND.
                                         </div>
                                     </div>

@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar } from 'lucide-react';
 import { submitToLMS, updateLeadNew } from '../utils/api';
+import TermsModal from './TermsModal';
 
 export default function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile, leadNo, score }) {
     const [formData, setFormData] = useState({ name: initialName || '', mobile: initialMobile || '', date: '', time: '' });
     const [termsAccepted, setTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const updateField = (field, val) => {
         setFormData(p => ({ ...p, [field]: val }));
@@ -47,7 +49,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
 
         // 5. Terms Validation
         if (!termsAccepted) {
-            errs.terms = "Please accept the terms";
+            errs.terms = "Please agree to Terms and Conditions";
         }
 
         setErrors(errs);
@@ -239,7 +241,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                     />
                                 </div>
                                 <label className="text-[10px] sm:text-xs text-slate-500 leading-tight">
-                                    I authorize Bajaj Life Insurance to contact me for this request, overriding DND registry.
+                                    I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#FF8C00] transition-colors">T&C and Privacy Policy</span>
                                 </label>
                             </div>
                             {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider text-center">{errors.terms}</div>}
@@ -255,6 +257,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                     </motion.div>
                 </div>
             )}
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </AnimatePresence>
     );
 }

@@ -8,9 +8,17 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
     const [isTermsAccepted, setIsTermsAccepted] = useState(true);
     const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [focused, setFocused] = useState<string | null>(null);
+    const [errors, setErrors] = useState<any>({});
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const newErrors: any = {};
+        if (!formData.name) newErrors.name = 'Required';
+        if (!formData.mobile) newErrors.mobile = 'Required';
+        if (!isTermsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
+
+        setErrors(newErrors);
+
         if (formData.name && formData.mobile && isTermsAccepted) {
             setIsSubmitting(true);
             setTimeout(() => {
@@ -145,7 +153,7 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                                 width: '22px',
                                 height: '22px',
                                 borderRadius: '6px',
-                                border: `2px solid ${isTermsAccepted ? '#31CDEC' : '#E2E8F0'}`,
+                                border: `2px solid ${isTermsAccepted ? '#31CDEC' : (errors.terms ? '#EF4444' : '#E2E8F0')}`,
                                 backgroundColor: isTermsAccepted ? '#31CDEC' : 'transparent',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -204,7 +212,7 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                             </>
                         )}
                     </button>
-                    {!isTermsAccepted && <p style={{ color: '#EF4444', fontSize: '10px', fontWeight: '800', textAlign: 'center', margin: 0, textTransform: 'uppercase' }}>Please accept terms</p>}
+                    {errors.terms && !isTermsAccepted && <p style={{ color: '#EF4444', fontSize: '10px', fontWeight: '800', textAlign: 'center', margin: 0, textTransform: 'uppercase' }}>{errors.terms}</p>}
                 </form>
             </div>
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Check } from 'lucide-react';
 import { submitToLMS } from '../services/apiClient';
 import TermsModal from './TermsModal';
 
@@ -18,7 +19,7 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
 
         if (!/^[6-9]\d{9}$/.test(phone)) newErrors.phone = 'Invalid 10-digit number';
 
-        if (!isTermsAccepted) newErrors.terms = 'Please accept terms';
+        if (!isTermsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -100,8 +101,16 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
 
                     <div className="flex items-start gap-4 py-2">
                         <div
-                            onClick={() => setIsTermsAccepted(!isTermsAccepted)}
-                            className={`mt-1 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-lg cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#fbbf24] border-[#fbbf24]' : 'bg-transparent border-blue-800'}`}
+                            onClick={() => {
+                                const newVal = !isTermsAccepted;
+                                setIsTermsAccepted(newVal);
+                                if (errors.terms && newVal) setErrors(prev => {
+                                    const next = { ...prev };
+                                    delete next.terms;
+                                    return next;
+                                });
+                            }}
+                            className={`mt-1 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-lg cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#fbbf24] border-[#fbbf24]' : `bg-transparent ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-blue-800'}`}`}
                         >
                             {isTermsAccepted && <span className="text-[#003366] font-black text-xs">✓</span>}
                         </div>

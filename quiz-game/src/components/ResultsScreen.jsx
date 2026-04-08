@@ -9,6 +9,7 @@ import ScoreCard from './ScoreCard';
 import Confetti from './Confetti';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQuiz } from '../context/QuizContext';
+import TermsModal from './TermsModal';
 
 const ResultsScreen = ({ score, total, onRestart }) => {
     const { leadName, leadPhone, handleBookingSubmit, isTermsAccepted } = useQuiz();
@@ -102,7 +103,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             errs.timeSlot = "Select a slot";
         }
         if (!bookingTermsAccepted) {
-            errs.terms = "Accept terms";
+            errs.terms = "Please agree to Terms and Conditions";
         }
 
         setErrors(errs);
@@ -316,9 +317,11 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                             <div className="relative">
                                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
                                                 <input
-                                                    type="date"
+                                                    type={bookingData.date ? "date" : "text"}
                                                     id="booking-date"
                                                     name="date"
+                                                    onFocus={(e) => e.target.type = 'date'}
+                                                    onBlur={(e) => !bookingData.date && (e.target.type = 'text')}
                                                     value={bookingData.date}
                                                     min={today}
                                                     max={maxDate}
@@ -326,7 +329,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                                         setBookingData(prev => ({ ...prev, date: e.target.value }));
                                                         setErrors(prev => ({ ...prev, date: null }));
                                                     }}
-                                                    className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none transition-colors appearance-none ${errors.date ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
+                                                    placeholder="DD MM YYYY"
+                                                    className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none transition-colors appearance-none ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100 focus:border-blue-400'}`}
                                                 />
                                                 {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
                                             </div>
@@ -378,7 +382,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
 
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-center items-center gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
-                                            <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : 'border-slate-100 bg-gray-50'}`}>
+                                            <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : `bg-gray-50 border-slate-100 ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)] text-red-500' : ''}`}`}>
                                                 {bookingTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
                                             </div>
                                             <div className="text-[11px] text-gray-400 font-bold leading-tight underline-offset-2">
@@ -394,50 +398,14 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                         disabled={isSubmitting}
                                         className={`w-full py-4 rounded-2xl text-xl font-black text-white transition-all ${isSubmitting ? 'opacity-50' : 'bg-brand-green hover:bg-[#45a049] shadow-[0_4px_0_0_#45a049] active:translate-y-1 active:shadow-none'}`}
                                     >
-                                        {isSubmitting ? 'Booking...' : 'Book a slot'}
+                                        {isSubmitting ? 'Booking...' : 'Confirm Booking'}
                                     </motion.button>
                                 </form>
-                            </motion.div>
-                        </div>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
 
-            {/* Terms Modal via Radix Dialog for correct stacking */}
-            <Dialog.Root open={isTermsOpen} onOpenChange={setIsTermsOpen}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]" />
-                    <Dialog.Content asChild aria-describedby={undefined}>
-                        <div className="fixed inset-0 z-[100] grid place-items-center p-4">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                className="bg-white border-2 border-soft-gray rounded-[32px] p-8 w-full max-w-lg shadow-2xl relative"
-                            >
-                                <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
-                                    <Dialog.Title className="text-[#0066B2] text-xl font-black uppercase tracking-tight">
-                                        Terms & Conditions
-                                    </Dialog.Title>
-                                    <button
-                                        onClick={() => setIsTermsOpen(false)}
-                                        className="text-slate-400 hover:text-slate-600 transition-colors p-1"
-                                    >
-                                        <X className="w-6 h-6" />
-                                    </button>
-                                </div>
-                                <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200 text-left">
-                                    <p>I hereby authorize Bajaj Life Insurance Limited. to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business</p>
-                                    <p>Please refer to Bajaj Life <a href="https://www.bajajlifeinsurance.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">Privacy Policy</a>.</p>
-                                </div>
-                                <div className="mt-6">
-                                    <button
-                                        onClick={() => { setIsTermsOpen(false); setBookingTermsAccepted(true); }}
-                                        className="w-full mt-6 py-3 bg-[#0066B2] text-white font-bold rounded-lg hover:bg-blue-700 transition-colors text-sm uppercase tracking-wider"
-                                    >
-                                        I Agree
-                                    </button>
-                                </div>
+                                <TermsModal
+                                    isOpen={isTermsOpen}
+                                    onClose={() => setIsTermsOpen(false)}
+                                />
                             </motion.div>
                         </div>
                     </Dialog.Content>

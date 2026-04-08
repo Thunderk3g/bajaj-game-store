@@ -26,14 +26,14 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
     const [preferredTime, setPreferredTime] = useState('');
     const [preferredDate, setPreferredDate] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(true);
-    const [errors, setErrors] = useState<{ name?: string; mobile?: string }>({});
+    const [errors, setErrors] = useState<{ name?: string; mobile?: string; terms?: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showTerms, setShowTerms] = useState(false);
 
     const validate = () => {
         const e: typeof errors = {};
         if (!name.trim()) e.name = 'Name is required';
-        if (mobile.length !== 10) e.mobile = 'Enter a valid 10-digit number';
+        if (!termsAccepted) e.terms = 'Please agree to Terms and Conditions';
         setErrors(e);
         return Object.keys(e).length === 0;
     };
@@ -181,9 +181,12 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
                                 </label>
                                 <div>
                                     <input
-                                        type="date"
+                                        type={preferredDate ? "date" : "text"}
+                                        onFocus={(e) => e.target.type = 'date'}
+                                        onBlur={(e) => !preferredDate && (e.target.type = 'text')}
                                         value={preferredDate}
                                         style={{ ...inputStyle(false), padding: 'clamp(10px, 2.5vh, 14px) 8px' }}
+                                        placeholder="DD MM YYYY"
                                         // Set min date to today
                                         min={new Date().toISOString().split('T')[0]}
                                         onChange={e => setPreferredDate(e.target.value)}
@@ -239,7 +242,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
                                 style={{
                                     width: 20, height: 20, borderRadius: 4,
                                     background: termsAccepted ? T.blue : T.white,
-                                    border: `2px solid ${termsAccepted ? T.blue : T.border}`,
+                                    border: `2px solid ${termsAccepted ? T.blue : (errors.terms ? T.error : T.border)}`,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     cursor: 'pointer', flexShrink: 0, marginTop: 2,
                                     transition: 'all 0.15s'

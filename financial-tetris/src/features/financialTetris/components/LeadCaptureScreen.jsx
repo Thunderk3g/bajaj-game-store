@@ -17,7 +17,7 @@ const LeadCaptureScreen = ({ onLeadSubmit }) => {
         if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number';
         else if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = 'Invalid 10-digit number (starts 6-9)';
 
-        if (!isTermsAccepted) newErrors.terms = 'Please accept terms';
+        if (!isTermsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -83,8 +83,16 @@ const LeadCaptureScreen = ({ onLeadSubmit }) => {
 
                     <div className="flex items-start gap-3 py-1">
                         <div
-                            onClick={() => setIsTermsAccepted(!isTermsAccepted)}
-                            className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-md cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : 'bg-white border-slate-300'}`}
+                            onClick={() => {
+                                const newVal = !isTermsAccepted;
+                                setIsTermsAccepted(newVal);
+                                if (errors.terms && newVal) setErrors(prev => {
+                                    const next = { ...prev };
+                                    delete next.terms;
+                                    return next;
+                                });
+                            }}
+                            className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-md cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : `bg-white ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'}`}`}
                         >
                             {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
                         </div>
