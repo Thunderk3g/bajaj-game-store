@@ -88,7 +88,7 @@ const ResultScreen = memo(function ResultScreen({
             if (sel > mx) errs.date = 'Max 1 month ahead';
         }
         if (!bookingForm.time) errs.time = 'Required';
-        if (!agreedTerms) errs.terms = 'Please agree to Terms and Conditions';
+        if (!agreedTerms) errs.terms = 'Please agree';
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -313,15 +313,12 @@ const ResultScreen = memo(function ResultScreen({
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                         <input
-                                            type={bookingForm.date ? "date" : "text"}
-                                            onFocus={(e) => e.target.type = 'date'}
-                                            onBlur={(e) => !bookingForm.date && (e.target.type = 'text')}
+                                            type="date"
                                             min={today}
                                             max={maxDate}
                                             value={bookingForm.date}
                                             onChange={(e) => updateField('date', e.target.value)}
-                                            className={`w-full bg-slate-50 h-10 border-2 rounded text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 text-[10px] font-bold px-2 ${errors.date ? 'border-red-500' : 'border-slate-100'}`}
-                                            placeholder="DD MM YYYY"
+                                            className="w-full bg-slate-50 h-10 border-2 border-slate-100 text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 text-[10px] font-bold px-2 rounded"
                                         />
                                         {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                     </div>
@@ -360,24 +357,18 @@ const ResultScreen = memo(function ResultScreen({
                                 </div>
 
                                 {/* Checkbox */}
-                                <div className="flex items-start gap-2 pt-1">
+                                <div className="flex items-start gap-3 py-1">
                                     <div
                                         onClick={() => {
-                                            const newVal = !agreedTerms;
-                                            setAgreedTerms(newVal);
+                                            setAgreedTerms(!agreedTerms);
                                             if (errors.terms) setErrors(p => ({ ...p, terms: null }));
                                         }}
-                                        className="relative mt-0.5 shrink-0 cursor-pointer"
+                                        className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center rounded-md cursor-pointer transition-all ${agreedTerms ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-transparent border-slate-300'}`}
                                     >
-                                        <div className={`w-4 h-4 border-2 rounded transition-all ${agreedTerms ? 'bg-[#0066B2] border-[#0066B2]' : `bg-slate-50 ${errors.terms ? 'border-red-500' : 'border-slate-200'}`}`}></div>
-                                        {agreedTerms && (
-                                            <svg className="absolute top-0 left-0 w-4 h-4 text-white p-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="20 6 9 17 4 12"></polyline>
-                                            </svg>
-                                        )}
+                                        {agreedTerms && <span className="text-white font-black text-[10px]">✓</span>}
                                     </div>
-                                    <p className="text-[10px] text-slate-500 leading-tight font-semibold select-none">
-                                        I agree and consent to the <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => { e.stopPropagation(); /* No TermsModal here but usually we add it if available */ alert('Terms and Conditions applied.'); }}>T&C and Privacy Policy</span>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-snug pt-0.5">
+                                        I agree and consent to the <button type="button" onClick={() => setShowTermsModal(true)} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#004C85] transition-colors gap-0 p-0">T&C and Privacy Policy</button>
                                     </p>
                                 </div>
                                 {errors.terms && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.terms}</span>}
