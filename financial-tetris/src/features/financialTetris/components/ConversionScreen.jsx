@@ -317,9 +317,9 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                         <div className="w-full">
                             <label className="text-sm font-bold text-gray-400 block mb-1 ml-1">Preferred Date</label>
                             <div className="relative w-full" onClick={(e) => {
-                                 const input = e.currentTarget.querySelector('input');
-                                 if (input && input.showPicker) input.showPicker();
-                             }}>
+                                const input = e.currentTarget.querySelector('input');
+                                if (input && input.showPicker) input.showPicker();
+                            }}>
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500 pointer-events-none" strokeWidth={2.5} />
                                 <input
                                     id="booking-date"
@@ -334,12 +334,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                                         setBookingData(prev => ({ ...prev, date: e.target.value }));
                                         setErrors(prev => ({ ...prev, date: null }));
                                     }}
-<<<<<<< HEAD
-                                    placeholder="DD MM YYYY"
-                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none uppercase text-sm min-h-[52px] [&::-webkit-calendar-picker-indicator]:opacity-0 ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-800'}`}
-=======
                                     className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all uppercase text-sm min-h-[52px] ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
->>>>>>> 3a6220d4ca04c86404edac947d6466ac3d32f17e
                                 />
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                     <ChevronDown className="w-4 h-4 text-white/40" />
