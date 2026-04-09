@@ -8,7 +8,7 @@ export async function shortenUrl(longUrl) {
 
     try {
         console.log('[Shortener] Shortening URL:', longUrl);
-        const response = await fetch('https://api.vspagy.com/proc/json', {
+        const response = await fetch('https://vspagy.com/csites/apishortlink/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
