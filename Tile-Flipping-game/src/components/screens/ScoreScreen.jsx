@@ -77,10 +77,11 @@ export default function ScoreScreen({ showToast }) {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = (typeof user !== 'undefined' ? user?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
 
         const shareData = {
             title: 'Insurance Match',
-            text: `Hi,\nMy memory score is ${typeof scoreVal === 'number' ? Math.round(scoreVal) : scoreVal}. Find out yours ${shareUrl}\n\n${senderName}`.trim(),
+            text: `Hi,\nMy memory score is ${typeof scoreVal === 'number' ? Math.round(scoreVal) : scoreVal}. Find out yours ${shareUrl}${signature}`.trim(),
             url: shareUrl
         };
 

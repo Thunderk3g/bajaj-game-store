@@ -169,10 +169,11 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
 
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof userName !== 'undefined' ? userName : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
 
         const shareData = {
             title: 'Life Goals Preparedness',
-            text: `Hi,\nI just tried this Life Goals Preparedness Quiz and scored ${Math.round(score)}/100. It was quite interesting!\nSee how prepared you are for your life goals — try it here: ${shareUrl}\n\n${senderName}`.trim(),
+            text: `Hi,\nI just tried this Life Goals Preparedness Quiz and scored ${Math.round(score)}/100. It was quite interesting!\nSee how prepared you are for your life goals — try it here: ${shareUrl}${signature}`.trim(),
             url: shareUrl
         };
 

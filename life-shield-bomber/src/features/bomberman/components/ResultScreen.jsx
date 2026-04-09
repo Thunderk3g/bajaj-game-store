@@ -111,7 +111,8 @@ const ResultScreen = memo(function ResultScreen({
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof entryDetails !== 'undefined' ? entryDetails?.name : '') || '';
-        const shareText = `Hi,\nI just realized the importance of riders to protect from life risks. You should try this interesting game. ${shareUrl}\n\n${senderName}`.trim();
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareText = `Hi,\nI just realized the importance of riders to protect from life risks. You should try this interesting game. ${shareUrl}${signature}`.trim();
         try {
             if (navigator.share) {
                 const sharePayload = {

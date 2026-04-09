@@ -32,9 +32,10 @@ const Results = ({ score, onReset, userInfo }) => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof userInfo !== 'undefined' ? userInfo?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
         const shareData = {
             title: 'Retirement Readiness',
-            text: `Hi,\nI just tried this retirement preparedness test and scored ${Math.round(score)}/100. It really made me think about my retirement corpus!\nSee how prepared you are — try it here: ${shareUrl}\n\n${senderName}`.trim(),
+            text: `Hi,\nI just discovered this retirement preparedness test and scored ${Math.round(score)}/100. It really made me think about my retirement corpus!\nSee how prepared you are — try it here: ${shareUrl}${signature}`.trim(),
             url: shareUrl
         };
 

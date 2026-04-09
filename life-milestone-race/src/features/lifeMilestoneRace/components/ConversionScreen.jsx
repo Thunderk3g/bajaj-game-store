@@ -32,7 +32,8 @@ const ConversionScreen = memo(function ConversionScreen({
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof leadData !== 'undefined' ? leadData?.name : '') || '';
-        const shareText = `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}\n\n${senderName}`.trim();
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareText = `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}${signature}`.trim();
         const shareData = {
             title: 'Life Milestone Race',
             text: shareText,

@@ -109,7 +109,11 @@ const ResultScreen = ({
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
-        const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list. Click here ${shareUrl}`.trim();
+        const senderName = userName || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        // Keep URL out of text — the `url` field in sharePayload handles it.
+        // Combining both causes WhatsApp to show the link twice.
+        const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list.${signature}`.trim();
         if (navigator.share) {
             try {
                 const sharePayload = {
@@ -131,11 +135,11 @@ const ResultScreen = ({
             } catch (err) {
                 // If user cancels, we do nothing. If error, fallback.
                 if (err.name !== 'AbortError') {
-                    copyToClipboard(text + " " + shareUrl);
+                    copyToClipboard(`${text}\n${shareUrl}`);
                 }
             }
         } else {
-            copyToClipboard(text + " " + shareUrl);
+            copyToClipboard(`${text}\n${shareUrl}`);
         }
     };
 

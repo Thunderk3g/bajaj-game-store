@@ -114,9 +114,10 @@ const ResultScreen = ({
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof formData !== 'undefined' ? formData?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
         const shareData = {
             title: 'Life Milestone Race',
-            text: `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}\n\n${senderName}`.trim(),
+            text: `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}${signature}`.trim(),
             url: shareUrl
         };
 

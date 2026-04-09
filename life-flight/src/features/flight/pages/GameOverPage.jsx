@@ -204,7 +204,8 @@ export default function GameOverPage() {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = sessionStorage.getItem('lastSubmittedName') || userName || '';
-        const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}\n\n${senderName}`.trim();
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}${signature}`.trim();
         if (navigator.share) {
             try {
                 const sharePayload = {

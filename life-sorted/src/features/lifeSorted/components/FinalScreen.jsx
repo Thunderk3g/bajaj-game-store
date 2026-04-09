@@ -49,7 +49,8 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof leadData !== 'undefined' ? leadData?.name : '') || '';
-        const text = `Hi,\nI just tried this life finance sorting challenge — it really shows why savings, goals and risks shouldn't be mixed together.\nGive it a try: ${shareUrl}\n\n${senderName}`.trim();
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const text = `Hi,\nI just tried this life finance sorting challenge — it really shows why savings, goals and risks shouldn't be mixed together.\nGive it a try: ${shareUrl}${signature}`.trim();
         if (navigator.share) {
             try {
                 const sharePayload = {

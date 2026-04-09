@@ -7,7 +7,7 @@ import ScoreCard from './ScoreCard';
 import Modal from '../../../components/ui/Modal';
 import ThankYouScreen from './ThankYouScreen';
 
-const gameThumbnail = '/assets/welcome_bg.png';
+const gameThumbnail = './assets/welcome_bg.png';
 
 const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot }) => {
     const today = new Date().toISOString().split("T")[0];
@@ -48,13 +48,15 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = (typeof leadData !== 'undefined' ? leadData?.name : '') || '';
-        const shareMessage = `Hi,\nI just played Blocks of Wealth and achieved ${Math.round(score)} milestones.\nSee how many milestones you can reach — try it here: ${shareUrl}\n\n${senderName}`.trim();
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareMessage = `Hi,\nI just played Blocks of Wealth and achieved ${Math.round(score)} milestones.\nSee how many milestones you can reach — try it here: ${shareUrl}${signature}`.trim();
 
         if (navigator.share) {
             try {
                 const sharePayload = {
                     title: 'Financial Tetris',
-                    text: shareMessage
+                    text: shareMessage,
+                    url: shareUrl
                 };
                 try {
                     const res = await fetch(gameThumbnail);

@@ -32,8 +32,9 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
-        const senderName = (typeof leadData !== 'undefined' ? leadData?.name : (firstName || '')) || '';
-        const shareText = `Hi,\nI just tried this word-unscramble challenge on life insurance and scored ${(finalScore)}/5.\nSee if you can beat my score — try it here: ${shareUrl}\n\n${senderName}`.trim();
+        const senderName = firstName || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareText = `Hi,\nI just tried this word-unscramble challenge on life insurance and scored ${(finalScore)}/5.\nSee if you can beat my score — try it here: ${shareUrl}${signature}`.trim();
         const shareData = {
             title: 'Unscrambled Financial Words',
             text: shareText,
