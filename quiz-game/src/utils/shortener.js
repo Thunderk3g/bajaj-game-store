@@ -11,7 +11,7 @@ export async function shortenUrl(longUrl) {
         const response = await fetch('https://vspagy.com/csites/apishortlink/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: JSON.stringify({
                 "bid": "30144827887",
