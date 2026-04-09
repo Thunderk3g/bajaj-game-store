@@ -384,15 +384,12 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     <Input
                                         id="booking-date"
                                         name="date"
-                                        type={formData.date ? "date" : "text"}
-                                        onFocus={(e) => (e.target.type = "date")}
-                                        onBlur={(e) => !e.target.value && (e.target.type = "text")}
+                                        type="date"
                                         min={today}
                                         max={maxDate}
                                         value={formData.date}
                                         onChange={e => updateField('date', e.target.value)}
-                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-12 pr-12 uppercase text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
-                                        placeholder="DD MM YYYY"
+                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-12 pr-12 uppercase text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
                                     />
                                     <div
                                         className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-1"

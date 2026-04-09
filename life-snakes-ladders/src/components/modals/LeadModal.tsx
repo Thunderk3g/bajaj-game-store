@@ -181,13 +181,9 @@ const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSubmit, isBooking = fa
                                 </label>
                                 <div>
                                     <input
-                                        type={preferredDate ? "date" : "text"}
-                                        onFocus={(e) => e.target.type = 'date'}
-                                        onBlur={(e) => !preferredDate && (e.target.type = 'text')}
+                                        type="date"
                                         value={preferredDate}
                                         style={{ ...inputStyle(false), padding: 'clamp(10px, 2.5vh, 14px) 8px' }}
-                                        placeholder="DD MM YYYY"
-                                        // Set min date to today
                                         min={new Date().toISOString().split('T')[0]}
                                         onChange={e => setPreferredDate(e.target.value)}
                                     />

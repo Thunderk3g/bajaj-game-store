@@ -319,9 +319,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                             <div className="relative">
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500 pointer-events-none" strokeWidth={2.5} />
                                 <input
-                                    type={bookingData.date ? "date" : "text"}
-                                    onFocus={(e) => e.target.type = 'date'}
-                                    onBlur={(e) => !bookingData.date && (e.target.type = 'text')}
+                                    type="date"
                                     value={bookingData.date}
                                     min={today}
                                     max={maxDate}
@@ -331,7 +329,6 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                     }}
                                     id="date"
                                     name="date"
-                                    placeholder="DD MM YYYY"
                                     className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-12 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none uppercase text-sm min-h-[52px] text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-800'}`}
                                 />
                                 <div

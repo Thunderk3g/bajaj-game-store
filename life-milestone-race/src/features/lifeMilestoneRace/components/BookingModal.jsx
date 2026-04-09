@@ -196,14 +196,11 @@ const BookingModal = memo(function BookingModal({
                                                 <div className="relative">
                                                     <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                                     <input
-                                                        type={formData.preferredDate ? "date" : "text"}
-                                                        onFocus={(e) => e.target.type = 'date'}
-                                                        onBlur={(e) => !formData.preferredDate && (e.target.type = 'text')}
+                                                        type="date"
                                                         min={today}
                                                         value={formData.preferredDate}
                                                         onChange={(e) => handleChange('preferredDate', e.target.value)}
                                                         className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.preferredDate ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-200'}`}
-                                                        placeholder="DD MM YYYY"
                                                     />
                                                 </div>
                                                 {errors.preferredDate && <p className="text-red-500 text-xs">{errors.preferredDate}</p>}

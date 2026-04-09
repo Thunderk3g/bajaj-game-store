@@ -200,14 +200,11 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                     <input
-                                        type={formData.date ? "date" : "text"}
-                                        onFocus={(e) => e.target.type = 'date'}
-                                        onBlur={(e) => !formData.date && (e.target.type = 'text')}
+                                        type="date"
                                         min={todayStr}
                                         value={formData.date}
                                         onChange={e => updateField('date', e.target.value)}
-                                        className={`w-full bg-slate-50 h-11 border-2 rounded-xl text-slate-800 placeholder:text-slate-300 focus:outline-none transition-all px-4 font-bold text-sm ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100 focus:border-blue-200'}`}
-                                        placeholder="DD MM YYYY"
+                                        className={`w-full bg-slate-50 h-11 border-2 rounded-xl text-slate-800 focus:outline-none transition-all px-4 font-bold text-sm ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100 focus:border-blue-200'}`}
                                     />
                                     {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                 </div>
