@@ -75,7 +75,7 @@ const LeadScreen = () => {
                 >
                     <div className={styles.header}>
                         <h2 className={styles.title}>
-                            Enter Details
+                            Enter Your Details
                         </h2>
                         <p className={styles.subtitle}>To see the results</p>
                     </div>

@@ -50,7 +50,7 @@ const LeadCaptureScreen = ({ onLeadSubmit }) => {
             >
                 <div className="text-center mb-8">
                     <h2 className="text-[#005BAC] text-2xl font-black mb-1 tracking-tight uppercase leading-tight">
-                        Enter Details
+                        Enter Your Details
                     </h2>
                     <p className="text-slate-500 font-bold text-lg text-center">To see the results</p>
                 </div>
