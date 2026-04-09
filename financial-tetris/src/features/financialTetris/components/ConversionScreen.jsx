@@ -55,8 +55,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
             try {
                 const sharePayload = {
                     title: 'Financial Tetris',
-                    text: shareMessage,
-                    url: shareUrl
+                    text: shareMessage
                 };
                 try {
                     const res = await fetch(gameThumbnail);
@@ -74,8 +73,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
             }
         } else {
             try {
-                const fullText = `${shareMessage} ${shareUrl}`;
-                await navigator.clipboard.writeText(fullText);
+                await navigator.clipboard.writeText(shareMessage);
                 alert('Score and link copied to clipboard!');
             } catch (err) {
                 console.error('Failed to copy text: ', err);

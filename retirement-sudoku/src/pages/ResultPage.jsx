@@ -452,7 +452,7 @@ const ResultPage = memo(function ResultPage() {
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.origin;
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = (typeof userName !== 'undefined' ? userName : '') || '';
+        const senderName = sessionStorage.getItem('sudokuUserName') || userName || '';
         const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
         const text = `Hi,\nI managed to balance my retirement pillars and scored ${Math.round(scenario.points !== undefined ? scenario.points : score)} in this Sudoku-style retirement challenge.\nCan you beat my score? — try it here: ${shareUrl}${signature}`.trim();
         if (navigator.share) {

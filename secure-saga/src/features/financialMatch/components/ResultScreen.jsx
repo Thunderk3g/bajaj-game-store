@@ -111,15 +111,14 @@ const ResultScreen = ({
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = userName || '';
         const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
-        // Keep URL out of text — the `url` field in sharePayload handles it.
-        // Combining both causes WhatsApp to show the link twice.
-        const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list.${signature}`.trim();
+        // URL must be inline in text (before signature). If passed as a separate `url` field,
+        // WhatsApp appends it after the last character without a newline → "[Name],[URL]".
+        const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list. ${shareUrl}${signature}`.trim();
         if (navigator.share) {
             try {
                 const sharePayload = {
                     title: 'Secure Saga',
-                    text: text,
-                    url: shareUrl
+                    text: text
                 };
                 try {
                     const res = await fetch(gameThumbnail);
