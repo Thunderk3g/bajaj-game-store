@@ -184,9 +184,11 @@ export default function ScoreScreen({ showToast }) {
                             {scenarioData.cta}
                         </p>
 
-                        <Button variant="outline" fullWidth onClick={() => window.location.href = 'tel:18001234567'} id="btn-call-now" className={styles.callNowBtn}>
-                            &nbsp; Call Now
-                        </Button>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <Button variant="outline" fullWidth onClick={() => window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`} id="btn-call-now" className={styles.callNowBtn}>
+                                &nbsp; Call Now
+                            </Button>
+                        )}
                         <Button variant="secondary" fullWidth onClick={() => setShowLeadModal(true)} id="btn-book-slot">
                             &nbsp; Book a Slot
                         </Button>

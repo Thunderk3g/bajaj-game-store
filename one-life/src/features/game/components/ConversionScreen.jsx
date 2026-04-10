@@ -143,11 +143,13 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                             Let's secure your family's future against unexcepted event
                         </p>
                         <div className="flex flex-col gap-2.5">
-                            <a href="tel:18002097272" className="block w-full">
-                                <button className="w-full h-11 bg-[#0066B2] text-white font-black shadow-[0_5px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-sm tracking-widest uppercase rounded-none">
-                                    <Phone className="w-5 h-5" /> Call Now
-                                </button>
-                            </a>
+                            {sessionStorage.getItem('gamification_emp_mobile') && (
+                                <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full">
+                                    <button className="w-full h-11 bg-[#0066B2] text-white font-black shadow-[0_5px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-sm tracking-widest uppercase rounded-none">
+                                        <Phone className="w-5 h-5" /> Call Now
+                                    </button>
+                                </a>
+                            )}
                             <div className="relative py-0 flex items-center justify-center">
                                 <div className="absolute w-full border-t border-slate-100" />
                                 <span className="relative px-3 bg-white text-slate-300 text-[8px] font-black uppercase tracking-[0.4em]">Or</span>

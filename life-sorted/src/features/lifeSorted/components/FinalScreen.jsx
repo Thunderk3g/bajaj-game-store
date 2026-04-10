@@ -159,13 +159,15 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                         </div>
 
                         <div className="flex flex-col gap-4">
-                            <a
-                                href="tel:18002097272"
-                                className="bg-[#D97706] text-black font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg hover:brightness-110 active:scale-95 shadow-xl"
-                            >
-                                <Phone className="w-5 h-5 text-black/40" />
-                                <span>Call now</span>
-                            </a>
+                            {sessionStorage.getItem('gamification_emp_mobile') ? (
+                                <a
+                                    href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                                    className="bg-[#D97706] text-black font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg hover:brightness-110 active:scale-95 shadow-xl"
+                                >
+                                    <Phone className="w-5 h-5 text-black/40" />
+                                    <span>Call now</span>
+                                </a>
+                            ) : null}
 
                             <div className="flex items-center gap-4 py-1">
                                 <div className="h-[1px] flex-1 bg-white/10" />

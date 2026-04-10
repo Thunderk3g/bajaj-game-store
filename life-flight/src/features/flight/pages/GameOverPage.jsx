@@ -443,11 +443,13 @@ export default function GameOverPage() {
                         </p>
 
                         {/* Call Action */}
-                        <a href="tel:18002097272" className="block w-full mb-4">
-                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20 rounded-md">
-                                <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
-                            </button>
-                        </a>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-4">
+                                <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20 rounded-md">
+                                    <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
+                                </button>
+                            </a>
+                        )}
 
                         <div className="relative py-1 mb-3">
                             <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-50"></div></div>

@@ -232,11 +232,13 @@ const ResultScreen = ({
                     </p>
 
                     {/* Call Action */}
-                    <a href="tel:1800209999" className="block w-full mb-2">
-                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2.5 sm:py-3 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/20">
-                            <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
-                        </button>
-                    </a>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-2">
+                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2.5 sm:py-3 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/20">
+                                <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
+                            </button>
+                        </a>
+                    )}
 
                     <div className="relative py-1 mb-2">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>

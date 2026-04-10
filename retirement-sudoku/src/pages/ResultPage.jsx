@@ -714,13 +714,15 @@ const ResultPage = memo(function ResultPage() {
                                 </motion.div>
 
                                 {/* CALL NOW */}
-                                <button
-                                    onClick={() => (window.location.href = 'tel:18002099999')}
-                                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
-                                >
-                                    <Phone className="w-4 h-4 fill-current" />
-                                    CALL NOW
-                                </button>
+                                {sessionStorage.getItem('gamification_emp_mobile') && (
+                                    <button
+                                        onClick={() => (window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`)}
+                                        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
+                                    >
+                                        <Phone className="w-4 h-4 fill-current" />
+                                        CALL NOW
+                                    </button>
+                                )}
 
                                 {/* BOOK SLOT */}
                                 <button

@@ -205,13 +205,15 @@ const Results = ({ score, onReset, userInfo }) => {
                 </div>
 
                 <div className="space-y-4 max-[640px]:space-y-2">
-                    <Button
-                        onClick={() => window.location.href = "tel:18002099999"}
-                        className="w-full h-[3.5rem] sm:h-[4rem] bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 rounded-xl shadow-lg shadow-emerald-500/20 max-[640px]:h-[3rem]"
-                    >
-                        <Phone className="w-4 h-4 sm:w-5 sm:h-5 fill-current max-[640px]:w-3 max-[640px]:h-3" />
-                        CALL NOW
-                    </Button>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <Button
+                            onClick={() => window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                            className="w-full h-[3.5rem] sm:h-[4rem] bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 rounded-xl shadow-lg shadow-emerald-500/20 max-[640px]:h-[3rem]"
+                        >
+                            <Phone className="w-4 h-4 sm:w-5 sm:h-5 fill-current max-[640px]:w-3 max-[640px]:h-3" />
+                            CALL NOW
+                        </Button>
+                    )}
 
                     <div className="flex items-center gap-4 py-1 max-[640px]:py-0 max-[640px]:gap-2">
                         <div className="flex-1 h-px bg-slate-200" />

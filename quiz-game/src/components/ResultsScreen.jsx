@@ -204,13 +204,15 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                         </p>
 
                         <div className="flex flex-col gap-3 pt-1">
-                            <motion.a
-                                href="tel:18002097272"
-                                className="bg-gray-100 text-gray-700 font-black py-4 px-4 rounded-[16px] flex items-center justify-center gap-3 transition-all text-lg border-2 border-gray-200"
-                            >
-                                <Phone className="w-6 h-6" />
-                                <span>Call now</span>
-                            </motion.a>
+                            {sessionStorage.getItem('gamification_emp_mobile') ? (
+                                <motion.a
+                                    href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                                    className="bg-gray-100 text-gray-700 font-black py-4 px-4 rounded-[16px] flex items-center justify-center gap-3 transition-all text-lg border-2 border-gray-200"
+                                >
+                                    <Phone className="w-6 h-6" />
+                                    <span>Call now</span>
+                                </motion.a>
+                            ) : null}
                             <div className="flex items-center gap-2 px-4">
                                 <div className="h-[1px] flex-1 bg-gray-200" />
                                 <span className="text-gray-400 font-bold text-base">OR</span>

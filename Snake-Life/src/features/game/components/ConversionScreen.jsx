@@ -9,6 +9,7 @@ import ThankYouScreen from './ThankYouScreen';
 import bgImage from '../../../assets/Snake-Life TN.png';
 
 const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }) => {
+    const empPhone = sessionStorage.getItem('gamification_emp_mobile');
     const today = new Date().toISOString().split("T")[0];
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
@@ -198,13 +199,15 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                         </p>
 
                         <div className="flex flex-col gap-2.5 sh:gap-1.5 mh:gap-2">
-                            <motion.a
-                                href="tel:18002097272"
-                                className="bg-amber-500 text-black font-black py-3 sh:py-2.5 mh:py-2.5 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base border border-amber-400 hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                            >
-                                <Phone className="w-5 h-5 sh:w-4 sh:h-4 text-black" />
-                                <span>Call now</span>
-                            </motion.a>
+                            {empPhone && (
+                                <motion.a
+                                    href={`tel:${empPhone}`}
+                                    className="bg-amber-500 text-black font-black py-3 sh:py-2.5 mh:py-2.5 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base border border-amber-400 hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                                >
+                                    <Phone className="w-5 h-5 sh:w-4 sh:h-4 text-black" />
+                                    <span>Call now</span>
+                                </motion.a>
+                            )}
 
                             <div className="flex items-center gap-4 py-0.5 sh:py-0">
                                 <div className="h-[1px] flex-1 bg-slate-800" />

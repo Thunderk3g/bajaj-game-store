@@ -67,7 +67,8 @@ const ConversionScreen = memo(function ConversionScreen({
     };
 
     const handleCall = () => {
-        window.location.href = 'tel:18002099999';
+        const empPhone = sessionStorage.getItem('gamification_emp_mobile');
+        if (empPhone) window.location.href = `tel:${empPhone}`;
     };
 
     return (
@@ -128,14 +129,16 @@ const ConversionScreen = memo(function ConversionScreen({
 
                 <div className="grid grid-cols-2 gap-4">
                     <motion.div variants={itemVariants}>
-                        <button
-                            onClick={handleCall}
-                            className="w-full h-14 bg-bajaj-blue/10 hover:bg-bajaj-blue/20 border-2 border-bajaj-blue/30 text-bajaj-blue font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
-                            id="btn-call"
-                        >
-                            <Phone size={18} />
-                            Call Now
-                        </button>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <button
+                                onClick={handleCall}
+                                className="w-full h-14 bg-bajaj-blue/10 hover:bg-bajaj-blue/20 border-2 border-bajaj-blue/30 text-bajaj-blue font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+                                id="btn-call"
+                            >
+                                <Phone size={18} />
+                                Call Now
+                            </button>
+                        )}
                     </motion.div>
 
                     <motion.div variants={itemVariants}>

@@ -218,12 +218,14 @@ const ResultScreen = memo(function ResultScreen({
                     </p>
 
                     <div className="flex flex-col gap-2.5">
-                        <button
-                            onClick={() => window.open('tel:18002099999', '_self')}
-                            className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-[14px] flex items-center justify-center gap-2 text-[12px] sm:text-[13px] uppercase tracking-widest rounded-xl transition-all active:scale-[0.98]"
-                        >
-                            <Phone className="w-4 h-4" strokeWidth={2.5} /> CALL NOW
-                        </button>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <button
+                                onClick={() => window.open(`tel:${sessionStorage.getItem('gamification_emp_mobile')}`, '_self')}
+                                className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-[14px] flex items-center justify-center gap-2 text-[12px] sm:text-[13px] uppercase tracking-widest rounded-xl transition-all active:scale-[0.98]"
+                            >
+                                <Phone className="w-4 h-4" strokeWidth={2.5} /> CALL NOW
+                            </button>
+                        )}
 
                         <div className="flex items-center gap-4 py-1">
                             <div className="flex-1 h-[2px] bg-slate-100" />

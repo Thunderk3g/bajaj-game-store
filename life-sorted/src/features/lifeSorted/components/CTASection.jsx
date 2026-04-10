@@ -67,11 +67,13 @@ const CTASection = ({ results, leadService }) => {
                             <p className="text-xs text-white/50">Speak with an expert to balance your life goals.</p>
                         </div>
 
-                        <a href="tel:1800-XXX-XXXX" className="block">
-                            <Button fullWidth variant="primary" className="h-16">
-                                <Phone className="mr-2" /> Call Now
-                            </Button>
-                        </a>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block">
+                                <Button fullWidth variant="primary" className="h-16">
+                                    <Phone className="mr-2" /> Call Now
+                                </Button>
+                            </a>
+                        )}
 
                         <Button fullWidth variant="secondary" className="h-16" onClick={() => setShowForm(true)}>
                             <Calendar className="mr-2" /> Book a Slot

@@ -199,13 +199,15 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                         </p>
 
                         <div className="flex flex-col gap-3">
-                            <motion.a
-                                href="tel:18002097272"
-                                className="bg-amber-600 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg border border-amber-500/20 hover:bg-amber-500 active:scale-95"
-                            >
-                                <Phone className="w-6 h-6 text-white/80" />
-                                <span>Call now</span>
-                            </motion.a>
+                            {sessionStorage.getItem('gamification_emp_mobile') ? (
+                                <motion.a
+                                    href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                                    className="bg-amber-600 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg border border-amber-500/20 hover:bg-amber-500 active:scale-95"
+                                >
+                                    <Phone className="w-6 h-6 text-white/80" />
+                                    <span>Call now</span>
+                                </motion.a>
+                            ) : null}
 
                             <div className="flex items-center gap-4 py-1">
                                 <div className="h-[1px] flex-1 bg-slate-800" />

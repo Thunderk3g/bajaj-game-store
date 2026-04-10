@@ -219,11 +219,13 @@ const ResultScreen = ({
                             {resultContent.cta}
                         </p>
 
-                        <a href="tel:1800209999" className="block w-full mb-2">
-                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2 sm:py-3 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-[11px] sm:text-sm tracking-widest border-2 border-white/10 rounded-lg">
-                                <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Call Now
-                            </button>
-                        </a>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-2">
+                                <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2 sm:py-3 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-[11px] sm:text-sm tracking-widest border-2 border-white/10 rounded-lg">
+                                    <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Call Now
+                                </button>
+                            </a>
+                        )}
 
                         <div className="relative py-0.5 mb-1.5">
                             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>

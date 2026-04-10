@@ -294,14 +294,16 @@ const EndScreen: React.FC<EndScreenProps> = ({ hasShield, playerName, playerMobi
                 </p>
 
                 {/* Call Now Button */}
-                <button onClick={() => window.location.href = 'tel:18001234567'} style={{
-                    width: '100%', padding: 'clamp(12px, 2.5vh, 15px) 24px',
-                    background: '#22c55e', // green
-                    color: '#ffffff', fontSize: 'clamp(14px, 2.5vh, 16px)', fontWeight: 800,
-                    borderRadius: '999px', border: 'none', cursor: 'pointer',
-                }}>
-                    Call Now
-                </button>
+                {sessionStorage.getItem('gamification_emp_mobile') && (
+                    <button onClick={() => window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`} style={{
+                        width: '100%', padding: 'clamp(12px, 2.5vh, 15px) 24px',
+                        background: '#22c55e', // green
+                        color: '#ffffff', fontSize: 'clamp(14px, 2.5vh, 16px)', fontWeight: 800,
+                        borderRadius: '999px', border: 'none', cursor: 'pointer',
+                    }}>
+                        Call Now
+                    </button>
+                )}
 
                 {/* Book a Slot Button */}
                 <button onClick={() => setShowBookingModal(true)} style={{
