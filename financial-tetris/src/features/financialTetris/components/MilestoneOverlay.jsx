@@ -5,7 +5,7 @@ import { Sparkles, TrendingUp, ShieldCheck, Zap } from 'lucide-react';
 const MilestoneOverlay = ({ isVisible, message, onDismiss }) => {
     useEffect(() => {
         if (isVisible) {
-            const timer = setTimeout(onDismiss, 4000);
+            const timer = setTimeout(onDismiss, 7000);
             return () => clearTimeout(timer);
         }
     }, [isVisible, onDismiss]);
@@ -47,7 +47,7 @@ const MilestoneOverlay = ({ isVisible, message, onDismiss }) => {
                                     <motion.div
                                         initial={{ width: "0%" }}
                                         animate={{ width: "100%" }}
-                                        transition={{ duration: 4, ease: "linear" }}
+                                        transition={{ duration: 7, ease: "linear" }}
                                         className="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 rounded-full shadow-[0_0_15px_rgba(96,165,250,0.6)]"
                                     />
                                 </div>

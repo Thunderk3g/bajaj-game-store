@@ -17,6 +17,7 @@ import GameHUD from './components/GameHUD.jsx';
 import GameGrid from './components/GameGrid.jsx';
 import MobileControls from './components/MobileControls.jsx';
 import ResultScreen from './components/ResultScreen.jsx';
+import PostGameLeadCapture from './components/PostGameLeadCapture.jsx';
 import ThankYou from './components/ThankYou.jsx';
 
 function BombermanGamePage() {
@@ -40,6 +41,9 @@ function BombermanGamePage() {
         getCooldownProgress,
         powerRiderCount,
         isMissionComplete,
+        playerPosRef,
+        shieldsRef,
+        monstersRef,
 
         movePlayer,
         placeBomb,
@@ -50,17 +54,16 @@ function BombermanGamePage() {
         goToHowToPlay,
         handleBookSlot,
         showThankYou,
+        setGamePhase,
+        setEntryDetails,
     } = useBombermanEngine();
 
     const [showEntry, setShowEntry] = useState(false);
 
     const handleLandingStart = useCallback(() => {
-        if (entryDetails) {
-            goToHowToPlay();
-        } else {
-            setShowEntry(true);
-        }
-    }, [entryDetails, goToHowToPlay]);
+        // Lead popup disabled — start game directly
+        goToHowToPlay();
+    }, [goToHowToPlay]);
 
     const handleEntryDone = useCallback(async (name, mobile) => {
         await handleEntrySubmit(name, mobile);
@@ -166,6 +169,9 @@ function BombermanGamePage() {
                             activePraise={activePraise}
                             isInvulnerable={isInvulnerable}
                             powerRiderCount={powerRiderCount}
+                            playerPosRef={playerPosRef}
+                            shieldsRef={shieldsRef}
+                            monstersRef={monstersRef}
                         />
                     </div>
 
@@ -200,6 +206,17 @@ function BombermanGamePage() {
                         </motion.div>
                     )}
                 </motion.div>
+            )}
+
+            {/* ─── POST GAME LEAD PHASE ────────────────────────────── */}
+            {gamePhase === GAME_PHASES.POST_GAME_LEAD && (
+                <PostGameLeadCapture
+                    score={finalScore}
+                    onSuccess={(details) => {
+                        setEntryDetails(details);
+                        setGamePhase(GAME_PHASES.RESULT);
+                    }}
+                />
             )}
 
             {/* ─── RESULT PHASE ────────────────────────────────────── */}

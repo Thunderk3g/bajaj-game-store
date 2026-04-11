@@ -17,6 +17,8 @@ import EndScreen from './components/screens/EndScreen';
 import LeadCaptureScreen from './components/screens/LeadCaptureScreen';
 import ThankYouScreen from './components/screens/ThankYouScreen';
 
+import { submitToLMS, updateLeadNew } from './utils/api';
+
 interface AppProps {
     campaignId?: string;
     leadEndpoint?: string;
@@ -50,7 +52,8 @@ const App: React.FC<AppProps> = ({
         playerMobile: undefined,
         frozenSnakes: [],
         stats: { snakesLanded: [], snakesAvoided: [], laddersClimbed: [] },
-        shieldBoughtOnCurrentTurn: false
+        shieldBoughtOnCurrentTurn: false,
+        totalShieldsUsed: 0
     });
 
     const movementTimeoutRef = useRef<number | null>(null);
@@ -61,9 +64,13 @@ const App: React.FC<AppProps> = ({
 
         audioService.playDiceRoll();
         const dice = Math.floor(Math.random() * 6) + 1;
+
+        let stepsToMove = dice;
+        let message = `You rolled a ${dice}!`;
+
         const requiredToWin = BOARD_SIZE - gameState.playerPosition;
 
-        if (dice > requiredToWin) {
+        if (stepsToMove > requiredToWin) {
             setGameState(prev => ({
                 ...prev,
                 lastDiceValue: dice,
@@ -75,11 +82,13 @@ const App: React.FC<AppProps> = ({
         setGameState(prev => ({
             ...prev,
             lastDiceValue: dice,
-            isMoving: true,
-            message: `You rolled a ${dice}!`
+            isMoving: stepsToMove > 0,
+            message: message
         }));
 
-        animateMove(gameState.playerPosition, dice);
+        if (stepsToMove > 0) {
+            animateMove(gameState.playerPosition, stepsToMove);
+        }
     };
 
     const animateMove = (startPos: number, steps: number) => {
@@ -91,8 +100,8 @@ const App: React.FC<AppProps> = ({
                 if (nextPos <= BOARD_SIZE) {
                     setGameState(prev => ({ ...prev, playerPosition: nextPos }));
                     currentStep++;
-                    // GDD 9.3: 90ms/step
-                    movementTimeoutRef.current = window.setTimeout(moveOneStep, 90);
+                    // GDD 9.3: slow down movement per step
+                    movementTimeoutRef.current = window.setTimeout(moveOneStep, 400);
                 } else {
                     finalizeMove(startPos + steps);
                 }
@@ -164,7 +173,7 @@ const App: React.FC<AppProps> = ({
                         ...prev,
                         isMoving: false,
                         isGameOver: true,
-                        currentScreen: 'end',
+                        currentScreen: 'lead-capture',
                         hadShieldAtEnd: prev.hasShield,
                         playerPosition: actualEndPos
                     };
@@ -214,7 +223,7 @@ const App: React.FC<AppProps> = ({
                 ...prev,
                 playerPosition: nextPos,
                 activeEvent: undefined,
-                currentScreen: isOver ? 'end' : 'game',
+                currentScreen: isOver ? 'lead-capture' : 'game',
                 isGameOver: isOver,
                 hadShieldAtEnd: isOver ? prev.hasShield : false,
                 frozenSnakes: currentFrozenSnakes,
@@ -237,28 +246,60 @@ const App: React.FC<AppProps> = ({
                 currentScreen: 'game',
                 frozenSnakes: currentFrozenSnakes,
                 message: 'Term Shield added! Snake frozen.',
-                shieldBoughtOnCurrentTurn: false // Reset here since we're closing
+                shieldBoughtOnCurrentTurn: false, // Reset here since we're closing
+                totalShieldsUsed: prev.totalShieldsUsed + 1
             };
         });
     };
 
-    const handleLeadSubmit = (data: any) => {
+    const handleLeadSubmit = async (data: any) => {
         const payload = {
             ...data,
             hadShieldInGame: gameState.hadShieldAtEnd,
             finalPosition: gameState.playerPosition
         };
+
+        try {
+            const res = await submitToLMS(payload);
+            if (res && res.leadNo) {
+                // If the API returns a leadNo, save it for later use
+                sessionStorage.setItem('snakesLeadNo', res.leadNo);
+            } else if (res && res.success) {
+                // Fallback if success but no specific leadNo property, try mobile mapping
+                sessionStorage.setItem('snakesLeadNo', data.mobile);
+            }
+        } catch (error) {
+            console.error("Error submitting lead to LMS:", error);
+        }
+
         if (onLeadSubmitted) onLeadSubmitted(payload);
-        setGameState(prev => ({ ...prev, currentScreen: 'thank-you' }));
+        setGameState(prev => ({
+            ...prev,
+            currentScreen: 'end',
+            playerName: data.name,
+            playerMobile: data.mobile
+        }));
     };
 
-    const handleBookingSubmit = (data: any) => {
+    const handleBookingSubmit = async (data: any) => {
         const payload = {
             ...data,
             hadShieldInGame: gameState.hadShieldAtEnd,
             finalPosition: gameState.playerPosition,
             isBookingRequest: true
         };
+
+        try {
+            const leadNo = sessionStorage.getItem('snakesLeadNo');
+            if (leadNo) {
+                await updateLeadNew(leadNo, payload);
+            } else {
+                await submitToLMS(payload);
+            }
+        } catch (error) {
+            console.error("Error updating lead with booking:", error);
+        }
+
         if (onLeadSubmitted) onLeadSubmitted(payload);
         setGameState(prev => ({ ...prev, currentScreen: 'thank-you' }));
     };
@@ -280,7 +321,8 @@ const App: React.FC<AppProps> = ({
             playerMobile: prev.playerMobile,
             frozenSnakes: [],
             stats: { snakesLanded: [], snakesAvoided: [], laddersClimbed: [] },
-            shieldBoughtOnCurrentTurn: false
+            shieldBoughtOnCurrentTurn: false,
+            totalShieldsUsed: 0
         }));
     };
 
@@ -300,7 +342,8 @@ const App: React.FC<AppProps> = ({
             playerMobile: prev.playerMobile,
             frozenSnakes: [],
             stats: { snakesLanded: [], snakesAvoided: [], laddersClimbed: [] },
-            shieldBoughtOnCurrentTurn: false
+            shieldBoughtOnCurrentTurn: false,
+            totalShieldsUsed: 0
         }));
     };
 
@@ -309,23 +352,16 @@ const App: React.FC<AppProps> = ({
         case 'welcome':
             return (
                 <WelcomeScreen
-                    onStart={(data) => {
-                        if (onLeadSubmitted) onLeadSubmitted({ ...data, stage: 'pre-game' });
-
-                        // If the mode choice was made in the popup itself
-                        if (data.isProtected !== undefined) {
-                            setGameState(prev => ({
-                                ...prev,
-                                playerName: data.name,
-                                playerMobile: data.mobile,
-                                hasShield: data.isProtected!,
-                                currentScreen: 'game'
-                            }));
-                            if (onGameStart) onGameStart();
-                        } else {
-                            // Fallback to old behavior
-                            setGameState(prev => ({ ...prev, currentScreen: 'shield-choice', playerName: data.name, playerMobile: data.mobile }));
-                        }
+                    onStart={async (data) => {
+                        // Bypass initial lead submission and shield choice screen
+                        setGameState(prev => ({
+                            ...prev,
+                            playerName: data.name,
+                            playerMobile: data.mobile,
+                            hasShield: data.isProtected || false,
+                            currentScreen: 'game'
+                        }));
+                        if (onGameStart) onGameStart();
                     }}
                 />
             );
@@ -365,6 +401,7 @@ const App: React.FC<AppProps> = ({
                     onPlayAgain={handlePlayAgain}
                     onBookingSubmit={handleBookingSubmit}
                     stats={gameState.stats}
+                    totalShieldsUsed={gameState.totalShieldsUsed}
                 />
             );
 

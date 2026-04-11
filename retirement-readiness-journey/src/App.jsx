@@ -13,11 +13,13 @@ const StepLifestyle = lazy(() => import('./components/StepLifestyle'));
 const StepEssentials = lazy(() => import('./components/StepEssentials'));
 const StepEngine = lazy(() => import('./components/StepEngine'));
 const StepSurprises = lazy(() => import('./components/StepSurprises'));
+const LeadCaptureScreen = lazy(() => import('./components/LeadCaptureScreen'));
 const Results = lazy(() => import('./components/Results'));
 
 const App = () => {
-    const { currentStep, currentStepIndex, totalSteps, actions, selections, score, insights, scoreBreakdown, userInfo } = useRetirementJourney();
-
+    const { currentStep, currentStepIndex, totalSteps, actions, selections, score, insights, scoreBreakdown, userInfo, surprisesSubStep } = useRetirementJourney();
+    const isIntro = currentStep.id === JOURNEY_STEPS.INTRO;
+    const isResults = currentStep.id === JOURNEY_STEPS.RESULTS;
     const renderStep = () => {
         switch (currentStep.id) {
             case JOURNEY_STEPS.INTRO:
@@ -31,7 +33,16 @@ const App = () => {
             case JOURNEY_STEPS.ENGINE:
                 return <StepEngine step={currentStep} selections={selections} onSelect={actions.handleSelection} />;
             case JOURNEY_STEPS.SURPRISES:
-                return <StepSurprises step={currentStep} selections={selections} onSelect={actions.handleSelection} />;
+                return <StepSurprises step={currentStep} selections={selections} onSelect={actions.handleSelection} currentSubStep={surprisesSubStep} setSubStep={actions.setSurprisesSubStep} />;
+            case JOURNEY_STEPS.LEAD:
+                return (
+                    <LeadCaptureScreen
+                        onSuccess={(data) => {
+                            actions.setUserInfo({ ...data, termsAccepted: true });
+                            actions.goToNextStep();
+                        }}
+                    />
+                );
             case JOURNEY_STEPS.RESULTS:
                 return <Results score={score} selections={selections} onReset={actions.reset} insights={insights} scoreBreakdown={scoreBreakdown} userInfo={userInfo} />;
             default:
@@ -39,20 +50,32 @@ const App = () => {
         }
     };
 
-
-    const isIntro = currentStep.id === JOURNEY_STEPS.INTRO;
-    const isResults = currentStep.id === JOURNEY_STEPS.RESULTS;
-    const progress = isIntro ? 0 : isResults ? 100 : ((currentStepIndex + 1) / totalSteps) * 100;
+    const isStepValid = () => {
+        switch (currentStep.id) {
+            case JOURNEY_STEPS.SCENARIO:
+            case JOURNEY_STEPS.LIFESTYLE:
+                return !!selections[currentStep.id];
+            case JOURNEY_STEPS.ESSENTIALS:
+            case JOURNEY_STEPS.ENGINE:
+                return (selections[currentStep.id] || []).length > 0;
+            case JOURNEY_STEPS.SURPRISES:
+                const surpriseSelections = selections[currentStep.id] || {};
+                const currentCategory = currentStep.categories[surprisesSubStep];
+                return surpriseSelections[currentCategory?.id] !== undefined;
+            default:
+                return true;
+        }
+    };
 
     return (
         <div
             className={cn(
-                "h-screen flex flex-col w-full overflow-hidden"
+                "h-[100dvh] flex flex-col w-full overflow-hidden"
             )}
             style={
                 isIntro ? {} :
                     isResults ? {
-                        background: 'linear-gradient(180deg, #0047AB 0%, #0066B2 100%)',
+                        backgroundImage: 'linear-gradient(180deg, #0047AB 0%, #0066B2 100%)',
                         backgroundAttachment: 'fixed'
                     } : {
                         backgroundImage: `url('./assets/bg-image.png')`,
@@ -65,9 +88,9 @@ const App = () => {
         >
             {/* Main Content */}
             <main className={cn(
-                "flex-1 flex flex-col w-full mx-auto",
-                isIntro ? "p-0 max-w-none" : "max-w-[48rem] px-6",
-                isResults ? "pt-[3.4rem] pb-0" : (isIntro ? "" : "py-12")
+                "flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col w-full mx-auto",
+                isIntro ? "p-0 max-w-none" : "max-w-[430px] px-4",
+                isResults ? "pt-[1rem] pb-0" : (isIntro ? "" : "py-4")
             )}>
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -76,7 +99,7 @@ const App = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
-                        className="flex-1 flex flex-col"
+                        className="flex-1 flex flex-col shrink-0"
                     >
                         <Suspense fallback={
                             <div className="flex-1 flex items-center justify-center">
@@ -90,25 +113,20 @@ const App = () => {
             </main>
 
             {/* Footer Navigation */}
-            {!isIntro && !isResults && (
-                <footer className="sticky bottom-0 p-6">
-                    <div className="max-w-[48rem] mx-auto flex gap-4">
+            {!isIntro && !isResults && currentStep.id !== JOURNEY_STEPS.LEAD && (
+                <footer className="p-4 sm:p-6 z-50 bg-transparent flex justify-center w-full">
+                    <div className="w-full max-w-[430px] flex gap-3 sm:gap-4 px-4 sm:px-0">
                         <Button
                             variant="outline"
                             onClick={actions.goToPrevStep}
-                            className="flex-1 h-[3.5rem] border-primary-500 text-primary-500 hover:bg-primary-50"
+                            className="flex-1 h-12 sm:h-[3.5rem] bg-primary-50 border-primary-500 text-primary-500 hover:bg-primary-100"
                         >
                             BACK
                         </Button>
                         <Button
                             onClick={actions.goToNextStep}
-                            className="flex-[2] h-[3.5rem] bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20"
-                            disabled={
-                                (currentStep.id === JOURNEY_STEPS.SCENARIO || currentStep.id === JOURNEY_STEPS.LIFESTYLE)
-                                    ? !selections[currentStep.id]
-                                    : false
-                            }
-
+                            className="flex-1 h-12 sm:h-[3.5rem] bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20"
+                            disabled={!isStepValid()}
                         >
                             NEXT
                         </Button>

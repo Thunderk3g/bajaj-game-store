@@ -59,7 +59,7 @@ const BookingModal = memo(function BookingModal({
 
         if (!formData.preferredDate) newErrors.preferredDate = 'Select a date';
         if (!formData.preferredSlot) newErrors.preferredSlot = 'Select a time slot';
-        if (!formData.consent) newErrors.consent = 'Required';
+        if (!formData.consent) newErrors.consent = 'Please agree to Terms and Conditions';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -200,7 +200,7 @@ const BookingModal = memo(function BookingModal({
                                                         min={today}
                                                         value={formData.preferredDate}
                                                         onChange={(e) => handleChange('preferredDate', e.target.value)}
-                                                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.preferredDate ? 'border-red-500' : 'border-slate-200'}`}
+                                                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.preferredDate ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-200'}`}
                                                     />
                                                 </div>
                                                 {errors.preferredDate && <p className="text-red-500 text-xs">{errors.preferredDate}</p>}
@@ -210,19 +210,33 @@ const BookingModal = memo(function BookingModal({
                                             <div className="space-y-1.5">
                                                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Time Slot</label>
                                                 <div className="grid grid-cols-2 gap-2">
-                                                    {TIME_SLOTS.map((slot) => (
-                                                        <button
-                                                            key={slot}
-                                                            type="button"
-                                                            onClick={() => handleChange('preferredSlot', slot)}
-                                                            className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${formData.preferredSlot === slot
-                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                                                                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
-                                                                }`}
-                                                        >
-                                                            {slot}
-                                                        </button>
-                                                    ))}
+                                                    {TIME_SLOTS.map((slot) => {
+                                                        // Filter logic: if today, check if slot start time has passed
+                                                        const now = new Date();
+                                                        const isToday = formData.preferredDate === today;
+                                                        const currentHour = now.getHours();
+
+                                                        // Robust parsing
+                                                        const slotHour = parseInt(slot.split(':')[0]);
+                                                        const isPM = slot.includes('PM') && slotHour !== 12;
+                                                        const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+
+                                                        if (isToday && normalizedHour <= currentHour) return null;
+
+                                                        return (
+                                                            <button
+                                                                key={slot}
+                                                                type="button"
+                                                                onClick={() => handleChange('preferredSlot', slot)}
+                                                                className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${formData.preferredSlot === slot
+                                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                                                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                                                    }`}
+                                                            >
+                                                                {slot}
+                                                            </button>
+                                                        );
+                                                    }).filter(Boolean)}
                                                 </div>
                                                 {errors.preferredSlot && <p className="text-red-500 text-xs">{errors.preferredSlot}</p>}
                                             </div>
@@ -235,12 +249,12 @@ const BookingModal = memo(function BookingModal({
                                                         type="checkbox"
                                                         checked={formData.consent}
                                                         onChange={(e) => handleChange('consent', e.target.checked)}
-                                                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2]"
+                                                        className={`peer h-4 w-4 cursor-pointer appearance-none rounded border-2 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2] ${errors.consent ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300 bg-slate-50'}`}
                                                     />
                                                     <Check className="pointer-events-none absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
                                                 </div>
-                                                <label htmlFor="modal-booking-terms" className="text-[10px] sm:text-xs font-semibold text-slate-500 leading-tight select-none">
-                                                    I agree to the <span className="text-[#0066B2] font-bold">Terms & Conditions</span> and Acknowledge the Privacy Policy.
+                                                <label htmlFor="modal-booking-terms" className="text-[10px] sm:text-xs font-semibold text-slate-500 leading-tight select-none cursor-pointer">
+                                                    I agree and consent to the <span className="text-[#0066B2] font-bold">T&C and Privacy Policy</span>
                                                 </label>
                                             </div>
                                             {errors.consent && <p className="text-red-500 text-xs">{errors.consent}</p>}

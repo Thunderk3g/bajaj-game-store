@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import StartScreen from './components/StartScreen';
 import GameScreen from './components/GameScreen';
+import LeadCaptureScreen from './components/LeadCaptureScreen';
 import ResultScreen from './components/ResultScreen';
 import ThankYou from './components/ThankYou';
 
 import { useGameState } from './hooks/useGameState';
 
 function App() {
-  const [screen, setScreen] = useState('start'); // 'start', 'game', 'result', 'thankyou'
+  const [screen, setScreen] = useState('start'); // 'start', 'game', 'lead', 'result', 'thankyou'
   const [score, setScore] = useState(0);
   const [userName, setUserName] = useState('');
 
@@ -19,7 +20,7 @@ function App() {
 
   const endGame = (finalScore) => {
     setScore(finalScore);
-    setScreen('result');
+    setScreen('lead');
   };
 
   const restartGame = () => {
@@ -28,7 +29,6 @@ function App() {
     setScreen('start');
   };
 
-  // ADDED: Skip the start/lead form and go directly to game — keeps userName intact
   const replayGame = () => {
     setScore(0);
     setScreen('game');
@@ -84,6 +84,24 @@ function App() {
           </motion.div>
         )}
 
+        {screen === 'lead' && (
+          <motion.div
+            key="lead"
+            className="w-full h-full absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <LeadCaptureScreen
+              onSuccess={(name) => {
+                setUserName(name);
+                setScreen('result');
+              }}
+            />
+          </motion.div>
+        )}
+
         {screen === 'result' && (
           <motion.div
             key="result"
@@ -96,7 +114,7 @@ function App() {
             <ResultScreen
               score={score}
               firstName={userName}
-              onRestart={restartGame}
+              onRestart={replayGame}
               onThankYou={showThankYou}
             />
           </motion.div>
@@ -111,7 +129,6 @@ function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {/* onReplay goes to game directly; onHome goes back to start screen */}
             <ThankYou onHome={restartGame} onReplay={replayGame} firstName={userName} />
           </motion.div>
         )}

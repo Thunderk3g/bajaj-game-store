@@ -5,6 +5,9 @@ export default {
         "./src/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
+        screens: {
+            'sh': { 'raw': '(max-height: 700px)' },
+        },
         extend: {
             colors: {
                 bg: '#0A1628',

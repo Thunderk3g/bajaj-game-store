@@ -132,6 +132,7 @@ export class GamificationStoreService {
         empMobile: salesPerson.mobile || '',
         location: salesPerson.region || '',
         zone: salesPerson.zone || '',
+        token: state.rawToken || '',
       });
       return `${baseUrl}/index.html?${params.toString()}`;
     } else {

@@ -9,6 +9,7 @@ import {
     TILE_TYPES,
     BUCKET_MAX,
     SCORING,
+    EXACT_INITIAL_GRID,
     computeFinalScore,
     clamp,
 } from '../config/gameConfig.js';
@@ -24,6 +25,7 @@ export const A = {
     TICK: 'TICK',
     FINISH_GAME: 'FINISH_GAME',
     SHOW_RESULT: 'SHOW_RESULT',
+    SHOW_LEAD: 'SHOW_LEAD',
     SHOW_THANK_YOU: 'SHOW_THANK_YOU',
     EXIT_GAME: 'EXIT_GAME',
     RESTART_GAME: 'RESTART_GAME',
@@ -33,6 +35,8 @@ export const A = {
     SET_PROCESSING: 'SET_PROCESSING',
     APPLY_MATCH: 'APPLY_MATCH',
     APPLY_INVALID_SWAP: 'APPLY_INVALID_SWAP',
+    INVALID_SWAP_START: 'INVALID_SWAP_START',
+    INVALID_SWAP_END: 'INVALID_SWAP_END',
     SET_GRID: 'SET_GRID',
     CLEAR_EXPLOSIONS: 'CLEAR_EXPLOSIONS',
 
@@ -54,6 +58,7 @@ export const initialState = {
     grid: null,
     selectedCell: null,
     explodingCells: new Set(),
+    invalidSwapping: null, // Holds array of 2 cells bouncing back
     floatingScores: [],
     isProcessing: false,
 
@@ -103,10 +108,12 @@ export function gameReducer(state, action) {
             return { ...state, gameStatus: GAME_PHASES.HOW_TO_PLAY };
 
         case A.START_GAME: {
+            // Fix 1: Removed exactGrid param to allow generic randomization filling 36 cells correctly
             const eng = createMatchEngine({
                 tileTypes: TILE_TYPES,
                 maxMoves: 999,
             });
+
             return {
                 ...state,
                 grid: eng.initialGrid,
@@ -117,6 +124,7 @@ export function gameReducer(state, action) {
                 activeCombo: 0,
                 selectedCell: null,
                 explodingCells: new Set(),
+                invalidSwapping: null,
                 floatingScores: [],
                 activePraise: null,
                 isProcessing: false,
@@ -152,6 +160,9 @@ export function gameReducer(state, action) {
         case A.SHOW_RESULT:
             return { ...state, gameStatus: GAME_PHASES.RESULT };
 
+        case A.SHOW_LEAD:
+            return { ...state, gameStatus: GAME_PHASES.POST_GAME_LEAD };
+
         case A.SHOW_THANK_YOU:
             return { ...state, gameStatus: GAME_PHASES.THANK_YOU };
 
@@ -162,12 +173,18 @@ export function gameReducer(state, action) {
                 isProcessing: false,
             };
 
-        case A.RESTART_GAME:
+        case A.RESTART_GAME: {
+            const eng = createMatchEngine({
+                tileTypes: TILE_TYPES,
+                maxMoves: 999,
+            });
             return {
                 ...initialState,
+                grid: eng.initialGrid,
                 entryDetails: state.entryDetails,
-                gameStatus: state.entryDetails ? GAME_PHASES.HOW_TO_PLAY : GAME_PHASES.LANDING,
+                gameStatus: GAME_PHASES.PLAYING,
             };
+        }
 
         /* ── Grid Interactions ── */
 
@@ -199,14 +216,28 @@ export function gameReducer(state, action) {
                 (comboStep > 2 ? SCORING.cascadeBonus : 0);
 
             let newBuckets = { ...state.buckets };
+            let newBucketMatches = { ...(state.bucketMatches || { GREEN: 0, BLUE: 0, YELLOW: 0, RED: 0 }) };
+            let newBucketFloaters = [...(state.bucketFloaters || [])];
+
             for (const type of matchedTypes) {
-                newBuckets = addToBucket(newBuckets, type, bucketPoints + bonus);
+                const totalPoints = bucketPoints + bonus;
+                newBuckets = addToBucket(newBuckets, type, totalPoints);
+
+                // Track visual floaters logic natively matching requirements
+                newBucketMatches[type] = (newBucketMatches[type] || 0) + 1;
+                newBucketFloaters.push({
+                    id: Date.now() + Math.random(),
+                    type,
+                    value: `+${totalPoints}`,
+                });
             }
 
             return {
                 ...state,
                 grid: newGrid,
                 buckets: newBuckets,
+                bucketMatches: newBucketMatches,
+                bucketFloaters: newBucketFloaters,
                 totalMatches: state.totalMatches + 1,
                 activeCombo: comboStep,
                 maxCombo: Math.max(state.maxCombo, comboStep),
@@ -222,6 +253,21 @@ export function gameReducer(state, action) {
                 isProcessing: false,
             };
 
+        case A.INVALID_SWAP_START:
+            return {
+                ...state,
+                invalidSwapping: action.payload,
+                selectedCell: null,
+                isProcessing: true,
+            };
+
+        case A.INVALID_SWAP_END:
+            return {
+                ...state,
+                invalidSwapping: null,
+                isProcessing: false,
+            };
+
         case A.SET_GRID:
             return { ...state, grid: action.payload };
 
@@ -233,6 +279,12 @@ export function gameReducer(state, action) {
 
         case A.REMOVE_FLOAT:
             return { ...state, floatingScores: state.floatingScores.filter((f) => f.id !== action.payload) };
+
+        case 'ADD_BUCKET_FLOAT':
+            return { ...state, bucketFloaters: [...(state.bucketFloaters || []), action.payload] };
+
+        case 'REMOVE_BUCKET_FLOAT':
+            return { ...state, bucketFloaters: (state.bucketFloaters || []).filter((f) => f.id !== action.payload) };
 
         case A.SHOW_PRAISE:
             return { ...state, activePraise: action.payload };

@@ -30,7 +30,7 @@ export function useGameTimer(onEnd) {
         if (timeRemaining === 0 && !isEnded) {
             dispatch({ type: ACTION.END_GAME });
             onEnd?.('timeout');
-            setTimeout(() => navigate(SCREENS.SCORE), 600);
+            setTimeout(() => navigate(SCREENS.LEAD), 600);
         }
     }, [timeRemaining, isEnded, dispatch, navigate, onEnd, state.screen]);
 
@@ -40,7 +40,7 @@ export function useGameTimer(onEnd) {
         if (matchedPairs === TOTAL_PAIRS && !isEnded) {
             dispatch({ type: ACTION.END_GAME });
             onEnd?.('win');
-            setTimeout(() => navigate(SCREENS.SCORE), 800);
+            setTimeout(() => navigate(SCREENS.LEAD), 800);
         }
     }, [matchedPairs, isEnded, dispatch, navigate, onEnd, state.screen]);
 
@@ -50,7 +50,7 @@ export function useGameTimer(onEnd) {
         if (flipsCount >= MAX_FLIPS && !isEnded) {
             dispatch({ type: ACTION.END_GAME });
             onEnd?.('flips');
-            setTimeout(() => navigate(SCREENS.SCORE), 800);
+            setTimeout(() => navigate(SCREENS.LEAD), 800);
         }
     }, [flipsCount, isEnded, dispatch, navigate, onEnd, state.screen]);
 }

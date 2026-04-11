@@ -1,27 +1,32 @@
 export const CATEGORY_CONFIG = {
-    wealth: {
-        label: 'Wealth Creation',
-        color: 'var(--growth)',
-        description: 'Long-term growth for your future.',
+    growth: {
+        label: 'GROWTH',
+        color: '#22C55E', // Green
+        icon: '📈',
+        elements: ['Investments', 'Retirement']
     },
     safety: {
-        label: 'Safety Net',
-        color: 'var(--safety)',
-        description: 'Protection against life\'s uncertainties.',
+        label: 'SAFETY',
+        color: '#3B82F6', // Blue
+        icon: '🛡️',
+        elements: ['Emergency Fund', 'Fixed Income Plan']
     },
     resp: {
-        label: 'Responsibilities',
-        color: 'var(--resp)',
-        description: 'Fulfilling commitments to your loved ones.',
-    },
-    asset: {
-        label: 'Asset Building',
-        color: 'var(--asset)',
-        description: 'Creating a comfortable lifestyle.',
+        label: 'FAMILY',
+        color: '#F59E0B', // Amber
+        icon: '🎓',
+        elements: ["Child's Education", 'Lifestyle Expenses']
     },
     risk: {
-        label: 'Managed Risk',
-        color: 'var(--risk)',
-        description: 'Strategic investments for higher returns.',
+        label: 'RISK',
+        color: '#EF4444', // Red
+        icon: '⚠️',
+        elements: ['Critical Illness', 'Term Life Cover', 'Hospitalisation']
+    },
+    asset: {
+        label: 'ASSETS',
+        color: '#A855F7', // Purple
+        icon: '🏠',
+        elements: ['Home / Car']
     },
 };

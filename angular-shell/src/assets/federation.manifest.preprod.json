@@ -5,7 +5,11 @@
     "type": "react",
     "displayName": "Scramble Words",
     "popular": false,
+<<<<<<< HEAD
     "gameId": "GAME_003",
+=======
+    "gameId": "GAME_001",
+>>>>>>> 7f8d79ad11faf81e21a7916eeb99103b6835313f
     "assets": []
   },
   "life-goals": {
@@ -14,7 +18,11 @@
     "type": "react",
     "displayName": "Life Goals Preparedness",
     "popular": true,
+<<<<<<< HEAD
     "gameId": "GAME_001",
+=======
+    "gameId": "GAME_002",
+>>>>>>> 7f8d79ad11faf81e21a7916eeb99103b6835313f
     "assets": [
       "assets/games/life-goals/assets/videos/business.mp4",
       "assets/games/life-goals/assets/videos/child_edu.mp4",
@@ -33,11 +41,17 @@
     "type": "react",
     "displayName": "Quiz Challenge",
     "popular": true,
+<<<<<<< HEAD
     "gameId": "GAME_002",
     "assets": [
       "assets/games/quiz-game/assets/bajaj.png",
       "assets/games/quiz-game/assets/bg.png",
       "assets/games/quiz-game/assets/gst.png"
+=======
+    "gameId": "GAME_003",
+    "assets": [
+      "assets/games/quiz-game/assets/bajaj.png"
+>>>>>>> 7f8d79ad11faf81e21a7916eeb99103b6835313f
     ]
   },
   "life-milestone-race": {
@@ -107,7 +121,12 @@
     "remoteEntry": "assets/games/Snake-Life/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
+<<<<<<< HEAD
     "displayName": "Snake Life Game"
+=======
+    "displayName": "Snake Life Game",
+    "gameId": "GAME_011"
+>>>>>>> 7f8d79ad11faf81e21a7916eeb99103b6835313f
   },
   "life-flight": {
     "remoteEntry": "assets/games/life-flight/index.js",
@@ -115,7 +134,11 @@
     "type": "react",
     "displayName": "Life Flight",
     "popular": true,
+<<<<<<< HEAD
     "gameId": "GAME_011",
+=======
+    "gameId": "GAME_013",
+>>>>>>> 7f8d79ad11faf81e21a7916eeb99103b6835313f
     "assets": []
   },
   "life-snakes-ladders": {
@@ -133,7 +156,11 @@
     "type": "react",
     "displayName": "One Life",
     "popular": true,
+<<<<<<< HEAD
     "gameId": "GAME_013",
+=======
+    "gameId": "GAME_014",
+>>>>>>> 7f8d79ad11faf81e21a7916eeb99103b6835313f
     "assets": []
   },
   "life-sorted": {
@@ -142,6 +169,7 @@
     "type": "react",
     "displayName": "Life Sorted",
     "popular": true,
+<<<<<<< HEAD
     "gameId": "GAME_014",
     "assets": []
   },
@@ -151,6 +179,8 @@
     "type": "react",
     "displayName": "Legacy Defenders",
     "popular": true,
+=======
+>>>>>>> 7f8d79ad11faf81e21a7916eeb99103b6835313f
     "gameId": "GAME_015",
     "assets": []
   }

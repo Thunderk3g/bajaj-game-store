@@ -21,7 +21,7 @@ const IntroScreen = ({ onStart }) => {
         if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number';
         else if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = 'Invalid 10-digit number (starts 6-9)';
 
-        if (!isTermsAccepted) newErrors.terms = 'Please accept terms';
+        if (!isTermsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -63,7 +63,7 @@ const IntroScreen = ({ onStart }) => {
             {/* Dark overlay for button contrast if needed, but keeping it clean for now */}
             <div className="absolute inset-0 bg-black/10" />
 
-            <div className="relative z-10 w-full h-full flex flex-col items-center justify-end pb-24 px-6 text-center">
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-end pb-12 px-6 text-center">
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -71,11 +71,11 @@ const IntroScreen = ({ onStart }) => {
                     className="w-full max-w-sm"
                 >
                     <button
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => onStart({})}
                         className="group relative w-full overflow-hidden rounded-3xl bg-primary p-1 shadow-[0_8px_0_0_#991b1b,0_15px_30px_rgba(239,68,68,0.3)] transition-all hover:translate-y-[-2px] hover:shadow-[0_10px_0_0_#991b1b,0_20px_40px_rgba(239,68,68,0.4)] active:translate-y-[4px] active:shadow-none"
                     >
-                        <div className="bg-primary rounded-[1.4rem] py-5 border-t-2 border-white/20">
-                            <span className="relative z-10 block text-4xl font-black tracking-tighter text-white uppercase italic">
+                        <div className="bg-primary rounded-[1.2rem] py-3.5 border-t-2 border-white/20">
+                            <span className="relative z-10 block text-2xl font-black tracking-tighter text-white uppercase italic">
                                 Start
                             </span>
                         </div>
@@ -100,6 +100,7 @@ const IntroScreen = ({ onStart }) => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
+                            <label htmlFor="name" className="text-sm font-bold text-gray-500 block text-left mb-1 ml-1">Name</label>
                             <input
                                 type="text"
                                 value={formData.name}
@@ -126,6 +127,7 @@ const IntroScreen = ({ onStart }) => {
                         </div>
 
                         <div className="space-y-2">
+                            <label htmlFor="phone" className="text-sm font-bold text-gray-500 block text-left mb-1 ml-1">Mobile Number</label>
                             <input
                                 type="tel"
                                 value={formData.phone}

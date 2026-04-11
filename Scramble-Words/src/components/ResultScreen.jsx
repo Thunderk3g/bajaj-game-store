@@ -1,11 +1,13 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Share2, Phone, Calendar } from "lucide-react";
+import { buildShareUrl } from "../utils/crypto";
+import { shortenUrl } from "../utils/shortener";
 import ScoreShield from "./common/ScoreShield";
 import BookingModal from "./BookingModal";
 import Confetti from "./common/Confetti";
 import { useGameState } from "../hooks/useGameState";
+import gameThumbnail from "../assets/front-page/NewSartScreen.png";
 
 export default function ResultScreen({ score, onRestart, onThankYou, firstName }) {
     const { lastSubmittedPhone } = useGameState();
@@ -16,39 +18,46 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
     const finalScore = Math.min(Math.max(normalizedScore, 0), 5);
     const name = firstName || "BAJAJ";
 
-    // Dynamic Heading & Subtext based on score
-    let heading = "";
+    // Dynamic Subtext based on score
     let subtext = "";
 
     if (finalScore === 0) {
-        heading = "Bad";
-        subtext = "You can do better.";
-    } else if (finalScore === 1 || finalScore === 2) {
-        heading = "Not up the mark";
-        // FIXED: corrected from "You can do it better." to "You can do better."
-        subtext = "You can do better.";
-    } else if (finalScore === 3) {
-        heading = "Good";
-        subtext = "You can do better.";
-    } else if (finalScore === 4) {
-        heading = "Good Job";
-        subtext = "You have learned important\nfinancial and insurance concepts.";
+        subtext = "It's ok! You learned something new";
+    } else if (finalScore >= 1 && finalScore <= 4) {
+        subtext = "You did well but you can surely do better!";
     } else if (finalScore === 5) {
-        heading = "Excellent";
-        subtext = "You have learned important\nfinancial and insurance concepts.";
+        subtext = "You know a lot of insurance related concepts, keep going";
     }
 
     const handleShare = async () => {
-        const shareText = `Check your Life Goals readiness! Take the Bajaj Life Scrumbled Words and discover how prepared you are for your future. ${window.location.href}`;
+        const rawShareUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawShareUrl);
+        const senderName = firstName || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareText = `Hi,\nI just tried this word-unscramble challenge on life insurance and scored ${(finalScore)}/5.\nSee if you can beat my score — try it here: ${shareUrl}${signature}`.trim();
         const shareData = {
-            title: 'My Financial Readiness Score',
+            title: 'Unscrambled Financial Words',
             text: shareText,
-            url: window.location.href
+            url: shareUrl
         };
 
         if (navigator.share) {
             try {
-                await navigator.share(shareData);
+                const sharePayload = {
+                    title: shareData.title,
+                    text: shareData.text
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 console.log('Error sharing:', err);
             }
@@ -107,13 +116,7 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
                 {/* Gap 12px (after shield visual space) */}
                 <div className="h-3 shrink-0"></div>
 
-                {/* Heading (Excellent) */}
-                <h2 className="text-xl font-bold text-white tracking-wide leading-tight">
-                    {heading}
-                </h2>
 
-                {/* Gap 8px */}
-                <div className="h-2 shrink-0"></div>
 
                 {/* Description */}
                 <div className="w-full">
@@ -149,18 +152,19 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
                         className="bg-blue-900/30 border border-white/10 rounded-lg p-2.5 mx-1 backdrop-blur-sm"
                     >
                         <p className="text-white/90 text-xs leading-tight font-medium">
-                            "To know more about insurance and savings products, please connect with our relationship manager."
+                            "To know more about insurance and savings products, please connect with our relationship manager"
                         </p>
                     </motion.div>
 
-                    {/* Call Now */}
-                    <button
-                        onClick={() => window.location.href = "tel:18002099999"}
-                        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
-                    >
-                        <Phone className="w-4 h-4 fill-current" />
-                        CALL NOW
-                    </button>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <button
+                            onClick={() => window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                            className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
+                        >
+                            <Phone className="w-4 h-4 fill-current" />
+                            CALL NOW
+                        </button>
+                    )}
 
                     {/* Book Slot */}
                     <button
@@ -171,20 +175,21 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
                         BOOK SLOT
                     </button>
 
+                    {/* Try Again Button (Above Disclaimer) */}
+                    <button
+                        onClick={onRestart}
+                        className="text-white/70 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors underline underline-offset-4 mt-2"
+                    >
+                        Play Again
+
+                    </button>
+
                     {/* Disclaimer */}
                     <div className="w-full px-6 opacity-40 mt-4">
                         <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
                             <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                         </p>
                     </div>
-
-                    {/* Try Again Button (Small - At Bottom) */}
-                    <button
-                        onClick={onRestart}
-                        className="text-white/70 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors underline underline-offset-4 mt-1"
-                    >
-                        Try Again
-                    </button>
                 </div>
             </div>
 

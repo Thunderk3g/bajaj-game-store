@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
+
+const gameThumbnail = './assets/Quiz-bg.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RotateCcw, Phone, Calendar, Clock, X, CheckCircle2, ChevronDown, Share2, ShieldCheck, Medal, Star, AlertCircle } from "lucide-react";
 import ScoreCard from './ScoreCard';
 import Confetti from './Confetti';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQuiz } from '../context/QuizContext';
+import TermsModal from './TermsModal';
 
 const ResultsScreen = ({ score, total, onRestart }) => {
     const { leadName, leadPhone, handleBookingSubmit, isTermsAccepted } = useQuiz();
@@ -17,6 +22,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
     const [isBookingOpen, setIsBookingOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingTermsAccepted, setBookingTermsAccepted] = useState(isTermsAccepted);
+    const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [bookingData, setBookingData] = useState({
         name: leadName || '',
         mobile_no: leadPhone || '',
@@ -41,24 +47,35 @@ const ResultsScreen = ({ score, total, onRestart }) => {
     ];
 
     const handleShare = async () => {
-        const shareMessage = `I scored ${score}/${total} on the GST quiz! 🏆 Check your GST knowledge here:`;
-        const shareUrl = window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
+        const senderName = (typeof leadName !== 'undefined' ? leadName : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareMessage = `Hi,\nI tried this GST quiz related to Life Insurance and got ${Math.round(score)}/${total}.\nThink you can beat my score? Take the quiz here: ${shareUrl}${signature}`.trim();
 
         if (navigator.share) {
             try {
-                await navigator.share({
+                const sharePayload = {
                     title: 'GST Quiz',
-                    text: shareMessage,
-                    url: shareUrl,
-                });
+                    text: shareMessage
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (error) {
                 console.log('Error sharing:', error);
             }
         } else {
-            // Fallback: Copy to clipboard
             try {
-                const fullText = `${shareMessage} ${shareUrl}`;
-                await navigator.clipboard.writeText(fullText);
+                await navigator.clipboard.writeText(shareMessage);
                 alert('Score and link copied to clipboard!');
             } catch (err) {
                 console.error('Failed to copy text: ', err);
@@ -75,9 +92,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
         }
 
         if (!bookingData.mobile_no.trim()) {
-            errs.mobile_no = "Mobile is required";
+            errs.mobile_no = "Mobile Number is required";
         } else if (!/^[6-9]\d{9}$/.test(bookingData.mobile_no)) {
-            errs.mobile_no = "Invalid 10-digit number";
+            errs.mobile_no = "Enter a Valid Mobile Number";
         }
 
         if (!bookingData.date) {
@@ -87,7 +104,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             errs.timeSlot = "Select a slot";
         }
         if (!bookingTermsAccepted) {
-            errs.terms = "Accept terms";
+            errs.terms = "Please agree to Terms and Conditions";
         }
 
         setErrors(errs);
@@ -145,12 +162,6 @@ const ResultsScreen = ({ score, total, onRestart }) => {
             {percentage >= 60 && <Confetti />}
 
             {/* Top Right Share Button */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 p-2 bg-white/50 backdrop-blur-sm rounded-full text-brand-blue hover:bg-white shadow-sm transition-all active:scale-95 z-10"
-            >
-                <Share2 className="w-5 h-5" />
-            </button>
 
             {/* Content Wrapper for consistency across heights */}
             <div className="w-full max-w-sm flex flex-col justify-between mx-auto py-4">
@@ -193,13 +204,15 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                         </p>
 
                         <div className="flex flex-col gap-3 pt-1">
-                            <motion.a
-                                href="tel:18002097272"
-                                className="bg-gray-100 text-gray-700 font-black py-4 px-4 rounded-[16px] flex items-center justify-center gap-3 transition-all text-lg border-2 border-gray-200"
-                            >
-                                <Phone className="w-6 h-6" />
-                                <span>Call now</span>
-                            </motion.a>
+                            {sessionStorage.getItem('gamification_emp_mobile') ? (
+                                <motion.a
+                                    href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                                    className="bg-gray-100 text-gray-700 font-black py-4 px-4 rounded-[16px] flex items-center justify-center gap-3 transition-all text-lg border-2 border-gray-200"
+                                >
+                                    <Phone className="w-6 h-6" />
+                                    <span>Call now</span>
+                                </motion.a>
+                            ) : null}
                             <div className="flex items-center gap-2 px-4">
                                 <div className="h-[1px] flex-1 bg-gray-200" />
                                 <span className="text-gray-400 font-bold text-base">OR</span>
@@ -215,21 +228,23 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                         </div>
                     </div>
 
+                    {/* Play again Text Link */}
+                    <div
+                        onClick={onRestart}
+                        className="text-white font-black uppercase tracking-[0.2em] text-sm cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center gap-3 mb-3"
+                    >
+                        <RotateCcw className="w-5 h-5" />
+                        <span>play again</span>
+                    </div>
+
                     {/* Disclaimer */}
-                    <div className="w-full px-6 opacity-40 mt-4">
-                        <p className="text-[7px] sm:text-[8px] text-gray-500 leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
+                    <div className="w-full px-6 opacity-40 mt-2">
+                        <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
                             <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                         </p>
                     </div>
 
-                    {/* Large Retake Button */}
-                    <button
-                        onClick={onRestart}
-                        className="game-btn w-full py-4 text-xl flex items-center justify-center gap-3 rounded-[16px]"
-                    >
-                        <RotateCcw className="w-6 h-6" />
-                        <span>Retake quiz</span>
-                    </button>
+
                 </div>
             </div>
 
@@ -251,16 +266,14 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     <X className="w-6 h-6" />
                                 </button>
 
-                                <Dialog.Title className="text-3xl font-black text-gray-800 text-center mb-1 tracking-tight">
-                                    Book a slot
+                                <Dialog.Title className="text-xl sm:text-2xl font-black text-gray-800 text-center mb-6 tracking-tight pr-6 whitespace-nowrap">
+                                    Book a Slot
                                 </Dialog.Title>
-                                <p className="text-center text-gray-400 font-bold mb-8 text-sm">
-                                    Pick your preferred time
-                                </p>
 
                                 <form onSubmit={handleSubmit} className="space-y-5">
                                     <div className="grid grid-cols-1 gap-4">
                                         <div className="space-y-1">
+                                            <label htmlFor="booking-name" className="text-sm font-bold text-gray-500 block text-left mb-1 ml-1">Name</label>
                                             <input
                                                 type="text"
                                                 id="booking-name"
@@ -280,6 +293,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                         </div>
 
                                         <div className="space-y-1">
+                                            <label htmlFor="booking-phone" className="text-sm font-bold text-gray-500 block text-left mb-1 ml-1">Mobile Number</label>
                                             <input
                                                 type="text"
                                                 id="booking-phone"
@@ -289,9 +303,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                                 onChange={(e) => {
                                                     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
                                                     setBookingData(prev => ({ ...prev, mobile_no: val }));
-                                                    if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile is required" }));
-                                                    else if (val.length > 0 && val.length < 10) setErrors(prev => ({ ...prev, mobile_no: "Enter 10 digits" }));
-                                                    else if (val.length === 10 && !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Must start 6-9" }));
+                                                    if (!val.trim()) setErrors(prev => ({ ...prev, mobile_no: "Mobile Number is required" }));
+                                                    else if (val.length < 10 || !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, mobile_no: "Enter a Valid Mobile Number" }));
                                                     else setErrors(prev => ({ ...prev, mobile_no: null }));
                                                 }}
                                                 placeholder="Mobile number"
@@ -302,53 +315,78 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                     </div>
 
                                     <div className="flex flex-col gap-4">
-                                        <div className="relative">
-                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
-                                            <input
-                                                type="date"
-                                                id="booking-date"
-                                                name="date"
-                                                value={bookingData.date}
-                                                min={today}
-                                                max={maxDate}
-                                                onChange={(e) => {
-                                                    setBookingData(prev => ({ ...prev, date: e.target.value }));
-                                                    setErrors(prev => ({ ...prev, date: null }));
-                                                }}
-                                                className={`w-full bg-gray-50 border-2 rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none transition-colors appearance-none ${errors.date ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
-                                            />
-                                            {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
+                                        <div className="space-y-1">
+                                            <label htmlFor="booking-date" className="text-sm font-bold text-gray-500 block text-left mb-1 ml-1">Booking Date</label>
+                                            <div className="relative">
+                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
+                                                <input
+                                                    type="date"
+                                                    id="booking-date"
+                                                    name="date"
+                                                    value={bookingData.date}
+                                                    min={today}
+                                                    max={maxDate}
+                                                    onChange={(e) => {
+                                                        setBookingData(prev => ({ ...prev, date: e.target.value }));
+                                                        setErrors(prev => ({ ...prev, date: null }));
+                                                    }}
+                                                    className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none transition-colors appearance-none ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100 focus:border-blue-400'}`}
+                                                />
+                                                {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
+                                            </div>
                                         </div>
 
-                                        <div className="relative">
-                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
-                                            <select
-                                                id="booking-timeslot"
-                                                name="timeSlot"
-                                                value={bookingData.timeSlot}
-                                                onChange={(e) => {
-                                                    setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
-                                                    setErrors(prev => ({ ...prev, timeSlot: null }));
-                                                }}
-                                                className={`w-full bg-gray-50 border-2 rounded-2xl pl-11 pr-10 py-3 text-gray-800 font-bold focus:outline-none appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
-                                            >
-                                                <option value="">Choose a slot</option>
-                                                {timeSlots.map(slot => (
-                                                    <option key={slot} value={slot}>{slot}</option>
-                                                ))}
-                                            </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-                                            {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}
+                                        <div className="space-y-1">
+                                            <label htmlFor="booking-timeslot" className="text-sm font-bold text-gray-500 block text-left mb-1 ml-1">Preferred Time Slot</label>
+                                            <div className="relative">
+                                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
+                                                <select
+                                                    id="booking-timeslot"
+                                                    name="timeSlot"
+                                                    value={bookingData.timeSlot}
+                                                    onChange={(e) => {
+                                                        setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
+                                                        setErrors(prev => ({ ...prev, timeSlot: null }));
+                                                    }}
+                                                    className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-10 py-3 text-gray-800 font-bold focus:outline-none appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-100 focus:border-blue-400'}`}
+                                                >
+                                                    <option value="">Choose a slot</option>
+                                                    {timeSlots.map(slot => {
+                                                        const isToday = bookingData.date === today;
+                                                        if (isToday) {
+                                                            const [startTime] = slot.split(' - ');
+                                                            const slotHour = parseInt(startTime.split(':')[0]);
+                                                            const isPM = startTime.includes('PM');
+                                                            const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+
+                                                            if (normalizedHour <= new Date().getHours()) return null;
+                                                        }
+
+                                                        return <option key={slot} value={slot}>{slot}</option>;
+                                                    }).filter(Boolean)}
+                                                    {bookingData.date === today && timeSlots.filter(slot => {
+                                                        const [startTime] = slot.split(' - ');
+                                                        const slotHour = parseInt(startTime.split(':')[0]);
+                                                        const isPM = startTime.includes('PM');
+                                                        const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                                                        return normalizedHour > new Date().getHours();
+                                                    }).length === 0 && (
+                                                            <option disabled className="bg-white text-gray-400 italic">No slots available for today</option>
+                                                        )}
+                                                </select>
+                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                                {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <div className="flex items-start gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
-                                            <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : 'border-slate-100 bg-gray-50'}`}>
+                                        <div className="flex justify-center items-center gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
+                                            <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-brand-green border-brand-green' : `bg-gray-50 border-slate-100 ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)] text-red-500' : ''}`}`}>
                                                 {bookingTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
                                             </div>
-                                            <div className="text-[11px] text-gray-400 font-bold leading-tight underline underline-offset-2">
-                                                I accept the terms & conditions and acknowledge the privacy policy.
+                                            <div className="text-[11px] text-gray-400 font-bold leading-tight underline-offset-2">
+                                                I agree and consent to the <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}>T&C and Privacy Policy</span>
                                             </div>
                                         </div>
                                         {errors.terms && <p className="text-red-500 text-xs font-bold ml-2">{errors.terms}</p>}
@@ -360,9 +398,14 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                         disabled={isSubmitting}
                                         className={`w-full py-4 rounded-2xl text-xl font-black text-white transition-all ${isSubmitting ? 'opacity-50' : 'bg-brand-green hover:bg-[#45a049] shadow-[0_4px_0_0_#45a049] active:translate-y-1 active:shadow-none'}`}
                                     >
-                                        {isSubmitting ? 'Booking...' : 'Confirm booking'}
+                                        {isSubmitting ? 'Booking...' : 'Confirm Booking'}
                                     </motion.button>
                                 </form>
+
+                                <TermsModal
+                                    isOpen={isTermsOpen}
+                                    onClose={() => setIsTermsOpen(false)}
+                                />
                             </motion.div>
                         </div>
                     </Dialog.Content>

@@ -10,5 +10,8 @@
         "build:preprod": "vite build --mode preprod",
         "build:prod": "vite build --mode production",
         "preview": "vite preview"
+    },
+    "dependencies": {
+        "crypto-js": "^4.2.0"
     }
 }

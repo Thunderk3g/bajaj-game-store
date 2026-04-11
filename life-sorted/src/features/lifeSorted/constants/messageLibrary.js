@@ -1,15 +1,22 @@
 export const MESSAGE_LIBRARY = {
-    WRONG_CATEGORY: "This segment doesn't match the top one!",
-    TUBE_FULL: "This tube is already full!",
-    VALID_MOVE: [
-        "Great move! Life is getting clearer.",
-        "Exactly where it belongs!",
-        "One step closer to balance.",
-        "Nicely sorted!",
-        "Moving towards clarity!"
+    WRONG_CATEGORY: [
+        "Mixing risk with growth increases volatility.",
+        "Loans and goals need different strategies.",
+        "Unplanned risk disturbs long-term plans.",
+        "Balance requires thoughtful decisions."
     ],
-    LEVEL_COMPLETE: "Great job! Level cleared.",
-    TIME_UP: "Time is up! Let's see how you did.",
-    SHOCK_EVENT: "Life just threw a curveball! Stay calm and keep sorting.",
-    URGENT: "Hurry! Time is running out.",
+    TUBE_FULL: [
+        "Life gets stuck when priorities overlap.",
+        "Without protection, progress pauses.",
+        "Is risk occupying space meant for growth?"
+    ],
+    VALID_MOVE: [
+        "Clarity reduces confusion. ✨",
+        "Growth belongs with growth. 📈",
+        "Protection strengthens foundations. 🛡️",
+        "Structure creates strength. 💪",
+        "Great sort! 🎯"
+    ],
+    LEVEL_COMPLETE: "Perfectly Sorted!",
+    TIME_UP: "Time's Up!",
 };

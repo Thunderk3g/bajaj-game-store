@@ -28,11 +28,11 @@ const GameOverOverlay = () => {
             timers.push(t);
         });
 
-        // Auto-transition to result screen 2s after last message
+        // Auto-transition to lead capture 5s after last message
         const lastMsg = GAME_OVER_MESSAGES[GAME_OVER_MESSAGES.length - 1];
         const autoTransition = setTimeout(() => {
-            setStatus(GAME_STATUS.CTA);
-        }, lastMsg.delay + 800 + 3000);
+            setStatus(GAME_STATUS.POST_GAME_LEAD);
+        }, lastMsg.delay + 800 + 5000);
         timers.push(autoTransition);
 
         return () => {
@@ -69,9 +69,9 @@ const GameOverOverlay = () => {
                             key={index}
                             className="text-white font-black drop-shadow-2xl"
                             style={{
-                                fontSize: index === visibleMessages.length - 1 ? '28px' : '22px',
-                                opacity: index === visibleMessages.length - 1 ? 1 : 0.5,
-                                filter: index === visibleMessages.length - 1 ? 'none' : 'blur(1px)',
+                                fontSize: '26px',
+                                opacity: 1,
+                                filter: 'none',
                             }}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}

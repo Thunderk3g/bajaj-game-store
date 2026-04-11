@@ -7,14 +7,14 @@
 export const CANVAS_W = 390;
 export const CANVAS_H = 844;
 export const BIRD_X = 90;
-export const GRAVITY = 0.37;
-export const FLAP_FORCE = -7.2;
-export const PIPE_SPEED = 2.8;
+export const GRAVITY = 0.33;
+export const FLAP_FORCE = -6.5;
+export const PIPE_SPEED = 2.2;
 export const PIPE_WIDTH = 68;
 export const PIPE_GAP = 195;
 export const GROUND_HEIGHT = 52;
 export const BIRD_RADIUS = 15;
-export const SPAWN_GAP = 230;
+export const SPAWN_GAP = 260;
 export const MAX_ROTATION_UP = -0.45;
 export const MAX_ROTATION_DOWN = 0.75;
 export const ROTATION_FACTOR = 0.055;
@@ -50,12 +50,12 @@ export const HURDLES = [
     },
     {
         id: 'accident-disability',
-        name: 'Accident Disability',
+        name: 'Accidental Disability',
         cost: 'Rs.8–20 Lakhs',
         color: '#F4A261',
         tooltip: 'Disability can halt income for months or permanently.',
         hitMessage:
-            'An accident disability can cost Rs8-20 lacs and lead to loss of income. Protect your future with an Accident Disability rider',
+            'An accident disability can cost Rs8-20 lacs and lead to loss of income. Protect your future with an Accidental Disability rider',
     },
     {
         id: 'child-education',

@@ -9,7 +9,7 @@ const StepScenario = ({ step, selections, onSelect, stepIndex = 1 }) => {
             className="flex flex-col items-center justify-start w-full"
         >
 
-            <div className="relative z-10 w-full max-w-md px-4 pt-6 pb-4 flex flex-col items-center">
+            <div className="relative z-10 w-full max-w-md px-4 py-2 flex flex-col items-center">
 
                 {/* Step Badge */}
                 <div className="mb-3">
@@ -39,7 +39,7 @@ const StepScenario = ({ step, selections, onSelect, stepIndex = 1 }) => {
                 </div>
 
                 {/* Options - Consistent 2-column grid */}
-                <div className="grid grid-cols-2 gap-4 w-full">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
                     {step.options.map((option) => {
                         const isSelected = currentSelection === option.id;
 
@@ -49,24 +49,24 @@ const StepScenario = ({ step, selections, onSelect, stepIndex = 1 }) => {
                                 onClick={() => onSelect(step.id, option.id)}
                                 className={cn(
                                     "flex flex-col items-center text-center rounded-xl transition-all duration-300 overflow-hidden group h-full",
-                                    "bg-white/90 backdrop-blur-xl shadow-md hover:shadow-lg hover:-translate-y-0.5",
+                                    "shadow-md hover:shadow-lg hover:-translate-y-0.5",
                                     isSelected
                                         ? "ring-2 ring-blue-500 bg-blue-50/90"
-                                        : "hover:bg-white"
+                                        : "bg-white border border-slate-200 hover:bg-slate-50"
                                 )}
                             >
-                                <div className="h-24 w-full overflow-hidden p-3 flex items-center justify-center bg-slate-50/50">
+                                <div className="h-16 sm:h-24 w-full overflow-hidden p-2 sm:p-3 flex items-center justify-center bg-slate-50/50">
                                     <img
                                         src={option.image}
                                         alt={option.label}
                                         className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500"
                                     />
                                 </div>
-                                <div className="px-3 py-3 w-full flex flex-col items-center justify-center flex-1">
-                                    <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                                <div className="px-2 py-2 sm:px-3 sm:py-3 w-full flex flex-col items-center justify-center flex-1">
+                                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
                                         {option.label}
                                     </h3>
-                                    <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                                    <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 sm:mt-1 leading-snug">
                                         {option.sublabel}
                                     </p>
                                 </div>

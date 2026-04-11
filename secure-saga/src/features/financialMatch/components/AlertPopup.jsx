@@ -12,7 +12,7 @@ const AlertPopup = memo(function AlertPopup({ message, color, onClear }) {
         if (!message) return;
         const timer = setTimeout(() => {
             if (onClear) onClear();
-        }, 3000);
+        }, 5000);
         return () => clearTimeout(timer);
     }, [message, onClear]);
 
@@ -32,9 +32,9 @@ const AlertPopup = memo(function AlertPopup({ message, color, onClear }) {
                         }}
                     >
                         {/* Shimmer Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
 
-                        <span className="text-[1rem] sm:text-[1.1rem] text-white/90 font-bold leading-tight drop-shadow-sm tracking-wide relative z-10">
+                        <span className="text-[1.1rem] sm:text-[1.25rem] bg-clip-text text-transparent bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FF8C00] font-black leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] tracking-wide relative z-10">
                             {message}
                         </span>
                     </motion.div>

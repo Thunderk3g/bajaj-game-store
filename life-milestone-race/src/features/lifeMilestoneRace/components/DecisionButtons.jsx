@@ -91,8 +91,8 @@ const DecisionButtons = memo(function DecisionButtons({
                     style={{
                         height: '66px',
                         borderRadius: '20px',
-                        background: 'linear-gradient(135deg, #FF8C00 0%, #FF6600 100%)',
-                        boxShadow: '0 8px 20px rgba(255, 140, 0, 0.3), 0 4px 0 #CC5500',
+                        background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                        boxShadow: '0 8px 20px rgba(22, 163, 74, 0.3), 0 4px 0 #059669',
                         textShadow: '0 1px 2px rgba(0,0,0,0.1)'
                     }}
                     id="btn-protected"
@@ -109,9 +109,9 @@ const DecisionButtons = memo(function DecisionButtons({
                     style={{
                         height: '66px',
                         borderRadius: '20px',
-                        background: 'linear-gradient(135deg, #0066B2 0%, #3B82F6 100%)',
+                        background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
                         border: '2px solid rgba(255, 255, 255, 0.2)',
-                        boxShadow: '0 8px 20px rgba(0, 74, 128, 0.25), 0 4px 0 #004A80',
+                        boxShadow: '0 8px 20px rgba(220, 38, 38, 0.25), 0 4px 0 #991b1b',
                         textShadow: '0 1px 2px rgba(0,0,0,0.1)'
                     }}
                     id="btn-exposed"

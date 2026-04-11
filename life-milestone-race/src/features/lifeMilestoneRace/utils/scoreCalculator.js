@@ -20,14 +20,7 @@ export function clampScore(score) {
  * @returns {{ newScore: number, appliedDelta: number }}
  */
 export function calculateScore(currentScore, impact, isExposedHighSeverity, consecutiveExposedHigh) {
-    let delta = impact;
-
-    // Compound penalty: each consecutive exposed-high adds 25% more penalty
-    if (isExposedHighSeverity && consecutiveExposedHigh > 1) {
-        const multiplier = 1 + (consecutiveExposedHigh - 1) * 0.25;
-        delta = Math.round(impact * multiplier);
-    }
-
+    const delta = impact;
     const newScore = clampScore(currentScore + delta);
     return { newScore, appliedDelta: delta };
 }

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useGameEngine } from '../../hooks/useGameEngine';
 import { getFlipStars, getScoreMessage, formatTime, getScoreScenario } from '../../utils/gameUtils';
+import { buildShareUrl } from '../../utils/crypto';
+import { shortenUrl } from '../../utils/shortener';
 import { TOTAL_PAIRS, SCREENS } from '../../constants/game';
 import { ACTION } from '../../context/GameContext';
 import { submitToLMS } from '../../utils/api';
@@ -9,6 +11,7 @@ import { submitScore } from '../../services/api';
 import Button from '../ui/Button';
 import LeadModal from '../modals/LeadModal';
 import styles from './ScoreScreen.module.css';
+import gameThumbnail from '../../assets/tile-bg.png';
 
 const CIRCUMFERENCE = 380;
 
@@ -71,20 +74,34 @@ export default function ScoreScreen({ showToast }) {
     }
 
     const handleShare = async () => {
-        // compute app base URL dynamically so share link works under any deployment subpath
-        const appBaseUrl = (typeof window !== 'undefined')
-            ? new URL(import.meta.env.BASE_URL || './', window.location.href).href
-            : '/';
+        const rawShareUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawShareUrl);
+        const senderName = (typeof user !== 'undefined' ? user?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
 
         const shareData = {
             title: 'Insurance Match',
-            text: 'Check your Insurance match! Take the Insurance match memory game and discover how prepared you are for your insurance.',
-            url: appBaseUrl
+            text: `Hi,\nMy memory score is ${typeof scoreVal === 'number' ? Math.round(scoreVal) : scoreVal}. Find out yours ${shareUrl}${signature}`.trim(),
+            url: shareUrl
         };
 
         if (navigator.share) {
             try {
-                await navigator.share(shareData);
+                const sharePayload = {
+                    title: shareData.title,
+                    text: shareData.text
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 console.log('Error sharing:', err);
             }
@@ -103,14 +120,6 @@ export default function ScoreScreen({ showToast }) {
         <>
             <div className={`screen ${styles.scoreScreen}`}>
                 <div className={`screen-inner ${styles.inner}`}>
-                    {/* Top Right Share Button */}
-                    <button className={styles.shareBtnTop} onClick={handleShare} aria-label="Share score" title="Share">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                        </svg>
-                    </button>
-
                     {/* Header */}
                     <div className={styles.header}>
                         <p className={styles.userName}>{user.name ? `Hi ${user.name.split(' ')[0]}!` : 'Hi there!'}</p>
@@ -165,17 +174,21 @@ export default function ScoreScreen({ showToast }) {
 
                     {/* Actions */}
                     <div className={styles.actions}>
-                        <Button variant="primary" fullWidth onClick={handleShare} id="btn-share-main">
-                            &nbsp; Share
-                        </Button>
+                        <div className={styles.shareBtnWrap}>
+                            <Button variant="primary" fullWidth onClick={handleShare} id="btn-share-main" className={styles.shareBtnSmall}>
+                                &nbsp; Share
+                            </Button>
+                        </div>
 
                         <p className={styles.cta}>
                             {scenarioData.cta}
                         </p>
 
-                        <Button variant="outline" fullWidth onClick={() => window.location.href = 'tel:18001234567'} id="btn-call-now" className={styles.secondaryBtn}>
-                            &nbsp; Call Now
-                        </Button>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <Button variant="outline" fullWidth onClick={() => window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`} id="btn-call-now" className={styles.callNowBtn}>
+                                &nbsp; Call Now
+                            </Button>
+                        )}
                         <Button variant="secondary" fullWidth onClick={() => setShowLeadModal(true)} id="btn-book-slot">
                             &nbsp; Book a Slot
                         </Button>
@@ -184,9 +197,9 @@ export default function ScoreScreen({ showToast }) {
                         </button>
 
                         {/* Disclaimer */}
-                        <div className="w-full px-6 opacity-40 mt-4">
-                            <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
-                                <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                        <div className={styles.disclaimerContainer}>
+                            <p className={styles.disclaimer}>
+                                <strong>Disclaimer:</strong> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                             </p>
                         </div>
                     </div>

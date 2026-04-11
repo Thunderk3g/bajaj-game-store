@@ -1,4 +1,6 @@
 import { memo, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 import DndGameContext from '../features/game/components/DndGameContext.jsx';
 import GameBoard from '../features/game/components/GameBoard.jsx';
 import BlockTray from '../features/game/components/BlockTray.jsx';
@@ -34,9 +36,6 @@ const ConfettiBackground = memo(() => {
     );
 });
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Info Icon — tooltip opens DOWNWARD to avoid header overlap
-───────────────────────────────────────────────────────────────────────────── */
 const GAME_RULES = [
     { emoji: '🎯', text: 'Place each income pillar once per row & column.' },
     { emoji: '🚫', text: 'No duplicate pillars in any row or column.' },
@@ -45,106 +44,131 @@ const GAME_RULES = [
     { emoji: '⏱️', text: 'Complete the board before time runs out!' },
 ];
 
-function InfoIcon() {
-    const [visible, setVisible] = useState(false);
-
+/* ─────────────────────────────────────────────────────────────────────────────
+   How to Play Modal — pops up on start
+───────────────────────────────────────────────────────────────────────────── */
+const HowToPlayModal = memo(({ isOpen, onClose }) => {
     return (
-        <div
-            style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
-            onMouseEnter={() => setVisible(true)}
-            onMouseLeave={() => setVisible(false)}
-            onFocus={() => setVisible(true)}
-            onBlur={() => setVisible(false)}
-        >
-            {/* Circular ℹ button */}
-            <button
-                aria-label="Show game rules"
-                aria-expanded={visible}
-                style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '1.1rem',
-                    height: '1.1rem',
-                    borderRadius: '50%',
-                    background: visible ? 'rgba(249,115,22,0.28)' : 'rgba(249,115,22,0.15)',
-                    border: '1.5px solid rgba(249,115,22,0.7)',
-                    color: '#f97316',
-                    fontSize: '0.6rem',
-                    fontWeight: 900,
-                    lineHeight: 1,
-                    cursor: 'pointer',
-                    padding: 0,
-                    flexShrink: 0,
-                    outline: 'none',
-                    transition: 'box-shadow 0.2s, background 0.2s',
-                    boxShadow: visible ? '0 0 10px rgba(249,115,22,0.6)' : 'none',
-                    fontFamily: 'Georgia, serif',
-                    fontStyle: 'italic',
-                }}
-            >
-                i
-            </button>
-
-            {/* Tooltip — opens DOWNWARD below the timer bar */}
-            {visible && (
-                <div
-                    role="tooltip"
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     style={{
-                        position: 'absolute',
-                        top: 'calc(100% + 8px)',   // ← below the icon
-                        left: 0,
-                        zIndex: 9999,
-                        width: '13.5rem',
-                        background: 'linear-gradient(140deg, #0d1b3e 0%, #1a2f56 100%)',
-                        border: '1.5px solid rgba(249,115,22,0.55)',
-                        borderRadius: '0.9rem',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(249,115,22,0.12)',
-                        padding: '0.7rem 0.85rem',
-                        pointerEvents: 'none',
-                        animation: 'tooltipFadeIn 0.18s ease forwards',
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 1000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '1.25rem',
+                        backgroundColor: 'rgba(13, 27, 62, 0.85)',
+                        backdropFilter: 'blur(8px)',
                     }}
                 >
-                    {/* Upward arrow */}
-                    <div style={{
-                        position: 'absolute',
-                        top: '-7px',
-                        left: '0.55rem',
-                        width: 0,
-                        height: 0,
-                        borderLeft: '7px solid transparent',
-                        borderRight: '7px solid transparent',
-                        borderBottom: '7px solid rgba(249,115,22,0.55)',
-                    }} />
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0, y: 30 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.8, opacity: 0, y: 30 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                        style={{
+                            backgroundColor: '#0d1b3e',
+                            padding: '1.75rem',
+                            borderRadius: '1.5rem',
+                            border: '3px solid #f97316',
+                            boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 30px rgba(249,115,22,0.15)',
+                            width: '100%',
+                            maxWidth: '360px',
+                            textAlign: 'center',
+                            position: 'relative',
+                        }}
+                    >
+                        <button
+                            onClick={onClose}
+                            style={{
+                                position: 'absolute',
+                                top: '1rem',
+                                right: '1rem',
+                                background: 'rgba(255,115,22,0.1)',
+                                border: 'none',
+                                color: '#f97316',
+                                cursor: 'pointer',
+                                padding: '0.5rem',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s',
+                            }}
+                        >
+                            <X size={20} strokeWidth={3} />
+                        </button>
 
-                    {/* Title */}
-                    <div style={{
-                        fontSize: '0.62rem',
-                        fontWeight: 800,
-                        color: '#f97316',
-                        letterSpacing: '0.07em',
-                        textTransform: 'uppercase',
-                        marginBottom: '0.4rem',
-                        paddingBottom: '0.3rem',
-                        borderBottom: '1px solid rgba(249,115,22,0.22)',
-                    }}>
-                        📋 How to Play
-                    </div>
+                        <div style={{ fontSize: '2.75rem', marginBottom: '0.75rem', filter: 'drop-shadow(0 0 10px rgba(249,115,22,0.3))' }}>🎮</div>
+                        <h2 style={{
+                            color: '#ffffff',
+                            fontSize: '1.35rem',
+                            fontWeight: 900,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.12rem',
+                            marginBottom: '1.25rem',
+                            lineHeight: 1.1
+                        }}>
+                            How to <span style={{ color: '#f97316' }}>Play</span>
+                        </h2>
 
-                    {/* Rules list */}
-                    <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.28rem' }}>
-                        {GAME_RULES.map((rule, i) => (
-                            <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.38rem', fontSize: '0.58rem', color: '#cbd5e1', lineHeight: 1.4 }}>
-                                <span style={{ fontSize: '0.65rem', flexShrink: 0 }}>{rule.emoji}</span>
-                                <span>{rule.text}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                        <div style={{
+                            textAlign: 'left',
+                            marginBottom: '1.75rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.85rem',
+                            background: 'rgba(0,0,0,0.25)',
+                            padding: '1rem',
+                            borderRadius: '1rem',
+                            border: '1px solid rgba(255,255,255,0.05)'
+                        }}>
+                            {GAME_RULES.map((rule, i) => (
+                                <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                                    <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>{rule.emoji}</span>
+                                    <span style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.4, fontWeight: 500 }}>{rule.text}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={onClose}
+                            style={{
+                                width: '100%',
+                                padding: '1.1rem',
+                                backgroundColor: '#f97316',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '1rem',
+                                fontSize: '1rem',
+                                fontWeight: 900,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 0 #c2410c',
+                                transition: 'all 0.1s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem'
+                            }}
+                            onPointerDown={e => (e.currentTarget.style.transform = 'translateY(2px)', e.currentTarget.style.boxShadow = '0 2px 0 #c2410c')}
+                            onPointerUp={e => (e.currentTarget.style.transform = 'translateY(0)', e.currentTarget.style.boxShadow = '0 4px 0 #c2410c')}
+                        >
+                            Got It! Let's Go
+                        </button>
+                    </motion.div>
+                </motion.div>
             )}
-        </div>
+        </AnimatePresence>
     );
-}
+});
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Timer Bar
@@ -161,7 +185,6 @@ function TimerBar() {
                     <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)' }}>
                         Time Left
                     </span>
-                    <InfoIcon />
                 </div>
                 {/* Right: countdown */}
                 <span style={{ fontSize: '0.9rem', fontWeight: 700, fontFamily: 'monospace', color: '#f97316', filter: 'drop-shadow(0 0 8px rgba(249,115,22,0.8))' }}>
@@ -180,6 +203,8 @@ function TimerBar() {
    Main Game Page — full-screen layout on every device
 ───────────────────────────────────────────────────────────────────────────── */
 const GamePage = memo(function GamePage() {
+    const [showHowToPlay, setShowHowToPlay] = useState(true);
+
     return (
         <div style={{ position: 'relative', width: '100%', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, #1e3a5f 0%, #0d1b3e 100%)' }}>
             <ConfettiBackground />
@@ -190,13 +215,13 @@ const GamePage = memo(function GamePage() {
                 zIndex: 10,
                 width: '100%',
                 maxWidth: '430px',
-                height: '100dvh',
+                minHeight: '100dvh', // Changed from height to minHeight
                 display: 'flex',
                 flexDirection: 'column',
                 background: '#0d1b3e',
                 border: '2px solid #f97316',
                 boxShadow: '0 0 20px rgba(249,115,22,0.15), inset 0 0 20px rgba(249,115,22,0.05)',
-                overflow: 'hidden', // keep contents clipped to card
+                overflowY: 'auto', // Allow scrolling if grid is too tall
             }}>
 
                 {/* ── 1. HEADER ── */}
@@ -210,7 +235,7 @@ const GamePage = memo(function GamePage() {
                         </p>
                     </div>
                     <div style={{ display: 'flex', gap: '0.35rem', fontSize: 'clamp(1rem, 4vw, 1.25rem)', opacity: 0.9 }}>
-                        <span>🏦</span><span>🏠</span><span>💰</span><span>🏥</span><span>✈️</span>
+                        <span>🏦</span><span>🏠</span><span>₹</span><span>🏥</span><span>✈️</span>
                     </div>
                 </div>
 
@@ -238,6 +263,7 @@ const GamePage = memo(function GamePage() {
             {/* Modals */}
             <WinModal />
             <TimeUpModal />
+            <HowToPlayModal isOpen={showHowToPlay} onClose={() => setShowHowToPlay(false)} />
         </div>
     );
 });

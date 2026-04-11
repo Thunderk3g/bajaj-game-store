@@ -200,19 +200,42 @@ const LeadForm = memo(function LeadForm({
                     Preferred Time Slot
                 </label>
                 <div className="flex flex-wrap gap-2">
-                    {TIME_SLOTS.map((slot) => (
-                        <button
-                            key={slot}
-                            type="button"
-                            onClick={() => handleChange('preferredSlot', slot)}
-                            className={`px-3 py-2 rounded-lg text-[0.75rem] font-medium transition-all duration-200 ${formData.preferredSlot === slot
-                                ? 'bg-race-accent text-white border border-race-accent'
-                                : 'bg-white/60 text-slate-600 border border-white hover:border-race-accent/50'
-                                }`}
-                        >
-                            {slot}
-                        </button>
-                    ))}
+                    {TIME_SLOTS.map((slot) => {
+                        const now = new Date();
+                        const isToday = formData.preferredDate === today;
+                        const currentHour = now.getHours();
+
+                        // Parse "9:00 AM - 11:00 AM" -> start hour is 9
+                        const startHourStr = slot.split(':')[0];
+                        let startHour = parseInt(startHourStr);
+                        if (slot.includes('PM') && startHour !== 12) startHour += 12;
+                        if (slot.includes('AM') && startHour === 12) startHour = 0;
+
+                        if (isToday && startHour <= currentHour) return null;
+
+                        return (
+                            <button
+                                key={slot}
+                                type="button"
+                                onClick={() => handleChange('preferredSlot', slot)}
+                                className={`px-3 py-2 rounded-lg text-[0.75rem] font-medium transition-all duration-200 ${formData.preferredSlot === slot
+                                    ? 'bg-race-accent text-white border border-race-accent'
+                                    : 'bg-white/60 text-slate-600 border border-white hover:border-race-accent/50'
+                                    }`}
+                            >
+                                {slot}
+                            </button>
+                        );
+                    }).filter(Boolean)}
+                    {formData.preferredDate === today && TIME_SLOTS.every(slot => {
+                        const startHourStr = slot.split(':')[0];
+                        let startHour = parseInt(startHourStr);
+                        if (slot.includes('PM') && startHour !== 12) startHour += 12;
+                        if (slot.includes('AM') && startHour === 12) startHour = 0;
+                        return startHour <= new Date().getHours();
+                    }) && (
+                            <p className="text-[11px] text-slate-500 italic opacity-70 py-2">No slots available for today</p>
+                        )}
                 </div>
                 {errors.preferredSlot && (
                     <p className="text-red-400 text-[0.75rem] mt-1">{errors.preferredSlot}</p>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star } from "lucide-react";
 import { WORDS } from "../data/words";
 import WordLinker from "./WordLinker";
-import expertImg from "../assets/MaleImg.png";
+
 
 export default function GameScreen({ onEnd }) {
     const [wordIndex, setWordIndex] = useState(0);
@@ -27,7 +27,14 @@ export default function GameScreen({ onEnd }) {
 
     useEffect(() => {
         const shuffled = [...(WORDS || [])].sort(() => Math.random() - 0.5);
-        setGameWords(shuffled.slice(0, 5));
+        const shortestWordIndex = shuffled.findIndex(w => w.word.length <= 4);
+        let firstWord = shuffled[0];
+        if (shortestWordIndex !== -1) {
+            firstWord = shuffled.splice(shortestWordIndex, 1)[0];
+        } else {
+            firstWord = shuffled.shift();
+        }
+        setGameWords([firstWord, ...shuffled.slice(0, 4)]);
     }, []);
 
     const currentWordObj = (gameWords && gameWords[wordIndex]) ? gameWords[wordIndex] : null;
@@ -152,7 +159,7 @@ export default function GameScreen({ onEnd }) {
                     } else {
                         onEnd(score);
                     }
-                }, 2000);
+                }, 5000);
             }, 1000);
         } else {
             setTimeout(() => {
@@ -247,16 +254,24 @@ export default function GameScreen({ onEnd }) {
                     <span className="text-xl sm:text-2xl font-game text-white">{wordIndex + 1}/{gameWords ? gameWords.length : 0}</span>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-md px-3 py-2 sm:px-6 sm:py-2 rounded-2xl border border-white/20 flex gap-1 sm:gap-2 justify-center">
-                    {gameWords.map((_, i) => (
-                        <Star
-                            key={i}
-                            className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors duration-300 ${questionResults[i] === 'correct' ? 'text-yellow-400 fill-yellow-400' :
-                                questionResults[i] === 'wrong' ? 'text-red-500 fill-red-500' :
-                                    'text-white/30'
-                                }`}
-                        />
-                    ))}
+                <div className="bg-white/10 backdrop-blur-md px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border border-white/20 flex items-center justify-center gap-1 sm:gap-2">
+                    {gameWords.map((_, i) => {
+                        const status = questionResults[i];
+                        const isActive = i === wordIndex;
+                        let bgClass = "bg-white/30";
+                        if (status === 'correct') bgClass = "bg-emerald-400";
+                        else if (status === 'wrong') bgClass = "bg-rose-500";
+                        else if (isActive) bgClass = "bg-amber-400 ring-4 ring-amber-400/30";
+
+                        return (
+                            <div key={i} className="flex items-center">
+                                <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 ${bgClass}`} />
+                                {i < gameWords.length - 1 && (
+                                    <div className={`w-3 sm:w-5 h-[2px] mx-1 transition-all duration-300 ${questionResults[i] !== null ? 'bg-white/60' : 'bg-white/20'}`} />
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -267,15 +282,7 @@ export default function GameScreen({ onEnd }) {
                 animate={{ opacity: 1, y: 0 }}
                 key={`hint-pill-${wordIndex}`}
             >
-                <div className="shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border-[3px] border-amber-400 bg-gradient-to-br from-blue-100 to-slate-200 shadow-lg z-10 relative">
-                    <img
-                        src={expertImg}
-                        alt="Expert character"
-                        className="w-full h-full object-cover object-top"
-                    />
-                </div>
-
-                <div className="flex-1 -ml-8 sm:-ml-12 bg-white/90 backdrop-blur-sm rounded-3xl py-4 pl-12 pr-6 sm:pl-16 sm:pr-8 sm:py-6 shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-white/40">
+                <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-3xl py-4 px-6 sm:px-10 sm:py-6 shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-white/40">
                     <p className="text-blue-900 font-bold text-lg sm:text-2xl md:text-3xl leading-tight sm:leading-snug text-center">
                         {currentWordObj.hint}
                     </p>
@@ -309,7 +316,7 @@ export default function GameScreen({ onEnd }) {
                         >
                             <span className="text-sm sm:text-lg uppercase tracking-widest text-blue-900/60 font-bold">Try Exhausted</span>
                             <div className="text-xl sm:text-3xl flex flex-col items-center">
-                                <span className="text-white tracking-[0.2em] font-game mb-2">{currentWordObj.word}</span>
+                                <span className="text-white tracking-[0.2em] font-sans font-bold mb-2">{currentWordObj.word}</span>
                                 <p className="text-xs sm:text-base text-blue-900 font-semibold text-center italic leading-tight">
                                     "{currentWordObj.hint}"
                                 </p>
@@ -340,7 +347,7 @@ export default function GameScreen({ onEnd }) {
                             <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className={`font-game text-2xl sm:text-4xl pointer-events-none drop-shadow-sm
+                                className={`font-sans font-bold text-2xl sm:text-4xl pointer-events-none drop-shadow-sm
                                     ${placed ? 'text-blue-900' : 'text-white'}
                                 `}
                             >
@@ -358,6 +365,7 @@ export default function GameScreen({ onEnd }) {
                     usedIndices={usedLetterIndices}
                     hintedIndex={hintedBankIndex}
                     onLetterSelect={handleLetterPlace}
+                    showTutorial={wordIndex === 0}
                 />
 
                 <div className="flex gap-4 sm:gap-6 pb-2 sm:pb-0">
@@ -367,7 +375,7 @@ export default function GameScreen({ onEnd }) {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
-                        Hint ({3 - hintUsedCount})
+                        Help ({3 - hintUsedCount})
                     </motion.button>
 
                     {/* CHANGED: disabled once result is shown (isLocked) or transitioning to next word */}
@@ -375,8 +383,8 @@ export default function GameScreen({ onEnd }) {
                         onClick={handleReset}
                         disabled={isLocked || isTransitioning}
                         className={`bg-white/10 backdrop-blur-md px-5 py-2 sm:px-10 sm:py-4 rounded-2xl border-b-4 border-white/20 text-white font-game text-lg sm:text-2xl uppercase tracking-widest transition-all shadow-lg ${isLocked || isTransitioning
-                                ? 'opacity-40 cursor-not-allowed'
-                                : 'hover:bg-white/20'
+                            ? 'opacity-40 cursor-not-allowed'
+                            : 'hover:bg-white/20'
                             }`}
                         whileHover={!(isLocked || isTransitioning) ? { scale: 1.05 } : {}}
                         whileTap={!(isLocked || isTransitioning) ? { scale: 0.95 } : {}}

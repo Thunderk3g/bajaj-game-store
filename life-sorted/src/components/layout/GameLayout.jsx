@@ -1,7 +1,7 @@
 import React from 'react';
 import lsBg from '../../assets/ls-bg.png';
 
-const GameLayout = ({ children, headerRight, footer, showTitle = true, variant = 'default', mainClassName = '' }) => {
+const GameLayout = ({ children, headerRight, footer, showTitle = true, showHeader = true, variant = 'default', mainClassName = '' }) => {
     const renderBackground = () => {
         if (variant === 'welcome') {
             return (
@@ -48,17 +48,19 @@ const GameLayout = ({ children, headerRight, footer, showTitle = true, variant =
             {renderBackground()}
 
             {/* Header */}
-            <header className="relative z-10 flex items-center justify-between px-6 py-4">
-                {showTitle ? (
-                    <div className="flex flex-col">
-                        <h1 className="text-xl font-heading font-bold leading-tight">Life Sorted</h1>
-                        <span className="text-[0.65rem] uppercase tracking-widest text-teal font-bold">Financial Awareness</span>
+            {showHeader && (
+                <header className="relative z-10 flex items-center justify-between px-6 py-4 min-h-[60px]">
+                    {showTitle ? (
+                        <div className="flex flex-col">
+                            <h1 className="text-xl font-heading font-bold leading-tight">Life Sorted</h1>
+                            <span className="text-[0.65rem] uppercase tracking-widest text-teal font-bold">Financial Awareness</span>
+                        </div>
+                    ) : <div />}
+                    <div>
+                        {headerRight}
                     </div>
-                ) : <div />}
-                <div>
-                    {headerRight}
-                </div>
-            </header>
+                </header>
+            )}
 
             {/* Main Content */}
             <main className={`relative z-10 flex-1 flex flex-col items-center px-4 py-2 ${mainClassName || 'justify-center'}`}>

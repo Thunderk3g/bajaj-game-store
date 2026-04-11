@@ -1,9 +1,9 @@
 .intro {
-    background-image: url('../../assets/tf-bg.png');
-    background-size: cover;
-    background-position: center center;
+    background-image: url('../../assets/tile-bg.png');
+    background-size: 100% 100%;
+    background-position: center top;
     background-repeat: no-repeat;
-    height: 100vh;
+    height: 100dvh;
     width: 100%;
 }
 
@@ -16,13 +16,13 @@
 
 .centeredContent {
     width: 100%;
-    max-width: 320px;
+    max-width: 220px;
     padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: auto;
-    margin-bottom: 80px;
+    margin-bottom: clamp(40px, 8dvh, 80px);
     /* Position button towards bottom like a mobile landing page */
 }
 
@@ -49,10 +49,4 @@
 .btnStartNow:active:not(:disabled) {
     transform: translateY(4px) !important;
     box-shadow: 0 0px 0 #CC5200, 0 4px 8px rgba(255, 102, 0, 0.4) !important;
-}
-
-@media (max-width: 480px) {
-    .centeredContent {
-        margin-bottom: 60px;
-    }
 }

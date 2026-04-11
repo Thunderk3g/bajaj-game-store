@@ -45,7 +45,9 @@ export const useSnakeEngine = () => {
 
     useEffect(() => {
         const setupAudio = (src, ref) => {
-            const audio = new Audio(`${src}?v=${Date.now()}`);
+            // Only append version query if it's not a data URI
+            const finalSrc = src.startsWith('data:') ? src : `${src}?v=${Date.now()}`;
+            const audio = new Audio(finalSrc);
             audio.preload = 'auto';
             ref.current = audio;
         };
@@ -113,6 +115,7 @@ export const useSnakeEngine = () => {
         }
 
         const newSnake = [newHead, ...snakeRef.current];
+        let shouldGeneratePellet = false;
 
         // Check Pellet
         if (newHead.x === pelletRef.current.x && newHead.y === pelletRef.current.y) {
@@ -128,7 +131,7 @@ export const useSnakeEngine = () => {
             growthPendingRef.current += additionalSegments;
 
             handlePelletEatenRef.current(currentMilestones);
-            generatePellet();
+            shouldGeneratePellet = true;
         } else {
             if (growthPendingRef.current > 0) {
                 growthPendingRef.current -= 1;
@@ -138,6 +141,9 @@ export const useSnakeEngine = () => {
         }
 
         snakeRef.current = newSnake;
+        if (shouldGeneratePellet) {
+            generatePellet();
+        }
         setTick(t => t + 1);
     }, [score, generatePellet]);
 

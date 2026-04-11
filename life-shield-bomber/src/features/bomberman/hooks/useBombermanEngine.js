@@ -69,11 +69,14 @@ export function useBombermanEngine() {
     const floatIdRef = useRef(0);
     const lastTimeRef = useRef(performance.now());
     const isInvulnerableRef = useRef(false);
+    const activePraiseRef = useRef(null); // Ref to track popup for pausing
 
     const timeFreezeEndRef = useRef(0);
     const multiShieldEndRef = useRef(0);
     const isPenetrationRef = useRef(false);
     const penetrationEndRef = useRef(0);
+    const frameCountRef = useRef(0);
+    const deltaRef = useRef(0);
 
     gridRef.current = grid;
     playerPosRef.current = playerPos;
@@ -85,6 +88,7 @@ export function useBombermanEngine() {
     // Sub-systems
     const {
         shields,
+        shieldsRef,
         fireShield,
         updateShields,
         getCooldownProgress,
@@ -114,7 +118,7 @@ export function useBombermanEngine() {
         setGamePhase(GAME_PHASES.FINISHED);
 
         setTimeout(() => {
-            setGamePhase(GAME_PHASES.RESULT);
+            setGamePhase(GAME_PHASES.POST_GAME_LEAD);
         }, 1500);
     }, []);
 
@@ -130,11 +134,13 @@ export function useBombermanEngine() {
     const showPraise = useCallback((customMsg) => {
         const msg = customMsg || PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
         setActivePraise(msg);
+        activePraiseRef.current = msg; // Update ref for pausing
 
         if (praiseTimeoutRef.current) clearTimeout(praiseTimeoutRef.current);
         praiseTimeoutRef.current = setTimeout(() => {
             setActivePraise(null);
-        }, 3000);
+            activePraiseRef.current = null;
+        }, 2200); // Shorter popup time speeds up gameplay since it now pauses
     }, []);
 
     // ── Damage ─────────────────────────────────────────────────────
@@ -180,8 +186,17 @@ export function useBombermanEngine() {
     // ── Game Loop ──────────────────────────────────────────────────
     const gameLoop = useCallback((timestamp) => {
         if (!isPlayingRef.current) return;
+
+        // Pause time, monsters, shields when a popup (Praise) is on screen
+        if (activePraiseRef.current) {
+            lastTimeRef.current = timestamp; // Prevent huge delta build-up after unpause
+            gameLoopRef.current = requestAnimationFrame(gameLoop);
+            return;
+        }
+
         const delta = timestamp - lastTimeRef.current;
         lastTimeRef.current = timestamp;
+        deltaRef.current += delta;
 
         const now = Date.now();
         const isTimeFrozen = now < timeFreezeEndRef.current;
@@ -191,33 +206,37 @@ export function useBombermanEngine() {
             isPenetrationRef.current = false;
         }
 
-        // Shield only targets monsters — no risk block destruction
-        updateShields(
-            delta,
-            (monsterId) => {
-                // Find monster position before removing for floating score
-                const monster = monstersRef.current.find(m => m.id === monsterId);
-                const mRow = monster ? monster.row : playerPosRef.current.row;
-                const mCol = monster ? monster.col : playerPosRef.current.col;
+        frameCountRef.current++;
+        if (frameCountRef.current % 2 === 0) {
+            // Shield only targets monsters — no risk block destruction
+            updateShields(
+                deltaRef.current,
+                (monsterId) => {
+                    // Find monster position before removing for floating score
+                    const monster = monstersRef.current.find(m => m.id === monsterId);
+                    const mRow = monster ? monster.row : playerPosRef.current.row;
+                    const mCol = monster ? monster.col : playerPosRef.current.col;
 
-                removeMonster(monsterId);
-                setMonstersDefeated(prev => prev + 1);
-                setScore(prev => prev + MONSTER_SCORE);
-                addFloatingScore(`+${MONSTER_SCORE}`, mRow, mCol);
-                showPraise('Threat Neutralized!');
-            },
-            monstersRef,
-            isPenetrationRef.current
-        );
+                    removeMonster(monsterId);
+                    setMonstersDefeated(prev => prev + 1);
+                    setScore(prev => prev + MONSTER_SCORE);
+                    addFloatingScore(`+${MONSTER_SCORE}`, mRow, mCol);
+                    showPraise('Threat Neutralized!');
+                },
+                monstersRef,
+                isPenetrationRef.current
+            );
 
-        updateMonsters(
-            now,
-            playerPosRef.current,
-            isTimeFrozen,
-            () => handleDamage()
-        );
+            updateMonsters(
+                now,
+                playerPosRef.current,
+                isTimeFrozen,
+                () => handleDamage()
+            );
 
-        checkPowerupSpawn(now);
+            checkPowerupSpawn(now);
+            deltaRef.current = 0;
+        }
 
         gameLoopRef.current = requestAnimationFrame(gameLoop);
     }, [updateShields, updateMonsters, checkPowerupSpawn, handleDamage, removeMonster, addFloatingScore, showPraise]);
@@ -235,6 +254,7 @@ export function useBombermanEngine() {
     // ── Timer ──────────────────────────────────────────────────────
     useEffect(() => {
         if (gamePhase !== GAME_PHASES.PLAYING) return;
+        if (activePraise) return; // Do not decrement timer while popup is active!
 
         timerRef.current = setInterval(() => {
             setTimeLeft(prev => {
@@ -251,7 +271,7 @@ export function useBombermanEngine() {
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, [gamePhase]);
+    }, [gamePhase, activePraise]);
 
     // ── Cleanup ────────────────────────────────────────────────────
     useEffect(() => {
@@ -264,7 +284,7 @@ export function useBombermanEngine() {
 
     // ── Movement ───────────────────────────────────────────────────
     const movePlayer = useCallback((direction) => {
-        if (!isPlayingRef.current) return;
+        if (!isPlayingRef.current || activePraiseRef.current) return; // Prevent movement during popup
 
         const now = Date.now();
         if (now - lastMoveRef.current < MOVE_COOLDOWN) return;
@@ -362,7 +382,7 @@ export function useBombermanEngine() {
 
     // ── Shield Action ──────────────────────────────────────────────
     const handleAction = useCallback(() => {
-        if (!isPlayingRef.current) return;
+        if (!isPlayingRef.current || activePraiseRef.current) return; // Prevent action during popup
         const isMulti = Date.now() < multiShieldEndRef.current;
         fireShield(playerPosRef.current.row, playerPosRef.current.col, lastDirection, isMulti);
     }, [fireShield, lastDirection]);
@@ -395,25 +415,7 @@ export function useBombermanEngine() {
     const handleEntrySubmit = useCallback(async (name, mobile) => {
         setEntryDetails({ name, mobile });
         leadFiredRef.current = false;
-
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const dateStr = tomorrow.toISOString().split('T')[0];
-
-        const result = await submitToLMS({
-            name: name.trim(),
-            mobile_no: mobile,
-            param4: dateStr,
-            param19: '09:00 AM',
-            summary_dtls: 'Life Shield Bomber Lead',
-            p_data_source: 'LIFE_SHIELD_BOMBER_LEAD',
-        });
-
-        const responseData = result?.data || result;
-        if (result && result.success && (responseData.leadNo || responseData.LeadNo)) {
-            sessionStorage.setItem('lifeShieldBomberLeadNo', responseData.leadNo || responseData.LeadNo);
-        }
-
+        // Lead popup disabled — skip submitToLMS, go directly to how-to-play
         setGamePhase(GAME_PHASES.HOW_TO_PLAY);
     }, []);
 
@@ -453,23 +455,13 @@ export function useBombermanEngine() {
         if (timerRef.current) clearInterval(timerRef.current);
         if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
 
-        if (!leadFiredRef.current && entryDetails) {
-            leadFiredRef.current = true;
-            const finalScoreVal = computeFinalScore(risksDestroyed, monstersDefeated, health, timeLeft);
-            submitToLMS({
-                name: entryDetails.name,
-                mobile_no: entryDetails.mobile,
-                score: finalScoreVal,
-                summary_dtls: `Life Shield Bomber - Early Exit - Score: ${finalScoreVal}/100`,
-                p_data_source: 'LIFE_SHIELD_BOMBER_LEAD',
-            });
-        }
+        // Lead submission disabled — skip submitToLMS on early exit
 
         setGamePhase(GAME_PHASES.EXITED);
         setTimeout(() => {
             setGamePhase(GAME_PHASES.RESULT);
         }, 800);
-    }, [entryDetails, risksDestroyed, monstersDefeated, health, timeLeft]);
+    }, []);
 
     const restartGame = useCallback(() => {
         leadFiredRef.current = false;
@@ -538,6 +530,10 @@ export function useBombermanEngine() {
         powerRiderCount,
         isMissionComplete,
 
+        playerPosRef,
+        shieldsRef,
+        monstersRef,
+
         movePlayer,
         placeBomb: handleAction,
         handleEntrySubmit,
@@ -547,5 +543,7 @@ export function useBombermanEngine() {
         goToHowToPlay,
         handleBookSlot,
         showThankYou,
+        setGamePhase,
+        setEntryDetails,
     };
 }

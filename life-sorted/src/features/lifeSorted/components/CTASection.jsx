@@ -4,6 +4,13 @@ import { Phone, Calendar, User, Smartphone, Send } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import Card from '../../../components/ui/Card';
 
+const TIME_SLOTS = [
+    "9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM",
+    "12:00 PM - 1:00 PM", "1:00 PM - 2:00 PM", "2:00 PM - 3:00 PM",
+    "3:00 PM - 4:00 PM", "4:00 PM - 5:00 PM", "5:00 PM - 6:00 PM",
+    "6:00 PM - 7:00 PM", "7:00 PM - 8:00 PM", "8:00 PM - 9:00 PM"
+];
+
 const CTASection = ({ results, leadService }) => {
     const [showForm, setShowForm] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,11 +67,13 @@ const CTASection = ({ results, leadService }) => {
                             <p className="text-xs text-white/50">Speak with an expert to balance your life goals.</p>
                         </div>
 
-                        <a href="tel:1800-XXX-XXXX" className="block">
-                            <Button fullWidth variant="primary" className="h-16">
-                                <Phone className="mr-2" /> Call Now
-                            </Button>
-                        </a>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block">
+                                <Button fullWidth variant="primary" className="h-16">
+                                    <Phone className="mr-2" /> Call Now
+                                </Button>
+                            </a>
+                        )}
 
                         <Button fullWidth variant="secondary" className="h-16" onClick={() => setShowForm(true)}>
                             <Calendar className="mr-2" /> Book a Slot
@@ -126,18 +135,28 @@ const CTASection = ({ results, leadService }) => {
                                             onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                                         >
                                             <option value="">Time Slot</option>
-                                            <option value="9:00 AM - 10:00 AM">9:00 AM - 10:00 AM</option>
-                                            <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
-                                            <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
-                                            <option value="12:00 PM - 1:00 PM">12:00 PM - 1:00 PM</option>
-                                            <option value="1:00 PM - 2:00 PM">1:00 PM - 2:00 PM</option>
-                                            <option value="2:00 PM - 3:00 PM">2:00 PM - 3:00 PM</option>
-                                            <option value="3:00 PM - 4:00 PM">3:00 PM - 4:00 PM</option>
-                                            <option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option>
-                                            <option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option>
-                                            <option value="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</option>
-                                            <option value="7:00 PM - 8:00 PM">7:00 PM - 8:00 PM</option>
-                                            <option value="8:00 PM - 9:00 PM">8:00 PM - 9:00 PM</option>
+                                            {TIME_SLOTS.map(slot => {
+                                                const today = new Date().toISOString().split("T")[0];
+                                                const isToday = formData.date === today;
+                                                const now = new Date();
+                                                const currentHour = now.getHours();
+
+                                                if (isToday) {
+                                                    const slotHour = parseInt(slot.split(':')[0]);
+                                                    const isPM = slot.includes('PM') && slotHour !== 12;
+                                                    const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+                                                    if (normalizedHour <= currentHour) return null;
+                                                }
+                                                return <option key={slot} value={slot} className="bg-slate-900">{slot}</option>;
+                                            }).filter(Boolean)}
+                                            {formData.date === new Date().toISOString().split("T")[0] && TIME_SLOTS.every(slot => {
+                                                const slotHour = parseInt(slot.split(':')[0]);
+                                                const isPM = slot.includes('PM') && slotHour !== 12;
+                                                const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && slot.includes('AM') ? 0 : slotHour);
+                                                return normalizedHour <= new Date().getHours();
+                                            }) && (
+                                                    <option disabled className="bg-slate-900">No slots available for today</option>
+                                                )}
                                         </select>
                                     </div>
                                 </div>

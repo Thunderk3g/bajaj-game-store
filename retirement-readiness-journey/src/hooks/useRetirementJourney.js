@@ -6,27 +6,35 @@ export const useRetirementJourney = () => {
     const [selections, setSelections] = useState({});
     const [userInfo, setUserInfo] = useState({ name: '', mobile: '', termsAccepted: false });
     const [isFinished, setIsFinished] = useState(false);
-
-
+    const [surprisesSubStep, setSurprisesSubStep] = useState(0);
     const currentStep = useMemo(() => {
         if (currentStepIndex === -1) return { id: JOURNEY_STEPS.INTRO };
-        if (currentStepIndex >= STEPS_DATA.length) return { id: JOURNEY_STEPS.RESULTS };
-        return STEPS_DATA[currentStepIndex];
+        if (currentStepIndex < STEPS_DATA.length) return STEPS_DATA[currentStepIndex];
+        if (currentStepIndex === STEPS_DATA.length) return { id: JOURNEY_STEPS.LEAD };
+        return { id: JOURNEY_STEPS.RESULTS };
     }, [currentStepIndex]);
 
     const goToNextStep = useCallback(() => {
-        if (currentStepIndex < STEPS_DATA.length) {
+        if (currentStepIndex === 4 && surprisesSubStep < 2) {
+            setSurprisesSubStep(prev => prev + 1);
+            return;
+        }
+        if (currentStepIndex < STEPS_DATA.length + 1) {
             setCurrentStepIndex(prev => prev + 1);
         } else {
             setIsFinished(true);
         }
-    }, [currentStepIndex]);
+    }, [currentStepIndex, surprisesSubStep]);
 
     const goToPrevStep = useCallback(() => {
+        if (currentStepIndex === 4 && surprisesSubStep > 0) {
+            setSurprisesSubStep(prev => prev - 1);
+            return;
+        }
         if (currentStepIndex > -1) {
             setCurrentStepIndex(prev => prev - 1);
         }
-    }, [currentStepIndex]);
+    }, [currentStepIndex, surprisesSubStep]);
 
     const handleSelection = useCallback((stepId, value) => {
         setSelections(prev => ({
@@ -148,16 +156,19 @@ export const useRetirementJourney = () => {
         insights,
         isFinished,
         userInfo,
+        surprisesSubStep,
         actions: {
             goToNextStep,
             goToPrevStep,
             handleSelection,
             setUserInfo,
+            setSurprisesSubStep,
             reset: () => {
                 setCurrentStepIndex(-1);
                 setSelections({});
                 setUserInfo({ name: '', mobile: '', termsAccepted: false });
                 setIsFinished(false);
+                setSurprisesSubStep(0);
             }
         }
 

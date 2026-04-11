@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 import { Share2, Phone, CalendarClock } from 'lucide-react';
 import Button from '../../../components/ui/Button';
+import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
+import gameThumbnail from '../../../assets/image/Life-Milestone-Race.png';
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -26,16 +29,34 @@ const ConversionScreen = memo(function ConversionScreen({
     onBookSlot,
 }) {
     const handleShare = async () => {
-        const shareText = `I scored ${score}/100 (${category?.label}) on the Life Milestone Race! Check your Life Goals readiness and discover how prepared you are for your future. ${window.location.href}`;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
+        const senderName = (typeof leadData !== 'undefined' ? leadData?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareText = `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}${signature}`.trim();
         const shareData = {
-            title: 'My Life Protection Score',
+            title: 'Life Milestone Race',
             text: shareText,
-            url: window.location.href
+            url: shareUrl
         };
 
         if (navigator.share) {
             try {
-                await navigator.share(shareData);
+                const sharePayload = {
+                    title: shareData.title,
+                    text: shareData.text
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 console.log('Error sharing:', err);
             }
@@ -46,7 +67,8 @@ const ConversionScreen = memo(function ConversionScreen({
     };
 
     const handleCall = () => {
-        window.location.href = 'tel:18002099999';
+        const empPhone = sessionStorage.getItem('gamification_emp_mobile');
+        if (empPhone) window.location.href = `tel:${empPhone}`;
     };
 
     return (
@@ -107,14 +129,16 @@ const ConversionScreen = memo(function ConversionScreen({
 
                 <div className="grid grid-cols-2 gap-4">
                     <motion.div variants={itemVariants}>
-                        <button
-                            onClick={handleCall}
-                            className="w-full h-14 bg-bajaj-blue/10 hover:bg-bajaj-blue/20 border-2 border-bajaj-blue/30 text-bajaj-blue font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
-                            id="btn-call"
-                        >
-                            <Phone size={18} />
-                            Call Now
-                        </button>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <button
+                                onClick={handleCall}
+                                className="w-full h-14 bg-bajaj-blue/10 hover:bg-bajaj-blue/20 border-2 border-bajaj-blue/30 text-bajaj-blue font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+                                id="btn-call"
+                            >
+                                <Phone size={18} />
+                                Call Now
+                            </button>
+                        )}
                     </motion.div>
 
                     <motion.div variants={itemVariants}>

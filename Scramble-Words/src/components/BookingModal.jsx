@@ -1,13 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar } from 'lucide-react';
 import { updateLeadNew, submitToLMS } from '../utils/api';
+import TermsModal from './TermsModal';
+import { useGameState } from '../hooks/useGameState';
 
 export default function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile }) {
+    const { setLastSubmittedPhone, showToast } = useGameState();
     const [formData, setFormData] = useState({ name: initialName || '', mobile: initialMobile || '', date: '', time: '' });
+
+    useEffect(() => {
+        if (isOpen) {
+            setFormData(prev => ({
+                ...prev,
+                name: initialName || prev.name,
+                mobile: initialMobile || prev.mobile
+            }));
+        }
+    }, [isOpen, initialName, initialMobile]);
     const [termsAccepted, setTermsAccepted] = useState(true);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { setLeadNo } = useGameState();
 
     const updateField = (field, val) => {
         setFormData(p => ({ ...p, [field]: val }));
@@ -47,7 +62,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
 
         // 5. Terms Validation
         if (!termsAccepted) {
-            errs.terms = "Please accept the terms";
+            errs.terms = "Please agree to Terms and Conditions";
         }
 
         setErrors(errs);
@@ -189,7 +204,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                         min={todayStr}
                                         value={formData.date}
                                         onChange={e => updateField('date', e.target.value)}
-                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-200 text-xs font-bold px-4 transition-colors"
+                                        className={`w-full bg-slate-50 h-11 border-2 rounded-xl text-slate-800 focus:outline-none transition-all px-4 font-bold text-sm ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100 focus:border-blue-200'}`}
                                     />
                                     {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                 </div>
@@ -201,50 +216,66 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                         className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:border-blue-200 text-xs font-bold px-4 appearance-none transition-colors"
                                     >
                                         <option value="">Select Slot</option>
-                                        {[...Array(12)].map((_, i) => {
-                                            const start = 9 + i;
-                                            const end = start + 1;
-                                            const formatTime = (h) => {
-                                                const amp = h >= 12 ? 'PM' : 'AM';
-                                                const hour = h > 12 ? h - 12 : h;
-                                                return `${hour}:00 ${amp}`;
-                                            };
-                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
-                                            return <option key={start} value={label}>{label}</option>;
-                                        })}
+                                        {(() => {
+                                            const slots = [...Array(12)].map((_, i) => {
+                                                const start = 9 + i;
+                                                const end = start + 1;
+                                                const formatTime = (h) => {
+                                                    const amp = h >= 12 ? 'PM' : 'AM';
+                                                    const hour = h > 12 ? h - 12 : h;
+                                                    return `${hour}:00 ${amp}`;
+                                                };
+                                                const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                // Filter logic: if today, only show slots that haven't passed
+                                                const now = new Date();
+                                                const isToday = formData.date === todayStr;
+                                                const currentHour = now.getHours();
+
+                                                if (isToday && start <= currentHour) return null;
+
+                                                return <option key={start} value={label}>{label}</option>;
+                                            }).filter(Boolean);
+
+                                            return slots.length > 0 ? slots : <option disabled>No slots available for today</option>;
+                                        })()}
                                     </select>
                                     {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                 </div>
                             </div>
 
                             {/* Terms Checkbox */}
-                            <div className="flex items-start bg-slate-50 p-3 rounded-lg border-2 border-slate-100 gap-3">
-                                <div className="relative flex items-center mt-0.5">
-                                    <input
-                                        type="checkbox"
-                                        checked={termsAccepted}
-                                        onChange={(e) => {
-                                            setTermsAccepted(e.target.checked);
-                                            if (errors.terms) setErrors(p => ({ ...p, terms: null }));
-                                        }}
-                                        className="w-4 h-4 rounded border-slate-300 text-[#0066B2] focus:ring-[#0066B2] cursor-pointer"
-                                    />
+                            <div className="flex items-start gap-2 py-1">
+                                <div
+                                    onClick={() => {
+                                        const newVal = !termsAccepted;
+                                        setTermsAccepted(newVal);
+                                        if (errors.terms && newVal) setErrors(p => {
+                                            const next = { ...p };
+                                            delete next.terms;
+                                            return next;
+                                        });
+                                    }}
+                                    className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center rounded cursor-pointer transition-all ${termsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : `bg-white ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'}`}`}
+                                >
+                                    {termsAccepted && <span className="text-white font-black text-[10px]">✓</span>}
                                 </div>
-                                <label className="text-[10px] sm:text-xs text-slate-500 leading-tight">
-                                    I authorize Bajaj Life Insurance to contact me for this request, overriding DND registry.
-                                </label>
+                                <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">
+                                    I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#1e40af] transition-colors">T&C and Privacy Policy</span>
+                                </p>
                             </div>
-                            {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider text-center">{errors.terms}</div>}
+                            {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider ml-8 -mt-2">{errors.terms}</div>}
 
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
                                 className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest text-sm mt-2 border-2 border-white/20"
                             >
-                                {isSubmitting ? 'Confirming...' : 'Book a Slot'}
+                                {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
                             </button>
                         </form>
                     </motion.div>
+                    <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
                 </div>
             )}
         </AnimatePresence>

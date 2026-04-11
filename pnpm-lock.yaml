@@ -78,6 +78,9 @@ importers:
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.1
@@ -106,6 +109,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       framer-motion:
         specifier: ^12.34.3
         version: 12.34.3(@emotion/is-prop-valid@0.8.8)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -160,6 +166,10 @@ importers:
         version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(less@4.2.0)(lightningcss@1.31.1)(sass@1.77.6)(terser@5.31.6)
 
   Tile-Flipping-game:
+    dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.1
@@ -275,6 +285,10 @@ importers:
         version: 5.4.5
 
   financial-tetris:
+    dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
     devDependencies:
       eslint:
         specifier: ^8.45.0
@@ -294,6 +308,9 @@ importers:
       axios:
         specifier: ^1.6.7
         version: 1.13.5
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       framer-motion:
         specifier: ^12.34.2
         version: 12.34.3(@emotion/is-prop-valid@0.8.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -331,15 +348,24 @@ importers:
       '@radix-ui/react-dialog':
         specifier: ^1.1.4
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
 
   life-milestone-race:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       uuid:
         specifier: ^9.0.0
         version: 9.0.1
 
   life-shield-bomber:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       uuid:
         specifier: ^9.0.0
         version: 9.0.1
@@ -359,6 +385,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       framer-motion:
         specifier: ^12.30.0
         version: 12.34.2(@emotion/is-prop-valid@0.8.8)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -371,6 +400,9 @@ importers:
 
   life-sorted:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       framer-motion:
         specifier: ^10.16.4
         version: 10.18.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -429,6 +461,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       framer-motion:
         specifier: ^12.34.3
         version: 12.34.3(@emotion/is-prop-valid@0.8.8)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -493,6 +528,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.2.4
         version: 1.2.4(@types/react@19.2.14)(react@19.2.4)
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       react-confetti:
         specifier: ^6.4.0
         version: 6.4.0(react@19.2.4)
@@ -507,7 +545,11 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.19)
 
-  retirement-readiness-journey: {}
+  retirement-readiness-journey:
+    dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
 
   retirement-sudoku:
     dependencies:
@@ -523,12 +565,18 @@ importers:
       axios:
         specifier: ^1.7.9
         version: 1.13.5
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       react-router-dom:
         specifier: ^6.28.0
         version: 6.30.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
 
   secure-saga:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       uuid:
         specifier: ^9.0.0
         version: 9.0.1
@@ -539,6 +587,7 @@ importers:
       vite:
         specifier: ^6.2.0
         version: 6.4.1(@types/node@25.2.3)(jiti@2.6.1)(less@4.2.0)(lightningcss@1.31.1)(sass@1.77.6)(terser@5.31.6)
+<<<<<<< HEAD
 
   tower-defense:
     devDependencies:
@@ -560,6 +609,8 @@ importers:
       typescript-eslint:
         specifier: ^8.56.1
         version: 8.56.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.4.5)
+=======
+>>>>>>> 7f8d79ad11faf81e21a7916eeb99103b6835313f
 
 packages:
 

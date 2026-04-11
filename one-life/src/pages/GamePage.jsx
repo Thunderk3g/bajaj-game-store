@@ -8,6 +8,7 @@ import ConversionScreen from '../features/game/components/ConversionScreen';
 import IntroScreen from '../features/game/components/IntroScreen';
 import TutorialOverlay from '../features/game/components/TutorialOverlay';
 import ThankYouScreen from '../features/game/components/ThankYouScreen';
+import PostGameLeadCapture from '../features/game/components/PostGameLeadCapture';
 import LifeLostPopup from '../features/game/components/LifeLostPopup';
 import { submitToLMS, updateLeadNew } from '../services/api';
 
@@ -25,6 +26,7 @@ const GamePage = () => {
     } = useGameEngine();
 
     const [showTutorial, setShowTutorial] = useState(false);
+    const [showInGameGesture, setShowInGameGesture] = useState(false);
 
     const handleStart = (userData) => {
         setLeadData(userData);
@@ -35,6 +37,12 @@ const GamePage = () => {
     const handleTutorialDismiss = () => {
         setShowTutorial(false);
         startEngine();
+
+        // Show in-game gesture for first 4 seconds
+        setShowInGameGesture(true);
+        setTimeout(() => {
+            setShowInGameGesture(false);
+        }, 4000);
     };
 
     const handleRestart = () => {
@@ -71,7 +79,7 @@ const GamePage = () => {
     useEffect(() => {
         if (status === GAME_STATUS.GAME_OVER) {
             const timer = setTimeout(() => {
-                setStatus(GAME_STATUS.CTA);
+                setStatus(GAME_STATUS.POST_GAME_LEAD);
             }, 300);
             return () => clearTimeout(timer);
         }
@@ -109,7 +117,7 @@ const GamePage = () => {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                             >
-                                <div className="flex-1 w-full flex items-center justify-center">
+                                <div className="flex-1 w-full flex items-center justify-center relative">
                                     <GameCanvas
                                         canvasRef={canvasRef}
                                         canvasWidth={canvasWidth}
@@ -118,6 +126,35 @@ const GamePage = () => {
                                     {showTutorial && (
                                         <TutorialOverlay onDismiss={handleTutorialDismiss} />
                                     )}
+
+                                    {/* In-game Hand Gesture overlay */}
+                                    <AnimatePresence>
+                                        {showInGameGesture && status === GAME_STATUS.PLAYING && (
+                                            <motion.div
+                                                className="absolute inset-x-0 top-[60%] -translate-y-1/2 flex justify-between px-6 sm:px-10 pointer-events-none z-[60]"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                            >
+                                                <motion.div
+                                                    animate={{ y: [0, 8, 0], scale: [1, 0.85, 1] }}
+                                                    transition={{ repeat: Infinity, duration: 1.2 }}
+                                                    className="flex flex-col items-center drop-shadow-lg"
+                                                >
+                                                    <span className="text-4xl mb-1">👆</span>
+                                                    <span className="text-white font-black text-xs uppercase tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Tap Left</span>
+                                                </motion.div>
+                                                <motion.div
+                                                    animate={{ y: [0, 8, 0], scale: [1, 0.85, 1] }}
+                                                    transition={{ repeat: Infinity, duration: 1.2 }}
+                                                    className="flex flex-col items-center drop-shadow-lg"
+                                                >
+                                                    <span className="text-4xl mb-1">👆</span>
+                                                    <span className="text-white font-black text-xs uppercase tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Tap Right</span>
+                                                </motion.div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
 
                                 {/* Life Lost Popup Overlay */}
@@ -136,6 +173,16 @@ const GamePage = () => {
                                 {/* Game Over Overlay (car crash) */}
                                 <GameOverOverlay />
                             </motion.div>
+                        )}
+
+                        {status === GAME_STATUS.POST_GAME_LEAD && (
+                            <PostGameLeadCapture
+                                score={score}
+                                onSuccess={(details) => {
+                                    setLeadData(details);
+                                    setStatus(GAME_STATUS.CTA);
+                                }}
+                            />
                         )}
 
                         {status === GAME_STATUS.CTA && (

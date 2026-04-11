@@ -10,7 +10,7 @@ import styles from './LeadModal.module.css';
 export default function LeadModal({
     onClose,
     title = "Welcome!",
-    subtitle = "Enter your details to start.",
+    subtitle = "Enter your details to start",
     shouldSubmit = true,
     summaryDtls = "Lead from Welcome Screen",
     isBooking = false
@@ -35,6 +35,8 @@ export default function LeadModal({
         const newErrors = {};
         if (!name.trim()) newErrors.name = 'Name is required';
         if (phone.length !== 10) newErrors.phone = 'Enter valid 10-digit number';
+
+        if (!termsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -191,11 +193,14 @@ export default function LeadModal({
                                     </label>
                                     <input
                                         id="preferredDate"
-                                        type="date"
+                                        type={preferredDate ? "date" : "text"}
+                                        onFocus={(e) => e.target.type = 'date'}
+                                        onBlur={(e) => !preferredDate && (e.target.type = 'text')}
                                         value={preferredDate}
                                         onChange={(e) => setPreferredDate(e.target.value)}
                                         className={styles.input}
                                         min={new Date().toISOString().split('T')[0]}
+                                        placeholder="DD MM YYYY"
                                     />
                                 </div>
                                 <div className={styles.field}>
@@ -209,18 +214,40 @@ export default function LeadModal({
                                         className={styles.input}
                                     >
                                         <option value="">Select Slot</option>
-                                        <option value="08:00 AM - 09:00 AM">08:00 AM - 09:00 AM</option>
-                                        <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
-                                        <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
-                                        <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
-                                        <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM</option>
-                                        <option value="01:00 PM - 02:00 PM">01:00 PM - 02:00 PM</option>
-                                        <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
-                                        <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
-                                        <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
-                                        <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM</option>
-                                        <option value="06:00 PM - 07:00 PM">06:00 PM - 07:00 PM</option>
-                                        <option value="07:00 PM - 08:00 PM">07:00 PM - 08:00 PM</option>
+                                        {[
+                                            "08:00 AM - 09:00 AM", "09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM",
+                                            "11:00 AM - 12:00 PM", "12:00 PM - 01:00 PM",
+                                            "01:00 PM - 02:00 PM", "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM",
+                                            "04:00 PM - 05:00 PM", "05:00 PM - 06:00 PM", "06:00 PM - 07:00 PM",
+                                            "07:00 PM - 08:00 PM"
+                                        ].map(slot => {
+                                            const todayIso = new Date().toLocaleDateString('en-CA');
+                                            const isToday = preferredDate === todayIso;
+                                            if (isToday) {
+                                                const startTimeStr = slot.split(' - ')[0];
+                                                const slotHour = parseInt(startTimeStr.split(':')[0]);
+                                                const isPM = startTimeStr.includes('PM') && slotHour !== 12;
+                                                const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && startTimeStr.includes('AM') ? 0 : slotHour);
+
+                                                const currentHour = new Date().getHours();
+                                                if (normalizedHour <= currentHour) return null;
+                                            }
+                                            return <option key={slot} value={slot}>{slot}</option>;
+                                        }).filter(Boolean)}
+                                        {preferredDate === new Date().toLocaleDateString('en-CA') && [
+                                            "08:00 AM - 09:00 AM", "09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM",
+                                            "11:00 AM - 12:00 PM", "12:00 PM - 01:00 PM", "01:00 PM - 02:00 PM",
+                                            "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM", "04:00 PM - 05:00 PM",
+                                            "05:00 PM - 06:00 PM", "06:00 PM - 07:00 PM", "07:00 PM - 08:00 PM"
+                                        ].every(slot => {
+                                            const startTimeStr = slot.split(' - ')[0];
+                                            const slotHour = parseInt(startTimeStr.split(':')[0]);
+                                            const isPM = startTimeStr.includes('PM') && slotHour !== 12;
+                                            const normalizedHour = isPM ? slotHour + 12 : (slotHour === 12 && startTimeStr.includes('AM') ? 0 : slotHour);
+                                            return normalizedHour <= new Date().getHours();
+                                        }) && (
+                                                <option disabled>No slots available for today</option>
+                                            )}
                                     </select>
                                 </div>
                             </div>
@@ -231,19 +258,19 @@ export default function LeadModal({
                             <div className={styles.termsRow}>
                                 <div
                                     onClick={() => {
-                                        setTermsAccepted(!termsAccepted);
-                                        setErrors(prev => ({ ...prev, terms: null }));
+                                        const newVal = !termsAccepted;
+                                        setTermsAccepted(newVal);
+                                        if (errors.terms && newVal) setErrors({ ...errors, terms: null });
                                     }}
-                                    className={`${styles.customCheckboxBox} ${termsAccepted ? styles.customCheckboxBoxChecked : ''}`}
+                                    className={`${styles.customCheckboxBox} ${termsAccepted ? styles.customCheckboxBoxChecked : `${styles.customCheckboxBox} ${errors.terms ? styles.customCheckboxBoxError : ''}`}`}
                                 >
                                     {termsAccepted && <Check className={styles.customCheckboxIcon} strokeWidth={4} />}
                                 </div>
                                 <div className={styles.customCheckboxText}>
-                                    I agree to the{' '}
+                                    I agree and consent to the{' '}
                                     <button type="button" onClick={() => setShowTerms(true)} className={styles.termsLink}>
-                                        Terms & Conditions
-                                    </button>{' '}
-                                    and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                        T&C and Privacy Policy
+                                    </button>
                                 </div>
                             </div>
                             {errors.terms && (
@@ -253,7 +280,7 @@ export default function LeadModal({
 
                         <button
                             type="submit"
-                            disabled={!name.trim() || phone.length !== 10 || (isBooking && (!preferredDate || !preferredTime)) || !termsAccepted || isSubmitting}
+                            disabled={isSubmitting}
                             className={styles.submitBtn}
                         >
                             {isSubmitting ? (
@@ -262,7 +289,7 @@ export default function LeadModal({
                                     <span>{isBooking ? "Booking..." : "Starting..."}</span>
                                 </>
                             ) : (
-                                isBooking ? "Book a Slot" : "Let's Go!"
+                                isBooking ? "Confirm Booking" : "Let's Go!"
                             )}
                         </button>
                     </form>
@@ -273,35 +300,37 @@ export default function LeadModal({
                     {showTerms && (
                         <div className={styles.termsOverlay} onClick={() => setShowTerms(false)}>
                             <motion.div
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0.9, opacity: 0 }}
+                                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                animate={{ scale: 1, opacity: 1, y: 0 }}
+                                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                                transition={{ type: "spring", damping: 25, stiffness: 300 }}
                                 onClick={(e) => e.stopPropagation()}
                                 className={styles.termsModal}
                             >
-                                <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
-                                    <h3 className="text-[#0066B2] text-xl font-black uppercase tracking-tight">
-                                        Terms & Conditions
-                                    </h3>
-                                    <button
-                                        onClick={() => setShowTerms(false)}
-                                        className="text-slate-400 hover:text-slate-600 transition-colors p-1"
-                                    >
-                                        <X className="w-6 h-6" />
-                                    </button>
+                                <button
+                                    onClick={() => setShowTerms(false)}
+                                    className={styles.closeBtn}
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+
+                                <h3 className={styles.termsTitle}>
+                                    Terms & Conditions
+                                </h3>
+
+                                <div className={styles.termsDivider} />
+
+                                <div className={styles.termsContent}>
+                                    <p className="mb-4">I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                                    <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className={styles.termsLink}>BALIC Privacy Policy</a>.</p>
                                 </div>
-                                <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
-                                    <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
-                                    <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.</p>
-                                </div>
-                                <div className="mt-6">
-                                    <button
-                                        onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
-                                        className="w-full mt-6 py-3 bg-[#0066B2] text-white font-bold rounded-lg hover:bg-blue-700 transition-colors text-sm uppercase tracking-wider"
-                                    >
-                                        I Agree
-                                    </button>
-                                </div>
+
+                                <button
+                                    className={styles.agreeBtn}
+                                    onClick={() => setShowTerms(false)}
+                                >
+                                    I AGREE
+                                </button>
                             </motion.div>
                         </div>
                     )}

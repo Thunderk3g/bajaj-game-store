@@ -169,7 +169,7 @@ const ScoreRing = ({ score }) => {
                     {displayScore}
                     <span className="text-3xl sm:text-4xl font-black not-italic ml-1 opacity-90">%</span>
                 </div>
-                <div className="text-[13px] sm:text-[16px] font-black text-white uppercase tracking-[0.25em] mt-1 drop-shadow-lg">
+                <div className="text-[15px] sm:text-[18px] font-black text-white uppercase tracking-[0.25em] mt-3 sm:mt-4 drop-shadow-lg">
                     Life Milestone Scored
                 </div>
             </div>

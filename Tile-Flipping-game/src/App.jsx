@@ -4,6 +4,7 @@ import { SCREENS } from './constants/game';
 import IntroScreen from './components/screens/IntroScreen';
 import GameScreen from './components/screens/GameScreen';
 import ScoreScreen from './components/screens/ScoreScreen';
+import LeadScreen from './components/screens/LeadScreen';
 import ThankYouScreen from './components/screens/ThankYouScreen';
 import ToastContainer from './components/ui/ToastContainer';
 
@@ -17,6 +18,7 @@ function AppShell() {
     switch (screen) {
       case SCREENS.INTRO: return <IntroScreen />;
       case SCREENS.GAME: return <GameScreen showToast={showToast} />;
+      case SCREENS.LEAD: return <LeadScreen />;
       case SCREENS.SCORE: return <ScoreScreen showToast={showToast} />;
       case SCREENS.THANK_YOU: return <ThankYouScreen />;
       default: return <IntroScreen />;

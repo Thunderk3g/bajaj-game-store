@@ -7,9 +7,9 @@ import './index.css';
 // Lazy load screens for performance optimization
 const WelcomeScreen = lazy(() => import('./components/WelcomeScreen'));
 const GoalSelectionScreen = lazy(() => import('./components/GoalSelectionScreen'));
-const CountdownScreen = lazy(() => import('./components/CountdownScreen'));
 const GoalAssessmentScreen = lazy(() => import('./components/GoalAssessmentScreen'));
 const ScoreResultsScreen = lazy(() => import('./components/ScoreResultsScreen'));
+const LeadCaptureScreen = lazy(() => import('./components/LeadCaptureScreen'));
 const ThankYouScreen = lazy(() => import('./components/ThankYouScreen'));
 
 function App() {
@@ -35,7 +35,8 @@ function App() {
 
         advanceGame,
         handleBookSlot,
-        handleRestart
+        handleRestart,
+        completeLeadCapture
     } = useGameState();
 
 
@@ -98,8 +99,6 @@ function App() {
                 );
             case SCREENS.GOAL_SELECTION:
                 return <GoalSelectionScreen key="goal-selection" onProceed={handleGoalsSelected} />;
-            case SCREENS.COUNTDOWN:
-                return <CountdownScreen key="countdown" userName={leadName} onComplete={handleCountdownComplete} />;
             case SCREENS.ASSESSMENT:
                 return selectedGoals.length > 0 && (
                     <GoalAssessmentScreen
@@ -110,6 +109,21 @@ function App() {
                         score={score}
                         lives={lives}
                         onAnswer={(ans) => advanceGame(ans, selectedGoals[currentGoalIndex], selectedGoals.length)}
+                    />
+                );
+            case SCREENS.LEAD_CAPTURE:
+                return (
+                    <LeadCaptureScreen
+                        key="lead-capture"
+                        score={score}
+                        isSubmitting={isSubmitting}
+                        onSubmit={async (data) => {
+                            const result = await handleLeadSubmit(data);
+                            if (result.success) {
+                                completeLeadCapture();
+                            }
+                            return result;
+                        }}
                     />
                 );
             case SCREENS.SCORE_RESULTS:

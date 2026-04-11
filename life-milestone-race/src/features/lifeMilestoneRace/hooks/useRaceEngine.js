@@ -218,7 +218,7 @@ export function useRaceEngine() {
 
     const restartGame = useCallback(() => {
         setGameId('');
-        setPhase(GAME_PHASES.INTRO);
+        setPhase(GAME_PHASES.STAGE_SELECTION);
         setScore(INITIAL_SCORE);
         setSelectedStage(null);
         setEventQueue([]);
@@ -226,7 +226,6 @@ export function useRaceEngine() {
         setTimeline([]);
         setLastFeedback(null);
         setIsTimerActive(false);
-        setUserName('');
         consecutiveExposedHighRef.current = 0;
     }, []);
 
@@ -263,6 +262,9 @@ export function useRaceEngine() {
         showLeadForm,
         showThankYou,
         restartGame,
+        setUserName,
+        setUserPhone,
+        setPhase,
     };
 }
 

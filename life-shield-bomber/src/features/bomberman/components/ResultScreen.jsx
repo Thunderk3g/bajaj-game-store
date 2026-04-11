@@ -7,6 +7,10 @@ import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Calendar, Share2, RotateCcw, X, ChevronDown, Shield, Heart, Clock, Zap, CheckSquare } from 'lucide-react';
 import Confetti from './Confetti.jsx';
+import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
+import gameThumbnail from '../assets/images/Shield-Man.png';
+import TermsModal from './TermsModal';
 
 const ResultScreen = memo(function ResultScreen({
     finalScore,
@@ -20,19 +24,32 @@ const ResultScreen = memo(function ResultScreen({
     onRestart,
     entryDetails,
 }) {
-    const outcome = isMissionComplete ? {
-        message: "You defeated life’s risks with the help of Power Riders.",
-        subMessage: "In real life, as well, you can overcome life risks with proper financial planning",
-        ctaText: "Discover the riders that can protect your real-life goals. Talk to a Relationship Manager."
-    } : {
-        message: "You didn’t have enough Power Riders to overcome life’s risks.",
-        subMessage: "In games you get another try — in life you don't.",
-        ctaText: "Protect your life goals. Talk to a Relationship Manager."
-    };
+    const outcome = (() => {
+        if (isMissionComplete) {
+            return {
+                message: "You defeated life’s risks with the help of Power Riders",
+                subMessage: "In real life, as well, you can overcome life risks with proper financial planning",
+                ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
+            };
+        } else if (timeLeft <= 0) {
+            return {
+                message: "Your time is up before you could secure your future",
+                subMessage: "In life, time doesn't wait. Secure your future before it's too late",
+                ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
+            };
+        } else {
+            return {
+                message: "You didn’t have enough Power Riders to overcome life’s risks",
+                subMessage: "In games, you get another try\nin life you don't",
+                ctaText: "Discover the Life Insurance riders that can protect your real-life goals"
+            };
+        }
+    })();
     const [showBooking, setShowBooking] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     const [agreedTerms, setAgreedTerms] = useState(true);
+    const [showTermsModal, setShowTermsModal] = useState(false);
 
     const [bookingForm, setBookingForm] = useState({
         name: entryDetails?.name || '',
@@ -91,12 +108,30 @@ const ResultScreen = memo(function ResultScreen({
     };
 
     const handleShare = async () => {
-        const shareText = `I completed Life Shield Bomber by Bajaj Life Insurance! 🛡️💣`;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
+        const senderName = (typeof entryDetails !== 'undefined' ? entryDetails?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareText = `Hi,\nI just realized the importance of riders to protect from life risks. You should try this interesting game. ${shareUrl}${signature}`.trim();
         try {
             if (navigator.share) {
-                await navigator.share({ title: 'Life Shield Bomber', text: shareText, url: window.location.href });
+                const sharePayload = {
+                    title: 'Shield Man',
+                    text: shareText
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } else {
-                await navigator.clipboard.writeText(shareText + ' ' + window.location.href);
+                await navigator.clipboard.writeText(shareText);
             }
         } catch {
             /* fail silently */
@@ -107,7 +142,7 @@ const ResultScreen = memo(function ResultScreen({
 
     return (
         <div
-            className="w-full h-[100dvh] overflow-hidden flex flex-col items-center px-4 pt-3 pb-4"
+            className="w-full h-full absolute inset-0 overflow-y-auto overflow-x-hidden flex flex-col items-center px-4 custom-scrollbar"
             style={{ background: 'linear-gradient(180deg, #00509E 0%, #003366 100%)' }}
         >
             <Confetti />
@@ -115,7 +150,7 @@ const ResultScreen = memo(function ResultScreen({
 
 
             {/* Content Container */}
-            <div className="relative z-10 w-full max-w-[500px] h-full flex flex-col items-center justify-center py-4 sm:py-6">
+            <div className="relative z-10 w-full max-w-[500px] flex flex-col items-center py-8 sm:py-10 my-auto flex-shrink-0">
 
                 {/* ─── Header Block ─── */}
                 <div className="w-full flex flex-col items-center mt-2 mb-8">
@@ -141,7 +176,7 @@ const ResultScreen = memo(function ResultScreen({
                         <h2 className="text-white text-[18px] sm:text-[22px] font-display font-black leading-tight mb-3 uppercase tracking-tight drop-shadow-lg max-w-[340px] mx-auto">
                             {outcome.message}
                         </h2>
-                        <p className="text-blue-100 font-display text-[11px] sm:text-[13px] font-medium italic leading-relaxed max-w-[280px] mx-auto opacity-80 border-t border-white/10 pt-3">
+                        <p className="whitespace-pre-line text-[#2a8ad1] drop-shadow-md font-display text-[22px] sm:text-[24px] font-black italic leading-relaxed max-w-[400px] mx-auto opacity-100 border-t border-white/10 pt-3 mt-1">
                             {outcome.subMessage}
                         </p>
                     </motion.div>
@@ -183,12 +218,14 @@ const ResultScreen = memo(function ResultScreen({
                     </p>
 
                     <div className="flex flex-col gap-2.5">
-                        <button
-                            onClick={() => window.open('tel:18002099999', '_self')}
-                            className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-[14px] flex items-center justify-center gap-2 text-[12px] sm:text-[13px] uppercase tracking-widest rounded-xl transition-all active:scale-[0.98]"
-                        >
-                            <Phone className="w-4 h-4" strokeWidth={2.5} /> CALL NOW
-                        </button>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <button
+                                onClick={() => window.open(`tel:${sessionStorage.getItem('gamification_emp_mobile')}`, '_self')}
+                                className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-[14px] flex items-center justify-center gap-2 text-[12px] sm:text-[13px] uppercase tracking-widest rounded-xl transition-all active:scale-[0.98]"
+                            >
+                                <Phone className="w-4 h-4" strokeWidth={2.5} /> CALL NOW
+                            </button>
+                        )}
 
                         <div className="flex items-center gap-4 py-1">
                             <div className="flex-1 h-[2px] bg-slate-100" />
@@ -207,13 +244,6 @@ const ResultScreen = memo(function ResultScreen({
 
                 {/* ─── Bottom Actions Block ─── */}
                 <div className="w-full flex flex-col items-center mt-12 mb-2 gap-8">
-                    {/* Disclaimer */}
-                    <div className="w-full px-6 opacity-40">
-                        <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
-                            <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
-                        </p>
-                    </div>
-
                     {/* Try Again */}
                     <button
                         onClick={onRestart}
@@ -222,8 +252,15 @@ const ResultScreen = memo(function ResultScreen({
                         <div className="p-2 border border-blue-300/30 rounded-full group-hover:bg-white/10 transition-colors">
                             <RotateCcw className="w-[18px] h-[18px]" strokeWidth={2.5} />
                         </div>
-                        <span className="text-[12px] sm:text-[14px] font-black uppercase tracking-[0.3em]">TRY AGAIN</span>
+                        <span className="text-[12px] sm:text-[14px] font-black uppercase tracking-[0.3em] underline underline-offset-4">TRY AGAIN</span>
                     </button>
+
+                    {/* Disclaimer */}
+                    <div className="w-full px-6 opacity-40">
+                        <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter pb-4">
+                            <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -305,28 +342,38 @@ const ResultScreen = memo(function ResultScreen({
                                                     return `${hour}:00 ${amp}`;
                                                 };
                                                 const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                // Filter out passed slots for today
+                                                if (bookingForm.date === today && start <= new Date().getHours()) return null;
+
                                                 return <option key={start} value={label}>{label}</option>;
-                                            })}
+                                            }).filter(Boolean)}
+                                            {bookingForm.date === today && [...Array(12)].filter((_, i) => {
+                                                const start = 9 + i;
+                                                return start > new Date().getHours();
+                                            }).length === 0 && (
+                                                    <option disabled className="bg-slate-50 text-slate-300 italic">No slots available for today</option>
+                                                )}
                                         </select>
                                         {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                     </div>
                                 </div>
 
                                 {/* Checkbox */}
-                                <label className="flex items-start gap-2 cursor-pointer pt-1">
-                                    <input
-                                        type="checkbox"
-                                        checked={agreedTerms}
-                                        onChange={(e) => {
-                                            setAgreedTerms(e.target.checked);
+                                <div className="flex items-start gap-3 py-1">
+                                    <div
+                                        onClick={() => {
+                                            setAgreedTerms(!agreedTerms);
                                             if (errors.terms) setErrors(p => ({ ...p, terms: null }));
                                         }}
-                                        className="mt-0.5 w-4 h-4 accent-[#0066B2] rounded shrink-0"
-                                    />
-                                    <span className="text-[10px] text-slate-500 leading-tight font-semibold">
-                                        I agree to receive a callback from Bajaj Life Insurance regarding my booking.
-                                    </span>
-                                </label>
+                                        className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center rounded-md cursor-pointer transition-all ${agreedTerms ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-transparent border-slate-300'}`}
+                                    >
+                                        {agreedTerms && <span className="text-white font-black text-[10px]">✓</span>}
+                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-snug pt-0.5">
+                                        I agree and consent to the <button type="button" onClick={() => setShowTermsModal(true)} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#004C85] transition-colors gap-0 p-0">T&C and Privacy Policy</button>
+                                    </p>
+                                </div>
                                 {errors.terms && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.terms}</span>}
 
                                 {/* Confirm */}
@@ -342,6 +389,9 @@ const ResultScreen = memo(function ResultScreen({
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Terms Modal */}
+            <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
         </div>
     );
 });

@@ -5,14 +5,18 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "vite build --mode uat",
+        "build:uat": "vite build --mode uat",
+        "build:preprod": "vite build --mode preprod",
+        "build:prod": "vite build --mode production",
         "preview": "vite preview"
     },
     "dependencies": {
+        "canvas-confetti": "^1.9.3",
+        "clsx": "^2.1.1",
+        "crypto-js": "^4.2.0",
         "framer-motion": "^12.30.0",
         "lucide-react": "^0.563.0",
-        "clsx": "^2.1.1",
-        "tailwind-merge": "^3.4.0",
-        "canvas-confetti": "^1.9.3"
+        "tailwind-merge": "^3.4.0"
     }
 }

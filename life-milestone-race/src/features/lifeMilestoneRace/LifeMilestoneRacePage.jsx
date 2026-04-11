@@ -1,25 +1,16 @@
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { GAME_PHASES, LIFE_STAGES, EVENTS_PER_STAGE } from './constants/lifeStages';
+import { GAME_PHASES } from './constants/lifeStages';
 import { useRaceEngine } from './hooks/useRaceEngine';
 import { useTimer } from './hooks/useTimer';
 import RaceLayout from '../../components/layout/RaceLayout';
 import IntroScreen from './components/IntroScreen';
 import StageSelection from './components/StageSelection';
-import EventCard from './components/EventCard';
-import ProtectionMeter from './components/ProtectionMeter';
-import DecisionButtons from './components/DecisionButtons';
-import SpeedometerScore from './components/SpeedometerScore';
-import TimelineSummary from './components/TimelineSummary';
-import ConversionScreen from './components/ConversionScreen';
-import LeadForm from './components/LeadForm';
-import ThankYou from './components/ThankYou';
-import QuestionScreen from './components/QuestionScreen';
 import ResultScreen from './components/ResultScreen';
+import PostGameLeadCapture from './components/PostGameLeadCapture';
+import QuestionScreen from './components/QuestionScreen';
 
-const EVENT_TIMER_SECONDS = 10;
-
-// ... (Imports remain the same)
+const EVENT_TIMER_SECONDS = 15;
 
 /**
  * Feedback overlay shown as a POPUP on top of the screen.
@@ -41,35 +32,32 @@ const FeedbackOverlay = memo(function FeedbackOverlay({ feedback, onContinue }) 
                 className="w-[85%] max-w-[300px] rounded-[2rem] p-6 shadow-2xl flex flex-col items-center text-center relative overflow-hidden ring-2 ring-white/10"
                 style={{
                     background: isProtected
-                        ? 'linear-gradient(145deg, #1e1b4b 0%, #431407 100%)' // Dark Blue to Dark Orange for Protected
-                        : 'linear-gradient(145deg, #1e1b4b 0%, #172554 100%)', // Dark Blue for Exposed
+                        ? 'linear-gradient(145deg, #1e1b4b 0%, #064e3b 100%)'
+                        : 'linear-gradient(145deg, #1e1b4b 0%, #450a0a 100%)',
                 }}
                 initial={{ scale: 0.8, y: 50, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 transition={{ type: "spring", damping: 20, stiffness: 300 }}
             >
-                {/* Background Glows */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                    <div className={`absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[40px] opacity-40 ${isProtected ? 'bg-orange-500' : 'bg-blue-500'}`} />
+                    <div className={`absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[40px] opacity-40 ${isProtected ? 'bg-green-500' : 'bg-red-500'}`} />
                     <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full blur-[40px] opacity-20 bg-white" />
                 </div>
 
-                {/* Circular Icon with Pulse */}
                 <div className="relative mb-3">
-                    <div className={`absolute inset-0 rounded-full blur-lg opacity-60 animate-pulse ${isProtected ? 'bg-orange-500' : 'bg-blue-500'}`} />
+                    <div className={`absolute inset-0 rounded-full blur-lg opacity-60 animate-pulse ${isProtected ? 'bg-green-500' : 'bg-red-500'}`} />
                     <div
                         className="w-16 h-16 rounded-full flex items-center justify-center text-[2.2rem] relative z-10 shadow-xl border-[4px] border-white/10"
                         style={{
                             background: isProtected
-                                ? 'linear-gradient(135deg, #fb923c 0%, #ea580c 100%)'
-                                : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                                ? 'linear-gradient(135deg, #4ade80 0%, #16a34a 100%)'
+                                : 'linear-gradient(135deg, #f87171 0%, #dc2626 100%)',
                         }}
                     >
                         {isProtected ? '🛡️' : '⚠️'}
                     </div>
                 </div>
 
-                {/* Main Text */}
                 <h3 className="text-[1.4rem] font-black uppercase italic tracking-tighter mb-1 leading-none text-white drop-shadow-md relative z-10">
                     {isProtected ? 'YOU\'RE PROTECTED!' : 'YOU\'RE EXPOSED!'}
                 </h3>
@@ -78,7 +66,6 @@ const FeedbackOverlay = memo(function FeedbackOverlay({ feedback, onContinue }) 
                     {feedback.title}
                 </p>
 
-                {/* Score Update Circle */}
                 <div className="relative z-10 mb-5">
                     <div className="flex flex-col items-center">
                         <span className="text-white/60 text-[0.55rem] font-bold uppercase tracking-[0.2em] mb-0.5">Impact on Score</span>
@@ -88,14 +75,13 @@ const FeedbackOverlay = memo(function FeedbackOverlay({ feedback, onContinue }) 
                     </div>
                 </div>
 
-                {/* Continue Button */}
                 <motion.button
                     onClick={onContinue}
                     whileTap={{ scale: 0.96 }}
                     className="w-full py-3 rounded-xl font-black text-white text-sm uppercase tracking-wide shadow-lg relative z-10 overflow-hidden group"
                     style={{
                         background: 'linear-gradient(90deg, #FFFFFF 0%, #F0F9FF 100%)',
-                        color: isProtected ? '#ea580c' : '#1e3a8a'
+                        color: isProtected ? '#16a34a' : '#dc2626'
                     }}
                 >
                     <span className="relative z-10">CONTINUE</span>
@@ -106,13 +92,6 @@ const FeedbackOverlay = memo(function FeedbackOverlay({ feedback, onContinue }) 
     );
 });
 
-// ... (StageHeader, RaceProgress remain but might be unused if we switch fully to QuestionScreen layout)
-
-/**
- * Main page for the Life Milestone Race feature.
- * Orchestrates the game flow by rendering phase-appropriate components.
- * Business logic lives in useRaceEngine; this component is purely presentational.
- */
 const LifeMilestoneRacePage = memo(function LifeMilestoneRacePage() {
     const engine = useRaceEngine();
 
@@ -129,7 +108,6 @@ const LifeMilestoneRacePage = memo(function LifeMilestoneRacePage() {
         protectionCategory,
         finalScore,
         riskGaps,
-        progressPercent,
         userName,
         userPhone,
         selectedStageData,
@@ -138,12 +116,11 @@ const LifeMilestoneRacePage = memo(function LifeMilestoneRacePage() {
         makeDecision,
         handleTimerExpire,
         advanceToNextEvent,
-        showScoreReveal,
-        showTimeline,
-        showConversion,
-        showLeadForm,
         showThankYou,
         restartGame,
+        setUserName,
+        setUserPhone,
+        setPhase,
     } = engine;
 
     const { timeLeft, progress: timerProgress } = useTimer(
@@ -152,9 +129,21 @@ const LifeMilestoneRacePage = memo(function LifeMilestoneRacePage() {
         isTimerActive,
     );
 
-    const handleLeadSuccess = useCallback((formData) => {
-        showThankYou(formData?.name);
-    }, [showThankYou]);
+    // Auto-transition from FINISH to POST_GAME_LEAD
+    useEffect(() => {
+        if (phase === GAME_PHASES.FINISH) {
+            const timer = setTimeout(() => {
+                setPhase(GAME_PHASES.POST_GAME_LEAD);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [phase, setPhase]);
+
+    const handleLeadSuccess = useCallback((name, phone) => {
+        setUserName(name);
+        setUserPhone(phone);
+        setPhase(GAME_PHASES.SCORE_REVEAL);
+    }, [setUserName, setUserPhone, setPhase]);
 
     const renderPhase = () => {
         switch (phase) {
@@ -192,11 +181,31 @@ const LifeMilestoneRacePage = memo(function LifeMilestoneRacePage() {
                 );
 
             case GAME_PHASES.FINISH:
+                return (
+                    <div className="w-full h-full flex items-center justify-center bg-race-dark" key="finish">
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-white/10 backdrop-blur-md p-12 rounded-[3.5rem] border-2 border-white/20 text-center shadow-2xl"
+                        >
+                            <h2 className="text-white text-6xl font-black italic uppercase tracking-tighter mb-4 drop-shadow-lg">FINISH!</h2>
+                            <p className="text-blue-200 font-bold tracking-[0.3em] uppercase text-sm">Calculating your life readiness...</p>
+                        </motion.div>
+                    </div>
+                );
+
+            case GAME_PHASES.POST_GAME_LEAD:
+                return (
+                    <PostGameLeadCapture
+                        key="post-game-lead"
+                        onSuccess={handleLeadSuccess}
+                    />
+                );
+
             case GAME_PHASES.SCORE_REVEAL:
             case GAME_PHASES.TIMELINE:
             case GAME_PHASES.CONVERSION:
             case GAME_PHASES.LEAD_FORM:
-                // Consolidated Result Screen
                 return (
                     <ResultScreen
                         key="result-screen"
@@ -209,7 +218,7 @@ const LifeMilestoneRacePage = memo(function LifeMilestoneRacePage() {
                         onRestart={restartGame}
                         gameId={gameId}
                         riskGaps={riskGaps}
-                        onBookSlot={handleLeadSuccess}
+                        onBookSlot={() => showThankYou(userName)}
                     />
                 );
 
@@ -229,6 +238,21 @@ const LifeMilestoneRacePage = memo(function LifeMilestoneRacePage() {
         </RaceLayout>
     );
 });
+
+// Polyfill ThankYou component if missing or just use simple placeholder
+const ThankYou = ({ onRestart, userName }) => (
+    <div className="w-full h-full flex flex-col items-center justify-center bg-[#003366] text-white p-8 text-center">
+        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-4xl mb-6 shadow-lg border-4 border-white/20">✓</div>
+        <h2 className="text-3xl font-black mb-2 uppercase italic tracking-tighter">THANK YOU!</h2>
+        <p className="text-blue-100 font-medium mb-8 max-w-xs">{userName}, our Relationship Manager will connect with you shortly to secure your milestones.</p>
+        <button
+            onClick={onRestart}
+            className="px-12 py-4 bg-[#FF8C00] text-white font-black rounded-xl shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest text-sm border-2 border-white/20"
+        >
+            Play Again
+        </button>
+    </div>
+);
 
 LifeMilestoneRacePage.displayName = 'LifeMilestoneRacePage';
 

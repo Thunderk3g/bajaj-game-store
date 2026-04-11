@@ -42,6 +42,7 @@ export interface GameState {
         laddersClimbed: string[];
     };
     shieldBoughtOnCurrentTurn?: boolean;
+    totalShieldsUsed: number;
 }
 
 export const BOARD_SIZE = 100;
@@ -88,7 +89,7 @@ export const getCellData = (id: number): Cell => {
 
 export const getCellXY = (id: number) => {
     if (id <= 0) {
-        return { x: -8, y: 0 };
+        return { x: 0, y: 0 };
     }
     const index = id - 1;
     const row = Math.floor(index / 10);

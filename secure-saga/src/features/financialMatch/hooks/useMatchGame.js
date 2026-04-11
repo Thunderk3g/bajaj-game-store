@@ -43,21 +43,17 @@ Object.values(audioCache).forEach(audio => {
     audio.preload = 'auto'; // ensure ready
 });
 
-// Helper to play sound (clones to allow overlapping)
+// Helper to play sound (re-uses instance to prevent cloneNode memory leaks on low-end Android)
 const playSound = (type) => {
     if (type === 'swap' || type === 'burst') {
         const sound = audioCache[type];
         if (sound) {
-            const clone = sound.cloneNode();
-            clone.volume = 0.6;
-            clone.play().catch(() => { });
+            // Reset to start instead of cloning
+            sound.currentTime = 0;
+            sound.play().catch(() => { });
         }
     }
-};
-
-
-
-export function useMatchGame() {
+}; export function useMatchGame() {
     const [state, dispatch] = useReducer(gameReducer, initialState);
 
     const timerRef = useRef(null);
@@ -150,7 +146,7 @@ export function useMatchGame() {
             if (timerRef.current) clearInterval(timerRef.current);
             // Wait 1.5s then show result
             const t = setTimeout(() => {
-                dispatch({ type: A.SHOW_RESULT });
+                dispatch({ type: A.SHOW_LEAD });
             }, 1500);
             return () => clearTimeout(t);
         }
@@ -158,21 +154,10 @@ export function useMatchGame() {
         if (gameStatus === GAME_PHASES.EXITED) {
             if (timerRef.current) clearInterval(timerRef.current);
 
-            // Submit partial score lead
-            if (!leadFiredRef.current && state.entryDetails) {
-                leadFiredRef.current = true;
-                const score = computeFinalScore(state.buckets);
-                submitToLMS({
-                    name: state.entryDetails.name,
-                    mobile_no: state.entryDetails.mobile,
-                    score,
-                    summary_dtls: `Secure Saga - Early Exit - Score: ${score}/100`,
-                    p_data_source: 'BALANCE_BUILDER_LEAD',
-                });
-            }
+            // Lead submission disabled — skip submitToLMS on early exit
 
             const t = setTimeout(() => {
-                dispatch({ type: A.SHOW_RESULT });
+                dispatch({ type: A.SHOW_LEAD });
             }, 800);
             return () => clearTimeout(t);
         }
@@ -189,25 +174,9 @@ export function useMatchGame() {
     const handleEntrySubmit = useCallback(async (name, mobile) => {
         dispatch({ type: A.SET_ENTRY, payload: { name, mobile } });
         leadFiredRef.current = false;
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const dateStr = tomorrow.toISOString().split('T')[0];
-
-        const result = await submitToLMS({
-            name: name.trim(),
-            mobile_no: mobile,
-            param4: dateStr,
-            param19: '09:00 AM',
-            summary_dtls: 'Secure Saga Lead',
-            p_data_source: 'BALANCE_BUILDER_LEAD',
-        });
-
-        const responseData = result?.data || result;
-        if (result && result.success && (responseData.leadNo || responseData.LeadNo)) {
-            dispatch({ type: A.SET_LEAD_NO, payload: responseData.leadNo || responseData.LeadNo });
-        }
-
-        dispatch({ type: A.SHOW_HOW_TO_PLAY });
+        // How-to-play page completely removed: launch directly into the game natively.
+        // It will trigger the overlay conditionally if the tutorial hasn't been seen!
+        dispatch({ type: A.START_GAME });
     }, []);
 
     const startGame = useCallback(() => {
@@ -217,7 +186,7 @@ export function useMatchGame() {
     // ── Cell Tap Logic ──────────────────────────────────────────────
     const handleCellTap = useCallback(
         (row, col) => {
-            if (state.isProcessing || state.gameStatus !== GAME_PHASES.PLAYING) return;
+            if (state.isProcessing || state.invalidSwapping || state.gameStatus !== GAME_PHASES.PLAYING) return;
 
             const { selectedCell, grid } = state;
 
@@ -245,7 +214,18 @@ export function useMatchGame() {
             const isValid = wouldCreateMatch(grid, r1, c1, r2, c2);
 
             if (!isValid) {
-                dispatch({ type: A.APPLY_INVALID_SWAP });
+                // Candy Crush Style Invalid Swap Animation Trigger (500ms lock boundary)
+                dispatch({
+                    type: A.INVALID_SWAP_START,
+                    payload: [
+                        { row: r1, col: c1, targetRow: r2, targetCol: c2 },
+                        { row: r2, col: c2, targetRow: r1, targetCol: c1 }
+                    ]
+                });
+                playSound('swap'); // Using existing swap audio slightly as a dull proxy
+                setTimeout(() => {
+                    dispatch({ type: A.INVALID_SWAP_END });
+                }, 500);
                 return;
             }
 
@@ -261,7 +241,47 @@ export function useMatchGame() {
 
             resolveChain(newGrid);
         },
-        [state.isProcessing, state.gameStatus, state.selectedCell, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
+        [state.isProcessing, state.invalidSwapping, state.gameStatus, state.selectedCell, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
+    );
+
+    // ── Cell Swipe Logic (Candy Crush Style) ───────────────────────────
+    const handleCellSwipe = useCallback(
+        (r1, c1, r2, c2) => {
+            if (state.isProcessing || state.invalidSwapping || state.gameStatus !== GAME_PHASES.PLAYING) return;
+            const { grid } = state;
+
+            const isAdjacent = (Math.abs(r1 - r2) === 1 && c1 === c2) || (Math.abs(c1 - c2) === 1 && r1 === r2);
+            if (!isAdjacent) return;
+
+            const isValid = wouldCreateMatch(grid, r1, c1, r2, c2);
+
+            if (!isValid) {
+                dispatch({
+                    type: A.INVALID_SWAP_START,
+                    payload: [
+                        { row: r1, col: c1, targetRow: r2, targetCol: c2 },
+                        { row: r2, col: c2, targetRow: r1, targetCol: c1 }
+                    ]
+                });
+                playSound('swap');
+                setTimeout(() => {
+                    dispatch({ type: A.INVALID_SWAP_END });
+                }, 500);
+                return;
+            }
+
+            playSound('swap');
+            dispatch({ type: A.SET_PROCESSING, payload: true });
+
+            const newGrid = grid.map((r) => r.map((c) => ({ ...c })));
+            const a = { ...newGrid[r1][c1] };
+            const b = { ...newGrid[r2][c2] };
+            newGrid[r1][c1] = { ...b, row: r1, col: c1 };
+            newGrid[r2][c2] = { ...a, row: r2, col: c2 };
+
+            resolveChain(newGrid);
+        },
+        [state.isProcessing, state.invalidSwapping, state.gameStatus, state.grid] // eslint-disable-line react-hooks/exhaustive-deps
     );
 
     // ── Chain Resolution (Async) ────────────────────────────────────
@@ -316,8 +336,8 @@ export function useMatchGame() {
             dispatch({ type: A.SET_GRID, payload: currentGrid });
             dispatch({ type: A.CLEAR_EXPLOSIONS });
 
-            // Praise Logic: Strictly after cascade settles
-            if (chainStep >= 2 || totalPointsThisChain >= 25) {
+            // Praise Logic: Guarantee audio praise fires for any decent play resolving the user's audio-priority instructions.
+            if (chainStep >= 2 || totalPointsThisChain >= 18) {
                 await new Promise((res) => setTimeout(res, 100));
                 showPraise();
             }
@@ -327,7 +347,11 @@ export function useMatchGame() {
 
     const showPraise = useCallback(() => {
         const msg = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
+
+        // Guarantee strictly 100% Audio text synthesis as requested (Stripped 30% randomization cap)!
         speakPraise(msg);
+
+        // Still dispatching to update state strictly for architecture (text popups have been systematically stripped upstream)
         dispatch({ type: A.SHOW_PRAISE, payload: msg });
 
         if (praiseTimeoutRef.current) clearTimeout(praiseTimeoutRef.current);
@@ -364,6 +388,11 @@ export function useMatchGame() {
 
     const showThankYou = useCallback(() => {
         dispatch({ type: A.SHOW_THANK_YOU });
+    }, []);
+
+    const handleLeadSuccess = useCallback((details) => {
+        dispatch({ type: A.SET_ENTRY, payload: details });
+        dispatch({ type: A.SHOW_RESULT });
     }, []);
 
     const handleBookSlot = useCallback(
@@ -405,9 +434,11 @@ export function useMatchGame() {
         handleEntrySubmit,
         startGame,
         handleCellTap,
+        handleCellSwipe,
         exitGame,
         restartGame,
         showThankYou,
+        handleLeadSuccess,
         handleBookSlot,
     };
 }

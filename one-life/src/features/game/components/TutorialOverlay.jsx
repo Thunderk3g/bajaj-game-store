@@ -16,7 +16,7 @@ const TutorialOverlay = ({ onDismiss }) => {
                 borderRadius: '16px',
             }}
         >
-            <div style={{ textAlign: 'center', padding: '0 32px', maxWidth: '320px' }}>
+            <div style={{ textAlign: 'center', padding: '0 32px', maxWidth: '320px', transform: 'translateY(-20px)' }}>
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -42,11 +42,11 @@ const TutorialOverlay = ({ onDismiss }) => {
                         Tap <strong style={{ color: '#60A5FA' }}>left</strong> or <strong style={{ color: '#60A5FA' }}>right</strong> side of the screen to dodge falling risks.
                     </p>
                     <div style={{
-                        marginTop: '20px',
+                        marginTop: '12px',
                         textAlign: 'left',
                         width: '100%',
                         background: 'rgba(255,255,255,0.05)',
-                        padding: '16px',
+                        padding: '12px 16px',
                         borderRadius: '16px',
                         border: '1px solid rgba(255,255,255,0.1)'
                     }}>
@@ -110,7 +110,7 @@ const TutorialOverlay = ({ onDismiss }) => {
                         color: '#ffffff',
                         fontWeight: 800,
                         fontSize: '14px',
-                        marginTop: '32px',
+                        marginTop: '20px',
                         letterSpacing: '0.1em',
                         textTransform: 'uppercase',
                         textShadow: '0 0 10px rgba(96, 165, 250, 0.6)',

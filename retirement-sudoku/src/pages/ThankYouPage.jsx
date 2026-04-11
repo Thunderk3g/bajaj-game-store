@@ -32,7 +32,7 @@ const ThankYouPage = memo(function ThankYouPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full h-dvh flex flex-col items-center justify-center p-6 text-center font-sans"
+            className="w-full min-h-dvh flex flex-col items-center justify-center p-6 text-center font-sans overflow-y-auto"
             style={{
                 background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 55%, #0c1a2e 100%)',
             }}
@@ -73,7 +73,7 @@ const ThankYouPage = memo(function ThankYouPage() {
                     whileTap={{ scale: 0.95 }}
                     className="mt-4 px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm uppercase tracking-widest rounded-xl shadow-lg transition-all border-2 border-white/10"
                 >
-                     Play Again
+                    Play Again
                 </motion.button>
             </div>
         </motion.div>

@@ -18,7 +18,7 @@ fs.ensureDirSync(SHELL_GAMES_DIR);
 const games = [
   {
     name: "scramble-words",
-    source: path.join(ROOT_DIR, "scramble-words", "dist"),
+    source: path.join(ROOT_DIR, "Scramble-Words", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "scramble-words"),
   },
   {
@@ -162,7 +162,7 @@ const manifest = {
     type: "react",
     displayName: "Scramble Words",
     popular: false,
-    gameId: "GAME_003",
+    gameId: "GAME_001",
     assets: [],
   },
   "life-goals": {
@@ -171,7 +171,7 @@ const manifest = {
     type: "react",
     displayName: "Life Goals Preparedness",
     popular: true,
-    gameId: "GAME_001",
+    gameId: "GAME_002",
     assets: [
       "assets/games/life-goals/assets/videos/business.mp4",
       "assets/games/life-goals/assets/videos/child_edu.mp4",
@@ -190,11 +190,9 @@ const manifest = {
     type: "react",
     displayName: "Quiz Challenge",
     popular: true,
-    gameId: "GAME_002",
+    gameId: "GAME_003",
     assets: [
       "assets/games/quiz-game/assets/bajaj.png",
-      "assets/games/quiz-game/assets/bg.png",
-      "assets/games/quiz-game/assets/gst.png",
     ],
   },
   "life-milestone-race": {
@@ -265,6 +263,7 @@ const manifest = {
     exposedModule: "./GameEntry",
     type: "react",
     displayName: "Snake Life Game",
+    gameId: "GAME_011"
   },
   "life-flight": {
     remoteEntry: "assets/games/life-flight/index.js",
@@ -272,7 +271,7 @@ const manifest = {
     type: "react",
     displayName: "Life Flight",
     popular: true,
-    gameId: "GAME_011",
+    gameId: "GAME_013",
     assets: [],
   },
   "life-snakes-ladders": {
@@ -290,7 +289,7 @@ const manifest = {
     type: "react",
     displayName: "One Life",
     popular: true,
-    gameId: "GAME_013",
+    gameId: "GAME_014",
     assets: [],
   },
   "life-sorted": {
@@ -299,7 +298,7 @@ const manifest = {
     type: "react",
     displayName: "Life Sorted",
     popular: true,
-    gameId: "GAME_014",
+    gameId: "GAME_015",
     assets: [],
   },
   "tower-defense": {
@@ -315,6 +314,7 @@ const manifest = {
 
 const manifests = [
   path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.json"),
+  path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.preprod.json"),
   path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.prod.json"),
   path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.preprod.json"),
   path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.production.json"),

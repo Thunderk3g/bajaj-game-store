@@ -60,7 +60,7 @@ export const submitToLMS = async (data) => {
 };
 
 export const updateLeadNew = async (leadNo, data) => {
-  const UAT_URL = `${__LMS_BASE_URL__}/updateLeadNew`;
+  const UAT_URL = `${__LMS_UPDATE_BASE_URL__}/updateLeadNew`;
 
   const payload = {
     leadNo: leadNo,

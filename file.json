@@ -1,0 +1,99 @@
+{
+    "httpHeaders": {},
+    "httpStatusCode": 200,
+    "message": "",
+    "data": [
+        {
+            "game_id": "GAME_001",
+            "game_name": "life Goals Quiz",
+            "game_desc": "Unscrambled Financial Words",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_001"
+        },
+        {
+            "game_id": "GAME_002",
+            "game_name": "GST Quiz",
+            "game_desc": "Life Goals Preparedness",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_002"
+        },
+        {
+            "game_id": "GAME_003",
+            "game_name": "Scramble Word Games",
+            "game_desc": "GST Quiz",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_003"
+        },
+        {
+            "game_id": "GAME_004",
+            "game_name": "Retirement Readiness Score.",
+            "game_desc": "Life Milestone Race",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_004"
+        },
+        {
+            "game_id": "GAME_005",
+            "game_name": "LIFE MILESTONE RACE",
+            "game_desc": "Retirement Adventure",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_005"
+        },
+        {
+            "game_id": "GAME_007",
+            "game_name": "Retirement-sudoku.",
+            "game_desc": "Retirement Sudoku",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_007"
+        },
+        {
+            "game_id": "GAME_008",
+            "game_name": "Insurance match-tile flipping game.",
+            "game_desc": "Blocks of Wealth",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_008"
+        },
+        {
+            "game_id": "GAME_009",
+            "game_name": "Secure Saga.",
+            "game_desc": "Shield Man",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_009"
+        },
+        {
+            "game_id": "GAME_010",
+            "game_name": "Shield man.",
+            "game_desc": "Insurance Match",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_010"
+        },
+        {
+            "game_id": "GAME_011",
+            "game_name": "Snake-Life.",
+            "game_desc": "Life Grows Fast",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_011"
+        },
+        {
+            "game_id": "GAME_012",
+            "game_name": "Life-Snake-Ladders.",
+            "game_desc": "Life Snakes and Ladders",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_012"
+        },
+        {
+            "game_id": "GAME_013",
+            "game_name": "Life-Leap.",
+            "game_desc": "Life Leap - Cross Every Hurdle",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_013"
+        },
+        {
+            "game_id": "GAME_006",
+            "game_name": "financial-tetris.",
+            "game_desc": "Secure Saga",
+            "game_thumbnail": "",
+            "game_url": "https://bajajlifeinsurance.com/gamification/GAME_006"
+        }
+    ],
+    "otherParams": {}
+}

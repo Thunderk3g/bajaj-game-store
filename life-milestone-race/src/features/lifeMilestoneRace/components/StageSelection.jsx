@@ -81,7 +81,7 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
                 transition={{ duration: 0.5, ease: 'easeOut' }}
             >
                 <h1 className="font-game text-[1.75rem] sm:text-[2.25rem] text-white drop-shadow-lg tracking-wide leading-tight mb-0.5 uppercase">
-                    Select Your Stage
+                    Select Your Life Stage
                 </h1>
                 <p className="text-blue-900 font-game-body font-black text-[0.625rem] sm:text-[0.6875rem] uppercase tracking-widest opacity-80">
                     Tap a milestone to start the race
@@ -103,11 +103,17 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
                     const isSelected = selected === stage.id;
                     const alignment = ALIGNMENT_PATTERN[index] || 'justify-center';
 
+                    // Custom vertical offsets to prevent visual crowding
+                    // Using relative positioning because Framer Motion's inline `y: 0` overrides Tailwind transform classes
+                    let customOffset = '';
+                    if (index === 1) customOffset = 'relative -top-8 sm:-top-10'; // Marriage: move up toward First Job
+                    if (index === 3) customOffset = 'relative top-8 sm:top-10 left-4 sm:left-6';   // Mid-Career: move down and slightly right
+
                     return (
                         <motion.div
                             key={stage.id}
                             variants={cardVariants}
-                            className={`flex ${alignment} w-full z-10`}
+                            className={`flex ${alignment} w-full z-10 ${customOffset}`}
                         >
                             <div
                                 className={`glossy-card ${isSelected ? 'glossy-selected' : ''} w-[8.5rem] sm:w-[10rem] p-2 sm:p-3 rounded-2xl sm:rounded-3xl flex flex-col items-center gap-1 sm:gap-1.5 cursor-pointer`}
@@ -123,22 +129,11 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
                                     }
                                 }}
                             >
-                                {/* Emoji + check indicator */}
+                                {/* Emoji (Selection indicator removed to prevent unchecked radio text glitch) */}
                                 <div className="relative">
                                     <span className="text-[2.25rem] sm:text-[3rem] drop-shadow-md block leading-none">
                                         {stage.emoji}
                                     </span>
-                                    <div
-                                        className={`absolute -top-1 -right-1 w-[1.125rem] h-[1.125rem] sm:w-[1.375rem] sm:h-[1.375rem] rounded-full border-2 border-white flex items-center justify-center transition-colors duration-200 ${isSelected ? 'bg-green-500' : 'bg-slate-200'
-                                            }`}
-                                    >
-                                        <span
-                                            className={`material-symbols-outlined text-[0.625rem] sm:text-[0.75rem] font-bold ${isSelected ? 'text-white' : 'text-slate-400'
-                                                }`}
-                                        >
-                                            {isSelected ? 'check' : 'radio_button_unchecked'}
-                                        </span>
-                                    </div>
                                 </div>
 
                                 {/* Stage label */}
@@ -170,7 +165,7 @@ const StageSelection = memo(function StageSelection({ onSelectStage }) {
                     id="btn-confirm-stage"
                 >
                     BEGIN RACE
-                    <span className="material-symbols-outlined text-[1.5rem] sm:text-[1.875rem]">chevron_right</span>
+                    <span className="material-symbols-outlined text-[1.5rem] sm:text-[1.875rem]"></span>
                 </button>
             </motion.div>
         </div>

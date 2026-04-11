@@ -6,7 +6,6 @@ import LevelReport from './components/LevelReport';
 import FinalScreen from './components/FinalScreen';
 import ThankYouScreen from './components/ThankYouScreen';
 import ShockOverlay from './components/ShockOverlay';
-import PouringStream from './components/PouringStream';
 import Toast from '../../components/ui/Toast';
 
 import Modal from './components/Modal';
@@ -21,9 +20,8 @@ import { MESSAGE_LIBRARY } from './constants/messageLibrary';
 import { X, ShieldCheck, Loader2 } from 'lucide-react';
 
 const LifeSortedPage = () => {
-    const [gamePhase, setGamePhase] = useState('splash'); // splash | playing | shock | report | final | thanks
+    const [gamePhase, setGamePhase] = useState('splash'); // splash | playing | shock | report | lead_capture | final | thanks
     const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
-    const [pouringState, setPouringState] = useState(null); // { sourceIndex, targetIndex, color, sourceX, sourceY, targetX, targetY }
     const tubeRefs = useRef([]);
 
     // Lead Gen State
@@ -36,7 +34,7 @@ const LifeSortedPage = () => {
     const [isTermsOpen, setIsTermsOpen] = useState(false);
 
     const { toast, showToast } = useToastSystem();
-    const { stats, updateStats, getResults } = useScoreCalculator();
+    const { stats, updateStats, getResults, resetStats } = useScoreCalculator();
 
     const handleLevelWin = useCallback(() => {
         // Logic handled by useEffect watching engine.isWon
@@ -61,82 +59,14 @@ const LifeSortedPage = () => {
     );
 
     const handleTubeClickWithAnimation = useCallback((index) => {
-        // FIXED: Block all interactions while a pour is in progress
-        if (engine.isWon || isShockActive || pouringState) return;
-
-        const sourceIndex = engine.selectedTube;
-
-        if (sourceIndex !== null && sourceIndex !== index) {
-            const sourceTube = engine.tubes[sourceIndex];
-            const targetTube = engine.tubes[index];
-            const capacity = LEVEL_CONFIGS[currentLevelIndex].capacity;
-
-            if (sourceTube.length > 0 && targetTube.length < capacity) {
-                // OLD RULE: Match top color. 
-                // NEW RULE: Allow any color pour (moveValidator handles this)
-                const validation = engine.validateMove(sourceIndex, index);
-
-                if (validation.valid) {
-                    const sourceTop = sourceTube[sourceTube.length - 1];
-                    const sourceRect = tubeRefs.current[sourceIndex]?.getBoundingClientRect();
-                    const targetRect = tubeRefs.current[index]?.getBoundingClientRect();
-
-                    if (sourceRect && targetRect) {
-                        const isRight = index > sourceIndex;
-                        const mouthXOffset = isRight ? -20 : 20;
-
-                        const dx = (targetRect.left + targetRect.width / 2) - (sourceRect.left + sourceRect.width / 2) + mouthXOffset;
-                        const dy = targetRect.top - sourceRect.top - 120;
-
-                        // Calculate how many segments will move
-                        const colorToMove = sourceTop.category;
-                        let movedCount = 0;
-                        const tempSource = [...sourceTube];
-                        while (tempSource.length > 0 && tempSource[tempSource.length - 1].category === colorToMove && (targetTube.length + movedCount) < capacity) {
-                            tempSource.pop();
-                            movedCount++;
-                        }
-
-                        setPouringState({
-                            sourceIndex,
-                            targetIndex: index,
-                            color: sourceTop.color,
-                            // Align stream start with the mouth of the TILTED tube
-                            sourceX: targetRect.left + targetRect.width / 2 + (isRight ? -40 : 40),
-                            sourceY: targetRect.top - 40,
-                            targetX: targetRect.left + targetRect.width / 2,
-                            targetY: targetRect.bottom - (targetTube.length * (targetRect.height / capacity)),
-                            dx,
-                            dy,
-                            movedCount,
-                            movedColor: sourceTop.color,
-                            isStreaming: false
-                        });
-
-                        // Phase 2: Start streaming after tilt starts (Impact Phase)
-                        setTimeout(() => {
-                            setPouringState(prev => prev ? { ...prev, isStreaming: true } : null);
-                        }, 400);
-
-                        // Phase 3: Complete transfer after enough volume has "flowed"
-                        setTimeout(() => {
-                            engine.handleTubeClick(index);
-                            setPouringState(null);
-                        }, 1300);
-
-                        return;
-                    }
-                }
-            }
-        }
-
+        if (engine.isWon || isShockActive) return;
         engine.handleTubeClick(index);
-    }, [engine, currentLevelIndex, isShockActive, pouringState]);
+    }, [engine, isShockActive]);
 
     const handleTimeUp = useCallback(() => {
         showToast(MESSAGE_LIBRARY.TIME_UP, 'error');
         updateStats(engine.moves, engine.mistakes, engine.sortedCount);
-        setGamePhase('final');
+        setGamePhase('report');
     }, [engine.moves, engine.mistakes, engine.sortedCount, updateStats, showToast]);
 
     const handleWarning = useCallback((time) => {
@@ -155,7 +85,7 @@ const LifeSortedPage = () => {
         if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number';
         else if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = 'Invalid 10-digit number (starts 6-9)';
 
-        if (!isTermsAccepted) newErrors.terms = 'Please accept terms';
+        if (!isTermsAccepted) newErrors.terms = 'Please agree to Terms and Conditions';
 
         setFormErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -169,15 +99,15 @@ const LifeSortedPage = () => {
         const result = await submitToLMS({
             name: formData.name,
             mobile_no: formData.phone,
-            summary_dtls: 'Life Sorted - Lead'
+            score: stats.sortedTotal,
+            summary_dtls: 'Life Sorted - Post Game Lead'
         });
         setIsSubmittingLead(false);
 
         if (result.success) {
-            setIsLeadModalOpen(false);
             const data = { ...formData, leadNo: result.leadNo || (result.data && (result.data.leadNo || result.data.LeadNo)) };
             setLeadData(data);
-            startGame(data);
+            setGamePhase('final');
         } else {
             setFormErrors({ submit: result.error || 'Connection error. Please try again.' });
         }
@@ -189,11 +119,11 @@ const LifeSortedPage = () => {
     };
 
     const onStartClick = () => {
-        setIsLeadModalOpen(true);
+        // Lead popup disabled — start game directly
+        startGame();
     };
 
     const nextLevel = () => {
-        updateStats(engine.moves, engine.mistakes, engine.sortedCount);
         if (currentLevelIndex < LEVEL_CONFIGS.length - 1) {
             setCurrentLevelIndex(prev => prev + 1);
             setGamePhase('playing');
@@ -211,13 +141,16 @@ const LifeSortedPage = () => {
 
     const onLevelComplete = () => {
         timer.stop();
-        // If it's the last level, go straight to final
-        if (currentLevelIndex >= LEVEL_CONFIGS.length - 1) {
-            setGamePhase('final');
-        } else {
+        updateStats(engine.moves, engine.mistakes, engine.sortedCount);
+        // 400ms delay before showing popup
+        setTimeout(() => {
             setGamePhase('report');
-        }
+        }, 400);
     };
+
+    const handleReportDone = useCallback(() => {
+        setGamePhase('lead_capture');
+    }, []);
 
     React.useEffect(() => {
         // FIXED: Sync win check with levelLoaded to prevent skips. 
@@ -232,162 +165,134 @@ const LifeSortedPage = () => {
     }, [engine.tubes]);
 
     const handleRetry = useCallback(() => {
-        setGamePhase('playing');
         setCurrentLevelIndex(0);
         resetShock();
-        stats.moves = 0; // Reset stats reference if needed, but easier to just use the engine's reset
-        timer.start();
-    }, [timer, resetShock, stats]);
+        resetStats();
+        timer.reset();
+        // Use setTimeout to ensure state updates (especially currentLevelIndex) 
+        // have settled before starting, so the engine re-initializes properly
+        setTimeout(() => {
+            engine.reset();
+            setGamePhase('playing');
+            timer.start();
+        }, 50);
+    }, [timer, resetShock, resetStats, engine]);
 
     return (
         <GameLayout
             showTitle={false}
+            showHeader={gamePhase !== 'final'}
             variant={gamePhase === 'splash' ? 'welcome' : (gamePhase === 'playing' || gamePhase === 'final') ? 'gradient' : 'default'}
-            mainClassName={gamePhase === 'splash' ? 'justify-end pb-[28%]' : 'justify-center'}
-            headerRight={
-                gamePhase === 'playing' ? (
-                    <div className="text-right">
-                        <p className="text-[0.6rem] uppercase text-white/40 tracking-widest font-bold">Progress</p>
-                        <p className="text-xs font-bold text-teal">{engine.sortedCount} / {activeCategories.length} Sorted</p>
-                    </div>
-                ) : null
+            mainClassName={
+                gamePhase === 'splash' ? 'justify-end pb-[28%]' :
+                    gamePhase === 'final' ? 'justify-start overflow-y-auto overflow-x-hidden w-full px-0 pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' :
+                        'justify-center'
             }
+            headerRight={null}
         >
             <Toast message={toast?.message} type={toast?.type} />
 
             {gamePhase === 'splash' && <SplashScreen onStart={onStartClick} />}
 
-            {/* Lead Gen Modal */}
-            <Modal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)}>
-                <div className="bg-white rounded-[32px] p-8 w-full shadow-2xl relative overflow-hidden text-left translate-z-0">
-                    <button
-                        onClick={() => setIsLeadModalOpen(false)}
-                        className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-
-                    <h2 className="text-3xl font-black text-gray-800 text-center mb-1 tracking-tight">
-                        Welcome!
-                    </h2>
-                    <p className="text-center text-gray-400 font-bold mb-8 italic">Enter your details to start</p>
-
-                    <form onSubmit={handleLeadSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <input
-                                type="text"
-                                value={formData.name}
-                                onChange={(e) => {
-                                    const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                                    setFormData(prev => ({ ...prev, name: val }));
-                                    if (!val.trim()) setFormErrors(prev => ({ ...prev, name: 'Please enter your name' }));
-                                    else if (!/^[A-Za-z\s]+$/.test(val.trim())) setFormErrors(prev => ({ ...prev, name: 'Letters only' }));
-                                    else setFormErrors(prev => ({ ...prev, name: null }));
-                                }}
-                                id="name"
-                                name="name"
-                                autoComplete="name"
-                                placeholder="Your name"
-                                className={`w-full bg-gray-50 border-2 rounded-2xl px-5 py-4 text-gray-800 placeholder:text-gray-400 font-bold focus:outline-none focus:border-gold transition-all ${formErrors.name ? 'border-red-500' : 'border-slate-100'}`}
-                            />
-                            {formErrors.name && <p className="text-red-500 text-sm font-black ml-2">{formErrors.name}</p>}
+            {gamePhase === 'lead_capture' && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-[32px] p-8 w-full max-w-[340px] shadow-2xl relative border-[5px] border-[#00B4D8] animate-in zoom-in-95">
+                        <div className="text-center mb-8">
+                            <h2 className="text-[#005BAC] text-2xl font-black mb-1 tracking-tight uppercase">Enter Your Details</h2>
+                            <p className="text-slate-500 font-bold text-lg text-center">To see the results</p>
                         </div>
 
-                        <div className="space-y-2">
-                            <input
-                                type="tel"
-                                value={formData.phone}
-                                onChange={(e) => {
-                                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                    setFormData(prev => ({ ...prev, phone: val }));
-                                    if (!val.trim()) setFormErrors(prev => ({ ...prev, phone: 'Please enter your phone number' }));
-                                    else if (!/^[6-9]\d{9}$/.test(val)) setFormErrors(prev => ({ ...prev, phone: 'Invalid 10-digit number' }));
-                                    else setFormErrors(prev => ({ ...prev, phone: null }));
-                                }}
-                                id="phone"
-                                name="phone"
-                                autoComplete="tel"
-                                placeholder="Mobile number"
-                                className={`w-full bg-gray-50 border-2 rounded-2xl px-5 py-4 text-gray-800 placeholder:text-gray-400 font-bold focus:outline-none focus:border-gold transition-all ${formErrors.phone ? 'border-red-500' : 'border-slate-100'}`}
-                            />
-                            {formErrors.phone && <p className="text-red-500 text-sm font-black ml-2">{formErrors.phone}</p>}
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                            <div className="flex items-start gap-3 cursor-pointer" onClick={() => {
-                                setIsTermsAccepted(!isTermsAccepted);
-                                setFormErrors(prev => ({ ...prev, terms: null }));
-                            }}>
-                                <div className={`shrink-0 w-7 h-7 rounded-lg border flex items-center justify-center transition-all ${isTermsAccepted ? 'bg-[#005faa] border-[#005faa]' : 'border-slate-300 bg-gray-50'}`}>
-                                    {isTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
-                                </div>
-                                <div className="text-[11px] text-gray-700 font-medium leading-[1.3]">
-                                    I agree to the{' '}
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setIsTermsOpen(true);
-                                        }}
-                                        className="text-[#005faa] font-bold hover:underline"
-                                    >
-                                        Terms & Conditions
-                                    </button>
-                                    {' '}and allow Bajaj Life Insurance to contact me even if registered on DND.
-                                </div>
+                        <form onSubmit={handleLeadSubmit} className="space-y-6">
+                            <div className="space-y-1.5 text-left">
+                                <label className="block text-slate-700 text-[10px] font-black uppercase tracking-widest ml-1">Your Name</label>
+                                <input
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value.replace(/[^a-zA-Z\s]/g, '') }))}
+                                    placeholder="Full Name"
+                                    className={`w-full bg-gray-50 border-4 rounded-xl px-5 py-3 text-gray-800 placeholder:text-gray-300 font-bold focus:outline-none transition-all ${formErrors.name ? 'border-red-500' : 'border-slate-100 focus:border-[#00B4D8]'}`}
+                                />
+                                {formErrors.name && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{formErrors.name}</p>}
                             </div>
-                            {formErrors.terms && <p className="text-red-500 text-sm font-black ml-2">{formErrors.terms}</p>}
-                        </div>
 
-                        {formErrors.submit && (
-                            <p className="text-red-500 text-sm font-black text-center">{formErrors.submit}</p>
-                        )}
+                            <div className="space-y-1.5 text-left">
+                                <label className="block text-slate-700 text-[10px] font-black uppercase tracking-widest ml-1">Mobile Number</label>
+                                <input
+                                    type="tel"
+                                    maxLength={10}
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value.replace(/\D/g, '') }))}
+                                    placeholder="9876543210"
+                                    className={`w-full bg-gray-50 border-4 rounded-xl px-5 py-3 text-gray-800 placeholder:text-gray-300 font-bold focus:outline-none transition-all ${formErrors.phone ? 'border-red-500' : 'border-slate-100 focus:border-[#00B4D8]'}`}
+                                />
+                                {formErrors.phone && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{formErrors.phone}</p>}
+                            </div>
 
-                        <button
-                            type="submit"
-                            disabled={isSubmittingLead}
-                            className="w-full bg-gold text-black font-black text-xl py-4 rounded-2xl shadow-[0_4px_0_0_#b45309] active:translate-y-[2px] active:shadow-none disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            {isSubmittingLead ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    <span>Processing...</span>
-                                </>
-                            ) : "LET'S GO!"}
-                        </button>
-                    </form>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-start gap-3 py-1 mb-1 cursor-pointer" onClick={() => {
+                                    const newVal = !isTermsAccepted;
+                                    setIsTermsAccepted(newVal);
+                                    if (formErrors.terms) setFormErrors(prev => ({ ...prev, terms: '' }));
+                                }}>
+                                    <div className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-md transition-all ${isTermsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : `bg-white ${formErrors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-200'}`}`}>
+                                        {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
+                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-600 leading-snug text-left">
+                                        I agree and consent to the <span onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }} className="text-[#00B4D8] underline font-black cursor-pointer hover:text-[#0077b6] transition-colors">T&C and Privacy Policy</span>
+                                    </p>
+                                </div>
+                                {formErrors.terms && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1 mb-1 text-left">{formErrors.terms}</p>}
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isSubmittingLead}
+                                className="w-full py-4 rounded-xl text-lg tracking-widest disabled:opacity-50 text-white uppercase font-black transition-all duration-300 shadow-lg active:scale-[0.98]"
+                                style={{ background: 'linear-gradient(135deg, #00B4D8 0%, #0077b6 100%)' }}
+                            >
+                                {isSubmittingLead ? 'Loading...' : 'See Results!'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </Modal>
+            )}
 
-            {/* Terms Modal */}
             <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
-                <div className="bg-white rounded-[32px] p-8 w-full shadow-2xl relative text-left">
-                    <button
-                        onClick={() => setIsTermsOpen(false)}
-                        className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-
-                    <h2 className="text-2xl font-black text-gray-800 mb-6 tracking-tight">
-                        Terms & Conditions
-                    </h2>
-                    <div className="text-sm text-gray-500 font-bold space-y-4 max-h-[50vh] overflow-y-auto pr-2">
-                        <p>Privacy Policy & Terms of Use for Life Sorted 3D.</p>
-                        <p>Your data stays secure and will only be used for providing personalized life planning insights.</p>
+                <div className="bg-white rounded-[32px] p-8 w-full shadow-2xl relative text-left border-[5px] border-[#00B4D8]">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-[#005BAC] text-2xl font-black uppercase tracking-tight leading-tight">
+                            Terms & Conditions
+                        </h3>
+                        <button
+                            onClick={() => setIsTermsOpen(false)}
+                            className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div className="max-h-[40vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-medium text-xs leading-relaxed scrollbar-thin scrollbar-thumb-slate-200 text-left">
+                        <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                        <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#00B4D8] underline font-bold">Privacy Policy</a>.</p>
+                    </div>
+                    <div className="mt-8">
+                        <button
+                            onClick={() => { setIsTermsOpen(false); setIsTermsAccepted(true); }}
+                            className="w-full py-4 rounded-xl text-lg tracking-widest text-white uppercase font-black transition-all duration-300 shadow-lg"
+                            style={{ background: 'linear-gradient(135deg, #00B4D8 0%, #0077b6 100%)' }}
+                        >
+                            I Agree
+                        </button>
                     </div>
                 </div>
             </Modal>
 
-            {gamePhase === 'playing' && (
+            {(gamePhase === 'playing' || gamePhase === 'report') && (
                 <>
                     <GameScreen
                         tubes={engine.tubes}
                         capacity={LEVEL_CONFIGS[currentLevelIndex].capacity}
                         selectedTube={engine.selectedTube}
                         onTubeClick={handleTubeClickWithAnimation}
-                        onUndo={engine.undo}
-                        onRestart={restartLevel}
                         timer={timer.timeLeft}
                         formatTime={timer.formatTime}
                         progress={timer.progress}
@@ -395,23 +300,22 @@ const LifeSortedPage = () => {
                         activeCategories={activeCategories}
                         moves={engine.moves}
                         currentLevel={currentLevelIndex + 1}
-                        pouringState={pouringState}
                         tubeRefs={tubeRefs}
+                        newlySortedTubes={engine.newlySortedTubes}
+                        sortedCount={engine.sortedCount}
                     />
                     <ShockOverlay isActive={isShockActive} onResolve={resolveShock} />
-                    {pouringState && <PouringStream {...pouringState} />}
                 </>
             )}
 
-            {gamePhase === 'report' && (
-                <LevelReport
-                    level={currentLevelIndex + 1}
-                    moves={engine.moves}
-                    mistakes={engine.mistakes}
-                    sorted={engine.sortedCount}
-                    onNext={nextLevel}
-                />
-            )}
+            {/* Level Report Popup Overlay */}
+            <LevelReport
+                tubes={engine.tubes}
+                isWin={engine.isWon}
+                capacity={LEVEL_CONFIGS[currentLevelIndex].capacity}
+                onNext={handleReportDone}
+                isVisible={gamePhase === 'report'}
+            />
 
             {gamePhase === 'final' && (
                 <FinalScreen

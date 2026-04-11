@@ -1,0 +1,74 @@
+.intro {
+    background: linear-gradient(135deg, #0047AB 0%, #0066B2 100%);
+}
+
+.inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100dvh;
+}
+
+.card {
+    background: white;
+    border-radius: 2rem;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 20px 50px rgba(0, 71, 171, 0.25);
+    border: 4px solid #F97316;
+    position: relative;
+    z-index: 10;
+}
+
+.header {
+    text-align: left;
+    margin-bottom: 2.5rem;
+}
+
+.title {
+    color: #1A2744;
+    font-size: 1.75rem;
+    font-weight: 900;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.subtitle {
+    color: #64748b;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.submitBtn {
+    margin-top: 1.5rem;
+    font-size: 1.125rem !important;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #0066B2 0%, #3B82F6 100%) !important;
+}
+
+/* For IntroScreen button compatibility if needed, though they should ideally be separated */
+.btnStartNow {
+    font-size: 1.25rem;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    height: 3.5rem;
+    border-bottom: 6px solid #003380;
+    transition: all 0.1s;
+}
+
+.btnStartNow:active {
+    transform: translateY(4px);
+    border-bottom-width: 2px;
+}

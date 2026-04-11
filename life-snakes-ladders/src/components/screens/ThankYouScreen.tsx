@@ -14,7 +14,7 @@ const T = {
 const ThankYouScreen: React.FC<ThankYouScreenProps> = ({ onReplay, playerName }) => {
     return (
         <div style={{
-            width: '100%', height: '100%',
+            width: '100%', height: '100dvh',
             background: T.bgPage,
             display: 'flex', flexDirection: 'column',
             justifyContent: 'center', alignItems: 'center',
@@ -22,11 +22,11 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({ onReplay, playerName })
             position: 'relative',
         }}>
             <h1 style={{
-                fontSize: 42,
+                fontSize: 'clamp(32px, 6vh, 42px)',
                 fontWeight: 900,
                 fontStyle: 'italic',
                 color: T.white,
-                margin: '0 0 24px',
+                margin: '0 0 clamp(16px, 3vh, 24px)',
                 textAlign: 'center',
                 letterSpacing: '0.02em',
                 lineHeight: 1.1,
@@ -36,7 +36,7 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({ onReplay, playerName })
             </h1>
 
             <p style={{
-                fontSize: 18,
+                fontSize: 'clamp(15px, 2.8vh, 18px)',
                 fontWeight: 800,
                 color: T.white,
                 margin: '0 0 8px',
@@ -46,7 +46,7 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({ onReplay, playerName })
             </p>
 
             <p style={{
-                fontSize: 16,
+                fontSize: 'clamp(14px, 2.5vh, 16px)',
                 fontWeight: 500,
                 color: T.white,
                 margin: '0 0 32px',
@@ -61,15 +61,15 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({ onReplay, playerName })
             <div style={{
                 background: 'rgba(255,255,255,0.08)',
                 borderRadius: 16,
-                padding: '20px 24px',
-                marginBottom: 40,
+                padding: 'clamp(16px, 3.5vh, 20px) 24px',
+                marginBottom: 'clamp(24px, 5vh, 40px)',
                 width: '100%',
                 maxWidth: 320
             }}>
-                <p style={{ fontSize: 13, color: '#FFDE59', fontWeight: 800, margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <p style={{ fontSize: 'clamp(11px, 2.2vh, 13px)', color: '#FFDE59', fontWeight: 800, margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     What happens next?
                 </p>
-                <ul style={{ margin: 0, padding: '0 0 0 20px', fontSize: 14, color: '#fff', lineHeight: 1.8, opacity: 0.9 }}>
+                <ul style={{ margin: 0, padding: '0 0 0 20px', fontSize: 'clamp(12px, 2.4vh, 14px)', color: '#fff', lineHeight: 1.8, opacity: 0.9 }}>
                     <li>Our agent will call within 24 hours</li>
                     <li>Get a personalised term plan quote</li>
                     <li>Zero commitment, 100% advisory</li>
@@ -78,11 +78,11 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({ onReplay, playerName })
 
             <button onClick={onReplay} style={{
                 width: '100%', maxWidth: 220,
-                padding: '16px 24px',
+                padding: 'clamp(14px, 2.8vh, 16px) 24px',
                 background: T.orange,
                 color: '#fff',
                 fontFamily: 'inherit',
-                fontSize: 16,
+                fontSize: 'clamp(14px, 2.6vh, 16px)',
                 fontWeight: 800,
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase',

@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
-    "@types/canvas-confetti": "^1.9.0"
+    "@types/canvas-confetti": "^1.9.0",
+    "crypto-js": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

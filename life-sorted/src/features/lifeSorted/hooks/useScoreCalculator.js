@@ -17,6 +17,14 @@ export const useScoreCalculator = () => {
         }));
     }, []);
 
+    const resetStats = useCallback(() => {
+        setStats({
+            totalMoves: 0,
+            totalMistakes: 0,
+            totalSortedAcrossLevels: 0,
+        });
+    }, []);
+
     const getResults = useCallback(() => {
         const score = calculateClarityScore(
             stats.totalMoves,
@@ -37,5 +45,5 @@ export const useScoreCalculator = () => {
         };
     }, [stats]);
 
-    return { stats, updateStats, getResults };
+    return { stats, updateStats, getResults, resetStats };
 };

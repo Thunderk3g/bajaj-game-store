@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar } from 'lucide-react';
 import { submitToLMS, updateLeadNew } from '../utils/api';
+import TermsModal from './TermsModal';
 
 export default function BookingModal({ isOpen, onClose, onSubmit, initialName, initialMobile, leadNo, score }) {
     const [formData, setFormData] = useState({ name: initialName || '', mobile: initialMobile || '', date: '', time: '' });
     const [termsAccepted, setTermsAccepted] = useState(true);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const updateField = (field, val) => {
         setFormData(p => ({ ...p, [field]: val }));
@@ -47,7 +49,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
 
         // 5. Terms Validation
         if (!termsAccepted) {
-            errs.terms = "Please accept the terms";
+            errs.terms = "Please agree to Terms and Conditions";
         }
 
         setErrors(errs);
@@ -198,17 +200,29 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                         className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:border-blue-200 text-xs font-bold px-4 appearance-none transition-colors rounded-lg"
                                     >
                                         <option value="">Select Slot</option>
-                                        {[...Array(12)].map((_, i) => {
-                                            const start = 9 + i;
-                                            const end = start + 1;
-                                            const formatTime = (h) => {
-                                                const amp = h >= 12 ? 'PM' : 'AM';
-                                                const hour = h > 12 ? h - 12 : h;
-                                                return `${hour}:00 ${amp}`;
-                                            };
-                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
-                                            return <option key={start} value={label}>{label}</option>;
-                                        })}
+                                        {(() => {
+                                            const slots = [...Array(12)].map((_, i) => {
+                                                const start = 9 + i;
+                                                const end = start + 1;
+                                                const formatTime = (h) => {
+                                                    const amp = h >= 12 ? 'PM' : 'AM';
+                                                    const hour = h > 12 ? h - 12 : h;
+                                                    return `${hour}:00 ${amp}`;
+                                                };
+                                                const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                // Filter logic: if today, only show slots that haven't passed
+                                                const now = new Date();
+                                                const isToday = formData.date === todayStr;
+                                                const currentHour = now.getHours();
+
+                                                if (isToday && start <= currentHour) return null;
+
+                                                return <option key={start} value={label}>{label}</option>;
+                                            }).filter(Boolean);
+
+                                            return slots.length > 0 ? slots : <option disabled>No slots available for today</option>;
+                                        })()}
                                     </select>
                                     {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                 </div>
@@ -227,7 +241,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                                     />
                                 </div>
                                 <label className="text-[10px] sm:text-xs text-slate-500 leading-tight">
-                                    I authorize Bajaj Life Insurance to contact me for this request, overriding DND registry.
+                                    I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-[#0066B2] underline font-black cursor-pointer hover:text-[#FF8C00] transition-colors">T&C and Privacy Policy</span>
                                 </label>
                             </div>
                             {errors.terms && <div className="text-[10px] text-red-500 font-black uppercase tracking-wider text-center">{errors.terms}</div>}
@@ -243,6 +257,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                     </motion.div>
                 </div>
             )}
+            <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
         </AnimatePresence>
     );
 }

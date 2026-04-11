@@ -6,10 +6,9 @@ export const submitToLMS = async (data) => {
     // Production: https://sales.bajajlife.com/BalicLmsUtil
     const UAT_URL = `${__LMS_BASE_URL__}/whatsappInhouse`;
 
-    // Extract userId and gameID from URL parameters (passed by Angular shell)
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId') || '';
-    const gameID = urlParams.get('gameId') || 'One-Life';
+    // Read userId and gameID from sessionStorage (stored by main.jsx on app load)
+    const userId = sessionStorage.getItem('gamification_userId') || '';
+    const gameID = sessionStorage.getItem('gamification_gameId') || '';
 
     // Format date if present (expected DD/MM/YYYY)
     let appointmentDate = "";

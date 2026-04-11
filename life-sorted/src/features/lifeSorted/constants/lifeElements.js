@@ -1,14 +1,14 @@
 export const LIFE_ELEMENTS = {
-    RETIREMENT: { id: 'ret', label: 'Retirement', category: 'wealth', color: 'var(--growth)' },
-    EMERGENCY: { id: 'emg', label: 'Emergency', category: 'safety', color: 'var(--safety)' },
-    EDUCATION: { id: 'edu', label: 'Education', category: 'resp', color: 'var(--resp)' },
-    WEDDING: { id: 'wed', label: 'Wedding', category: 'resp', color: 'var(--resp)' },
-    VACATION: { id: 'vac', label: 'Vacation', category: 'asset', color: 'var(--asset)' },
-    HOME: { id: 'hom', label: 'Home', category: 'asset', color: 'var(--asset)' },
-    STOCKS: { id: 'stk', label: 'Stocks', category: 'risk', color: 'var(--risk)' },
-    MUTUAL_FUNDS: { id: 'mfd', label: 'Mutual Funds', category: 'risk', color: 'var(--risk)' },
-    INSURANCE: { id: 'ins', label: 'Insurance', category: 'safety', color: 'var(--safety)' },
-    SAVINGS: { id: 'sav', label: 'Savings', category: 'wealth', color: 'var(--growth)' },
+    INVESTMENTS: { id: 'inv', label: 'Investments', category: 'growth', color: '#22C55E', emoji: '📈' },
+    RETIREMENT: { id: 'ret', label: 'Retirement', category: 'growth', color: '#22C55E', emoji: '🌅' },
+    EMERGENCY: { id: 'emg', label: 'Emergency Fund', category: 'safety', color: '#3B82F6', emoji: '🛡️' },
+    FIXED_INCOME: { id: 'fix', label: 'Fixed Income Plan', category: 'safety', color: '#3B82F6', emoji: '💰' },
+    EDUCATION: { id: 'edu', label: "Child's Education", category: 'resp', color: '#F59E0B', emoji: '🎓' },
+    LIFESTYLE: { id: 'lif', label: 'Lifestyle Expenses', category: 'resp', color: '#F59E0B', emoji: '🏠' },
+    CRITICAL_ILLNESS: { id: 'cri', label: 'Critical Illness Cover', category: 'risk', color: '#EF4444', emoji: '🩺' },
+    TERM_LIFE: { id: 'trm', label: 'Term Life Cover', category: 'risk', color: '#EF4444', emoji: '🛡️' },
+    HOSPITALISATION: { id: 'hos', label: 'Hospitalisation', category: 'risk', color: '#EF4444', emoji: '🏥' },
+    ASSETS: { id: 'ast', label: 'Home / Car', category: 'asset', color: '#A855F7', emoji: '🚗' },
 };
 
 export const LIFE_ELEMENTS_ARRAY = Object.values(LIFE_ELEMENTS);

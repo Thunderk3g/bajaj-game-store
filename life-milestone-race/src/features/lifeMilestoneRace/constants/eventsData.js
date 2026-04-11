@@ -35,7 +35,7 @@ const EVENTS = [
     {
         id: 'fj-03',
         stage: 'first-job',
-        title: 'Family Dependency - Death of Earning Member',
+        title: 'Family Dependency - Loss of Earning Member',
         severity: 'high',
         description: 'Loss of parent impacts family. Your income becomes critical for family support.',
         impactProtected: 10,
@@ -45,9 +45,9 @@ const EVENTS = [
     {
         id: 'fj-04',
         stage: 'first-job',
-        title: 'Temporary Disability Due to Accident',
+        title: 'Permanent Disability Due to Accident',
         severity: 'high',
-        description: 'Accident leaves you temporarily unable to work. Income loss for weeks/months.',
+        description: 'Accident leaves you permanently unable to work. Income loss for weeks/months.',
         impactProtected: 10,
         impactExposed: -10,
         icon: '🚑'
@@ -67,7 +67,7 @@ const EVENTS = [
     {
         id: 'mr-01',
         stage: 'marriage',
-        title: 'Medical Emergency of One Spouse',
+        title: 'Medical Emergency of Spouse',
         severity: 'high',
         description: 'Spouse hospitalized with high medical bills. Employer cover is limited.',
         impactProtected: 10,
@@ -77,7 +77,7 @@ const EVENTS = [
     {
         id: 'mr-02',
         stage: 'marriage',
-        title: 'Accidental Death of One Spouse',
+        title: 'Loss of Spouse due to Accident',
         severity: 'high',
         description: 'Loss of spouse disrupts lifestyle and creates financial liabilities.',
         impactProtected: 10,
@@ -97,9 +97,9 @@ const EVENTS = [
     {
         id: 'mr-04',
         stage: 'marriage',
-        title: 'Job Loss of One Spouse',
+        title: 'Job Loss of Spouse',
         severity: 'high',
-        description: 'One spouse loses job. Household depends entirely on one income.',
+        description: 'Spouse loses job. Household depends entirely on one income.',
         impactProtected: 10,
         impactExposed: -10,
         icon: '📉'
@@ -129,7 +129,7 @@ const EVENTS = [
     {
         id: 'ph-02',
         stage: 'parenthood',
-        title: 'Death of Earning Parent',
+        title: 'Loss of Earning Parent',
         severity: 'high',
         description: "Loss of parent threatens child's education and family's future security.",
         impactProtected: 10,
@@ -201,7 +201,7 @@ const EVENTS = [
     {
         id: 'mc-04',
         stage: 'mid-career',
-        title: 'Death of Earning Member',
+        title: 'Loss of Earning Member',
         severity: 'high',
         description: 'Loss of you exposes multiple dependents and liabilities. Family lifestyle disrupted.',
         impactProtected: 10,

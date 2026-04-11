@@ -1,71 +1,13 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import * as Dialog from '@radix-ui/react-dialog';
-import { useQuiz } from '../context/QuizContext';
-import { Check, X } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const WelcomeScreen = ({ onStart }) => {
-    const { onLeadSubmit, leadName: savedName, leadPhone: savedPhone, isLeadSubmitted, isTermsAccepted, setIsTermsAccepted } = useQuiz();
-    const [isOpen, setIsOpen] = useState(false);
-    const [isTermsOpen, setIsTermsOpen] = useState(false);
-
-    // Form state
-    const [name, setName] = useState(savedName || '');
-    const [phone, setPhone] = useState(savedPhone || '');
-    const [errors, setErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const validatePhone = (p) => /^[6-9]\d{9}$/.test(p);
-
-    const validate = () => {
-        const newErrors = {};
-        if (!name.trim()) {
-            newErrors.name = 'Please enter your name';
-        } else if (!/^[A-Za-z\s]+$/.test(name.trim())) {
-            newErrors.name = 'Letters only';
-        }
-
-        if (!phone.trim()) {
-            newErrors.phone = 'Please enter your phone number';
-        } else if (!validatePhone(phone)) {
-            newErrors.phone = 'Invalid 10-digit number (starts 6-9)';
-        }
-
-        if (!isTermsAccepted) {
-            newErrors.terms = 'Please accept terms';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!validate()) return;
-
-        setIsSubmitting(true);
-        const result = await onLeadSubmit(name, phone);
-        setIsSubmitting(false);
-
-        if (result.success) {
-            setIsOpen(false);
-            onStart();
-        } else {
-            setErrors({ submit: result.error || 'Something went wrong. Please try again.' });
-        }
-    };
-
     const handleStartClick = () => {
-        if (!isLeadSubmitted) {
-            setIsOpen(true);
-        } else {
-            onStart();
-        }
+        onStart();
     };
 
     return (
         <motion.div
-            className="w-full h-[100dvh] flex flex-col items-center justify-end pb-12 overflow-hidden bg-no-repeat"
+            className="w-full h-[100dvh] flex flex-col items-center justify-end pb-4 overflow-hidden bg-no-repeat"
             style={{
                 backgroundImage: 'url(./assets/Quiz-bg.png)',
                 backgroundSize: '100% 100%',
@@ -76,171 +18,19 @@ const WelcomeScreen = ({ onStart }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
-            {/* Action Section */}
-            <div className="w-full max-w-[200px] mx-auto flex items-center justify-center">
+            <div className="w-full max-w-[180px] mx-auto flex items-center justify-center">
                 <motion.button
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 0.5 }}
                     onClick={handleStartClick}
-                    className="w-full game-btn-green text-xl sm:text-2xl py-3 shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-wider"
+                    className="w-full game-btn-green text-lg py-2.5 shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-wider"
                 >
                     START
                 </motion.button>
             </div>
-
-            {/* Lead Gen Modal */}
-            <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-[#B9E6FE]/80 backdrop-blur-md z-50" />
-                    <Dialog.Content asChild aria-describedby={undefined}>
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="bg-white rounded-[32px] p-8 w-full max-w-md shadow-2xl border-2 border-soft-gray relative overflow-hidden my-auto"
-                            >
-                                <button
-                                    onClick={() => setIsOpen(false)}
-                                    className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
-                                >
-                                    <X className="w-6 h-6" />
-                                </button>
-
-                                <Dialog.Title className="text-3xl font-black text-gray-800 text-center mb-8 tracking-tight leading-none">
-                                    Welcome!<br />
-                                    <span className="text-lg font-bold text-gray-400">Enter your details to start</span>
-                                </Dialog.Title>
-
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    <div className="space-y-2">
-                                        <input
-                                            type="text"
-                                            id="lead-name"
-                                            name="name"
-                                            autoComplete="name"
-                                            value={name}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                                                setName(val);
-                                                if (!val.trim()) setErrors(prev => ({ ...prev, name: 'Please enter your name' }));
-                                                else setErrors(prev => ({ ...prev, name: null }));
-                                            }}
-                                            placeholder="Your name"
-                                            className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl px-5 py-4 text-gray-800 placeholder:text-gray-400 font-bold focus:outline-none focus:border-brand-blue transition-all"
-                                        />
-                                        {errors.name && <p className="text-red-500 text-sm font-black ml-2">{errors.name}</p>}
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <input
-                                            type="tel"
-                                            id="lead-phone"
-                                            name="phone"
-                                            autoComplete="tel"
-                                            value={phone}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                                setPhone(val);
-                                                if (!val.trim()) setErrors(prev => ({ ...prev, phone: 'Please enter your phone number' }));
-                                                else if (val.length > 0 && !/^[6-9]/.test(val)) setErrors(prev => ({ ...prev, phone: 'Must start with 6-9' }));
-                                                else if (val.length > 0 && val.length < 10) setErrors(prev => ({ ...prev, phone: 'Enter 10 digits' }));
-                                                else setErrors(prev => ({ ...prev, phone: null }));
-                                            }}
-                                            placeholder="Mobile number"
-                                            className="w-full bg-gray-50 border-2 border-soft-gray rounded-2xl px-5 py-4 text-gray-800 placeholder:text-gray-400 font-bold focus:outline-none focus:border-brand-blue transition-all"
-                                        />
-                                        {errors.phone && <p className="text-red-500 text-sm font-black ml-2">{errors.phone}</p>}
-                                    </div>
-
-                                    <div className="space-y-2 py-1 flex flex-col gap-2">
-                                        <div className="flex items-start gap-3">
-                                            <div
-                                                onClick={() => {
-                                                    setIsTermsAccepted(!isTermsAccepted);
-                                                    setErrors(prev => ({ ...prev, terms: null }));
-                                                }}
-                                                className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#0066B2] border-[#0066B2]' : 'bg-white border-slate-300'}`}
-                                            >
-                                                {isTermsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
-                                            </div>
-                                            <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight text-left">
-                                                I agree to the{' '}
-                                                <button type="button" onClick={() => setIsTermsOpen(true)} className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]">
-                                                    Terms & Conditions
-                                                </button>{' '}
-                                                and allow Bajaj Life Insurance to contact me even if registered on DND.
-                                            </div>
-                                        </div>
-                                        {errors.terms && (
-                                            <p className="text-red-500 text-[9px] min-[375px]:text-[10px] font-black uppercase tracking-wider ml-1 text-left">{errors.terms}</p>
-                                        )}
-                                    </div>
-
-                                    {errors.submit && (
-                                        <p className="text-red-500 text-sm font-black text-center">{errors.submit}</p>
-                                    )}
-
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="w-full game-btn-green text-2xl py-4 disabled:opacity-50"
-                                    >
-                                        {isSubmitting ? 'Processing...' : "Let's go!"}
-                                    </button>
-                                </form>
-                            </motion.div>
-                        </div>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
-
-            {/* Terms Sub-Modal */}
-            <AnimatePresence>
-                {isTermsOpen && (
-                    <Dialog.Root open={isTermsOpen} onOpenChange={setIsTermsOpen}>
-                        <Dialog.Portal>
-                            <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]" />
-                            <Dialog.Content asChild aria-describedby={undefined}>
-                                <div className="fixed inset-0 z-[60] grid place-items-center p-4">
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.9 }}
-                                        className="bg-white border-2 border-soft-gray rounded-[32px] p-8 w-full max-w-lg shadow-2xl relative"
-                                    >
-                                        <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
-                                            <Dialog.Title className="text-[#0066B2] text-xl font-black uppercase tracking-tight">
-                                                Terms & Conditions
-                                            </Dialog.Title>
-                                            <button
-                                                onClick={() => setIsTermsOpen(false)}
-                                                className="text-slate-400 hover:text-slate-600 transition-colors p-1"
-                                            >
-                                                <X className="w-6 h-6" />
-                                            </button>
-                                        </div>
-                                        <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
-                                            <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
-                                            <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">BALIC Privacy Policy</a>.</p>
-                                        </div>
-                                        <div className="mt-6">
-                                            <button
-                                                onClick={() => { setIsTermsOpen(false); setIsTermsAccepted(true); }}
-                                                className="w-full mt-6 py-3 bg-[#0066B2] text-white font-bold rounded-lg hover:bg-blue-700 transition-colors text-sm uppercase tracking-wider"
-                                            >
-                                                I Agree
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                </div>
-                            </Dialog.Content>
-                        </Dialog.Portal>
-                    </Dialog.Root>
-                )}
-            </AnimatePresence>
         </motion.div>
     );
 };
 
-export default WelcomeScreen;                                                                                                                          
+export default WelcomeScreen;

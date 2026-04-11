@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { getShuffledQuestions } from '../data/questions';
 import { useSound } from '../hooks/useSound';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -9,6 +9,7 @@ export const SCREENS = {
     WELCOME: 'welcome',
     QUESTION: 'question',
     FEEDBACK: 'feedback',
+    LEAD_CAPTURE: 'lead_capture',
     RESULTS: 'results',
     THANK_YOU: 'thank_you'
 };
@@ -54,10 +55,15 @@ export const QuizProvider = ({ children }) => {
         playSound('start');
     }, [playSound]);
 
-    const handleAnswerSelect = useCallback((answerIndex) => {
-        if (selectedAnswer !== null) return;
+    const isProcessingRef = useRef(false);
 
+    const handleAnswerSelect = useCallback((answerIndex) => {
+        // Prevent double-clicks or rapid selections while React state updates
+        if (selectedAnswer !== null || isProcessingRef.current || showFeedback) return;
+
+        isProcessingRef.current = true;
         setSelectedAnswer(answerIndex);
+
         const selectedOptionText = currentQuestion.options[answerIndex];
         const isCorrect = selectedOptionText === currentQuestion.correctAnswer;
 
@@ -80,11 +86,15 @@ export const QuizProvider = ({ children }) => {
 
         setShowFeedback(true);
         setCurrentScreen(SCREENS.FEEDBACK);
-    }, [selectedAnswer, currentQuestion, playSound]);
+
+        // Reset ref to allow next interactions if necessary, 
+        // though typically it re-enables on next question
+    }, [selectedAnswer, currentQuestion, playSound, showFeedback]);
 
     const handleNextQuestion = useCallback(() => {
         setShowFeedback(false);
         setSelectedAnswer(null);
+        isProcessingRef.current = false;
 
         if (currentQuestionIndex < totalQuestions - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
@@ -95,10 +105,10 @@ export const QuizProvider = ({ children }) => {
             if (score > highScore) {
                 setHighScore(score);
             }
-            setCurrentScreen(SCREENS.RESULTS);
+            setCurrentScreen(SCREENS.LEAD_CAPTURE);
             playSound('complete');
         }
-    }, [currentQuestionIndex, totalQuestions, userAnswers, currentQuestion, selectedAnswer, highScore, setHighScore, playSound]);
+    }, [currentQuestionIndex, totalQuestions, userAnswers, score, highScore, setHighScore, playSound]);
 
     const handleRestart = useCallback(() => {
         const shuffled = getShuffledQuestions();
@@ -109,6 +119,7 @@ export const QuizProvider = ({ children }) => {
         setUserAnswers([]);
         setSelectedAnswer(null);
         setShowFeedback(false);
+        isProcessingRef.current = false;
         playSound('start');
         // Note: we do NOT reset leadName/Phone here to allow direct replay as the same user
     }, [playSound]);
@@ -122,6 +133,7 @@ export const QuizProvider = ({ children }) => {
         setUserAnswers([]);
         setSelectedAnswer(null);
         setShowFeedback(false);
+        isProcessingRef.current = false;
         playSound('start');
         // Note: we do NOT reset leadName/Phone here to allow direct replay as the same user
     }, [playSound]);
@@ -150,16 +162,15 @@ export const QuizProvider = ({ children }) => {
             setLeadName(name);
             setLeadPhone(phone);
             setIsLeadSubmitted(true);
-            // leadNo comes nested inside result.data (the raw API JSON response)
+
             const responseData = result.data || result;
             const ln = responseData.leadNo || responseData.LeadNo;
             if (ln) {
-                console.log('[QuizContext] Captured leadNo:', ln);
                 setLeadNo(ln);
                 sessionStorage.setItem('quizLeadNo', ln);
-            } else {
-                console.warn('[QuizContext] No leadNo found in API response:', result);
             }
+
+            setCurrentScreen(SCREENS.RESULTS);
         }
 
         return result;

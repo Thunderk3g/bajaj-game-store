@@ -1,11 +1,54 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from "./ui/input";
-import { PhoneCall, RotateCcw, X, Calendar, Share, Share2 } from "lucide-react";
+import { PhoneCall, RotateCcw, X, Calendar, Share, Share2, Clock, ChevronDown } from "lucide-react";
 import Confetti from './Confetti';
 import { isValidPhone } from '../utils/helpers';
 import Speedometer from './Speedometer';
 import { submitToLMS, updateLeadNew } from '../utils/api';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
+import * as Dialog from '@radix-ui/react-dialog';
+
+const gameThumbnail = './assets/images/life_thumbnail.png';
+
+const TermsModal = () => (
+    <Dialog.Root>
+        <Dialog.Trigger asChild>
+            <span className="text-[#0066B2] underline cursor-pointer hover:text-[#004C85]" onClick={(e) => e.stopPropagation()}>T&C and Privacy Policy</span>
+        </Dialog.Trigger>
+        <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 z-[200] bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" />
+            <Dialog.Content aria-describedby={undefined} className="fixed left-1/2 top-1/2 z-[201] w-[90vw] max-w-[500px] -translate-x-1/2 -translate-y-1/2 bg-white p-6 shadow-2xl border-[6px] border-[#0066B2] animate-in zoom-in-95 fade-in duration-300">
+                <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
+                    <Dialog.Title className="text-[#0066B2] text-xl font-black uppercase tracking-tight">
+                        Terms & Conditions
+                    </Dialog.Title>
+                    <Dialog.Close asChild>
+                        <button className="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                            <X className="w-6 h-6" />
+                        </button>
+                    </Dialog.Close>
+                </div>
+                <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
+                    <p>
+                        I hereby authorize Bajaj Life Insurance Limited. to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business
+                    </p>
+                    <p>
+                        Please refer to Bajaj Life <a href="https://www.bajajlifeinsurance.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#0066B2] underline">Privacy Policy</a>.
+                    </p>
+                </div>
+                <div className="mt-6">
+                    <Dialog.Close asChild>
+                        <button className="btn-primary-3d w-full !py-3 uppercase tracking-widest text-sm">
+                            I Agree
+                        </button>
+                    </Dialog.Close>
+                </div>
+            </Dialog.Content>
+        </Dialog.Portal>
+    </Dialog.Root>
+);
 
 const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart }) => {
     const today = new Date().toISOString().split("T")[0];
@@ -15,6 +58,49 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
 
     const [formData, setFormData] = useState({ name: userName || '', mobile: userPhone || '', date: '', time: '', consent: true });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const dropdownScrollRef = useRef(null);
+    const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+
+    const checkScroll = () => {
+        if (dropdownScrollRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = dropdownScrollRef.current;
+            setShowScrollIndicator(scrollHeight > clientHeight + scrollTop + 10);
+        }
+    };
+
+    const scrollToBottom = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (dropdownScrollRef.current) {
+            dropdownScrollRef.current.scrollTo({
+                top: dropdownScrollRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (isTimeDropdownOpen) {
+            setTimeout(checkScroll, 100);
+        }
+    }, [isTimeDropdownOpen]);
+
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsTimeDropdownOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
     const [errors, setErrors] = useState({});
     const [showBooking, setShowBooking] = useState(false);
 
@@ -30,9 +116,14 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
         } else if (!/^[A-Za-z\s]+$/.test(formData.name.trim())) {
             errs.name = "Invalid name (letters only)";
         }
-        if (!isValidPhone(formData.mobile)) errs.mobile = "Invalid Mobile Number";
+        if (!formData.mobile.trim()) {
+            errs.mobile = "Mobile Number is required";
+        } else if (!isValidPhone(formData.mobile)) {
+            errs.mobile = "Enter a valid Mobile Number";
+        }
         if (!formData.date) errs.date = "Preferred Date is required";
         if (!formData.time) errs.time = "Preferred Time is required";
+        if (!formData.consent) errs.consent = "Please agree to Terms and Conditions";
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -71,20 +162,38 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
     };
 
     const handleShare = async () => {
-        // compute app base URL dynamically so share link works under any deployment subpath
-        const appBaseUrl = (typeof window !== 'undefined')
+        // Build share URL with re-encrypted token (referral=Y)
+        const rawUrl = buildShareUrl() || (typeof window !== 'undefined'
             ? new URL(import.meta.env.BASE_URL || './', window.location.href).href
-            : '/';
+            : '/');
+
+        const shareUrl = await shortenUrl(rawUrl);
+        const senderName = (typeof userName !== 'undefined' ? userName : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
 
         const shareData = {
-            title: 'Bajaj Life Goals Quiz',
-            text: 'Check your Life Goals readiness! Take the Bajaj Life Goals Quiz and discover how prepared you are for your future.',
-            url: appBaseUrl
+            title: 'Life Goals Preparedness',
+            text: `Hi,\nI just tried this Life Goals Preparedness Quiz and scored ${Math.round(score)}/100. It was quite interesting!\nSee how prepared you are for your life goals — try it here: ${shareUrl}${signature}`.trim(),
+            url: shareUrl
         };
 
         if (navigator.share) {
             try {
-                await navigator.share(shareData);
+                const sharePayload = {
+                    title: shareData.title,
+                    text: shareData.text
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 console.log('Error sharing:', err);
             }
@@ -104,12 +213,6 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
             <Confetti />
 
             {/* Top Right Share Icon */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 z-50 text-white/90 hover:text-white transition-opacity p-2"
-            >
-                <Share2 className="w-6 h-6 sm:w-7 sm:h-7 drop-shadow-md" strokeWidth={2.5} />
-            </button>
 
             {/* Background Pattern */}
             <div className="bg-burst"></div>
@@ -118,13 +221,13 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
             <div className="results-container ghibli-content justify-between sm:justify-center py-4 sm:py-8 min-h-0">
 
                 {/* Header Section - Heading above speedometer */}
-                <div className="results-header text-center mb-3 sm:mb-4 shrink-0">
+                <div className="results-header text-center mb-3 sm:mb-4 shrink-0 mt-4 sm:mt-8">
                     {/* Heading Text - Above Speedometer - Two lines */}
-                    <h1 className="results-title text-base sm:text-lg md:text-xl font-medium text-white uppercase tracking-wide italic mb-2">
+                    <h1 className="results-title text-base sm:text-lg md:text-xl font-medium text-white tracking-wide italic mb-2">
                         Hi <span className="ml-1 text-2xl sm:text-3xl md:text-4xl font-black">{userName || 'Bajaj'}!</span>
                     </h1>
-                    <h2 className="results-subtitle text-base sm:text-lg md:text-xl text-white uppercase tracking-wide italic mb-3 sm:mb-4">
-                        Your <span className="font-black text-lg sm:text-xl md:text-2xl text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.8)]">life goals</span> score is
+                    <h2 className="results-subtitle text-base sm:text-lg md:text-xl text-white tracking-wide italic mb-3 sm:mb-4">
+                        Your <span className="font-black text-lg sm:text-xl md:text-2xl text-[#FF8C00] drop-shadow-[0_0_10px_rgba(255,140,0,0.8)] first-letter:uppercase lowercase">Life Goals</span> Score Is
                     </h2>
 
                     {/* Speedometer */}
@@ -159,16 +262,18 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                     transition={{ delay: 0.3 }}
                     className="contact-box bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-3 shrink-0"
                 >
-                    <p className="text-slate-600 text-[10px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
-                        To Know more about insurance and savings products Connect with our Relationship Manager
+                    <p className="text-slate-600 text-[15px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
+                        Want to achieve your life goals in real life?
                     </p>
 
                     {/* Call Action */}
-                    <a href="tel:1800209999" className="block w-full mb-4">
-                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest">
-                            <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
-                        </button>
-                    </a>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-4">
+                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest">
+                                <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
+                            </button>
+                        </a>
+                    )}
 
                     <div className="results-divider relative py-1 mb-3">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-50"></div></div>
@@ -180,25 +285,24 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                         onClick={() => setShowBooking(true)}
                         className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 sm:py-4 transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest"
                     >
-                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> BOOK A CONVENIENT SLOT
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> BOOK A SLOT
                     </button>
                 </motion.div>
 
-                {/* Disclaimer */}
-                <div className="w-full px-6 opacity-40 mt-4">
-                    <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
-                        <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
-                    </p>
-                </div>
-
-                {/* Restart Option */}
-                <div className="restart-container shrink-0 text-center pb-4">
+                <div className="restart-container shrink-0 text-center pb-4 mt-6">
                     <button
                         onClick={onRestart}
-                        className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 mx-auto drop-shadow-md py-4 px-8 bg-white/5 hover:bg-white/10 rounded-xl"
+                        className="text-blue-100 hover:text-white text-sm sm:text-lg font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 mx-auto drop-shadow-md pb-2"
                     >
-                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> Retake Quiz
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> PLAY AGAIN
                     </button>
+                </div>
+
+                {/* Disclaimer */}
+                <div className="w-full px-6 opacity-60 mt-4">
+                    <p className="text-[8px] sm:text-[9px] text-white leading-relaxed text-center max-w-[400px] mx-auto">
+                        <span className="font-bold mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                    </p>
                 </div>
             </div>
 
@@ -217,99 +321,192 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                             <X className="w-5 h-5" />
                         </button>
 
-                        <h2 className="text-[#0066B2] font-black text-center mb-6 text-sm sm:text-base uppercase tracking-tight pt-2">Book a convenient slot</h2>
+                        <h2 className="text-[#0066B2] font-black text-center mb-6 text-sm sm:text-base uppercase tracking-tight pt-2">Book a Slot</h2>
 
-                        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-                            <div className="space-y-1">
-                                <label htmlFor="booking-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your Name</label>
-                                <Input
-                                    id="booking-name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={e => {
-                                        const val = e.target.value.replace(/[^A-Za-z\s]/g, '');
-                                        updateField('name', val);
-                                        if (!val.trim()) {
-                                            setErrors(prev => ({ ...prev, name: "Name is required" }));
-                                        } else {
-                                            setErrors(prev => ({ ...prev, name: null }));
-                                        }
-                                    }}
-                                    className={`bg-slate-50 h-11 border-2 ${errors.name ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
-                                    placeholder="Full Name"
-                                    autoComplete="name"
-                                />
-                                {errors.name && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.name}</span>}
+                        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 pb-12 sm:pb-24">
+                            <div className="space-y-0.5">
+                                <label htmlFor="booking-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your name</label>
+                                <div className="relative">
+                                    <Input
+                                        id="booking-name"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                                            updateField('name', val);
+                                            if (!val.trim()) {
+                                                setErrors(prev => ({ ...prev, name: "Name is required" }));
+                                            } else {
+                                                setErrors(prev => ({ ...prev, name: null }));
+                                            }
+                                        }}
+                                        className={`bg-slate-50 h-11 border-2 ${errors.name ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
+                                        placeholder="Full Name"
+                                        autoComplete="name"
+                                    />
+                                </div>
+                                <div className="min-h-[18px]">
+                                    {errors.name && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.name}</span>}
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <label htmlFor="booking-mobile" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
-                                <Input
-                                    id="booking-mobile"
-                                    name="mobile"
-                                    value={formData.mobile}
-                                    onChange={e => {
-                                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                        updateField('mobile', val);
+                            <div className="space-y-0.5">
+                                <label htmlFor="booking-mobile" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile number</label>
+                                <div className="relative">
+                                    <Input
+                                        id="booking-mobile"
+                                        name="mobile"
+                                        value={formData.mobile}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                            updateField('mobile', val);
 
-                                        if (!val.trim()) {
-                                            setErrors(p => ({ ...p, mobile: "Mobile is required" }));
-                                        } else if (val.length > 0 && !/^[6-9]/.test(val)) {
-                                            setErrors(p => ({ ...p, mobile: "Must start with 6-9" }));
-                                        } else if (val.length > 0 && val.length < 10) {
-                                            setErrors(p => ({ ...p, mobile: "Enter 10 digits" }));
-                                        } else {
-                                            setErrors(p => ({ ...p, mobile: null }));
-                                        }
-                                    }}
-                                    type="tel"
-                                    className={`bg-slate-50 h-11 border-2 ${errors.mobile ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
-                                    placeholder="9876543210"
-                                    autoComplete="tel"
-                                />
-                                {errors.mobile && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.mobile}</span>}
+                                            if (!val.trim()) {
+                                                setErrors(p => ({ ...p, mobile: "Mobile Number is required" }));
+                                            } else if (val.length > 0 && !/^[6-9]/.test(val)) {
+                                                setErrors(p => ({ ...p, mobile: "Enter a valid Mobile Number" }));
+                                            } else if (val.length > 0 && val.length < 10) {
+                                                setErrors(p => ({ ...p, mobile: "Enter a valid Mobile Number" }));
+                                            } else {
+                                                setErrors(p => ({ ...p, mobile: null }));
+                                            }
+                                        }}
+                                        type="tel"
+                                        className={`bg-slate-50 h-11 border-2 ${errors.mobile ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-sm font-bold px-4`}
+                                        placeholder="9876543210"
+                                        autoComplete="tel"
+                                    />
+                                </div>
+                                <div className="min-h-[18px]">
+                                    {errors.mobile && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.mobile}</span>}
+                                </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                    <label htmlFor="booking-date" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
+                            <div className="space-y-0.5">
+                                <label htmlFor="booking-date" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Booking date</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500 pointer-events-none z-10" strokeWidth={2.5} />
                                     <Input
                                         id="booking-date"
                                         name="date"
                                         type="date"
                                         min={today}
                                         max={maxDate}
-                                        value={formData.date} onChange={e => updateField('date', e.target.value)}
-                                        className={`bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus-visible:ring-blue-100 text-xs font-bold px-4`}
+                                        value={formData.date}
+                                        onChange={e => updateField('date', e.target.value)}
+                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-12 pr-12 uppercase text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
                                     />
-                                    {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
-                                </div>
-                                <div className="space-y-1">
-                                    <label htmlFor="booking-time" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Time</label>
-                                    <select
-                                        id="booking-time"
-                                        name="time"
-                                        value={formData.time}
-                                        onChange={e => updateField('time', e.target.value)}
-                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus-visible:ring-blue-100 text-xs font-bold px-4 appearance-none"
+                                    <div
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-1"
+                                        onClick={() => {
+                                            const input = document.getElementById('booking-date');
+                                            if (input && input.showPicker) {
+                                                input.showPicker();
+                                            } else if (input) {
+                                                input.click();
+                                            }
+                                        }}
                                     >
-                                        <option value="">Select Slot</option>
-                                        {[...Array(12)].map((_, i) => {
-                                            const start = 9 + i;
-                                            const end = start + 1;
-                                            const formatTime = (h) => {
-                                                const amp = h >= 12 ? 'PM' : 'AM';
-                                                const hour = h > 12 ? h - 12 : h;
-                                                return `${hour}:00 ${amp}`;
-                                            };
-                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
-                                            return <option key={start} value={label}>{label}</option>;
-                                        })}
-                                    </select>
-                                    {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
+                                        <Calendar className="w-5 h-5 text-slate-800" strokeWidth={2.5} />
+                                    </div>
+                                </div>
+                                <div className="min-h-[18px]">
+                                    {errors.date && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{errors.date}</p>}
+                                </div>
+                            </div>
+                            <div className="space-y-0.5">
+                                <label htmlFor="booking-time" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred time slot</label>
+                                <div className="relative" ref={dropdownRef}>
+                                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none z-10" />
+                                    <div
+                                        onClick={() => setIsTimeDropdownOpen(!isTimeDropdownOpen)}
+                                        className={`w-full bg-slate-50 h-11 border-2 ${errors.time ? 'border-red-400' : 'border-slate-100'} text-slate-800 text-sm font-bold pl-11 pr-10 rounded-md cursor-pointer flex items-center justify-between ${isTimeDropdownOpen ? 'border-blue-500 ring-4 ring-blue-100' : ''}`}
+                                    >
+                                        <span className={formData.time ? 'text-slate-800' : 'text-slate-400'}>
+                                            {formData.time || "Choose a slot"}
+                                        </span>
+                                    </div>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none z-10" />
+
+                                    <AnimatePresence>
+                                        {isTimeDropdownOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.15 }}
+                                                className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-slate-100 rounded-md shadow-xl z-50 overflow-hidden"
+                                            >
+                                                <div
+                                                    ref={dropdownScrollRef}
+                                                    onScroll={checkScroll}
+                                                    className="py-1 max-h-[220px] overflow-y-auto scrollbar-hide relative"
+                                                >
+                                                    {(() => {
+                                                        const slots = [...Array(12)].map((_, i) => {
+                                                            const start = 9 + i;
+                                                            const end = start + 1;
+                                                            const formatTime = (h) => {
+                                                                const amp = h >= 12 ? 'PM' : 'AM';
+                                                                const hour = h > 12 ? h - 12 : h;
+                                                                return `${hour}:00 ${amp}`;
+                                                            };
+                                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                            // Filter logic: if today, only show slots that haven't passed
+                                                            const now = new Date();
+                                                            const isToday = formData.date === today;
+                                                            const currentHour = now.getHours();
+
+                                                            if (isToday && start <= currentHour) return null;
+
+                                                            return (
+                                                                <div
+                                                                    key={start}
+                                                                    onClick={() => {
+                                                                        updateField('time', label);
+                                                                        setIsTimeDropdownOpen(false);
+                                                                    }}
+                                                                    className={`px-4 py-2 text-sm font-bold cursor-pointer hover:bg-slate-100 transition-colors ${formData.time === label ? 'bg-blue-50 text-blue-600' : 'text-slate-800'}`}
+                                                                >
+                                                                    {label}
+                                                                </div>
+                                                            );
+                                                        }).filter(Boolean);
+
+                                                        return slots.length > 0 ? slots : <div className="px-4 py-2 text-sm text-slate-400 font-bold italic">No slots available for today</div>;
+                                                    })()}
+                                                </div>
+
+                                                {/* Floating Scroll Indicator Arrow */}
+                                                <AnimatePresence>
+                                                    {showScrollIndicator && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: -5 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: 5 }}
+                                                            className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[60] cursor-pointer"
+                                                            onClick={scrollToBottom}
+                                                        >
+                                                            <motion.div
+                                                                animate={{ y: [0, 8, 0] }}
+                                                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                                                className="flex items-center justify-center p-1"
+                                                            >
+                                                                <ChevronDown className="w-6 h-6 text-black" strokeWidth={3} />
+                                                            </motion.div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                                <div className="min-h-[18px]">
+                                    {errors.time && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-2">{errors.time}</p>}
                                 </div>
                             </div>
 
                             {/* Consent Checkbox - pre-checked */}
-                            <label htmlFor="booking-consent" className="flex items-start gap-2 cursor-pointer mt-1">
+                            <div className="flex justify-center items-center gap-2 mt-1 text-center">
                                 <input
                                     id="booking-consent"
                                     name="consent"
@@ -319,16 +516,21 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     className="mt-0.5 w-4 h-4 accent-[#0066B2] cursor-pointer shrink-0"
                                 />
                                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">
-                                    I agree to the <span className="text-[#0066B2] underline cursor-pointer">Terms & Conditions</span> and allow Bajaj Life Insurance to contact me even if registered on DND.
+                                    I agree and consent to the <TermsModal />
                                 </span>
-                            </label>
+                            </div>
+                            {errors.consent && (
+                                <p className="text-red-500 text-[10px] font-black uppercase tracking-wider text-center pt-1">
+                                    {errors.consent}
+                                </p>
+                            )}
 
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
                                 className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 transition-all uppercase tracking-widest text-sm mt-2"
                             >
-                                {isSubmitting ? 'Confirming...' : 'Book a Slot'}
+                                {isSubmitting ? 'CONFIRMING...' : 'BOOK A SLOT'}
                             </button>
                         </form>
                     </motion.div>

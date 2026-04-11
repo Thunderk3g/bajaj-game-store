@@ -1,9 +1,13 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, CheckCircle, Share2, RefreshCw, Calendar, X, Check } from 'lucide-react';
+import { Phone, CheckCircle, Share2, RefreshCw, Calendar, X, Check, ChevronDown } from 'lucide-react';
 import Confetti from './Confetti';
+import TermsModal from './TermsModal';
+import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import Speedometer from './Speedometer';
 import { submitToLMS, updateLeadNew } from '../../../utils/api';
+import gameThumbnail from '../../../assets/image/Life-Milestone-Race.png';
 
 const ResultScreen = ({
     score,
@@ -56,6 +60,7 @@ const ResultScreen = ({
 
         if (!formData.date) errs.date = "Required";
         if (!formData.time) errs.time = "Required";
+        if (!termsAccepted) errs.terms = "Please agree to Terms and Conditions";
 
         setErrors(errs);
         return Object.keys(errs).length === 0;
@@ -106,16 +111,33 @@ const ResultScreen = ({
     };
 
     const handleShare = async () => {
-        const appBaseUrl = window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
+        const senderName = (typeof formData !== 'undefined' ? formData?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
         const shareData = {
-            title: 'Life Milestone Race Score',
-            text: `I scored ${displayScore}/100 in the Life Milestone Race! Check how prepared you are.`,
-            url: appBaseUrl
+            title: 'Life Milestone Race',
+            text: `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}${signature}`.trim(),
+            url: shareUrl
         };
 
         if (navigator.share) {
             try {
-                await navigator.share(shareData);
+                const sharePayload = {
+                    title: shareData.title,
+                    text: shareData.text
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (err) {
                 console.log('Error:', err);
             }
@@ -143,13 +165,7 @@ const ResultScreen = ({
         }}>
             <Confetti />
 
-            {/* Top Right Share Icon */}
-            <button
-                onClick={handleShare}
-                className="absolute top-4 right-4 z-50 text-white/90 hover:text-white transition-opacity p-2"
-            >
-                <Share2 className="w-6 h-6 sm:w-7 sm:h-7 drop-shadow-md" strokeWidth={2.5} />
-            </button>
+
 
             {/* Background Pattern */}
             <div className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center opacity-60 mix-blend-overlay"
@@ -178,7 +194,7 @@ const ResultScreen = ({
 
                     {/* View Exposed Areas Button */}
                     {timeline && timeline.filter(e => e.decision === 'exposed').length > 0 && (
-                        <div className="flex justify-center mt-0 mb-2 relative z-20">
+                        <div className="flex justify-center mt-0 mb-4 relative z-20">
                             <button
                                 onClick={() => setShowExposedModal(true)}
                                 className="bg-red-500/20 hover:bg-red-500/30 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 px-6 py-2.5 rounded-full backdrop-blur-sm border border-red-500/30 transition-all shadow-[0_4px_0_rgba(239,68,68,0.3)] active:translate-y-1 active:shadow-none"
@@ -193,7 +209,7 @@ const ResultScreen = ({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="flex justify-center mt-1 mb-2"
+                        className="flex justify-center mt-2 mb-2"
                     >
                         <button
                             onClick={handleShare}
@@ -209,18 +225,20 @@ const ResultScreen = ({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="bg-white p-3 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-2 shrink-0 rounded-sm"
+                    className="bg-white p-3 sm:p-5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-0 shrink-0 rounded-sm"
                 >
-                    <p className="text-slate-600 text-[11px] sm:text-sm font-bold text-center mb-2 leading-relaxed">
-                        To secure your milestones from real life risk, Connect with our relationship manager
+                    <p className="text-slate-600 text-[14px] sm:text-sm font-bold text-center mb-2 leading-relaxed">
+                        To secure your milestones from real life risk. Connect with our relationship manager
                     </p>
 
                     {/* Call Action */}
-                    <a href="tel:1800209999" className="block w-full mb-2">
-                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2.5 sm:py-3 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/20">
-                            <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
-                        </button>
-                    </a>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-2">
+                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2.5 sm:py-3 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/20">
+                                <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
+                            </button>
+                        </a>
+                    )}
 
                     <div className="relative py-1 mb-2">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
@@ -236,21 +254,21 @@ const ResultScreen = ({
                     </button>
                 </motion.div>
 
+                {/* Restart Option (Moved Above Disclaimer) */}
+                <div className="shrink-0 text-center mt-0 mb-0">
+                    <button
+                        onClick={onRestart}
+                        className="text-white text-base sm:text-xl font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 mx-auto drop-shadow-md hover:scale-105 active:scale-95"
+                    >
+                        <RefreshCw className="w-5 h-5" /> PLAY AGAIN
+                    </button>
+                </div>
+
                 {/* Disclaimer */}
-                <div className="w-full px-6 opacity-40 mt-4">
+                <div className="w-full px-6 opacity-40 mt-0 mb-4">
                     <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
                         <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
                     </p>
-                </div>
-
-                {/* Restart Option */}
-                <div className="shrink-0 text-center pb-4">
-                    <button
-                        onClick={onRestart}
-                        className="text-blue-100 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md"
-                    >
-                        <RefreshCw className="w-4 h-4" /> RETAKE QUIZ
-                    </button>
                 </div>
 
             </div>
@@ -305,54 +323,69 @@ const ResultScreen = ({
                                         min={today}
                                         max={endOfYear}
                                         value={formData.date} onChange={e => updateField('date', e.target.value)}
-                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4"
+                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4"
                                     />
                                     {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Time</label>
-                                    <select
-                                        value={formData.time}
-                                        onChange={e => updateField('time', e.target.value)}
-                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4 appearance-none"
-                                    >
-                                        <option value="">Select</option>
-                                        {[...Array(12)].map((_, i) => {
-                                            const start = 9 + i;
-                                            const end = start + 1;
-                                            const formatTime = (h) => {
-                                                const amp = h >= 12 ? 'PM' : 'AM';
-                                                const hour = h > 12 ? h - 12 : h;
-                                                return `${hour}:00 ${amp}`;
-                                            };
-                                            const label = `${formatTime(start)} - ${formatTime(end)}`;
-                                            return <option key={start} value={label}>{label}</option>;
-                                        })}
-                                    </select>
+                                    <div className="relative">
+                                        <select
+                                            value={formData.time}
+                                            onChange={e => updateField('time', e.target.value)}
+                                            className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4 appearance-none"
+                                        >
+                                            <option value="">Select</option>
+                                            {[...Array(12)].map((_, i) => {
+                                                const start = 9 + i;
+                                                const end = start + 1;
+
+                                                // Filter logic: if today, check if slot start time has passed
+                                                const isToday = formData.date === today;
+                                                if (isToday && start <= new Date().getHours()) return null;
+
+                                                const formatTime = (h) => {
+                                                    const amp = h >= 12 ? 'PM' : 'AM';
+                                                    const hour = h > 12 ? h - 12 : h;
+                                                    return `${hour}:00 ${amp}`;
+                                                };
+                                                const label = `${formatTime(start)} - ${formatTime(end)}`;
+                                                return <option key={start} value={label}>{label}</option>;
+                                            }).filter(Boolean)}
+                                            {formData.date === today && [...Array(12)].filter((_, i) => (9 + i) > new Date().getHours()).length === 0 && (
+                                                <option disabled>No slots available for today</option>
+                                            )}
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                    </div>
                                     {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                 </div>
                             </div>
 
-                            {/* Terms Checkbox — pre-checked by default */}
+                            {/* Terms Checkbox — standardized label */}
                             <div className="flex items-start space-x-2 pt-1 text-left">
                                 <div className="relative flex items-center shrink-0">
                                     <input
                                         id="modal-terms"
                                         type="checkbox"
                                         checked={termsAccepted}
-                                        onChange={(e) => setTermsAccepted(e.target.checked)}
-                                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2]"
+                                        onChange={(e) => {
+                                            setTermsAccepted(e.target.checked);
+                                            if (errors.terms && e.target.checked) setErrors(prev => ({ ...prev, terms: null }));
+                                        }}
+                                        className={`peer h-4 w-4 cursor-pointer appearance-none rounded border-2 bg-slate-50 transition-all checked:border-[#0066B2] checked:bg-[#0066B2] hover:border-[#0066B2] ${errors.terms ? 'border-red-500' : 'border-slate-300'}`}
                                     />
                                     <Check className="pointer-events-none absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
                                 </div>
-                                <label htmlFor="modal-terms" className="text-[9px] sm:text-[10px] font-semibold text-slate-500 leading-tight select-none">
-                                    I agree to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] font-bold hover:underline inline">Terms & Conditions</button> and Acknowledge the Privacy Policy.
-                                </label>
+                                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 leading-tight select-none">
+                                    I agree and consent to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#0066B2] font-bold hover:underline inline">T&C and Privacy Policy</button>
+                                </div>
                             </div>
+                            {errors.terms && <p className="text-red-500 text-[10px] ml-1 font-black uppercase tracking-wider">{errors.terms}</p>}
 
                             <button
                                 type="submit"
-                                disabled={isSubmitting || !termsAccepted}
+                                disabled={isSubmitting}
                                 className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest text-sm mt-2 border-2 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Confirming...' : 'Book a Slot'}
@@ -403,7 +436,7 @@ const ResultScreen = ({
                     </motion.div>
                 )}
             </AnimatePresence>
-
+            <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
         </div>
     );
 };

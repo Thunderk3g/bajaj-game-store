@@ -25,7 +25,7 @@ export const INCOME_PILLARS = [
         id: 'savings',
         label: 'Savings',
         shortLabel: 'SAV',
-        emoji: '💰',
+        emoji: '₹',
         color: 'bg-pillar-savings',
         textColor: 'text-sudoku-bg',
         borderColor: 'border-pillar-savings',

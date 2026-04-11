@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Calendar, X, Check, Loader2, Share2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
@@ -9,6 +9,9 @@ import {
 import ScoreRing from '../components/ScoreRing.jsx';
 import InsuranceCards from '../components/InsuranceCards.jsx';
 import { submitToLMS, updateLeadNew } from '../../../utils/api.js';
+import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
+import gameThumbnail from '../../../assets/Life Leap Start Page.png';
 
 function getZone(pct) {
     return ZONES.find((z) => pct < z.maxPct) || ZONES[ZONES.length - 1];
@@ -35,6 +38,74 @@ export default function GameOverPage() {
         setUserName(initName || 'Friend');
         setUserPhone(initPhone);
     }, [state.phase, navigate, PHASES, initName, initPhone]);
+
+    // -- Lead Capture State (gate before result) --
+    const [showLeadForm, setShowLeadForm] = useState(() => !sessionStorage.getItem('lifeFlightLeadNo'));
+    const [leadName, setLeadName] = useState('');
+    const [leadPhone, setLeadPhone] = useState('');
+    const [leadTerms, setLeadTerms] = useState(true);
+    const [leadErrors, setLeadErrors] = useState({});
+    const [leadSubmitting, setLeadSubmitting] = useState(false);
+    const [leadShowTerms, setLeadShowTerms] = useState(false);
+    const phoneRef = useRef(null);
+
+    const validateLeadField = (field, value) => {
+        let msg = '';
+        if (field === 'name') {
+            if (!value.trim()) msg = 'Please enter your name';
+            else if (!/^[A-Za-z\s]+$/.test(value.trim())) msg = 'Letters only';
+        } else if (field === 'phone') {
+            if (!value) msg = 'Mobile number is required';
+            else if (!/^\d{10}$/.test(value)) msg = 'Enter a valid 10-digit number';
+        } else if (field === 'terms') {
+            if (!value) msg = 'Please agree to Terms and Conditions';
+        }
+        setLeadErrors(prev => ({ ...prev, [field]: msg }));
+        return !msg;
+    };
+
+    const handleLeadSubmit = async (e) => {
+        e.preventDefault();
+        const validName = validateLeadField('name', leadName);
+        const validPhone = validateLeadField('phone', leadPhone);
+        const validTerms = validateLeadField('terms', leadTerms);
+        if (!validName || !validPhone || !validTerms) return;
+
+        const lastPhone = sessionStorage.getItem('lastSubmittedPhone');
+        if (lastPhone === leadPhone) {
+            sessionStorage.setItem('lastSubmittedName', leadName.trim());
+            setUserName(leadName.trim().split(' ')[0]);
+            setShowLeadForm(false);
+            return;
+        }
+
+        setLeadSubmitting(true);
+        try {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const result = await submitToLMS({
+                name: leadName.trim(),
+                mobile_no: leadPhone,
+                param4: tomorrow.toISOString().split('T')[0],
+                param19: '09:00 AM',
+                score: score || null,
+                summary_dtls: 'Life Flight Lead',
+                p_data_source: 'LIFE_FLIGHT_LEAD',
+            });
+            sessionStorage.setItem('lastSubmittedName', leadName.trim());
+            sessionStorage.setItem('lastSubmittedPhone', leadPhone);
+            setUserName(leadName.trim().split(' ')[0]);
+            setFormData(p => ({ ...p, name: leadName.trim(), mobile: leadPhone }));
+            if (result?.data?.leadNo || result?.data?.LeadNo) {
+                sessionStorage.setItem('lifeFlightLeadNo', result.data.leadNo || result.data.LeadNo);
+            }
+            setShowLeadForm(false);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLeadSubmitting(false);
+        }
+    };
 
     // -- Booking Modal State --
     const [showBooking, setShowBooking] = useState(false);
@@ -74,6 +145,7 @@ export default function GameOverPage() {
             if (selected < todayCheck) errs.date = "Select today or future";
         }
         if (!formData.time) errs.time = "Required";
+        if (!termsAccepted) errs.terms = "Please agree to Terms and Conditions";
 
         setErrors(errs);
         return Object.keys(errs).length === 0;
@@ -129,13 +201,31 @@ export default function GameOverPage() {
 
     // -- Original Logic --
     const handleShare = async () => {
-        const msg = buildShareMessage(score);
+        const rawShareUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawShareUrl);
+        const senderName = sessionStorage.getItem('lastSubmittedName') || userName || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}${signature}`.trim();
         if (navigator.share) {
             try {
-                await navigator.share({ title: 'Life Flight', text: msg });
+                const sharePayload = {
+                    title: 'Life Flight',
+                    text: msg
+                };
+                try {
+                    const res = await fetch(gameThumbnail);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch { /* user cancelled */ }
         } else {
-            try { await navigator.clipboard.writeText(msg); setShared(true); } catch { /* ignore */ }
+            try { await navigator.clipboard.writeText(shareUrl ? `${msg} ${shareUrl}` : msg); setShared(true); } catch { /* ignore */ }
         }
     };
 
@@ -154,140 +244,245 @@ export default function GameOverPage() {
                 style={{ backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 70%)' }}>
             </div>
 
-            <div className="relative z-10 px-5 pt-8 pb-4">
-                {/* Header Section */}
-                <div className="text-center mb-6 shrink-0">
-                    <h1 className="text-base sm:text-lg md:text-xl font-medium text-white uppercase tracking-wide italic mb-1">
-                        Hi <span className="ml-1 text-2xl sm:text-3xl md:text-4xl font-black">{userName || 'Player'}!</span>
-                    </h1>
-                    <h2 className="text-base sm:text-lg md:text-xl text-white uppercase tracking-wide italic mb-2">
-                        You <span className="font-black text-lg sm:text-xl md:text-2xl text-[#00B4D8] drop-shadow-[0_0_10px_rgba(0,180,216,0.6)]">crossed</span> {score} Hurdles
-                    </h2>
-                </div>
-
-                {/* Score Ring */}
-                <div className="flex flex-col items-center mb-6">
-                    <ScoreRing score={score} pct={pct} zoneColor={zone.color} />
-                    <p className="text-white mt-5 text-[13px] sm:text-[15px] font-medium tracking-wide opacity-90 px-4 text-center max-w-sm leading-relaxed">
-                        In this game you can restart.<br />
-                        <span className="text-[18px] sm:text-[22px] font-black block mt-1 drop-shadow-md">In life, you can't!</span>
-                    </p>
-                </div>
-
-                {/* Insurance Dropdown Accordion */}
-                <div className="flex flex-col items-center mt-6 mb-8 w-full max-w-sm mx-auto">
-                    <button
-                        onClick={() => setShowInsurancePopup(!showInsurancePopup)}
-                        className="w-full py-4 px-6 rounded-full shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95 z-20"
-                        style={{ backgroundColor: '#07325F', border: '1px solid rgba(255,255,255,0.15)' }}
+            {/* ── LEAD CAPTURE GATE ── */}
+            {showLeadForm ? (
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-5 min-h-full">
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                        className="bg-white shadow-2xl w-full max-w-[340px] p-6 border-[5px] border-[#00B4D8] rounded-2xl"
                     >
-                        <span className="text-sm font-black tracking-wide text-white font-sans">WHAT COULD PROTECT YOU</span>
-                        {showInsurancePopup ? <ChevronUp className="w-5 h-5 text-white" /> : <ChevronDown className="w-5 h-5 text-white" />}
-                    </button>
+                        <div className="text-center mb-5">
+                            <h2 className="text-[#005BAC] text-xl font-black mb-1">Enter Your Details</h2>
+                            <p className="text-slate-500 font-bold text-sm">to reveal your score</p>
+                        </div>
 
-                    <AnimatePresence>
-                        {showInsurancePopup && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0, scaleY: 0.9, marginTop: 0 }}
-                                animate={{ height: 'auto', opacity: 1, scaleY: 1, marginTop: 8 }}
-                                exit={{ height: 0, opacity: 0, scaleY: 0.9, marginTop: 0, transition: { duration: 0.2 } }}
-                                className="w-full overflow-hidden rounded-xl border border-white/20 origin-top shadow-xl z-10"
+                        <form onSubmit={handleLeadSubmit} className="space-y-4">
+                            <div className="space-y-1 text-left">
+                                <label className="block text-slate-700 text-[10px] font-black uppercase tracking-widest ml-1" htmlFor="lf-name">Your Name</label>
+                                <input
+                                    id="lf-name" type="text" value={leadName} autoFocus
+                                    onChange={e => { setLeadName(e.target.value); setLeadErrors(p => ({ ...p, name: '' })); }}
+                                    onBlur={e => validateLeadField('name', e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); if (validateLeadField('name', leadName)) phoneRef.current?.focus(); } }}
+                                    placeholder="Full Name"
+                                    className={`w-full px-4 py-3 border-4 ${leadErrors.name ? 'border-red-400 bg-red-50' : 'border-slate-100 focus:border-[#00B4D8]'} focus:outline-none focus:ring-4 focus:ring-[#00B4D8]/10 text-slate-800 font-bold text-base transition-all rounded-lg`}
+                                />
+                                {leadErrors.name && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{leadErrors.name}</p>}
+                            </div>
+
+                            <div className="space-y-1 text-left">
+                                <label className="block text-slate-700 text-[10px] font-black uppercase tracking-widest ml-1" htmlFor="lf-phone">Mobile Number</label>
+                                <input
+                                    ref={phoneRef} id="lf-phone" type="tel" maxLength={10} value={leadPhone}
+                                    onChange={e => { const v = e.target.value.replace(/\D/g, '').slice(0, 10); setLeadPhone(v); setLeadErrors(p => ({ ...p, phone: '' })); }}
+                                    onBlur={e => validateLeadField('phone', e.target.value)}
+                                    placeholder="9876543210"
+                                    className={`w-full px-4 py-3 border-4 ${leadErrors.phone ? 'border-red-400 bg-red-50' : 'border-slate-100 focus:border-[#00B4D8]'} focus:outline-none focus:ring-4 focus:ring-[#00B4D8]/10 text-slate-800 font-bold text-base transition-all rounded-lg`}
+                                />
+                                {leadErrors.phone && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1">{leadErrors.phone}</p>}
+                            </div>
+
+                            <div className="flex items-start gap-3 py-1">
+                                <div
+                                    onClick={() => {
+                                        const newVal = !leadTerms;
+                                        setLeadTerms(newVal);
+                                        validateLeadField('terms', newVal);
+                                    }}
+                                    className={`mt-0.5 shrink-0 w-5 h-5 border-2 flex items-center justify-center cursor-pointer transition-all rounded-sm ${leadTerms ? 'bg-[#00B4D8] border-[#00B4D8]' : `bg-white ${leadErrors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'}`}`}
+                                >
+                                    {leadTerms && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
+                                </div>
+                                <p className="text-[11px] font-bold text-slate-600 leading-snug text-left">
+                                    I agree and consent to the{' '}
+                                    <button type="button" onClick={() => setLeadShowTerms(true)} className="text-[#00B4D8] underline hover:text-[#0077b6]">T&C and Privacy Policy</button>
+                                </p>
+                            </div>
+                            {leadErrors.terms && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-8 -mt-2">{leadErrors.terms}</p>}
+
+                            <button
+                                type="submit"
+                                disabled={!leadName.trim() || leadPhone.length !== 10 || !leadTerms || leadSubmitting}
+                                className="w-full py-3.5 rounded-xl text-base tracking-widest disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 text-white uppercase font-black transition-all duration-300 shadow-lg"
+                                style={{ background: 'linear-gradient(135deg, #005BAC 0%, #00B4D8 100%)' }}
                             >
-                                <table className="w-full text-left border-collapse text-[13px] leading-snug font-sans">
-                                    <thead>
-                                        <tr className="text-white" style={{ backgroundColor: '#48C053' }}>
-                                            <th className="p-3 px-4 font-bold border-r border-white/20">Product</th>
-                                            <th className="p-3 px-4 font-bold">Benefit Line</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="text-[#07325F]">
-                                        <tr className="bg-white border-b border-slate-200">
-                                            <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Term Insurance</td>
-                                            <td className="p-3 px-4 font-medium">Your family stays protected even if you are not around</td>
-                                        </tr>
-                                        <tr className="border-b border-slate-200" style={{ backgroundColor: '#F8FAFC' }}>
-                                            <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Critical Illness</td>
-                                            <td className="p-3 px-4 font-medium">Pays lump sum when treatment costs skyrocket</td>
-                                        </tr>
-                                        <tr className="bg-white border-b border-slate-200">
-                                            <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Accidental Disability Rider</td>
-                                            <td className="p-3 px-4 font-medium">Income continues even when you physically cannot work</td>
-                                        </tr>
-                                        <tr style={{ backgroundColor: '#F8FAFC' }}>
-                                            <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Savings Plans</td>
-                                            <td className="p-3 px-4 font-medium">Funds education, retirement and every milestone ahead</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                {leadSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Loading...</span></> : 'See Results!'}
+                            </button>
+                        </form>
+                    </motion.div>
+
+                    {/* Terms Overlay for Lead Form */}
+                    <AnimatePresence>
+                        {leadShowTerms && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md"
+                                onClick={() => setLeadShowTerms(false)}
+                            >
+                                <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                                    onClick={e => e.stopPropagation()}
+                                    className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border-4 border-[#005BAC] relative text-left"
+                                >
+                                    <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
+                                        <h3 className="text-[#005BAC] text-xl font-black uppercase tracking-tight">
+                                            Terms & Conditions
+                                        </h3>
+                                        <button onClick={() => setLeadShowTerms(false)} className="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                                            <X className="w-6 h-6" />
+                                        </button>
+                                    </div>
+                                    <div className="max-h-[50vh] overflow-y-auto pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
+                                        <p className="mb-4">I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                                        <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#005BAC] underline">BALIC Privacy Policy</a>.</p>
+                                    </div>
+                                    <button onClick={() => { setLeadShowTerms(false); setLeadTerms(true); }}
+                                        className="w-full mt-6 py-3.5 bg-[#005BAC] text-white font-black rounded-xl hover:bg-[#004C85] transition-colors text-base uppercase tracking-widest shadow-lg"
+                                    >I Agree</button>
+                                </motion.div>
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
+            ) : (
 
-                {/* Share Button (Below Insurance Cards) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="flex justify-center mt-6 mb-6"
-                >
-                    <button
-                        onClick={handleShare}
-                        className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-2.5 px-8 shadow-[0_4px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-3 text-sm sm:text-base border-2 border-white/20 uppercase tracking-widest rounded-md"
-                    >
-                        <Share2 className="w-5 h-5" /> {shared ? 'COPIED!' : 'SHARE'}
-                    </button>
-                </motion.div>
-
-                {/* Form / CTA Area (White Card) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-6 shrink-0 rounded-sm"
-                >
-                    <p className="text-slate-600 text-[17px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
-                        Let us prepare your life flight before the next hurdle appears.
-                    </p>
-
-                    {/* Call Action */}
-                    <a href="tel:18002097272" className="block w-full mb-4">
-                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20 rounded-md">
-                            <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
-                        </button>
-                    </a>
-
-                    <div className="relative py-1 mb-3">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-50"></div></div>
-                        <div className="relative flex justify-center text-[15px] sm:text-xs uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
+                <div className="relative z-10 px-5 pt-8 pb-4">
+                    {/* Header Section */}
+                    <div className="text-center mb-6 shrink-0">
+                        <h1 className="text-base sm:text-lg md:text-xl font-medium text-white uppercase tracking-wide italic mb-1">
+                            Hi <span className="ml-1 text-2xl sm:text-3xl md:text-4xl font-black">{userName || 'Player'}!</span>
+                        </h1>
+                        <h2 className="text-base sm:text-lg md:text-xl text-white uppercase tracking-wide italic mb-2">
+                            You <span className="font-black text-lg sm:text-xl md:text-2xl text-[#00B4D8] drop-shadow-[0_0_10px_rgba(0,180,216,0.6)]">crossed</span> {score} Hurdles
+                        </h2>
                     </div>
 
-                    {/* Booking Trigger Button */}
-                    <button
-                        onClick={() => setShowBooking(true)}
-                        className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20 rounded-md"
-                    >
-                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> BOOK A SLOT
-                    </button>
-                </motion.div>
+                    {/* Score Ring */}
+                    <div className="flex flex-col items-center mb-6">
+                        <ScoreRing score={score} pct={pct} zoneColor={zone.color} />
+                        <p className="text-white mt-5 text-[13px] sm:text-[15px] font-medium tracking-wide opacity-90 px-4 text-center max-w-sm leading-relaxed">
+                            In this game you can restart.<br />
+                            <span className="text-[18px] sm:text-[22px] font-black block mt-1 drop-shadow-md">In life, you can't!</span>
+                        </p>
+                    </div>
 
-                {/* Disclaimer */}
-                <div className="w-full px-6 opacity-40 mt-12 mb-2">
-                    <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
-                        <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
-                    </p>
-                </div>
+                    {/* Insurance Dropdown Accordion */}
+                    <div className="flex flex-col items-center mt-6 mb-8 w-full max-w-sm mx-auto">
+                        <button
+                            onClick={() => setShowInsurancePopup(!showInsurancePopup)}
+                            className="w-full py-4 px-6 rounded-full shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95 z-20"
+                            style={{ backgroundColor: '#07325F', border: '1px solid rgba(255,255,255,0.15)' }}
+                        >
+                            <span className="text-sm font-black tracking-wide text-white font-sans">WHAT COULD PROTECT YOU</span>
+                            {showInsurancePopup ? <ChevronUp className="w-5 h-5 text-white" /> : <ChevronDown className="w-5 h-5 text-white" />}
+                        </button>
 
-                {/* Restart Option */}
-                <div className="shrink-0 text-center pb-2">
-                    <button
-                        onClick={handlePlayAgain}
-                        className="text-blue-100 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md"
+                        <AnimatePresence>
+                            {showInsurancePopup && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0, scaleY: 0.9, marginTop: 0 }}
+                                    animate={{ height: 'auto', opacity: 1, scaleY: 1, marginTop: 8 }}
+                                    exit={{ height: 0, opacity: 0, scaleY: 0.9, marginTop: 0, transition: { duration: 0.2 } }}
+                                    className="w-full overflow-hidden rounded-xl border border-white/20 origin-top shadow-xl z-10"
+                                >
+                                    <table className="w-full text-left border-collapse text-[13px] leading-snug font-sans">
+                                        <thead>
+                                            <tr className="text-white" style={{ backgroundColor: '#48C053' }}>
+                                                <th className="p-3 px-4 font-bold border-r border-white/20">Product</th>
+                                                <th className="p-3 px-4 font-bold">Benefit Line</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-[#07325F]">
+                                            <tr className="bg-white border-b border-slate-200">
+                                                <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Term Insurance</td>
+                                                <td className="p-3 px-4 font-medium">Your family stays protected even if you are not around</td>
+                                            </tr>
+                                            <tr className="border-b border-slate-200" style={{ backgroundColor: '#F8FAFC' }}>
+                                                <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Critical Illness</td>
+                                                <td className="p-3 px-4 font-medium">Pays lump sum when treatment costs skyrocket</td>
+                                            </tr>
+                                            <tr className="bg-white border-b border-slate-200">
+                                                <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Accidental Disability Rider</td>
+                                                <td className="p-3 px-4 font-medium">Income continues even when you physically cannot work</td>
+                                            </tr>
+                                            <tr style={{ backgroundColor: '#F8FAFC' }}>
+                                                <td className="p-3 px-4 font-bold border-r border-slate-200 whitespace-nowrap">Savings Plans</td>
+                                                <td className="p-3 px-4 font-medium">Funds education, retirement and every milestone ahead</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Share Button (Below Insurance Cards) */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="flex justify-center mt-6 mb-6"
                     >
-                        <RefreshCw className="w-4 h-4" /> TRY AGAIN
-                    </button>
+                        <button
+                            onClick={handleShare}
+                            className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-2.5 px-8 shadow-[0_4px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-3 text-sm sm:text-base border-2 border-white/20 uppercase tracking-widest rounded-md"
+                        >
+                            <Share2 className="w-5 h-5" /> {shared ? 'COPIED!' : 'SHARE'}
+                        </button>
+                    </motion.div>
+
+                    {/* Form / CTA Area (White Card) */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-white p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-6 shrink-0 rounded-sm"
+                    >
+                        <p className="text-slate-600 text-[17px] sm:text-sm font-bold text-center mb-4 leading-relaxed">
+                            Let us prepare your life flight before the next hurdle appears.
+                        </p>
+
+                        {/* Call Action */}
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-4">
+                                <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20 rounded-md">
+                                    <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
+                                </button>
+                            </a>
+                        )}
+
+                        <div className="relative py-1 mb-3">
+                            <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-50"></div></div>
+                            <div className="relative flex justify-center text-[15px] sm:text-xs uppercase"><span className="px-4 bg-white text-slate-400 font-black tracking-widest">Or</span></div>
+                        </div>
+
+                        {/* Booking Trigger Button */}
+                        <button
+                            onClick={() => setShowBooking(true)}
+                            className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20 rounded-md"
+                        >
+                            <Calendar className="w-4 h-4 sm:w-5 sm:h-5" /> BOOK A SLOT
+                        </button>
+                    </motion.div>
+
+                    {/* Restart Option — ABOVE disclaimer */}
+                    <div className="shrink-0 text-center pb-2">
+                        <button
+                            onClick={handlePlayAgain}
+                            className="text-blue-100 hover:text-white text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto drop-shadow-md"
+                        >
+                            <RefreshCw className="w-4 h-4" /> PLAY AGAIN
+                        </button>
+                    </div>
+
+                    {/* Disclaimer */}
+                    <div className="w-full px-6 opacity-40 mt-4 mb-2">
+                        <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
+                            <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                        </p>
+                    </div>
                 </div>
-            </div>
+            )} {/* end lead gate else */}
 
             {/* --- Booking Modal Helper --- */}
             <AnimatePresence>
@@ -342,7 +537,7 @@ export default function GameOverPage() {
                                             max={endLimit}
                                             value={formData.date} onChange={e => updateField('date', e.target.value)}
                                             style={{ colorScheme: 'light' }}
-                                            className="w-full bg-slate-50 h-11 border-2 border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#00B4D8] text-sm font-bold px-4 transition-all"
+                                            className={`w-full bg-slate-50 h-11 border-2 rounded-xl text-slate-800 focus:outline-none transition-all px-4 font-bold text-sm ${errors.date ? 'border-red-500' : 'border-slate-200 focus:border-[#00B4D8]'}`}
                                         />
                                         {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                     </div>
@@ -359,12 +554,21 @@ export default function GameOverPage() {
                                                 const end = start + 1;
                                                 const formatTime = (h) => {
                                                     const amp = h >= 12 ? 'pm' : 'am';
-                                                    const hour = h > 12 ? h - 12 : h;
+                                                    const hour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
                                                     return `${hour}:00 ${amp}`;
                                                 };
                                                 const label = `${formatTime(start)} - ${formatTime(end)}`;
+
+                                                // Filter logic
+                                                const now = new Date();
+                                                const isToday = formData.date === today;
+                                                if (isToday && start <= now.getHours()) return null;
+
                                                 return <option key={start} value={label}>{label}</option>;
-                                            })}
+                                            }).filter(Boolean)}
+                                            {formData.date === today && [...Array(12)].every((_, i) => (9 + i) <= new Date().getHours()) && (
+                                                <option disabled>No slots available for today</option>
+                                            )}
                                         </select>
                                         {errors.time && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.time}</span>}
                                     </div>
@@ -372,19 +576,22 @@ export default function GameOverPage() {
 
                                 <div className="flex items-start gap-2 pt-2 text-left">
                                     <div className="relative flex items-center shrink-0 pt-0.5">
-                                        <input
-                                            id="modal-terms"
-                                            type="checkbox"
-                                            checked={termsAccepted}
-                                            onChange={(e) => setTermsAccepted(e.target.checked)}
-                                            className="peer h-5 w-5 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-slate-50 transition-all checked:border-[#00B4D8] checked:bg-[#00B4D8] hover:border-[#00B4D8]"
-                                        />
-                                        <Check className="pointer-events-none absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100" strokeWidth={4} />
+                                        <div
+                                            onClick={() => {
+                                                const newVal = !termsAccepted;
+                                                setTermsAccepted(newVal);
+                                                if (errors.terms) setErrors(p => ({ ...p, terms: null }));
+                                            }}
+                                            className={`h-5 w-5 cursor-pointer rounded border-2 transition-all flex items-center justify-center ${termsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : `${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'} bg-slate-50 hover:border-[#00B4D8]`}`}
+                                        >
+                                            {termsAccepted && <Check className="h-3.5 w-3.5 text-white" strokeWidth={4} />}
+                                        </div>
                                     </div>
-                                    <label htmlFor="modal-terms" className="text-[11px] font-bold text-slate-500 leading-snug select-none pr-1">
-                                        I agree to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#00B4D8] hover:underline font-black inline">Terms &amp; Conditions</button> and Privacy Policy.
-                                    </label>
+                                    <p className="text-[11px] font-bold text-slate-500 leading-snug select-none pr-1">
+                                        I agree and consent to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#00B4D8] hover:underline font-black inline">T&C and Privacy Policy</button>
+                                    </p>
                                 </div>
+                                {errors.terms && <p className="text-red-500 text-[10px] font-black uppercase tracking-wider ml-9 -mt-2">{errors.terms}</p>}
 
                                 <button
                                     type="submit"
@@ -407,7 +614,6 @@ export default function GameOverPage() {
 
 
 
-            {/* Terms Popup Overlay */}
             <AnimatePresence>
                 {showTerms && (
                     <motion.div
@@ -422,23 +628,28 @@ export default function GameOverPage() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border-4 border-[#00B4D8] relative text-left"
+                            className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border-4 border-[#005BAC] relative text-left"
                         >
-                            <button
-                                onClick={() => setShowTerms(false)}
-                                className="absolute top-4 right-4 p-1 text-slate-400 hover:text-slate-600 transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                            <h3 className="text-[#00B4D8] font-black text-xl uppercase mb-4 tracking-tight">Terms &amp; Conditions</h3>
-                            <div className="text-sm text-slate-600 space-y-3 font-semibold leading-relaxed max-h-[50vh] overflow-y-auto pr-3 custom-scrollbar">
-                                <p>
-                                    I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered...
+                            <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
+                                <h3 className="text-[#005BAC] text-xl font-black uppercase tracking-tight">
+                                    Terms & Conditions
+                                </h3>
+                                <button
+                                    onClick={() => setShowTerms(false)}
+                                    className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+                            <div className="max-h-[50vh] overflow-y-auto pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
+                                <p className="mb-4">
+                                    I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.
                                 </p>
+                                <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#005BAC] underline">BALIC Privacy Policy</a>.</p>
                             </div>
                             <button
                                 onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
-                                className="w-full mt-6 py-3.5 bg-[#00B4D8] text-white font-black rounded-xl hover:bg-[#0077b6] transition-colors text-base uppercase tracking-widest shadow-lg"
+                                className="w-full mt-6 py-3.5 bg-[#005BAC] text-white font-black rounded-xl hover:bg-[#004C85] transition-colors text-base uppercase tracking-widest shadow-lg"
                             >
                                 I Agree
                             </button>

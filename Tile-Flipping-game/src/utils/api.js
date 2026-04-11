@@ -3,10 +3,9 @@ export const submitToLMS = async (data) => {
     // __LMS_BASE_URL__ injected at build time (uat/preprod/production) via vite.config.js define
     const UAT_URL = `${__LMS_BASE_URL__}/whatsappInhouse`;
 
-    // Extract userId and gameID from URL parameters (passed by Angular shell)
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId') || '';
-    const gameID = urlParams.get('gameId') || '';
+    // Read userId and gameID from sessionStorage (stored by main.jsx on app load)
+    const userId = sessionStorage.getItem('gamification_userId') || '';
+    const gameID = sessionStorage.getItem('gamification_gameId') || '';
 
     const payload = {
         cust_name: data.name || data.fullName || "",
@@ -57,7 +56,7 @@ export const submitToLMS = async (data) => {
 };
 
 export const updateLeadNew = async (leadNo, data) => {
-    const UAT_URL = `${__LMS_BASE_URL__}/updateLeadNew`;
+    const UAT_URL = `${__LMS_UPDATE_BASE_URL__}/updateLeadNew`;
 
     const payload = {
         leadNo: leadNo,

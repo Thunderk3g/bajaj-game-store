@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { buildShareUrl } from '../../../utils/crypto';
+import { shortenUrl } from '../../../utils/shortener';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, PhoneCall, Calendar, Trophy, RotateCcw, Star, Medal, AlertCircle, Phone, Clock, ChevronDown, ShieldCheck, X } from 'lucide-react';
 import ScoreCard from './ScoreCard';
@@ -7,10 +9,13 @@ import ThankYouScreen from './ThankYouScreen';
 import bgImage from '../../../assets/Snake-Life TN.png';
 
 const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }) => {
+    const empPhone = sessionStorage.getItem('gamification_emp_mobile');
     const today = new Date().toISOString().split("T")[0];
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     const maxDate = thirtyDaysFromNow.toISOString().split("T")[0];
+
+    const isSmallScreen = window.innerHeight < 700;
 
     const [isBookingOpen, setIsBookingOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,6 +28,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
         timeSlot: ''
     });
     const [errors, setErrors] = useState({});
+    const [isTermsOpen, setIsTermsOpen] = useState(false);
 
     const timeSlots = [
         "9:00 AM - 10:00 AM",
@@ -40,23 +46,34 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
     ];
 
     const handleShare = async () => {
-        const shareMessage = `I achieved ${score} milestones on Snake Life! 🏆 Secure your future here:`;
-        const shareUrl = window.location.href;
+        const rawShareUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawShareUrl);
+        const senderName = (typeof leadData !== 'undefined' ? leadData?.name : '') || '';
+        const shareMessage = `Hi,\nI built ${Math.round(score)} life milestones in this challenge.\nIt really makes you think about how much protection those milestones need — try it here: ${shareUrl}\n\nRegards,\n${senderName}`.trim();
 
         if (navigator.share) {
             try {
-                await navigator.share({
+                const sharePayload = {
                     title: 'Snake Life',
-                    text: shareMessage,
-                    url: shareUrl,
-                });
+                    text: shareMessage
+                };
+                try {
+                    const res = await fetch(bgImage);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        sharePayload.files = [file];
+                    }
+                } catch (e) {
+                    // Share without image if fetch fails
+                }
+                await navigator.share(sharePayload);
             } catch (error) {
                 console.log('Error sharing:', error);
             }
         } else {
             try {
-                const fullText = `${shareMessage} ${shareUrl}`;
-                await navigator.clipboard.writeText(fullText);
+                await navigator.clipboard.writeText(shareMessage);
                 alert('Score and link copied to clipboard!');
             } catch (err) {
                 console.error('Failed to copy text: ', err);
@@ -85,7 +102,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
             errs.timeSlot = "Select a slot";
         }
         if (!bookingTermsAccepted) {
-            errs.terms = "Accept terms";
+            errs.terms = "Please agree to Terms and Conditions";
         }
 
         setErrors(errs);
@@ -128,105 +145,104 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
     return (
         <motion.div
-            className="w-full h-[100dvh] flex flex-col items-center bg-blue-950 p-4 sh:p-2 mh:p-3 pb-4 sh:pb-6 mh:pb-3 relative overflow-hidden"
+            className="w-full h-full relative overflow-hidden bg-blue-950"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
-            {/* Bluish-white Frosty Overlay */}
+            {/* Absolute Backgrounds - Sticky to the static motion.div */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-transparent to-white/10 z-0 pointer-events-none" />
             <div className="absolute inset-0 bg-white/5 backdrop-blur-[1px] z-0 pointer-events-none" />
-
-            {/* Background Image */}
             <div
-                className="absolute inset-0 bg-[length:100%_100%] bg-center bg-no-repeat opacity-40 blur-md scale-110 pointer-events-none"
+                className="absolute inset-0 bg-[length:100%_100%] bg-center bg-no-repeat opacity-40 blur-md scale-110 z-0 pointer-events-none"
                 style={{ backgroundImage: `url("${bgImage}")` }}
             />
 
-            {/* Header / Top Bar */}
-            <div className="w-full max-w-sm flex items-center justify-center relative py-2 sh:py-0 mb-1 sh:mb-0 z-10">
-                <p className="text-gray-200 font-bold text-2xl sm:text-3xl sh:text-lg text-center drop-shadow-md">
-                    Hi <span className="text-blue-400 font-black">{leadData?.name || 'Friend'}!</span><br />
-                    <span>You Built a Life of</span>
-                </p>
-                <button
-                    onClick={handleShare}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2.5 sh:p-1.5 bg-blue-600 rounded-full text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-95 z-20"
-                >
-                    <Share2 className="w-5 h-5 sh:w-3.5 sh:h-3.5" />
-                </button>
-            </div>
+            {/* Scrollable Overlay Layer */}
+            <div className="absolute inset-0 w-full h-full overflow-y-auto overflow-x-hidden p-4 sh:p-2 mh:p-3 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] z-10 flex flex-col items-center">
 
-            <div className="w-full max-w-sm flex flex-col items-center flex-1 justify-between gap-y-3 sh:gap-y-0.5 min-h-0 z-10">
-                {/* Score Section */}
-                <div className="scale-90 sh:scale-[0.85] mh:scale-[0.88] transform origin-center py-1 sh:py-0 sh:-mt-4 sh:-mb-12 mh:-mt-2 mh:-mb-8 transition-all">
-                    <ScoreCard score={score} total={total} />
-                </div>
-
-                {/* Messaging Section */}
-                <div className="space-y-1 sh:space-y-0.5 text-center flex flex-col items-center">
-                    <h2 className="text-xl sm:text-2xl sh:text-lg font-black text-white tracking-tight leading-tight px-4 drop-shadow-lg">
-                        Calculate what your family actually needs to continue this life
-                    </h2>
-                </div>
-
-                {/* Primary Action */}
-                <button
-                    onClick={handleShare}
-                    className="flex items-center justify-center gap-2 bg-[#1d4ed8] text-white font-black py-4 sh:py-3.5 mh:py-3 px-8 rounded-2xl sh:rounded-xl mh:rounded-xl shadow-[0_4px_20px_rgba(29,78,216,0.6)] hover:bg-blue-600 transition-all text-lg sh:text-base w-full max-w-[280px] active:scale-[0.98]"
-                >
-                    <Share2 className="w-5 h-5 sh:w-4 sh:h-4" />
-                    <span>Share</span>
-                </button>
-
-                {/* Action Card Section */}
-                <div className="w-full bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[20px] mh:rounded-[24px] p-5 sh:p-3 mh:p-4 border border-slate-800 space-y-4 sh:space-y-2 mh:space-y-3 relative overflow-hidden text-center shadow-xl">
-                    <p className="text-white text-sm sh:text-xs font-bold leading-tight">
-                        A simple conversation can protect everything you're building,<br />
-                        <span className="text-white font-bold">Connect with our Relationship Manager now</span>
+                {/* Header / Top Bar */}
+                <div className="w-full max-w-sm flex shrink-0 items-center justify-center relative py-2 sh:py-0 mb-3 sh:mb-0 z-10">
+                    <p className="text-gray-200 font-bold text-2xl sm:text-3xl sh:text-lg text-center drop-shadow-md">
+                        Hi <span className="text-blue-400 font-black">{leadData?.name || 'Friend'}!</span><br />
+                        <span>You Built a Life of</span>
                     </p>
+                </div>
 
-                    <div className="flex flex-col gap-3 sh:gap-2">
-                        <motion.a
-                            href="tel:18002097272"
-                            className="bg-slate-900 text-white font-black py-4 sh:py-3.5 mh:py-3 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base border border-slate-700 hover:bg-slate-800"
-                        >
-                            <Phone className="w-6 h-6 sh:w-5 sh:h-5 text-gray-400" />
-                            <span>Call now</span>
-                        </motion.a>
+                <div className="w-full max-w-sm flex flex-col items-center flex-1 justify-center min-h-full gap-y-4 sh:gap-y-2 z-10">
+                    {/* Score Section */}
+                    <div className="scale-90 sh:scale-[0.85] mh:scale-[0.88] shrink-0 transform origin-center py-1 sh:py-0 transition-all">
 
-                        <div className="flex items-center gap-4 py-1 sh:py-0.5">
-                            <div className="h-[1px] flex-1 bg-slate-800" />
-                            <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest leading-none">OR</span>
-                            <div className="h-[1px] flex-1 bg-slate-800" />
+                        <ScoreCard score={score} total={total} />
+                    </div>
+
+                    {/* Messaging Section */}
+                    <div className="space-y-1 sh:space-y-0.5 text-center flex flex-col items-center">
+                        <h2 className="text-xl sm:text-2xl sh:text-lg font-black text-white tracking-tight leading-tight px-4 drop-shadow-lg">
+                            Know how much Life Cover your Family needs to continue this life
+                        </h2>
+                    </div>
+
+                    {/* Primary Action */}
+                    <button
+                        onClick={handleShare}
+                        className="flex items-center justify-center gap-2 bg-[#1d4ed8] text-white font-black py-4 sh:py-3.5 mh:py-3 px-8 rounded-2xl sh:rounded-xl mh:rounded-xl shadow-[0_4px_20px_rgba(29,78,216,0.6)] hover:bg-blue-600 transition-all text-lg sh:text-base w-full max-w-[280px] active:scale-[0.98]"
+                    >
+                        <Share2 className="w-5 h-5 sh:w-4 sh:h-4" />
+                        <span>Share</span>
+                    </button>
+
+                    {/* Action Card Section */}
+                    <div className="w-full shrink-0 bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] sh:rounded-[20px] mh:rounded-[24px] p-5 sh:p-3 mh:p-4 border border-slate-800 space-y-4 sh:space-y-2 mh:space-y-3 relative overflow-hidden text-center shadow-xl">
+                        <p className="text-white text-lg sh:text-base font-bold leading-tight px-2">
+                            A simple conversation can protect everything you're building
+                        </p>
+
+                        <div className="flex flex-col gap-2.5 sh:gap-1.5 mh:gap-2">
+                            {empPhone && (
+                                <motion.a
+                                    href={`tel:${empPhone}`}
+                                    className="bg-amber-500 text-black font-black py-3 sh:py-2.5 mh:py-2.5 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base border border-amber-400 hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                                >
+                                    <Phone className="w-5 h-5 sh:w-4 sh:h-4 text-black" />
+                                    <span>Call now</span>
+                                </motion.a>
+                            )}
+
+                            <div className="flex items-center gap-4 py-0.5 sh:py-0">
+                                <div className="h-[1px] flex-1 bg-slate-800" />
+                                <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest leading-none">OR</span>
+                                <div className="h-[1px] flex-1 bg-slate-800" />
+                            </div>
+
+                            <motion.button
+                                onClick={() => setIsBookingOpen(true)}
+                                className="bg-green-600 text-white font-black py-3 sh:py-2.5 mh:py-2.5 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
+                            >
+                                <Calendar className="w-5 h-5 sh:w-4 sh:h-4 opacity-80" />
+                                <span>Book a slot</span>
+                            </motion.button>
                         </div>
+                    </div>
 
-                        <motion.button
-                            onClick={() => setIsBookingOpen(true)}
-                            className="bg-green-600 text-white font-black py-4 sh:py-3.5 mh:py-3 px-6 rounded-2xl sh:rounded-xl mh:rounded-xl flex items-center justify-center gap-3 transition-all text-lg sh:text-base shadow-[0_0_15px_rgba(22,163,74,0.2)] hover:bg-green-500"
-                        >
-                            <Calendar className="w-5 h-5 sh:w-4 sh:h-4 opacity-80" />
-                            <span>Book a slot</span>
-                        </motion.button>
+                    {/* Restart Action */}
+                    <button
+                        onClick={onRestart}
+                        className="w-full py-4 mt-2 flex items-center justify-center gap-3 text-white/50 hover:text-white transition-colors group shrink-0"
+                    >
+                        <RotateCcw className="w-6 h-6 opacity-60 group-hover:opacity-100" />
+                        <span className="text-xl font-bold tracking-widest capitalize">Play again</span>
+                    </button>
+
+                    {/* Disclaimer */}
+                    <div className="w-full px-6 opacity-40 mt-1 pb-4 shrink-0">
+                        <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto tracking-normal">
+                            <span className="opacity-60 mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
+                        </p>
                     </div>
                 </div>
-
-                {/* Disclaimer */}
-                <div className="w-full px-6 opacity-40 mt-4">
-                    <p className="text-[7px] sm:text-[8px] text-white leading-relaxed text-center font-bold max-w-[380px] mx-auto uppercase tracking-tighter">
-                        <span className="opacity-60 underline mr-1">Disclaimer:</span> The results shown in this game are indicative and based solely on the information provided by the participant. They are intended for engagement and awareness purposes only and do not constitute financial advice or a recommendation to purchase any life insurance product. Participants should seek independent professional advice before making any financial or insurance decisions. While due care has been taken in designing the game, Bajaj Life Insurance Ltd. assumes no liability for its outcomes.
-                    </p>
-                </div>
-
-                {/* Restart Action */}
-                <button
-                    onClick={onRestart}
-                    className="w-full py-5 sh:py-4 mh:py-3.5 rounded-2xl sh:rounded-xl mh:rounded-xl bg-slate-900 border border-slate-800 text-white font-black text-xl sh:text-lg flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-lg"
-                >
-                    <RotateCcw className="w-6 h-6 sh:w-5 sh:h-5 text-gray-400" />
-                    <span>Play again</span>
-                </button>
             </div>
+
 
             <AnimatePresence>
                 {isBookingSuccess && (
@@ -241,7 +257,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
 
             {/* Booking Modal */}
             <Modal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)}>
-                <div className="bg-[#0f172a] rounded-[32px] p-8 w-full max-w-md shadow-2xl border-2 border-slate-800 relative overflow-hidden my-auto text-left">
+                <div className="bg-[#0f172a] rounded-[32px] p-6 sm:p-8 w-full max-w-md shadow-2xl border-2 border-slate-800 relative overflow-hidden my-auto text-left">
                     <button
                         onClick={() => setIsBookingOpen(false)}
                         className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
@@ -259,6 +275,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                     <form onSubmit={handleBookingSubmit} className="space-y-5">
                         <div className="grid grid-cols-1 gap-4">
                             <div>
+                                <label htmlFor="name" className="text-sm font-bold text-slate-400 ml-1 block mb-1.5">Name</label>
                                 <input
                                     type="text"
                                     value={bookingData.name}
@@ -278,6 +295,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                             </div>
 
                             <div>
+                                <label htmlFor="mobile" className="text-sm font-bold text-slate-400 ml-1 block mb-1.5">Mobile Number</label>
                                 <input
                                     type="text"
                                     value={bookingData.mobile_no}
@@ -299,9 +317,10 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                             </div>
                         </div>
 
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
+                        <div>
+                            <label htmlFor="date" className="text-sm font-bold text-slate-400 ml-1 block mb-1.5">Booking Date</label>
+                            <div className="relative">
+                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500 pointer-events-none" strokeWidth={2.5} />
                                 <input
                                     type="date"
                                     value={bookingData.date}
@@ -313,40 +332,84 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                                     }}
                                     id="date"
                                     name="date"
-                                    className={`w-full bg-slate-900 border-2 rounded-2xl pl-11 pr-4 py-3 text-white font-bold focus:outline-none focus:border-blue-500 transition-colors ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
+                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-12 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none uppercase text-sm min-h-[52px] text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-800'}`}
                                 />
-                                {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}
+                                <div
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-1"
+                                    onClick={() => {
+                                        const input = document.getElementById('date');
+                                        if (input && input.showPicker) {
+                                            input.showPicker();
+                                        } else if (input) {
+                                            input.click();
+                                        }
+                                    }}
+                                >
+                                    <Calendar className="w-5 h-5 text-white" strokeWidth={2.5} />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="relative">
-                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
-                            <select
-                                value={bookingData.timeSlot}
-                                onChange={(e) => {
-                                    setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
-                                    setErrors(prev => ({ ...prev, timeSlot: null }));
-                                }}
-                                id="timeSlot"
-                                name="timeSlot"
-                                className={`w-full bg-slate-900 border-2 rounded-2xl pl-11 pr-10 py-3 text-white font-bold focus:outline-none focus:border-blue-500 appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-800'}`}
-                            >
-                                <option value="" className="bg-slate-950 text-white">Choose a slot</option>
-                                {timeSlots.map(slot => (
-                                    <option key={slot} value={slot} className="bg-slate-950 text-white">{slot}</option>
-                                ))}
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-                            {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}
+                        <div>
+                            <label htmlFor="timeSlot" className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block mb-1.5">Preferred Time Slot</label>
+                            <div className="relative">
+                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
+                                <select
+                                    value={bookingData.timeSlot}
+                                    onChange={(e) => {
+                                        setBookingData(prev => ({ ...prev, timeSlot: e.target.value }));
+                                        setErrors(prev => ({ ...prev, timeSlot: null }));
+                                    }}
+                                    id="timeSlot"
+                                    name="timeSlot"
+                                    className={`w-full bg-slate-900 border-2 rounded-2xl pl-11 pr-10 py-3 text-white font-bold focus:outline-none focus:border-blue-500 appearance-none transition-colors ${errors.timeSlot ? 'border-red-500' : 'border-slate-800'}`}
+                                >
+                                    <option value="" className="bg-slate-950 text-white">Choose a slot</option>
+                                    {timeSlots.map(slot => {
+                                        const isToday = bookingData.date === today;
+                                        if (isToday) {
+                                            const [startTime] = slot.split(' - ');
+                                            const slotHour = parseInt(startTime.split(':')[0]);
+                                            const isPM = startTime.includes('PM');
+                                            const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                                            if (normalizedHour <= new Date().getHours()) return null;
+                                        }
+                                        return (
+                                            <option key={slot} value={slot} className="bg-slate-950 text-white">{slot}</option>
+                                        );
+                                    }).filter(Boolean)}
+                                    {bookingData.date === today && timeSlots.filter(slot => {
+                                        const [startTime] = slot.split(' - ');
+                                        const slotHour = parseInt(startTime.split(':')[0]);
+                                        const isPM = startTime.includes('PM');
+                                        const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                                        return normalizedHour > new Date().getHours();
+                                    }).length === 0 && (
+                                            <option disabled className="bg-slate-950 text-gray-500 italic">No slots available for today</option>
+                                        )}
+                                </select>
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                {errors.timeSlot && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.timeSlot}</p>}
+                            </div>
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <div className="flex items-start gap-3 cursor-pointer" onClick={() => setBookingTermsAccepted(!bookingTermsAccepted)}>
-                                <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-green-600 border-green-600' : 'border-slate-800 bg-slate-900'}`}>
+                            <div className="flex items-start gap-3 cursor-pointer" onClick={() => {
+                                setBookingTermsAccepted(!bookingTermsAccepted);
+                                if (errors.terms) setErrors(prev => ({ ...prev, terms: null }));
+                            }}>
+                                <div className={`shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${bookingTermsAccepted ? 'bg-green-600 border-green-600' : `bg-slate-900 ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-800'}`}`}>
                                     {bookingTermsAccepted && <ShieldCheck className="w-5 h-5 text-white" />}
                                 </div>
                                 <div className="text-sm text-gray-500 font-bold leading-tight">
-                                    I accept the terms & conditions and acknowledge the privacy policy.
+                                    I agree and consent to the{' '}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true); }}
+                                        className="text-blue-500 font-bold underline cursor-pointer hover:text-blue-400"
+                                    >
+                                        T&C and Privacy Policy
+                                    </button>
                                 </div>
                             </div>
                             {errors.terms && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.terms}</p>}
@@ -357,9 +420,38 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                             disabled={isSubmitting}
                             className={`w-full py-4 rounded-2xl text-xl font-black text-white transition-all ${isSubmitting ? 'bg-green-800 opacity-50' : 'bg-green-600 hover:bg-green-500 active:scale-95 shadow-lg'}`}
                         >
-                            {isSubmitting ? 'Booking...' : 'Confirm booking'}
+                            {isSubmitting ? 'Booking...' : 'Confirm Booking'}
                         </button>
                     </form>
+                </div>
+            </Modal>
+
+            {/* Terms Modal */}
+            <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
+                <div className="bg-[#0f172a] rounded-[32px] p-8 w-full shadow-2xl relative max-w-sm mx-auto border-2 border-slate-800">
+                    <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+                        <h3 className="text-blue-500 text-xl font-black uppercase tracking-tight">
+                            Terms & Conditions
+                        </h3>
+                        <button
+                            onClick={() => setIsTermsOpen(false)}
+                            className="text-white/40 hover:text-white transition-colors p-1"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-white/50 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-white/10 text-left">
+                        <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+                        <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">BALIC Privacy Policy</a>.</p>
+                    </div>
+                    <div className="mt-6">
+                        <button
+                            onClick={() => { setIsTermsOpen(false); setBookingTermsAccepted(true); }}
+                            className="w-full mt-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-500 transition-colors text-sm uppercase tracking-wider"
+                        >
+                            I AGREE
+                        </button>
+                    </div>
                 </div>
             </Modal>
         </motion.div>

@@ -15,7 +15,7 @@ const ThankYouScreen = () => {
 
     // Styling from ScoreResultsScreen framework
     const ghibliCardClass = "screen";
-    const ghibliContentClass = "screen-inner relative z-10 w-full h-full flex flex-col py-4 px-4 overflow-y-auto overflow-x-hidden justify-between";
+    const ghibliContentClass = "screen-inner relative z-10 w-full h-full flex flex-col py-4 px-4 overflow-hidden justify-between";
 
     return (
         <div className={ghibliCardClass} style={{
@@ -64,7 +64,7 @@ const ThankYouScreen = () => {
                             fontStyle: 'italic',
                             letterSpacing: '-0.025em',
                             textShadow: '0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04)',
-                            marginBottom: '24px',
+                            marginBottom: 'clamp(12px, 3dvh, 24px)',
                             lineHeight: 1.1
                         }}
                     >

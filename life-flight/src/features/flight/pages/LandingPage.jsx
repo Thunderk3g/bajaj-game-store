@@ -66,7 +66,8 @@ export default function LandingPage() {
     };
 
     const handleStartClick = () => {
-        setShowNamePopup(true);
+        // Lead popup disabled — start game directly
+        startGame();
     };
 
     const startGame = () => {
@@ -82,6 +83,8 @@ export default function LandingPage() {
         } else if (field === 'phone') {
             if (!value) errorMsg = 'Please enter mobile number';
             else if (!/^\d{10}$/.test(value)) errorMsg = 'Enter a valid 10-digit mobile number';
+        } else if (field === 'terms') {
+            if (!value) errorMsg = 'Please agree to Terms and Conditions';
         }
 
         if (errorMsg) {
@@ -94,9 +97,10 @@ export default function LandingPage() {
     };
 
     const validateForm = () => {
-        const isNameValid = validateField('name', userName);
-        const isPhoneValid = validateField('phone', phone);
-        return isNameValid && isPhoneValid;
+        const n = validateField('name', userName);
+        const p = validateField('phone', phone);
+        const t = validateField('terms', termsAccepted);
+        return n && p && t;
     };
 
     const handleNameSubmit = async (e) => {
@@ -279,18 +283,19 @@ export default function LandingPage() {
                                     <div className="flex items-start gap-3">
                                         <div
                                             onClick={() => {
-                                                setTermsAccepted(!termsAccepted);
-                                                setErrors(prev => ({ ...prev, terms: null }));
+                                                const newVal = !termsAccepted;
+                                                setTermsAccepted(newVal);
+                                                validateField('terms', newVal);
                                             }}
-                                            className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${termsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : 'bg-white border-slate-300'}`}
+                                            className={`mt-0.5 shrink-0 w-5 h-5 min-[375px]:w-6 min-[375px]:h-6 border-2 flex items-center justify-center cursor-pointer transition-all ${termsAccepted ? 'bg-[#00B4D8] border-[#00B4D8]' : `bg-white ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'}`}`}
                                         >
                                             {termsAccepted && <Check className="w-4 h-4 text-white" strokeWidth={4} />}
                                         </div>
                                         <div className="text-[10px] min-[375px]:text-xs font-bold text-slate-600 leading-tight text-left">
-                                            I agree to the{' '}
+                                            I agree and consent to the{' '}
                                             <button type="button" onClick={() => setShowTerms(true)} className="text-[#00B4D8] underline cursor-pointer hover:text-[#0090ac]">
-                                                Terms & Conditions
-                                            </button>{' '}
+                                                T&C and Privacy Policy
+                                            </button>
                                             and allow Bajaj Life Insurance to contact me even if registered on DND.
                                         </div>
                                     </div>
@@ -338,10 +343,10 @@ export default function LandingPage() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border-4 border-[#00B4D8] relative text-left"
+                            className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border-4 border-[#005BAC] relative text-left"
                         >
                             <div className="flex justify-between items-center mb-4 border-b-2 border-slate-100 pb-2">
-                                <h3 className="text-[#00B4D8] text-xl font-black uppercase tracking-tight">
+                                <h3 className="text-[#005BAC] text-xl font-black uppercase tracking-tight">
                                     Terms & Conditions
                                 </h3>
                                 <button
@@ -353,12 +358,12 @@ export default function LandingPage() {
                             </div>
                             <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 text-slate-600 font-bold text-xs min-[375px]:text-sm leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
                                 <p>I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
-                                <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#00B4D8] underline">BALIC Privacy Policy</a>.</p>
+                                <p>Please refer to <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-[#005BAC] underline">BALIC Privacy Policy</a>.</p>
                             </div>
                             <div className="mt-6">
                                 <button
                                     onClick={() => { setShowTerms(false); setTermsAccepted(true); }}
-                                    className="w-full mt-6 py-3.5 bg-[#00B4D8] text-white font-black rounded-xl hover:bg-[#0077b6] transition-colors text-base uppercase tracking-widest shadow-lg"
+                                    className="w-full py-3.5 bg-[#005BAC] text-white font-black rounded-xl hover:bg-[#004C85] transition-colors text-base uppercase tracking-widest shadow-lg"
                                 >
                                     I Agree
                                 </button>
