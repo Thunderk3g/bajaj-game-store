@@ -68,9 +68,9 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
 
                 <div className="text-center mb-10 relative z-10">
                     <h2 className="text-[#fbbf24] text-4xl font-black mb-1 tracking-tighter uppercase italic leading-none text-left drop-shadow-sm">
-                        Legendary Match!
+                        Enter Your Details
                     </h2>
-                    <p className="text-blue-100 font-bold text-lg text-left opacity-90">Secure your <span className="text-[#fbbf24]">Future Goals</span> now.</p>
+                    <p className="text-blue-100 font-bold text-lg text-left opacity-90">TO see the <span className="text-[#fbbf24]">results</span></p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6 text-left relative z-10">

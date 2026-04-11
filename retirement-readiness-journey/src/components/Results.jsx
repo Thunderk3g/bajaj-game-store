@@ -32,9 +32,10 @@ const Results = ({ score, onReset, userInfo }) => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof userInfo !== 'undefined' ? userInfo?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
         const shareData = {
             title: 'Retirement Readiness',
-            text: `Hi,\nI just tried this retirement preparedness test and scored ${Math.round(score)}/100. It really made me think about my retirement corpus!\nSee how prepared you are — try it here: ${shareUrl}\n\n${senderName}`.trim(),
+            text: `Hi,\nI just discovered this retirement preparedness test and scored ${Math.round(score)}/100. It really made me think about my retirement corpus!\nSee how prepared you are — try it here: ${shareUrl}${signature}`.trim(),
             url: shareUrl
         };
 
@@ -118,9 +119,9 @@ const Results = ({ score, onReset, userInfo }) => {
 
     // Results Screen View
     return (
-        <div className="max-w-[480px] mx-auto w-full flex flex-col space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12 pt-4 px-4 h-auto 
+        <div className="max-w-[480px] mx-auto w-full flex flex-col space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pt-4 px-4 h-auto 
             [/* Mobile-only one-screen constraint */] 
-            max-[640px]:px-4 max-[640px]:pb-6 max-[640px]:space-y-4 max-[640px]:pt-2">
+            max-[640px]:px-4 max-[640px]:space-y-4 max-[640px]:pt-2">
 
             {/* Score Card Section */}
             <div className="text-center space-y-4 sm:space-y-6 pt-0 text-white relative flex-shrink-0
@@ -204,13 +205,15 @@ const Results = ({ score, onReset, userInfo }) => {
                 </div>
 
                 <div className="space-y-4 max-[640px]:space-y-2">
-                    <Button
-                        onClick={() => window.location.href = "tel:18002099999"}
-                        className="w-full h-[3.5rem] sm:h-[4rem] bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 rounded-xl shadow-lg shadow-emerald-500/20 max-[640px]:h-[3rem]"
-                    >
-                        <Phone className="w-4 h-4 sm:w-5 sm:h-5 fill-current max-[640px]:w-3 max-[640px]:h-3" />
-                        CALL NOW
-                    </Button>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <Button
+                            onClick={() => window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                            className="w-full h-[3.5rem] sm:h-[4rem] bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 rounded-xl shadow-lg shadow-emerald-500/20 max-[640px]:h-[3rem]"
+                        >
+                            <Phone className="w-4 h-4 sm:w-5 sm:h-5 fill-current max-[640px]:w-3 max-[640px]:h-3" />
+                            CALL NOW
+                        </Button>
+                    )}
 
                     <div className="flex items-center gap-4 py-1 max-[640px]:py-0 max-[640px]:gap-2">
                         <div className="flex-1 h-px bg-slate-200" />

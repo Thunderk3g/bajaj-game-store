@@ -68,7 +68,7 @@ const LeadCapturePage = () => {
             >
                 <div className="text-center mb-10">
                     <h2 className="text-sudoku-accent text-2xl font-black mb-1 tracking-tight uppercase leading-tight text-left">
-                        ENTER DETAILS
+                        ENTER YOUR DETAILS
                     </h2>
                     <p className="text-slate-500 font-bold text-lg text-left">To see the Results</p>
                 </div>

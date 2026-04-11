@@ -10,6 +10,9 @@ import { decryptToken } from './utils/crypto';
     const basicKeys = ['userId', 'gameId', 'empName', 'empMobile', 'location', 'zone'];
     let hasParams = false;
     basicKeys.forEach(key => { const v = params.get(key); if (v) { sessionStorage.setItem(`gamification_${key}`, v); hasParams = true; } });
+    // Normalize: URL param empMobile → also write to snake_case key used by components
+    const urlEmpMobile = sessionStorage.getItem('gamification_empMobile');
+    if (urlEmpMobile) sessionStorage.setItem('gamification_emp_mobile', urlEmpMobile);
     const token = params.get('token');
     if (token) {
         hasParams = true;

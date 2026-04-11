@@ -86,7 +86,7 @@ const LeadCaptureScreen: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubm
                         margin: '0 0 4px 0',
                         letterSpacing: '-0.02em',
                         textTransform: 'uppercase'
-                    }}>Enter Details</h2>
+                    }}>Enter Your Details</h2>
                     <p style={{
                         fontSize: '14px',
                         fontWeight: '700',

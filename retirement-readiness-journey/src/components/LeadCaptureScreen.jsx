@@ -58,9 +58,9 @@ const LeadCaptureScreen = ({ onSuccess }) => {
         <div className="flex flex-col items-center justify-center bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/20 shadow-2xl mx-auto my-auto w-full max-w-[380px]">
             <div className="text-center mb-10 w-full px-2">
                 <h2 className="text-3xl font-black text-white mb-3 tracking-tighter uppercase italic leading-none text-left drop-shadow-lg">
-                    Great Progress!
+                    Enter Your Details
                 </h2>
-                <p className="text-blue-50 font-bold text-lg leading-tight text-left">Enter details to see your <span className="text-yellow-400">Retirement Readiness</span> status</p>
+                <p className="text-blue-50 font-bold text-lg leading-tight text-left">To see the <span className="text-yellow-400">results</span></p>
             </div>
 
             <form onSubmit={handleSubmit} className="w-full space-y-6 text-left">

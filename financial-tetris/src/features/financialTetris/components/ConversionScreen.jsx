@@ -7,7 +7,7 @@ import ScoreCard from './ScoreCard';
 import Modal from '../../../components/ui/Modal';
 import ThankYouScreen from './ThankYouScreen';
 
-const gameThumbnail = '/assets/welcome_bg.png';
+const gameThumbnail = './assets/welcome_bg.png';
 
 const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot }) => {
     const today = new Date().toISOString().split("T")[0];
@@ -48,7 +48,8 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = (typeof leadData !== 'undefined' ? leadData?.name : '') || '';
-        const shareMessage = `Hi,\nI just played Blocks of Wealth and achieved ${Math.round(score)} milestones.\nSee how many milestones you can reach — try it here: ${shareUrl}\n\n${senderName}`.trim();
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareMessage = `Hi,\nI just played Blocks of Wealth and achieved ${Math.round(score)} milestones.\nSee how many milestones you can reach — try it here: ${shareUrl}${signature}`.trim();
 
         if (navigator.share) {
             try {
@@ -72,8 +73,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
             }
         } else {
             try {
-                const fullText = `${shareMessage} ${shareUrl}`;
-                await navigator.clipboard.writeText(fullText);
+                await navigator.clipboard.writeText(shareMessage);
                 alert('Score and link copied to clipboard!');
             } catch (err) {
                 console.error('Failed to copy text: ', err);
@@ -199,13 +199,15 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                         </p>
 
                         <div className="flex flex-col gap-3">
-                            <motion.a
-                                href="tel:18002097272"
-                                className="bg-amber-600 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg border border-amber-500/20 hover:bg-amber-500 active:scale-95"
-                            >
-                                <Phone className="w-6 h-6 text-white/80" />
-                                <span>Call now</span>
-                            </motion.a>
+                            {sessionStorage.getItem('gamification_emp_mobile') ? (
+                                <motion.a
+                                    href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                                    className="bg-amber-600 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all text-lg border border-amber-500/20 hover:bg-amber-500 active:scale-95"
+                                >
+                                    <Phone className="w-6 h-6 text-white/80" />
+                                    <span>Call now</span>
+                                </motion.a>
+                            ) : null}
 
                             <div className="flex items-center gap-4 py-1">
                                 <div className="h-[1px] flex-1 bg-slate-800" />

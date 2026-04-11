@@ -198,7 +198,7 @@ const LifeSortedPage = () => {
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
                     <div className="bg-white rounded-[32px] p-8 w-full max-w-[340px] shadow-2xl relative border-[5px] border-[#00B4D8] animate-in zoom-in-95">
                         <div className="text-center mb-8">
-                            <h2 className="text-[#005BAC] text-2xl font-black mb-1 tracking-tight uppercase">Enter Details</h2>
+                            <h2 className="text-[#005BAC] text-2xl font-black mb-1 tracking-tight uppercase">Enter Your Details</h2>
                             <p className="text-slate-500 font-bold text-lg text-center">To see the results</p>
                         </div>
 

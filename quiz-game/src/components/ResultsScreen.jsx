@@ -50,7 +50,8 @@ const ResultsScreen = ({ score, total, onRestart }) => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof leadName !== 'undefined' ? leadName : '') || '';
-        const shareMessage = `Hi,\nI tried this GST quiz related to Life Insurance and got ${Math.round(score)}/${total}.\nThink you can beat my score? Take the quiz here: ${shareUrl}\n\n${senderName}`.trim();
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareMessage = `Hi,\nI tried this GST quiz related to Life Insurance and got ${Math.round(score)}/${total}.\nThink you can beat my score? Take the quiz here: ${shareUrl}${signature}`.trim();
 
         if (navigator.share) {
             try {
@@ -203,13 +204,15 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                         </p>
 
                         <div className="flex flex-col gap-3 pt-1">
-                            <motion.a
-                                href="tel:18002097272"
-                                className="bg-gray-100 text-gray-700 font-black py-4 px-4 rounded-[16px] flex items-center justify-center gap-3 transition-all text-lg border-2 border-gray-200"
-                            >
-                                <Phone className="w-6 h-6" />
-                                <span>Call now</span>
-                            </motion.a>
+                            {sessionStorage.getItem('gamification_emp_mobile') ? (
+                                <motion.a
+                                    href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                                    className="bg-gray-100 text-gray-700 font-black py-4 px-4 rounded-[16px] flex items-center justify-center gap-3 transition-all text-lg border-2 border-gray-200"
+                                >
+                                    <Phone className="w-6 h-6" />
+                                    <span>Call now</span>
+                                </motion.a>
+                            ) : null}
                             <div className="flex items-center gap-2 px-4">
                                 <div className="h-[1px] flex-1 bg-gray-200" />
                                 <span className="text-gray-400 font-bold text-base">OR</span>
@@ -317,11 +320,9 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                             <div className="relative">
                                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 pointer-events-none" />
                                                 <input
-                                                    type={bookingData.date ? "date" : "text"}
+                                                    type="date"
                                                     id="booking-date"
                                                     name="date"
-                                                    onFocus={(e) => e.target.type = 'date'}
-                                                    onBlur={(e) => !bookingData.date && (e.target.type = 'text')}
                                                     value={bookingData.date}
                                                     min={today}
                                                     max={maxDate}
@@ -329,7 +330,6 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                                                         setBookingData(prev => ({ ...prev, date: e.target.value }));
                                                         setErrors(prev => ({ ...prev, date: null }));
                                                     }}
-                                                    placeholder="DD MM YYYY"
                                                     className={`block w-full min-h-[52px] bg-gray-50 border-2 rounded-2xl pl-11 pr-4 py-3 text-gray-800 font-bold focus:outline-none transition-colors appearance-none ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100 focus:border-blue-400'}`}
                                                 />
                                                 {errors.date && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.date}</p>}

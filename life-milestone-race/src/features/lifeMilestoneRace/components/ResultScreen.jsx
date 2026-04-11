@@ -114,9 +114,10 @@ const ResultScreen = ({
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof formData !== 'undefined' ? formData?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
         const shareData = {
             title: 'Life Milestone Race',
-            text: `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}\n\n${senderName}`.trim(),
+            text: `Hi,\nI just tried this quick life risk preparedness check that shows whether you are prepared or exposed in different situations.\nYou should try it too: ${shareUrl}${signature}`.trim(),
             url: shareUrl
         };
 
@@ -231,11 +232,13 @@ const ResultScreen = ({
                     </p>
 
                     {/* Call Action */}
-                    <a href="tel:1800209999" className="block w-full mb-2">
-                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2.5 sm:py-3 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/20">
-                            <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
-                        </button>
-                    </a>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-2">
+                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2.5 sm:py-3 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-widest border-2 border-white/20">
+                                <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
+                            </button>
+                        </a>
+                    )}
 
                     <div className="relative py-1 mb-2">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
@@ -316,14 +319,11 @@ const ResultScreen = ({
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                     <input
-                                        type={formData.date ? "date" : "text"}
-                                        onFocus={(e) => e.target.type = 'date'}
-                                        onBlur={(e) => !formData.date && (e.target.type = 'text')}
+                                        type="date"
                                         min={today}
                                         max={endOfYear}
                                         value={formData.date} onChange={e => updateField('date', e.target.value)}
-                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4"
-                                        placeholder="DD MM YYYY"
+                                        className="w-full bg-slate-50 h-11 border-2 border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 text-xs font-bold px-4"
                                     />
                                     {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                 </div>

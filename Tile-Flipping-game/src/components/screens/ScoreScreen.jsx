@@ -77,10 +77,11 @@ export default function ScoreScreen({ showToast }) {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = (typeof user !== 'undefined' ? user?.name : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
 
         const shareData = {
             title: 'Insurance Match',
-            text: `Hi,\nMy memory score is ${typeof scoreVal === 'number' ? Math.round(scoreVal) : scoreVal}. Find out yours ${shareUrl}\n\n${senderName}`.trim(),
+            text: `Hi,\nMy memory score is ${typeof scoreVal === 'number' ? Math.round(scoreVal) : scoreVal}. Find out yours ${shareUrl}${signature}`.trim(),
             url: shareUrl
         };
 
@@ -183,9 +184,11 @@ export default function ScoreScreen({ showToast }) {
                             {scenarioData.cta}
                         </p>
 
-                        <Button variant="outline" fullWidth onClick={() => window.location.href = 'tel:18001234567'} id="btn-call-now" className={styles.callNowBtn}>
-                            &nbsp; Call Now
-                        </Button>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <Button variant="outline" fullWidth onClick={() => window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`} id="btn-call-now" className={styles.callNowBtn}>
+                                &nbsp; Call Now
+                            </Button>
+                        )}
                         <Button variant="secondary" fullWidth onClick={() => setShowLeadModal(true)} id="btn-book-slot">
                             &nbsp; Book a Slot
                         </Button>

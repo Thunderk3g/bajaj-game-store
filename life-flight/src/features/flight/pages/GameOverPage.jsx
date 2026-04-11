@@ -204,7 +204,8 @@ export default function GameOverPage() {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
         const senderName = sessionStorage.getItem('lastSubmittedName') || userName || '';
-        const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}\n\n${senderName}`.trim();
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const msg = `Hi,\nI just crossed ${Math.round(score)} financial hurdles in this challenge.\nSee how many you can cross — try it here: ${shareUrl}${signature}`.trim();
         if (navigator.share) {
             try {
                 const sharePayload = {
@@ -442,11 +443,13 @@ export default function GameOverPage() {
                         </p>
 
                         {/* Call Action */}
-                        <a href="tel:18002097272" className="block w-full mb-4">
-                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20 rounded-md">
-                                <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
-                            </button>
-                        </a>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-4">
+                                <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 shadow-[0_6px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest border-2 border-white/20 rounded-md">
+                                    <Phone className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
+                                </button>
+                            </a>
+                        )}
 
                         <div className="relative py-1 mb-3">
                             <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-50"></div></div>
@@ -529,15 +532,12 @@ export default function GameOverPage() {
                                     <div className="space-y-1">
                                         <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Preferred Date</label>
                                         <input
-                                            type={formData.date ? "date" : "text"}
-                                            onFocus={(e) => e.target.type = 'date'}
-                                            onBlur={(e) => !formData.date && (e.target.type = 'text')}
+                                            type="date"
                                             min={today}
                                             max={endLimit}
                                             value={formData.date} onChange={e => updateField('date', e.target.value)}
                                             style={{ colorScheme: 'light' }}
-                                            className={`w-full bg-slate-50 h-11 border-2 rounded-xl text-slate-800 placeholder:text-slate-300 focus:outline-none transition-all px-4 font-bold text-sm ${errors.date ? 'border-red-500' : 'border-slate-200 focus:border-[#00B4D8]'}`}
-                                            placeholder="DD MM YYYY"
+                                            className={`w-full bg-slate-50 h-11 border-2 rounded-xl text-slate-800 focus:outline-none transition-all px-4 font-bold text-sm ${errors.date ? 'border-red-500' : 'border-slate-200 focus:border-[#00B4D8]'}`}
                                         />
                                         {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                     </div>

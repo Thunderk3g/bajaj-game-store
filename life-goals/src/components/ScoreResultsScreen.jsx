@@ -10,7 +10,7 @@ import { buildShareUrl } from '../utils/crypto';
 import { shortenUrl } from '../utils/shortener';
 import * as Dialog from '@radix-ui/react-dialog';
 
-const gameThumbnail = './assets/images/background_characters.png';
+const gameThumbnail = './assets/images/life_thumbnail.png';
 
 const TermsModal = () => (
     <Dialog.Root>
@@ -169,10 +169,11 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
 
         const shareUrl = await shortenUrl(rawUrl);
         const senderName = (typeof userName !== 'undefined' ? userName : '') || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
 
         const shareData = {
             title: 'Life Goals Preparedness',
-            text: `Hi,\nI just tried this Life Goals Preparedness Quiz and scored ${Math.round(score)}/100. It was quite interesting!\nSee how prepared you are for your life goals — try it here: ${shareUrl}\n\n${senderName}`.trim(),
+            text: `Hi,\nI just tried this Life Goals Preparedness Quiz and scored ${Math.round(score)}/100. It was quite interesting!\nSee how prepared you are for your life goals — try it here: ${shareUrl}${signature}`.trim(),
             url: shareUrl
         };
 
@@ -266,11 +267,13 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                     </p>
 
                     {/* Call Action */}
-                    <a href="tel:1800209999" className="block w-full mb-4">
-                        <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest">
-                            <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
-                        </button>
-                    </a>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-4">
+                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3 sm:py-4 transition-all flex items-center justify-center gap-2 text-xs sm:text-base uppercase tracking-widest">
+                                <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" /> CALL NOW
+                            </button>
+                        </a>
+                    )}
 
                     <div className="results-divider relative py-1 mb-3">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-slate-50"></div></div>
@@ -384,15 +387,12 @@ const ScoreResultsScreen = ({ score, userName, userPhone, onBookSlot, onRestart 
                                     <Input
                                         id="booking-date"
                                         name="date"
-                                        type={formData.date ? "date" : "text"}
-                                        onFocus={(e) => (e.target.type = "date")}
-                                        onBlur={(e) => !e.target.value && (e.target.type = "text")}
+                                        type="date"
                                         min={today}
                                         max={maxDate}
                                         value={formData.date}
                                         onChange={e => updateField('date', e.target.value)}
-                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-12 pr-12 uppercase text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
-                                        placeholder="DD MM YYYY"
+                                        className={`w-full appearance-none bg-slate-50 h-11 border-2 ${errors.date ? 'border-red-400' : 'border-slate-100'} text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-0 text-sm font-bold pl-12 pr-12 uppercase text-center [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
                                     />
                                     <div
                                         className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-1"

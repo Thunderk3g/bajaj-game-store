@@ -85,10 +85,7 @@ export default function BookModal({ onClose, showToast }) {
                 <FormInput
                     id="book-date"
                     label="Preferred Date"
-                    type={date ? "date" : "text"}
-                    onFocus={(e) => e.target.type = 'date'}
-                    onBlur={(e) => !date && (e.target.type = 'text')}
-                    placeholder="DD MM YYYY"
+                    type="date"
                     min={today}
                     value={date}
                     onChange={(e) => setDate(e.target.value)}

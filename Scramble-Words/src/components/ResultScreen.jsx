@@ -32,8 +32,9 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
     const handleShare = async () => {
         const rawShareUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawShareUrl);
-        const senderName = (typeof leadData !== 'undefined' ? leadData?.name : (firstName || '')) || '';
-        const shareText = `Hi,\nI just tried this word-unscramble challenge on life insurance and scored ${(finalScore)}/5.\nSee if you can beat my score — try it here: ${shareUrl}\n\n${senderName}`.trim();
+        const senderName = firstName || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const shareText = `Hi,\nI just tried this word-unscramble challenge on life insurance and scored ${(finalScore)}/5.\nSee if you can beat my score — try it here: ${shareUrl}${signature}`.trim();
         const shareData = {
             title: 'Unscrambled Financial Words',
             text: shareText,
@@ -155,14 +156,15 @@ export default function ResultScreen({ score, onRestart, onThankYou, firstName }
                         </p>
                     </motion.div>
 
-                    {/* Call Now */}
-                    <button
-                        onClick={() => window.location.href = "tel:18002099999"}
-                        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
-                    >
-                        <Phone className="w-4 h-4 fill-current" />
-                        CALL NOW
-                    </button>
+                    {sessionStorage.getItem('gamification_emp_mobile') && (
+                        <button
+                            onClick={() => window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`}
+                            className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
+                        >
+                            <Phone className="w-4 h-4 fill-current" />
+                            CALL NOW
+                        </button>
+                    )}
 
                     {/* Book Slot */}
                     <button

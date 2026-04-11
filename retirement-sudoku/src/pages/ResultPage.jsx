@@ -452,8 +452,9 @@ const ResultPage = memo(function ResultPage() {
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.origin;
         const shareUrl = await shortenUrl(rawUrl);
-        const senderName = (typeof userName !== 'undefined' ? userName : '') || '';
-        const text = `Hi,\nI managed to balance my retirement pillars and scored ${Math.round(scenario.points !== undefined ? scenario.points : score)} in this Sudoku-style retirement challenge.\nCan you beat my score? — try it here: ${shareUrl}\n\n${senderName}`.trim();
+        const senderName = sessionStorage.getItem('sudokuUserName') || userName || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const text = `Hi,\nI managed to balance my retirement pillars and scored ${Math.round(scenario.points !== undefined ? scenario.points : score)} in this Sudoku-style retirement challenge.\nCan you beat my score? — try it here: ${shareUrl}${signature}`.trim();
         if (navigator.share) {
             try {
                 const sharePayload = { title: 'Retirement Sudoku Score', text };
@@ -713,13 +714,15 @@ const ResultPage = memo(function ResultPage() {
                                 </motion.div>
 
                                 {/* CALL NOW */}
-                                <button
-                                    onClick={() => (window.location.href = 'tel:18002099999')}
-                                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
-                                >
-                                    <Phone className="w-4 h-4 fill-current" />
-                                    CALL NOW
-                                </button>
+                                {sessionStorage.getItem('gamification_emp_mobile') && (
+                                    <button
+                                        onClick={() => (window.location.href = `tel:${sessionStorage.getItem('gamification_emp_mobile')}`)}
+                                        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm uppercase tracking-wide rounded-xl shadow-sm flex items-center justify-center gap-2 border-2 border-transparent hover:border-white/20 transition-all"
+                                    >
+                                        <Phone className="w-4 h-4 fill-current" />
+                                        CALL NOW
+                                    </button>
+                                )}
 
                                 {/* BOOK SLOT */}
                                 <button

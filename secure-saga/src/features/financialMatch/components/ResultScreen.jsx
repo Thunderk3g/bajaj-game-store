@@ -109,13 +109,16 @@ const ResultScreen = ({
     const handleShare = async () => {
         const rawUrl = buildShareUrl() || window.location.href;
         const shareUrl = await shortenUrl(rawUrl);
-        const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list. Click here ${shareUrl}`.trim();
+        const senderName = userName || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        // URL must be inline in text (before signature). If passed as a separate `url` field,
+        // WhatsApp appends it after the last character without a newline → "[Name],[URL]".
+        const text = `Hi,\nI managed to fulfil ${Math.round(displayScore)}% of my bucket list. Fulfil your bucket list. ${shareUrl}${signature}`.trim();
         if (navigator.share) {
             try {
                 const sharePayload = {
                     title: 'Secure Saga',
-                    text: text,
-                    url: shareUrl
+                    text: text
                 };
                 try {
                     const res = await fetch(gameThumbnail);
@@ -131,11 +134,11 @@ const ResultScreen = ({
             } catch (err) {
                 // If user cancels, we do nothing. If error, fallback.
                 if (err.name !== 'AbortError') {
-                    copyToClipboard(text + " " + shareUrl);
+                    copyToClipboard(`${text}\n${shareUrl}`);
                 }
             }
         } else {
-            copyToClipboard(text + " " + shareUrl);
+            copyToClipboard(`${text}\n${shareUrl}`);
         }
     };
 
@@ -216,11 +219,13 @@ const ResultScreen = ({
                             {resultContent.cta}
                         </p>
 
-                        <a href="tel:1800209999" className="block w-full mb-2">
-                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2 sm:py-3 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-[11px] sm:text-sm tracking-widest border-2 border-white/10 rounded-lg">
-                                <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Call Now
-                            </button>
-                        </a>
+                        {sessionStorage.getItem('gamification_emp_mobile') && (
+                            <a href={`tel:${sessionStorage.getItem('gamification_emp_mobile')}`} className="block w-full mb-2">
+                                <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-2 sm:py-3 shadow-[0_3px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 text-[11px] sm:text-sm tracking-widest border-2 border-white/10 rounded-lg">
+                                    <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Call Now
+                                </button>
+                            </a>
+                        )}
 
                         <div className="relative py-0.5 mb-1.5">
                             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
@@ -336,14 +341,11 @@ const ResultScreen = ({
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                         <input
-                                            type={formData.date ? "date" : "text"}
-                                            onFocus={(e) => e.target.type = 'date'}
-                                            onBlur={(e) => !formData.date && (e.target.type = 'text')}
+                                            type="date"
                                             min={today}
                                             max={endOfYear}
                                             value={formData.date} onChange={e => updateField('date', e.target.value)}
-                                            className={`w-full bg-slate-50 h-10 border-2 rounded text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 text-[10px] font-bold px-2 ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100'}`}
-                                            placeholder="DD MM YYYY"
+                                            className={`w-full bg-slate-50 h-10 border-2 rounded text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 text-[10px] font-bold px-2 ${errors.date ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-100'}`}
                                         />
                                         {errors.date && <span className="text-[10px] text-red-500 ml-1 font-black uppercase tracking-wider">{errors.date}</span>}
                                     </div>

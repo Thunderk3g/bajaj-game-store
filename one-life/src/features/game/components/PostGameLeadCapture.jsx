@@ -67,7 +67,7 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
 
                 <div className="text-center mb-8 relative z-10">
                     <h2 className="text-white text-3xl font-black mb-2 tracking-tight uppercase leading-none text-left drop-shadow-sm">
-                        Enter Details
+                        Enter Your Details
                     </h2>
                     <p className="text-blue-300 font-bold text-lg text-left opacity-90">To see the results</p>
                 </div>

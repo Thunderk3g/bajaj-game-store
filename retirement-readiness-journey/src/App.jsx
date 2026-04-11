@@ -75,7 +75,7 @@ const App = () => {
             style={
                 isIntro ? {} :
                     isResults ? {
-                        background: 'linear-gradient(180deg, #0047AB 0%, #0066B2 100%)',
+                        backgroundImage: 'linear-gradient(180deg, #0047AB 0%, #0066B2 100%)',
                         backgroundAttachment: 'fixed'
                     } : {
                         backgroundImage: `url('./assets/bg-image.png')`,
@@ -88,7 +88,7 @@ const App = () => {
         >
             {/* Main Content */}
             <main className={cn(
-                "flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col w-full mx-auto pb-safe",
+                "flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col w-full mx-auto",
                 isIntro ? "p-0 max-w-none" : "max-w-[430px] px-4",
                 isResults ? "pt-[1rem] pb-0" : (isIntro ? "" : "py-4")
             )}>
@@ -114,7 +114,7 @@ const App = () => {
 
             {/* Footer Navigation */}
             {!isIntro && !isResults && currentStep.id !== JOURNEY_STEPS.LEAD && (
-                <footer className="sticky bottom-0 p-4 sm:p-6 z-50 bg-transparent flex justify-center w-full">
+                <footer className="p-4 sm:p-6 z-50 bg-transparent flex justify-center w-full">
                     <div className="w-full max-w-[430px] flex gap-3 sm:gap-4 px-4 sm:px-0">
                         <Button
                             variant="outline"
