@@ -9,6 +9,15 @@ const getBaseUrl = () => {
     return import.meta.env.VITE_LMS_BASE_URL || '';
 };
 
+// Separate base URL for Lead Update API
+const getUpdateBaseUrl = () => {
+    if (typeof window !== 'undefined' && (window as any).__LMS_UPDATE_BASE_URL__) {
+        return (window as any).__LMS_UPDATE_BASE_URL__;
+    }
+    // @ts-ignore
+    return import.meta.env.VITE_LMS_UPDATE_BASE_URL || getBaseUrl();
+};
+
 export const submitToLMS = async (data: any) => {
     // __LMS_BASE_URL__ injected at build time via vite.config.js define or window
     const UAT_URL = `${getBaseUrl()}/whatsappInhouse`;
@@ -66,7 +75,7 @@ export const submitToLMS = async (data: any) => {
 };
 
 export const updateLeadNew = async (leadNo: string, data: any) => {
-    const UAT_URL = `${getBaseUrl()}/updateLeadNew`;
+    const UAT_URL = `${getUpdateBaseUrl()}/updateLeadNew`;
 
     const payload = {
         leadNo: leadNo,
