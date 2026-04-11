@@ -144,5 +144,14 @@
     "popular": true,
     "gameId": "GAME_014",
     "assets": []
+  },
+  "tower-defense": {
+    "remoteEntry": "assets/games/tower-defense/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Legacy Defenders",
+    "popular": true,
+    "gameId": "GAME_015",
+    "assets": []
   }
 }

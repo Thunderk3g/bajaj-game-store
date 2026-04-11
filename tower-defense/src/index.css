@@ -1,0 +1,411 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  line-height: 1.4;
+  font-weight: 400;
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 102, 0.18), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.2), transparent 28%),
+    linear-gradient(160deg, #08111c 0%, #0f2027 55%, #142f39 100%);
+  color: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell,
+.lobby-shell {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.lobby-shell {
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.hero-card,
+.panel,
+.status-panel,
+.arena-shell {
+  background: rgba(6, 15, 23, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+}
+
+.hero-card,
+.panel,
+.status-panel {
+  padding: 24px;
+}
+
+.hero-card {
+  display: grid;
+  gap: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fbbf24;
+}
+
+.hero-copy h1,
+.status-topline h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 0.96;
+}
+
+.hero-description,
+.panel-copy,
+.detail-copy,
+.summary-card p,
+.status-card p,
+.event-item p,
+.empty-copy {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.76);
+}
+
+.summary-grid,
+.status-grid,
+.detail-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.summary-grid,
+.status-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.summary-card,
+.status-card,
+.detail-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.summary-card strong,
+.status-card strong,
+.detail-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.panel-heading h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.panel-copy {
+  max-width: 320px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.field span,
+.stat-label,
+.detail-card span,
+.event-type {
+  color: rgba(226, 232, 240, 0.62);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.field input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #f8fafc;
+  padding: 12px 14px;
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.primary-button,
+.secondary-button {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 16px;
+  transition:
+    transform 120ms ease,
+    opacity 120ms ease,
+    background-color 120ms ease;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: #111827;
+  font-weight: 700;
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lobby-actions,
+.status-actions,
+.player-strip,
+.tower-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.lobby-actions {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.status-shell {
+  margin-bottom: 20px;
+}
+
+.status-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.status-actions {
+  grid-template-columns: repeat(2, minmax(150px, auto));
+}
+
+.health-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #fbbf24, #ef4444);
+  border-radius: inherit;
+}
+
+.player-strip {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin-top: 18px;
+}
+
+.player-pill {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.online-dot,
+.offline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.online-dot {
+  background: #22c55e;
+}
+
+.offline-dot {
+  background: #ef4444;
+}
+
+.notice-banner,
+.state-banner {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+}
+
+.state-banner {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2;
+  max-width: 420px;
+}
+
+.state-banner.success {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.state-banner.failure {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.battlefield {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.7fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.arena-shell {
+  position: relative;
+  padding: 18px;
+}
+
+.battle-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 18px;
+  background: #07111d;
+}
+
+.control-column {
+  display: grid;
+  gap: 20px;
+}
+
+.tower-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 12px;
+  text-align: left;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f8fafc;
+}
+
+.tower-card.selected {
+  border-color: rgba(245, 158, 11, 0.9);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.3);
+}
+
+.tower-swatch {
+  width: 16px;
+  border-radius: 999px;
+}
+
+.tower-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.tower-copy p,
+.tower-copy small {
+  margin: 0;
+}
+
+.tower-copy p {
+  color: rgba(226, 232, 240, 0.8);
+}
+
+.affordable {
+  color: #86efac;
+}
+
+.not-affordable {
+  color: #fca5a5;
+}
+
+.event-feed {
+  display: grid;
+  gap: 12px;
+}
+
+.event-item {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+@media (max-width: 1100px) {
+  .lobby-shell,
+  .battlefield {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell,
+  .lobby-shell {
+    padding: 12px;
+  }
+
+  .status-topline,
+  .panel-heading {
+    flex-direction: column;
+  }
+
+  .status-actions,
+  .field-row {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+}

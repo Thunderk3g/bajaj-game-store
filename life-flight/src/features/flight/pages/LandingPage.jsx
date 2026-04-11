@@ -133,8 +133,10 @@ export default function LandingPage() {
 
             if (result.success) {
                 // Store leadNo so GameOverPage can use updateLeadNew for slot booking
-                if (result.leadNo || result.lead_no) {
-                    sessionStorage.setItem('lifeFlightLeadNo', result.leadNo || result.lead_no);
+                const responseData = result.data || result;
+                const leadNo = responseData.leadNo || responseData.LeadNo;
+                if (leadNo) {
+                    sessionStorage.setItem('lifeFlightLeadNo', leadNo);
                 }
                 setLastSubmittedPhone(phone);
                 setLastSubmittedName(userName.trim());

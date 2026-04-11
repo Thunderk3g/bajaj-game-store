@@ -92,6 +92,11 @@ const games = [
     source: path.join(ROOT_DIR, "life-sorted", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "life-sorted"),
   },
+  {
+    name: "tower-defense",
+    source: path.join(ROOT_DIR, "tower-defense", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "tower-defense"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -296,15 +301,26 @@ const manifest = {
     popular: true,
     gameId: "GAME_014",
     assets: [],
+  },
+  "tower-defense": {
+    remoteEntry: "assets/games/tower-defense/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Legacy Defenders",
+    popular: true,
+    gameId: "GAME_015",
+    assets: [],
   }
 };
 
 const manifests = [
   path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.json"),
   path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.prod.json"),
+  path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.preprod.json"),
+  path.join(ROOT_DIR, "angular-shell", "src", "assets", "federation.manifest.production.json"),
 ];
 
 manifests.forEach((manifestPath) => {
   fs.writeJsonSync(manifestPath, manifest, { spaces: 2 });
 });
-console.log("✅ Updated both federation manifests with local paths!\n");
+console.log("✅ Updated federation manifests with local paths!\n");

@@ -110,8 +110,13 @@ const IntroScreen = ({ onStart }) => {
             });
 
             if (result.success) {
+                const responseData = result.data || result;
+                const leadNo = responseData.leadNo || responseData.LeadNo;
+                if (leadNo) {
+                    sessionStorage.setItem('oneLifeLeadNo', leadNo);
+                }
                 setLastSubmittedPhone(phone);
-                onStart({ name: userName.trim(), phone });
+                onStart({ name: userName.trim(), phone, leadNo });
             } else {
                 showToastMessage(result.error || "Submission failed. Please try again.");
             }

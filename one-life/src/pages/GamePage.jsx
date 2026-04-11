@@ -9,7 +9,7 @@ import IntroScreen from '../features/game/components/IntroScreen';
 import TutorialOverlay from '../features/game/components/TutorialOverlay';
 import ThankYouScreen from '../features/game/components/ThankYouScreen';
 import LifeLostPopup from '../features/game/components/LifeLostPopup';
-import { submitToLMS } from '../services/api';
+import { submitToLMS, updateLeadNew } from '../services/api';
 
 const GamePage = () => {
     const {
@@ -44,6 +44,19 @@ const GamePage = () => {
     };
 
     const handleBookSlot = async (bookingInfo) => {
+        const ln = leadData?.leadNo || sessionStorage.getItem('oneLifeLeadNo');
+        
+        if (ln) {
+            const result = await updateLeadNew(ln, {
+                name: leadData?.name || bookingInfo.name,
+                mobile: leadData?.phone || bookingInfo.mobile_no,
+                date: bookingInfo.date,
+                time: bookingInfo.timeSlot,
+                remarks: `One Life Slot Booking | Score: ${score}`
+            });
+            return result;
+        }
+
         const result = await submitToLMS({
             ...bookingInfo,
             name: leadData?.name || bookingInfo.name,
