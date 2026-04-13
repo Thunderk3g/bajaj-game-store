@@ -1,26 +1,11 @@
 // API function to submit to Bajaj LMS (WhatsApp Inhouse API)
 
-// Using window.__LMS_BASE_URL__ if defined, else fallback to import.meta.env
-const getBaseUrl = () => {
-    if (typeof window !== 'undefined' && (window as any).__LMS_BASE_URL__) {
-        return (window as any).__LMS_BASE_URL__;
-    }
-    // @ts-ignore
-    return import.meta.env.VITE_LMS_BASE_URL || '';
-};
-
-// Separate base URL for Lead Update API
-const getUpdateBaseUrl = () => {
-    if (typeof window !== 'undefined' && (window as any).__LMS_UPDATE_BASE_URL__) {
-        return (window as any).__LMS_UPDATE_BASE_URL__;
-    }
-    // @ts-ignore
-    return import.meta.env.VITE_LMS_UPDATE_BASE_URL || getBaseUrl();
-};
+declare const __LMS_BASE_URL__: string;
+declare const __LMS_UPDATE_BASE_URL__: string;
 
 export const submitToLMS = async (data: any) => {
-    // __LMS_BASE_URL__ injected at build time via vite.config.js define or window
-    const UAT_URL = `${getBaseUrl()}/whatsappInhouse`;
+    // __LMS_BASE_URL__ injected at build time via vite.config.ts define
+    const UAT_URL = `${__LMS_BASE_URL__}/whatsappInhouse`;
 
     // Read userId and gameID from sessionStorage
     const userId = sessionStorage.getItem('gamification_userId') || '';
@@ -75,7 +60,7 @@ export const submitToLMS = async (data: any) => {
 };
 
 export const updateLeadNew = async (leadNo: string, data: any) => {
-    const UAT_URL = `${getUpdateBaseUrl()}/updateLeadNew`;
+    const UAT_URL = `${__LMS_UPDATE_BASE_URL__}/updateLeadNew`;
 
     const payload = {
         leadNo: leadNo,
