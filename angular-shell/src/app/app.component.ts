@@ -13,12 +13,12 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'angular-shell';
   private reportInterval: any;
 
-  constructor(private assetLogger: AssetLoadingLogger) { console.log('UAT Deployed : 24-03-2026 13:10 PM'); }
+  constructor(private assetLogger: AssetLoadingLogger) { }
 
   ngOnInit(): void {
 
-    console.log('🎮 UAT Deployed Gamification  -> 7th April 2026 , 13:10 PM');
-        console.log('🎮 PROD Deployed Gamification  -> 7th April 2026 , 9:10 PM');
+    console.log('🎮 UAT Deployed Gamification  -> 13th April 2026 , 17:30 PM');
+    console.log('🎮 PROD Deployed Gamification  -> 13th April 2026 , 17:30 PM');
 
     console.log('[AppComponent] Application initialized');
 
