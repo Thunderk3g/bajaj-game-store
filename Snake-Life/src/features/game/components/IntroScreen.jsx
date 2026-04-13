@@ -40,8 +40,11 @@ const IntroScreen = ({ onStart }) => {
         setIsSubmitting(false);
 
         if (result.success) {
+            const responseData = result.data || result;
+            const ln = responseData.leadNo || responseData.LeadNo;
+            if (ln) sessionStorage.setItem('snakeLifeLeadNo', ln);
             setIsModalOpen(false);
-            onStart({ ...formData, leadNo: result.leadNo || (result.data && (result.data.leadNo || result.data.LeadNo)) }); // Pass lead data back to page
+            onStart({ ...formData, leadNo: ln }); // Pass lead data back to page
         } else {
             setErrors({ submit: result.error || 'Connection error. Please try again.' });
         }

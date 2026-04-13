@@ -41,10 +41,11 @@ const PostGameLeadCapture = ({ onSuccess, score }) => {
 
             if (result.success) {
                 const responseData = result.data || result;
-                if (responseData.leadNo || responseData.LeadNo) {
-                    sessionStorage.setItem('secureSagaLeadNo', responseData.leadNo || responseData.LeadNo);
+                const ln = responseData?.leadNo || responseData?.LeadNo || result?.leadNo || result?.LeadNo;
+                if (ln) {
+                    sessionStorage.setItem('secureSagaLeadNo', ln);
                 }
-                onSuccess({ name: name.trim(), mobile: phone });
+                onSuccess({ name: name.trim(), mobile: phone, leadNo: ln || null });
             } else {
                 setErrors({ submit: result.error || 'Submission failed' });
             }

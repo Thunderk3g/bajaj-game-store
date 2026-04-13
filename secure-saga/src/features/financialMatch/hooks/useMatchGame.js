@@ -392,14 +392,19 @@ const playSound = (type) => {
 
     const handleLeadSuccess = useCallback((details) => {
         dispatch({ type: A.SET_ENTRY, payload: details });
+        if (details && details.leadNo) {
+            dispatch({ type: A.SET_LEAD_NO, payload: details.leadNo });
+        }
         dispatch({ type: A.SHOW_RESULT });
     }, []);
 
     const handleBookSlot = useCallback(
         async (formData) => {
             try {
-                if (state.leadNo) {
-                    await updateLeadNew(state.leadNo, {
+                const storedLeadNo = sessionStorage.getItem('secureSagaLeadNo');
+                const leadNo = storedLeadNo || state.leadNo;
+                if (leadNo) {
+                    await updateLeadNew(leadNo, {
                         firstName: formData.name,
                         mobile: formData.mobile,
                         date: formData.date,

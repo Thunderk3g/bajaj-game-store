@@ -5,8 +5,6 @@ import { getFlipStars, getScoreMessage, formatTime, getScoreScenario } from '../
 import { buildShareUrl } from '../../utils/crypto';
 import { shortenUrl } from '../../utils/shortener';
 import { TOTAL_PAIRS, SCREENS } from '../../constants/game';
-import { ACTION } from '../../context/GameContext';
-import { submitToLMS } from '../../utils/api';
 import { submitScore } from '../../services/api';
 import Button from '../ui/Button';
 import LeadModal from '../modals/LeadModal';
@@ -16,7 +14,7 @@ import gameThumbnail from '../../assets/tile-bg.png';
 const CIRCUMFERENCE = 380;
 
 export default function ScoreScreen({ showToast }) {
-    const { state, navigate, dispatch } = useGame();
+    const { state, navigate } = useGame();
     const { initGame } = useGameEngine();
     const { game, user } = state;
     const { score, flipsCount, timeRemaining, elapsedSeconds } = game;
@@ -32,28 +30,16 @@ export default function ScoreScreen({ showToast }) {
     const scenarioData = getScoreScenario(score);
     const elapsed = elapsedSeconds || (120 - timeRemaining);
 
-    // Submission logic for background lead
+    // Background game-score telemetry. Runs once on mount.
+    // Note: the lead itself was already submitted by LeadScreen before
+    // navigating here (it stored leadNo in sessionStorage as
+    // `tileFlippingLeadNo`), so we must NOT re-submit on unmount — doing so
+    // caused the "Book a Slot" path to fire submitToLMS multiple times
+    // because every setUser() re-ran this effect and its cleanup.
     useEffect(() => {
-        // Submit score in background
         submitScore({ ...user, score, flips: flipsCount, elapsed }).catch(() => { });
-
-        return () => {
-            // When leaving the score screen (e.g. Play Again or navigating away)
-            // If user provided details at start but we haven't submitted yet (didn't book),
-            // we should submit their general lead now.
-            if (user.name && user.phone && !user.isLeadSubmitted) {
-                console.log("[ScoreScreen] User leaving without booking. Submitting deferred lead...");
-                submitToLMS({
-                    name: user.name,
-                    mobile_no: user.phone,
-                    score: scaledScore,
-                    summary_dtls: "Game Lead (Completed)"
-                }).then(() => {
-                    dispatch({ type: ACTION.MARK_SUBMITTED });
-                });
-            }
-        };
-    }, [user, dispatch, score, flipsCount, elapsed]); // eslint-disable-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Animate the score ring on mount
     useEffect(() => {

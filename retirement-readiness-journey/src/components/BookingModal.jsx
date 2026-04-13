@@ -64,7 +64,9 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
 
         try {
             let result;
-            if (leadNo) {
+            const storedLeadNo = sessionStorage.getItem('retirementReadinessLeadNo');
+            const effectiveLeadNo = storedLeadNo || leadNo;
+            if (effectiveLeadNo) {
                 const payload = {
                     firstName: formData.name.trim(),
                     mobile: formData.mobile,
@@ -72,7 +74,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, initialName, i
                     time: formData.time,
                     remarks: `Retirement Game Slot Booking | Score: ${score}`
                 };
-                result = await updateLeadNew(leadNo, payload);
+                result = await updateLeadNew(effectiveLeadNo, payload);
             } else {
                 const payload = {
                     name: formData.name.trim(),

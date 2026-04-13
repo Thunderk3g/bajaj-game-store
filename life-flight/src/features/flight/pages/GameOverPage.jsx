@@ -96,8 +96,9 @@ export default function GameOverPage() {
             sessionStorage.setItem('lastSubmittedPhone', leadPhone);
             setUserName(leadName.trim().split(' ')[0]);
             setFormData(p => ({ ...p, name: leadName.trim(), mobile: leadPhone }));
-            if (result?.data?.leadNo || result?.data?.LeadNo) {
-                sessionStorage.setItem('lifeFlightLeadNo', result.data.leadNo || result.data.LeadNo);
+            const ln = result?.data?.leadNo || result?.data?.LeadNo || result?.leadNo || result?.LeadNo;
+            if (ln) {
+                sessionStorage.setItem('lifeFlightLeadNo', ln);
             }
             setShowLeadForm(false);
         } catch (err) {

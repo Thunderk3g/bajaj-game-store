@@ -39,11 +39,11 @@ const LeadCaptureScreen = ({ onSuccess }) => {
             const result = await submitToLMS(formData);
 
             if (result.success) {
-                const responseData = result.data || result;
-                if (responseData.leadNo || responseData.LeadNo) {
-                    sessionStorage.setItem('retirementReadinessLeadNo', responseData.leadNo || responseData.LeadNo);
+                const ln = result?.data?.leadNo || result?.data?.LeadNo || result?.leadNo || result?.LeadNo;
+                if (ln) {
+                    sessionStorage.setItem('retirementReadinessLeadNo', ln);
                 }
-                onSuccess({ name: name.trim(), mobile: phone });
+                onSuccess({ name: name.trim(), mobile: phone, leadNo: ln });
             } else {
                 setErrors({ submit: result.error || 'Submission failed' });
             }

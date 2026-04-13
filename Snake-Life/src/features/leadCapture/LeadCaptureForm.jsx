@@ -41,9 +41,13 @@ const LeadCaptureForm = ({ score, onSuccess }) => {
                 summary_dtls: 'Snake Life - Post Game Lead',
             });
             if (result.success) {
+                const responseData = result.data || result;
+                const ln = responseData.leadNo || responseData.LeadNo;
+                if (ln) sessionStorage.setItem('snakeLifeLeadNo', ln);
                 onSuccess({
                     name: formData.name,
-                    phone: formData.mobile
+                    phone: formData.mobile,
+                    leadNo: ln
                 });
             }
         } catch (error) {

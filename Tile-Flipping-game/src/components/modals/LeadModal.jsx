@@ -52,8 +52,12 @@ export default function LeadModal({
             }
 
             if (shouldSubmit) {
+                // Read leadNo captured earlier (LeadScreen stored it after the
+                // initial submitToLMS). Falls back to context state for safety.
+                const storedLeadNo = sessionStorage.getItem('tileFlippingLeadNo') || user.leadNo;
+
                 // Submit to real API
-                if (isBooking && user.leadNo) {
+                if (isBooking && storedLeadNo) {
                     const payload = {
                         name,
                         mobile: phone,
@@ -62,7 +66,7 @@ export default function LeadModal({
                         remarks: `${summaryDtls} | Pref Date: ${preferredDate} | Pref Time: ${preferredTime}`
                     };
                     console.log("[LeadModal] Calling updateLeadNew with:", payload);
-                    await updateLeadNew(user.leadNo, payload);
+                    await updateLeadNew(storedLeadNo, payload);
                     dispatch({ type: ACTION.MARK_SUBMITTED });
 
                     // Navigate to Thank You screen
@@ -76,10 +80,18 @@ export default function LeadModal({
                     console.log("[LeadModal] Calling submitToLMS with:", payload);
                     const result = await submitToLMS(payload);
                     const responseData = result?.data || result;
-                    if (result && result.success && (responseData.leadNo || responseData.LeadNo)) {
-                        setUser({ name, phone, leadNo: responseData.leadNo || responseData.LeadNo });
+                    const ln = responseData?.leadNo || responseData?.LeadNo;
+                    if (result && result.success && ln) {
+                        sessionStorage.setItem('tileFlippingLeadNo', ln);
+                        setUser({ name, phone, leadNo: ln });
                     }
                     dispatch({ type: ACTION.MARK_SUBMITTED });
+
+                    // When this path runs for a booking (no leadNo was found),
+                    // still navigate to Thank You so the user isn't stuck.
+                    if (isBooking) {
+                        navigate(SCREENS.THANK_YOU);
+                    }
                 }
             }
 

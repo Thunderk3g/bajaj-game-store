@@ -31,7 +31,8 @@ const GamePage = () => {
     };
 
     const handleBookSlot = async (bookingInfo) => {
-        if (leadData?.leadNo) {
+        const leadNo = sessionStorage.getItem('snakeLifeLeadNo') || leadData?.leadNo;
+        if (leadNo) {
             const payload = {
                 firstName: bookingInfo.name || leadData.name,
                 mobile: bookingInfo.mobile_no || leadData.phone,
@@ -39,7 +40,7 @@ const GamePage = () => {
                 time: bookingInfo.timeSlot,
                 remarks: `Snake Life - Appointment | Milestones: ${score}`
             };
-            return await updateLeadNew(leadData.leadNo, payload);
+            return await updateLeadNew(leadNo, payload);
         } else {
             const result = await submitToLMS({
                 ...bookingInfo,
