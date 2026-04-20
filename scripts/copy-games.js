@@ -97,6 +97,26 @@ const games = [
     source: path.join(ROOT_DIR, "tower-defense", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "tower-defense"),
   },
+  {
+    name: "retirewise-sudoku",
+    source: path.join(ROOT_DIR, "retirewise-sudoku", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "retirewise-sudoku"),
+  },
+  {
+    name: "shield-of-future",
+    source: path.join(ROOT_DIR, "shield-of-future", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "shield-of-future"),
+  },
+  {
+    name: "retirewise-words",
+    source: path.join(ROOT_DIR, "retirewise-words", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "retirewise-words"),
+  },
+  {
+    name: "futureguard-child",
+    source: path.join(ROOT_DIR, "futureguard-child", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "futureguard-child"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -308,6 +328,42 @@ const manifest = {
     displayName: "Legacy Defenders",
     popular: true,
     gameId: "GAME_015",
+    assets: [],
+  },
+  "retirewise-sudoku": {
+    remoteEntry: "assets/games/retirewise-sudoku/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "RetireWise Sudoku",
+    popular: true,
+    gameId: "GAME_016",
+    assets: [],
+  },
+  "shield-of-future": {
+    remoteEntry: "assets/games/shield-of-future/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Shield of Future",
+    popular: true,
+    gameId: "GAME_017",
+    assets: [],
+  },
+  "retirewise-words": {
+    remoteEntry: "assets/games/retirewise-words/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "RetireWise Words",
+    popular: true,
+    gameId: "GAME_018",
+    assets: [],
+  },
+  "futureguard-child": {
+    remoteEntry: "assets/games/futureguard-child/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "FutureGuard Child Plan",
+    popular: true,
+    gameId: "GAME_019",
     assets: [],
   }
 };

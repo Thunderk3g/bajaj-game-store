@@ -506,6 +506,10 @@ export class LobbyComponent implements OnInit {
     'retirement-readiness-journey': '🚀',
     'life-shield-bomber': '🛡️',
     'tile-flipping-game': '🧩',
+    'retirewise-sudoku': '🔢',
+    'shield-of-future': '🛡️',
+    'retirewise-words': '📝',
+    'futureguard-child': '👶',
   };
 
 

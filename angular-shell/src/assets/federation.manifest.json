@@ -152,5 +152,41 @@
     "popular": true,
     "gameId": "GAME_015",
     "assets": []
+  },
+  "retirewise-sudoku": {
+    "remoteEntry": "assets/games/retirewise-sudoku/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "RetireWise Sudoku",
+    "popular": true,
+    "gameId": "GAME_016",
+    "assets": []
+  },
+  "shield-of-future": {
+    "remoteEntry": "assets/games/shield-of-future/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Shield of Future",
+    "popular": true,
+    "gameId": "GAME_017",
+    "assets": []
+  },
+  "retirewise-words": {
+    "remoteEntry": "assets/games/retirewise-words/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "RetireWise Words",
+    "popular": true,
+    "gameId": "GAME_018",
+    "assets": []
+  },
+  "futureguard-child": {
+    "remoteEntry": "assets/games/futureguard-child/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "FutureGuard Child Plan",
+    "popular": true,
+    "gameId": "GAME_019",
+    "assets": []
   }
 }
