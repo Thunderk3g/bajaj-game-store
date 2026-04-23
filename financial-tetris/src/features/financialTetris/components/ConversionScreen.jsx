@@ -326,9 +326,7 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                                 <input
                                     id="booking-date"
                                     name="date"
-                                    type={bookingData.date ? "date" : "text"}
-                                    onFocus={(e) => e.target.type = 'date'}
-                                    onBlur={(e) => !bookingData.date && (e.target.type = 'text')}
+                                    type="date"
                                     value={bookingData.date}
                                     min={today}
                                     max={maxDate}
@@ -336,11 +334,9 @@ const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot
                                         setBookingData(prev => ({ ...prev, date: e.target.value }));
                                         setErrors(prev => ({ ...prev, date: null }));
                                     }}
-                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all uppercase text-sm min-h-[52px] ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
+                                    className={`w-full block bg-slate-900 border-2 rounded-2xl pl-12 pr-10 py-4 text-white font-bold focus:outline-none focus:border-blue-500 transition-all uppercase text-sm min-h-[52px] no-native-datepicker ${errors.date ? 'border-red-500' : 'border-slate-800'}`}
                                 />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                                    <ChevronDown className="w-4 h-4 text-white/40" />
-                                </div>
+
                             </div>
                         </div>
 

@@ -131,6 +131,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
 }
 
+/* Hide native date picker indicator for specific inputs */
+input.no-native-datepicker::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
+
 @layer components {
     .h-screen-safe {
         height: 100vh;

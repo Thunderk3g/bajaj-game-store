@@ -205,14 +205,11 @@ export default function LeadModal({
                                     </label>
                                     <input
                                         id="preferredDate"
-                                        type={preferredDate ? "date" : "text"}
-                                        onFocus={(e) => e.target.type = 'date'}
-                                        onBlur={(e) => !preferredDate && (e.target.type = 'text')}
+                                        type="date"
                                         value={preferredDate}
                                         onChange={(e) => setPreferredDate(e.target.value)}
                                         className={styles.input}
                                         min={new Date().toISOString().split('T')[0]}
-                                        placeholder="DD MM YYYY"
                                     />
                                 </div>
                                 <div className={styles.field}>
