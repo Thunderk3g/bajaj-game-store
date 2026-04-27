@@ -17,3 +17,5 @@ packages:
   - "one-life"
   - "life-sorted"
   - "tower-defense"
+  - "stackibility-stack"
+  - "health-shield/health-shield"

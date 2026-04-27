@@ -506,6 +506,8 @@ export class LobbyComponent implements OnInit {
     'retirement-readiness-journey': '🚀',
     'life-shield-bomber': '🛡️',
     'tile-flipping-game': '🧩',
+    'stackibility-stack': '🏗️',
+    'health-shield': '❤️‍🩹',
   };
 
 

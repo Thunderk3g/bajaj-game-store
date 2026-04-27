@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Health Shield — Critical Illness Challenge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #001a5e;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #root { height: 100vh; width: 100vw; display: flex; justify-content: center; }
+    .game-wrap { width: 100%; max-width: 480px; height: 100vh; overflow: hidden; position: relative; }
+    .screen-scroll { width: 100%; height: 100vh; overflow-y: auto; overflow-x: hidden; }
+    canvas { display: block; touch-action: none; }
+    input, select { -webkit-appearance: none; appearance: none; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: #003DA6; border-radius: 2px; }
+    .btn-press:active { transform: scale(0.96); }
+    @keyframes pop { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
+    .pop { animation: pop 0.3s ease-out; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    .float { animation: float 3s ease-in-out infinite; }
+  </style>
+  <script type="module" crossorigin src="./assets/index-Ck0hTxPm.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>

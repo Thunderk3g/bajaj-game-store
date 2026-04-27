@@ -97,6 +97,16 @@ const games = [
     source: path.join(ROOT_DIR, "tower-defense", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "tower-defense"),
   },
+  {
+    name: "stackibility-stack",
+    source: path.join(ROOT_DIR, "stackibility-stack", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "stackibility-stack"),
+  },
+  {
+    name: "health-shield",
+    source: path.join(ROOT_DIR, "health-shield", "health-shield", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "health-shield"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -308,6 +318,24 @@ const manifest = {
     displayName: "Legacy Defenders",
     popular: true,
     gameId: "GAME_015",
+    assets: [],
+  },
+  "stackibility-stack": {
+    remoteEntry: "assets/games/stackibility-stack/index.js",
+    exposedModule: "./GameEntry",
+    type: "vanilla",
+    displayName: "Stackibility Stack",
+    popular: true,
+    gameId: "GAME_016",
+    assets: [],
+  },
+  "health-shield": {
+    remoteEntry: "assets/games/health-shield/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Health Shield",
+    popular: true,
+    gameId: "GAME_017",
     assets: [],
   }
 };

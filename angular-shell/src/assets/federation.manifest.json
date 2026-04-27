@@ -152,5 +152,23 @@
     "popular": true,
     "gameId": "GAME_015",
     "assets": []
+  },
+  "stackibility-stack": {
+    "remoteEntry": "assets/games/stackibility-stack/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "vanilla",
+    "displayName": "Stackibility Stack",
+    "popular": true,
+    "gameId": "GAME_016",
+    "assets": []
+  },
+  "health-shield": {
+    "remoteEntry": "assets/games/health-shield/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Health Shield",
+    "popular": true,
+    "gameId": "GAME_017",
+    "assets": []
   }
 }
