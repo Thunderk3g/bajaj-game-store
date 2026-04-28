@@ -1,6 +1,6 @@
-// BubbleShooter.jsx — classic bubble shooter
+// BubbleShooter.jsx — classic bubble shooter with sliding ammo queue.
 // Match 3+ same colour to clear. Hex grid, ceiling drops every N shots.
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { COLORS } from './data.js';
 
 const BUBBLE_R = 22;
@@ -8,17 +8,34 @@ const BUBBLE_D = BUBBLE_R * 2;
 const ROW_H = BUBBLE_D * 0.866;
 const COLS = 8;
 export const GAME_W = COLS * BUBBLE_D + BUBBLE_R; // 374
-export const GAME_H = 560;
-const SHOOTER_Y = GAME_H - 56;
+export const GAME_H = 600;
+const SHOOTER_Y = GAME_H - 50;        // 550
 const SHOT_SPEED = 16;
-const DROP_INTERVAL = 6;          // ceiling drops every 6 shots
+const DROP_INTERVAL = 6;              // ceiling drops every 6 shots
 const DROP_DIST = ROW_H;
-const LOSE_LINE = SHOOTER_Y - 80;
+const LOSE_LINE = SHOOTER_Y - 80;     // 470
+
+const QUEUE_LEN = 5; // 4 visible (current, next, q1, q2) + 1 incoming buffer
+const HUD_BAR_H = 56;
+const QUEUE_STRIP_H = 60;
 
 function gridToPx(row, col, ceilingDrop) {
   const x = BUBBLE_R + col * BUBBLE_D + (row % 2 === 1 ? BUBBLE_R : 0);
   const y = BUBBLE_R + 8 + row * ROW_H + ceilingDrop;
   return { x, y };
+}
+
+function ammoSlot(idx, queueY) {
+  // Returns the absolute (x, y) and visual scale for ammo at queue index `idx`.
+  // 0 = cannon, 1 = next/swap (right of cannon), 2/3 = queue strip, 4 = off-screen incoming.
+  switch (idx) {
+    case 0: return { x: GAME_W / 2, y: SHOOTER_Y, scale: 1.0 };
+    case 1: return { x: GAME_W / 2 + 58, y: SHOOTER_Y, scale: 0.66 };
+    case 2: return { x: 94, y: queueY, scale: 0.55 };
+    case 3: return { x: 124, y: queueY, scale: 0.5 };
+    case 4: return { x: GAME_W + 50, y: queueY, scale: 0.45 };
+    default: return { x: GAME_W + 200, y: queueY, scale: 0.4 };
+  }
 }
 
 function buildInitialBubbles(level) {
@@ -28,7 +45,6 @@ function buildInitialBubbles(level) {
   for (let row = 0; row < rows; row++) {
     const cols = row % 2 === 1 ? COLS - 1 : COLS;
     for (let col = 0; col < cols; col++) {
-      // Random gaps in the lower rows for variety.
       if (row >= rows - 2 && Math.random() < 0.35) continue;
       const colorId = colors[Math.floor(Math.random() * colors.length)];
       const { x, y } = gridToPx(row, col, 0);
@@ -36,6 +52,14 @@ function buildInitialBubbles(level) {
     }
   }
   return out;
+}
+
+function buildInitialQueue(level) {
+  const colors = level.colors;
+  return Array.from({ length: QUEUE_LEN }, (_, i) => ({
+    id: `ammo-init-${i}-${Math.random().toString(36).slice(2, 8)}`,
+    colorId: colors[i % colors.length],
+  }));
 }
 
 function snapToGrid(px, py, ceilingDrop) {
@@ -61,6 +85,40 @@ function Bubble({ x, y, colorDef, popping, falling, scale = 1 }) {
   );
 }
 
+function AmmoBall({ ammo, idx, queueY, projectileActive, onSwap, justLoadedId }) {
+  const colorDef = COLORS[ammo.colorId];
+  const slot = ammoSlot(idx, queueY);
+  const size = BUBBLE_D * slot.scale;
+  const bg = `radial-gradient(circle at 32% 28%, ${colorDef.glow} 0%, ${colorDef.color} 45%, ${colorDef.colorDeep} 100%)`;
+
+  const hidden = idx === 0 && projectileActive;
+  const isSwapSlot = idx === 1;
+  const justLoaded = justLoadedId === ammo.id;
+
+  const cls = [
+    'ammo-ball',
+    isSwapSlot ? 'is-swap' : '',
+    justLoaded ? 'is-loaded' : '',
+  ].filter(Boolean).join(' ');
+
+  return (
+    <div
+      className={cls}
+      onClick={isSwapSlot ? onSwap : undefined}
+      style={{
+        left: slot.x,
+        top: slot.y,
+        width: size,
+        height: size,
+        background: bg,
+        opacity: hidden ? 0 : 1,
+        zIndex: idx === 0 ? 14 : (13 - idx),
+      }}
+      title={isSwapSlot ? 'Tap to swap' : undefined}
+    />
+  );
+}
+
 export default function BubbleShooter({ level, onWin, onLose }) {
   const [bubbles, setBubbles] = useState(() => buildInitialBubbles(level));
   const [shotsLeft, setShotsLeft] = useState(level.shots);
@@ -75,8 +133,8 @@ export default function BubbleShooter({ level, onWin, onLose }) {
     return arr.length ? arr : level.colors;
   }, [bubbles, level.colors]);
 
-  const [currentColor, setCurrentColor] = useState(() => level.colors[0]);
-  const [nextColor, setNextColor] = useState(() => level.colors[1] || level.colors[0]);
+  const [ammoQueue, setAmmoQueue] = useState(() => buildInitialQueue(level));
+  const [justLoadedId, setJustLoadedId] = useState(null);
 
   const [projectile, setProjectile] = useState(null);
   const [aimAngle, setAimAngle] = useState(-Math.PI / 2);
@@ -85,31 +143,96 @@ export default function BubbleShooter({ level, onWin, onLose }) {
   const [bursts, setBursts] = useState([]);
 
   const containerRef = useRef(null);
+  const playfieldRef = useRef(null);
   const rafRef = useRef(null);
   const finishedRef = useRef(false);
 
+  // Measured top of the playfield within the outer container. We use this to
+  // position the ammo overlay so it always lines up with the playfield's true
+  // top — regardless of whether the HUD bar grows past HUD_BAR_H (e.g. when
+  // the combo line appears in the score chip).
+  const [ammoLayerTop, setAmmoLayerTop] = useState(HUD_BAR_H);
+
+  useLayoutEffect(() => {
+    if (!playfieldRef.current) return;
+    const measure = () => {
+      if (playfieldRef.current) {
+        setAmmoLayerTop(playfieldRef.current.offsetTop);
+      }
+    };
+    measure();
+    let ro;
+    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+      ro = new ResizeObserver(measure);
+      ro.observe(containerRef.current);
+    }
+    window.addEventListener('resize', measure);
+    return () => {
+      window.removeEventListener('resize', measure);
+      if (ro) ro.disconnect();
+    };
+  }, []);
+
+  // Recompute when the combo changes (it can add/remove a line in the HUD).
+  useLayoutEffect(() => {
+    if (playfieldRef.current) {
+      setAmmoLayerTop(playfieldRef.current.offsetTop);
+    }
+  }, [combo]);
+
+  const queueY = GAME_H + 30;
+
+  const pickColor = useCallback((excludeId) => {
+    const pool = availableColors.length ? availableColors : level.colors;
+    const filtered = excludeId ? pool.filter(c => c !== excludeId) : pool;
+    const arr = filtered.length ? filtered : pool;
+    return arr[Math.floor(Math.random() * arr.length)];
+  }, [availableColors, level.colors]);
+
   const cycleAmmo = useCallback(() => {
-    const pool = availableColors;
-    setCurrentColor(() => {
-      const newCur = nextColor;
-      setNextColor(pool[Math.floor(Math.random() * pool.length)]);
-      return newCur;
+    setAmmoQueue(prev => {
+      const newColor = pickColor(prev[prev.length - 1]?.colorId);
+      const next = [
+        ...prev.slice(1),
+        { id: `ammo-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, colorId: newColor },
+      ];
+      setJustLoadedId(next[0]?.id || null);
+      return next;
     });
-  }, [availableColors, nextColor]);
+  }, [pickColor]);
+
+  const swapAmmo = useCallback(() => {
+    if (projectile) return;
+    setAmmoQueue(prev => {
+      if (prev.length < 2) return prev;
+      const [a, b, ...rest] = prev;
+      return [b, a, ...rest];
+    });
+  }, [projectile]);
+
+  // Clear the "just loaded" pulse class shortly after it fires.
+  useEffect(() => {
+    if (!justLoadedId) return;
+    const t = setTimeout(() => setJustLoadedId(null), 360);
+    return () => clearTimeout(t);
+  }, [justLoadedId]);
 
   // Keep ammo within still-available colours after the board changes.
   useEffect(() => {
-    if (!availableColors.includes(currentColor)) {
-      setCurrentColor(availableColors[0]);
-    }
-    if (!availableColors.includes(nextColor)) {
-      setNextColor(availableColors[Math.floor(Math.random() * availableColors.length)]);
-    }
-  }, [availableColors, currentColor, nextColor]);
+    setAmmoQueue(prev => {
+      let changed = false;
+      const next = prev.map(a => {
+        if (availableColors.includes(a.colorId)) return a;
+        changed = true;
+        return { ...a, colorId: availableColors[Math.floor(Math.random() * availableColors.length)] };
+      });
+      return changed ? next : prev;
+    });
+  }, [availableColors]);
 
   const onPointerMove = useCallback((e) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
+    if (!playfieldRef.current) return;
+    const rect = playfieldRef.current.getBoundingClientRect();
     const scale = rect.width / GAME_W;
     const x = (e.clientX - rect.left) / scale;
     const y = (e.clientY - rect.top) / scale;
@@ -124,9 +247,11 @@ export default function BubbleShooter({ level, onWin, onLose }) {
     setAiming(true);
   }, []);
 
-  const onPointerUp = useCallback(() => {
+  const fireShot = useCallback(() => {
     if (projectile || finishedRef.current) { setAiming(false); return; }
     if (shotsLeft <= 0) { setAiming(false); return; }
+    const currentColor = ammoQueue[0]?.colorId;
+    if (!currentColor) { setAiming(false); return; }
     setProjectile({
       x: GAME_W / 2,
       y: SHOOTER_Y,
@@ -134,8 +259,9 @@ export default function BubbleShooter({ level, onWin, onLose }) {
       vy: Math.sin(aimAngle) * SHOT_SPEED,
       colorId: currentColor,
     });
+    cycleAmmo();
     setAiming(false);
-  }, [aimAngle, currentColor, projectile, shotsLeft]);
+  }, [aimAngle, ammoQueue, projectile, shotsLeft, cycleAmmo]);
 
   // Projectile loop
   useEffect(() => {
@@ -189,7 +315,6 @@ export default function BubbleShooter({ level, onWin, onLose }) {
         const chain = collectChain(next, newBubble.id, colorId);
         if (chain.length >= 3) {
           const after = next.map(b => chain.includes(b.id) ? { ...b, state: 'popping' } : b);
-          // Schedule removal + floating-bubble drop after the pop animation.
           setTimeout(() => {
             setBubbles((curr) => {
               const remaining = curr.filter(b => !chain.includes(b.id));
@@ -226,8 +351,7 @@ export default function BubbleShooter({ level, onWin, onLose }) {
       }
       return newT;
     });
-    cycleAmmo();
-  }, [ceilingDrop, combo, cycleAmmo]);
+  }, [ceilingDrop, combo]);
 
   function collectChain(all, startId, colorId) {
     const map = new Map(all.filter(b => b.state === 'alive').map(b => [b.id, b]));
@@ -328,8 +452,7 @@ export default function BubbleShooter({ level, onWin, onLose }) {
     return dots;
   }, [aimAngle, aiming, bubbles, ceilingDrop]);
 
-  const currentDef = COLORS[currentColor];
-  const nextDef = COLORS[nextColor];
+  const currentDef = COLORS[ammoQueue[0]?.colorId || level.colors[0]];
 
   return (
     <div
@@ -338,71 +461,210 @@ export default function BubbleShooter({ level, onWin, onLose }) {
       style={{
         position: 'relative',
         width: GAME_W,
-        height: GAME_H,
         margin: '0 auto',
         borderRadius: 18,
         overflow: 'hidden',
-        background: 'linear-gradient(180deg, #0F1B4D 0%, #1B2A6E 60%, #2C3F8F 100%)',
-        boxShadow: 'inset 0 0 80px rgba(0,0,0,0.4), 0 8px 30px rgba(0,0,0,0.4)',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.4), 0 0 0 1.5px rgba(255,255,255,0.10)',
+        display: 'flex',
+        flexDirection: 'column',
       }}
-      onMouseMove={onPointerMove}
-      onMouseUp={onPointerUp}
-      onMouseLeave={() => setAiming(false)}
-      onTouchMove={(e) => { const t = e.touches[0]; onPointerMove({ clientX: t.clientX, clientY: t.clientY }); }}
-      onTouchEnd={onPointerUp}
     >
-      <div className="starfield" style={{ position: 'absolute', inset: 0, opacity: 0.6 }} />
+      {/* HUD bar — sits ABOVE the playfield, not on top of it.
+          Each tile is a glass `.ls-chip`, matching the stackibility design system.
+          minHeight (instead of fixed height) lets the bar grow if a chip's
+          content (e.g. the combo line) needs more room. The ammo overlay
+          measures the playfield's actual offsetTop to stay in sync. */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1.4fr 1fr',
+          gap: 8,
+          padding: '8px 10px',
+          minHeight: HUD_BAR_H,
+          flexShrink: 0,
+          background: 'linear-gradient(180deg, rgba(5,26,58,0.92) 0%, rgba(5,26,58,0.98) 100%)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        <div
+          className="ls-chip"
+          style={{
+            padding: '6px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <div className="hud-label">Score</div>
+          <div className="ls-num" style={{ fontSize: 18, lineHeight: 1, marginTop: 2 }}>
+            {score.toLocaleString()}
+          </div>
+          {combo > 1 && (
+            <div style={{
+              fontSize: 8, fontWeight: 800, marginTop: 2,
+              color: 'var(--ls-orange-bright)', letterSpacing: '0.18em',
+            }}>
+              ×{combo} COMBO
+            </div>
+          )}
+        </div>
 
-      {/* Ceiling line */}
+        <div
+          className="ls-chip"
+          style={{
+            padding: '6px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            className="hud-label"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                width: 8, height: 8, borderRadius: '50%',
+                background: currentDef.color,
+                boxShadow: `0 0 6px ${currentDef.glow}`,
+              }}
+            />
+            Aiming
+          </div>
+          <div style={{
+            fontSize: 12, fontWeight: 800,
+            color: 'var(--ls-white)', lineHeight: 1.15, marginTop: 2,
+            letterSpacing: '-0.01em',
+          }}>
+            {currentDef.product}
+          </div>
+        </div>
+
+        <div
+          className="ls-chip"
+          style={{
+            padding: '6px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'flex-end',
+            textAlign: 'right',
+          }}
+        >
+          <div className="hud-label">Shots</div>
+          <div
+            className="ls-num"
+            style={{
+              fontSize: 18, lineHeight: 1, marginTop: 2,
+              color: shotsLeft <= 3 ? 'var(--ls-danger)' : 'var(--ls-white)',
+            }}
+          >
+            {shotsLeft}
+          </div>
+        </div>
+      </div>
+
+      {/* Playfield */}
+      <div
+        ref={playfieldRef}
+        style={{
+          position: 'relative',
+          width: GAME_W,
+          height: GAME_H,
+          background: 'linear-gradient(180deg, #051a3a 0%, #0e4f94 60%, #005BAC 100%)',
+          overflow: 'hidden',
+        }}
+        onMouseMove={onPointerMove}
+        onMouseUp={fireShot}
+        onMouseLeave={() => setAiming(false)}
+        onTouchMove={(e) => { const t = e.touches[0]; onPointerMove({ clientX: t.clientX, clientY: t.clientY }); }}
+        onTouchEnd={fireShot}
+      >
+        <div className="starfield" style={{ position: 'absolute', inset: 0, opacity: 0.55 }} />
+
+        {/* Ceiling line */}
+        <div style={{
+          position: 'absolute', left: 0, right: 0, top: ceilingDrop, height: 4,
+          background: 'linear-gradient(180deg, rgba(255,133,51,0.6), transparent)',
+        }} />
+
+        {/* Lose line */}
+        <div style={{
+          position: 'absolute', left: 0, right: 0, top: LOSE_LINE, height: 1,
+          background: 'repeating-linear-gradient(90deg, rgba(239,68,68,0.6) 0 8px, transparent 8px 16px)',
+        }} />
+
+        {/* Bubbles */}
+        {bubbles.map(b => (
+          <Bubble key={b.id} x={b.x} y={b.y} colorDef={COLORS[b.colorId]}
+            popping={b.state === 'popping'} falling={b.state === 'falling'} />
+        ))}
+
+        {/* Aim trail */}
+        {trailDots.map(d => (
+          <div key={d.i} className="aim-dot" style={{ left: d.x, top: d.y, opacity: 1 - d.i / 34 }} />
+        ))}
+
+        {/* Projectile */}
+        {projectile && (
+          <Bubble x={projectile.x} y={projectile.y} colorDef={COLORS[projectile.colorId]} />
+        )}
+
+        {/* Bursts */}
+        {bursts.map(p => (
+          <div key={p.id} className="burst-particle"
+            style={{ left: p.x, top: p.y, background: p.color, '--bx': `${p.bx}px`, '--by': `${p.by}px` }} />
+        ))}
+
+        {/* Score pops */}
+        {scorePops.map(p => (
+          <div key={p.id} className="score-pop" style={{ left: p.x, top: p.y }}>{p.text}</div>
+        ))}
+
+        {/* Cannon line + glow */}
+        <CannonBase aimAngle={aimAngle} />
+      </div>
+
+      {/* Queue strip — sits below the playfield */}
+      <div className="queue-strip" style={{ height: QUEUE_STRIP_H }}>
+        <div className="queue-label">
+          Up Next<span className="next-arrow">→</span>
+        </div>
+        <div style={{ flex: 1 }} />
+        <div className="tap-hint-label">Tap right ball to swap</div>
+      </div>
+
+      {/* Ammo balls — absolutely positioned across playfield + queue strip.
+          Wrapped in a layer that starts where the playfield does, so coordinates
+          are playfield-relative (y=0 is top of playfield). */}
       <div style={{
-        position: 'absolute', left: 0, right: 0, top: ceilingDrop, height: 4,
-        background: 'linear-gradient(180deg, rgba(255,200,69,0.6), transparent)',
-      }} />
-
-      {/* Lose line */}
-      <div style={{
-        position: 'absolute', left: 0, right: 0, top: LOSE_LINE, height: 1,
-        background: 'repeating-linear-gradient(90deg, rgba(239,68,68,0.6) 0 8px, transparent 8px 16px)',
-      }} />
-
-      {/* Bubbles */}
-      {bubbles.map(b => (
-        <Bubble key={b.id} x={b.x} y={b.y} colorDef={COLORS[b.colorId]}
-          popping={b.state === 'popping'} falling={b.state === 'falling'} />
-      ))}
-
-      {/* Aim trail */}
-      {trailDots.map(d => (
-        <div key={d.i} className="aim-dot" style={{ left: d.x, top: d.y, opacity: 1 - d.i / 34 }} />
-      ))}
-
-      {/* Projectile */}
-      {projectile && (
-        <Bubble x={projectile.x} y={projectile.y} colorDef={COLORS[projectile.colorId]} />
-      )}
-
-      {/* Bursts */}
-      {bursts.map(p => (
-        <div key={p.id} className="burst-particle"
-          style={{ left: p.x, top: p.y, background: p.color, '--bx': `${p.bx}px`, '--by': `${p.by}px` }} />
-      ))}
-
-      {/* Score pops */}
-      {scorePops.map(p => (
-        <div key={p.id} className="score-pop" style={{ left: p.x, top: p.y }}>{p.text}</div>
-      ))}
-
-      {/* Shooter */}
-      <ShooterBase currentDef={currentDef} nextDef={nextDef} aimAngle={aimAngle}
-        onSwap={() => { setCurrentColor(nextColor); setNextColor(currentColor); }} />
-
-      {/* HUD */}
-      <GameHUD level={level} score={score} shotsLeft={shotsLeft} combo={combo} currentDef={currentDef} />
+        position: 'absolute',
+        top: HUD_BAR_H,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        pointerEvents: 'none',
+      }}>
+        {ammoQueue.map((ammo, idx) => (
+          <AmmoBall
+            key={ammo.id}
+            ammo={ammo}
+            idx={idx}
+            queueY={queueY}
+            projectileActive={!!projectile}
+            onSwap={swapAmmo}
+            justLoadedId={justLoadedId}
+          />
+        ))}
+      </div>
     </div>
   );
 }
 
-function ShooterBase({ currentDef, nextDef, aimAngle, onSwap }) {
+function CannonBase({ aimAngle }) {
   const cannonLen = 34;
   const tipX = GAME_W / 2 + Math.cos(aimAngle) * cannonLen;
   const tipY = SHOOTER_Y + Math.sin(aimAngle) * cannonLen;
@@ -411,8 +673,8 @@ function ShooterBase({ currentDef, nextDef, aimAngle, onSwap }) {
       <svg width={GAME_W} height={GAME_H} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         <defs>
           <linearGradient id="cannonGrad" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#FFE38A" />
-            <stop offset="100%" stopColor="#E8A60D" />
+            <stop offset="0%" stopColor="#FF8533" />
+            <stop offset="100%" stopColor="#F26922" />
           </linearGradient>
         </defs>
         <line x1={GAME_W / 2} y1={SHOOTER_Y} x2={tipX} y2={tipY}
@@ -423,90 +685,9 @@ function ShooterBase({ currentDef, nextDef, aimAngle, onSwap }) {
         position: 'absolute', left: GAME_W / 2, top: SHOOTER_Y,
         transform: 'translate(-50%, -50%)',
         width: 64, height: 64, borderRadius: '50%',
-        background: 'radial-gradient(circle at 30% 28%, #FFE38A 0%, #FFC845 40%, #E8A60D 100%)',
-        boxShadow: '0 0 0 4px rgba(255,200,69,0.2), 0 8px 18px rgba(0,0,0,0.45)',
+        background: 'radial-gradient(circle at 30% 28%, rgba(255,133,51,0.55) 0%, rgba(242,105,34,0.35) 50%, transparent 75%)',
         zIndex: 9,
       }} />
-
-      <div style={{ position: 'absolute', inset: 0, zIndex: 11, pointerEvents: 'none' }}>
-        <Bubble x={GAME_W / 2} y={SHOOTER_Y} colorDef={currentDef} />
-      </div>
-
-      <button
-        onClick={onSwap}
-        title="Tap to swap"
-        style={{
-          position: 'absolute',
-          left: GAME_W / 2 + 60, top: SHOOTER_Y,
-          transform: 'translate(-50%, -50%)',
-          width: 32, height: 32, borderRadius: '50%',
-          background: `radial-gradient(circle at 30% 28%, ${nextDef.glow}, ${nextDef.color} 50%, ${nextDef.colorDeep})`,
-          border: '2px solid rgba(255,255,255,0.4)',
-          cursor: 'pointer', zIndex: 12, padding: 0,
-          boxShadow: '0 3px 0 rgba(0,0,0,0.3)',
-        }}
-      />
-      <div style={{
-        position: 'absolute',
-        left: GAME_W / 2 + 60, top: SHOOTER_Y + 24,
-        transform: 'translate(-50%, 0)',
-        fontSize: 9, fontWeight: 800,
-        color: 'rgba(255,255,255,0.7)',
-        textTransform: 'uppercase', letterSpacing: '0.06em',
-        zIndex: 12,
-      }}>swap</div>
     </>
-  );
-}
-
-function GameHUD({ level, score, shotsLeft, combo, currentDef }) {
-  return (
-    <div style={{
-      position: 'absolute', top: 0, left: 0, right: 0,
-      padding: '10px 12px',
-      display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-      gap: 8, pointerEvents: 'none', zIndex: 20,
-    }}>
-      <div style={{
-        background: 'rgba(11,30,91,0.7)', backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        border: '1.5px solid rgba(255,255,255,0.12)',
-        borderRadius: 10, padding: '5px 10px', color: 'white',
-      }}>
-        <div style={{ fontSize: 8, fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Score</div>
-        <div className="font-display" style={{ fontSize: 18, color: 'var(--brand-gold)', fontWeight: 900, lineHeight: 1 }}>
-          {score.toLocaleString()}
-        </div>
-        {combo > 1 && (
-          <div style={{ fontSize: 8, fontWeight: 800, color: 'var(--brand-gold)', marginTop: 1 }}>×{combo} COMBO</div>
-        )}
-      </div>
-
-      <div style={{
-        background: 'rgba(11,30,91,0.7)', backdropFilter: 'blur(10px)',
-        border: '1.5px solid rgba(255,255,255,0.12)',
-        borderRadius: 10, padding: '5px 10px', color: 'white',
-        textAlign: 'center', maxWidth: 140,
-      }}>
-        <div style={{ fontSize: 8, fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Aiming</div>
-        <div style={{ fontSize: 11, fontWeight: 800, color: currentDef.glow, lineHeight: 1.1 }}>
-          {currentDef.product}
-        </div>
-      </div>
-
-      <div style={{
-        background: 'rgba(11,30,91,0.7)', backdropFilter: 'blur(10px)',
-        border: '1.5px solid rgba(255,255,255,0.12)',
-        borderRadius: 10, padding: '5px 10px', color: 'white', textAlign: 'right',
-      }}>
-        <div style={{ fontSize: 8, fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Shots</div>
-        <div className="font-display" style={{
-          fontSize: 18, fontWeight: 900, lineHeight: 1,
-          color: shotsLeft <= 3 ? '#EF4444' : 'white',
-        }}>
-          {shotsLeft}
-        </div>
-      </div>
-    </div>
   );
 }
