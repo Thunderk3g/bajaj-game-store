@@ -170,5 +170,14 @@
     "popular": true,
     "gameId": "GAME_017",
     "assets": []
+  },
+  "life-goals-bubble-shooter": {
+    "remoteEntry": "assets/games/life-goals-bubble-shooter/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Life Goals Bubble Shooter",
+    "popular": true,
+    "gameId": "GAME_018",
+    "assets": []
   }
 }

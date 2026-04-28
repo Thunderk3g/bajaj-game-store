@@ -107,6 +107,11 @@ const games = [
     source: path.join(ROOT_DIR, "health-shield", "health-shield", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "health-shield"),
   },
+  {
+    name: "life-goals-bubble-shooter",
+    source: path.join(ROOT_DIR, "life-goals-bubble-shooter", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "life-goals-bubble-shooter"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -336,6 +341,15 @@ const manifest = {
     displayName: "Health Shield",
     popular: true,
     gameId: "GAME_017",
+    assets: [],
+  },
+  "life-goals-bubble-shooter": {
+    remoteEntry: "assets/games/life-goals-bubble-shooter/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Life Goals Bubble Shooter",
+    popular: true,
+    gameId: "GAME_018",
     assets: [],
   }
 };

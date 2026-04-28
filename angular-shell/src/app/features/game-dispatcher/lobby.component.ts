@@ -508,6 +508,7 @@ export class LobbyComponent implements OnInit {
     'tile-flipping-game': '🧩',
     'stackibility-stack': '🏗️',
     'health-shield': '❤️‍🩹',
+    'life-goals-bubble-shooter': '🫧',
   };
 
 
