@@ -48,7 +48,7 @@ export const submitToLMS = async (data: LmsLeadData): Promise<LmsResponse> => {
     life_goal_category: '',
     investment_amount: '',
     product_id: '',
-    p_source: 'Marketing Assist',
+    p_source: sessionStorage.getItem('gamification_referral') === 'Y' ? 'Referral' : 'Marketing Assist',
     p_data_source: 'GAMIFICATION',
     pasa_amount: '',
     product_name: '',
