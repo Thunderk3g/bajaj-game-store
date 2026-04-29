@@ -1,4 +1,5 @@
 // SlotBookingModal.jsx — books a callback slot via updateLeadNew (or submitToLMS fallback).
+// Restyled to match the stackibility-stack .ls-card form pattern.
 import React, { useMemo, useState } from 'react';
 import { submitToLMS, updateLeadNew, LEAD_NO_KEY } from './api.js';
 
@@ -18,6 +19,16 @@ function formatLocalDate(d) {
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+function CalendarIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2" fill="rgba(255,255,255,0.18)" />
+      <path d="M3 9h18M8 3v4M16 3v4" />
+    </svg>
+  );
 }
 
 export default function SlotBookingModal({ initialName, initialMobile, score, onConfirmed, onSkip }) {
@@ -78,98 +89,122 @@ export default function SlotBookingModal({ initialName, initialMobile, score, on
     }
   };
 
+  const firstError = errors.name || errors.mobile || errors.date || errors.time || errors.terms || '';
+
   return (
     <div className="modal-overlay">
-      <div className="modal-card">
-        <button className="modal-close" onClick={onSkip} aria-label="Close">×</button>
-        <div className="modal-title">Book a slot</div>
-        <div className="modal-subtitle">A Bajaj Life advisor will call you back</div>
+      <div className="ls-card" style={{ position: 'relative' }}>
+        <div className="ls-card-icon" aria-hidden="true">
+          <CalendarIcon />
+        </div>
+        <div className="ls-card-title">Book a slot</div>
+        <div className="ls-card-sub">A Bajaj Life advisor will call you back</div>
 
-        <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div>
-            <label className="field-label" htmlFor="sb-name">Your Name</label>
+        <form className="ls-form" onSubmit={onSubmit} noValidate>
+          <label className="ls-field">
+            <span className="ls-field-label">Full Name</span>
             <input
-              id="sb-name"
-              className={`field-input ${errors.name ? 'error' : ''}`}
+              className="ls-input"
               type="text"
-              placeholder="Full Name"
+              placeholder="e.g. Priya Sharma"
+              autoComplete="name"
               value={name}
-              onChange={(e) => { setName(e.target.value); if (errors.name) setErrors({ ...errors, name: '' }); }}
-            />
-            {errors.name && <div className="field-error">{errors.name}</div>}
-          </div>
-
-          <div>
-            <label className="field-label" htmlFor="sb-mobile">Mobile</label>
-            <input
-              id="sb-mobile"
-              className={`field-input ${errors.mobile ? 'error' : ''}`}
-              type="tel"
-              inputMode="numeric"
-              maxLength={10}
-              placeholder="9876543210"
-              value={mobile}
               onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, '').slice(0, 10);
-                setMobile(v);
-                if (errors.mobile) setErrors({ ...errors, mobile: '' });
+                setName(e.target.value);
+                if (errors.name) setErrors({ ...errors, name: '' });
               }}
             />
-            {errors.mobile && <div className="field-error">{errors.mobile}</div>}
-          </div>
+          </label>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <div>
-              <label className="field-label" htmlFor="sb-date">Date</label>
+          <label className="ls-field">
+            <span className="ls-field-label">Mobile Number</span>
+            <div className="ls-mobile-row">
+              <span className="ls-mobile-prefix">+91</span>
               <input
-                id="sb-date"
-                className={`field-input ${errors.date ? 'error' : ''}`}
-                type="date"
-                min={minDate}
-                max={maxDate}
-                value={date}
-                onChange={(e) => { setDate(e.target.value); if (errors.date) setErrors({ ...errors, date: '' }); }}
+                className="ls-input ls-input-mobile"
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                placeholder="10-digit mobile"
+                autoComplete="tel-national"
+                value={mobile}
+                onChange={(e) => {
+                  const v = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setMobile(v);
+                  if (errors.mobile) setErrors({ ...errors, mobile: '' });
+                }}
               />
-              {errors.date && <div className="field-error">{errors.date}</div>}
             </div>
-            <div>
-              <label className="field-label" htmlFor="sb-time">Time</label>
-              <select
-                id="sb-time"
-                className={`field-input ${errors.time ? 'error' : ''}`}
-                value={time}
-                onChange={(e) => { setTime(e.target.value); if (errors.time) setErrors({ ...errors, time: '' }); }}
-              >
-                <option value="">Select</option>
-                {TIME_SLOTS.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-              {errors.time && <div className="field-error">{errors.time}</div>}
-            </div>
-          </div>
+          </label>
 
-          <div className="checkbox-row">
-            <div
-              className={`checkbox-box ${terms ? 'checked' : ''}`}
-              onClick={() => { setTerms(!terms); if (errors.terms) setErrors({ ...errors, terms: '' }); }}
-              role="checkbox"
-              aria-checked={terms}
-              tabIndex={0}
+          <label className="ls-field">
+            <span className="ls-field-label">Date</span>
+            <input
+              className="ls-input"
+              type="date"
+              min={minDate}
+              max={maxDate}
+              value={date}
+              onChange={(e) => {
+                setDate(e.target.value);
+                if (errors.date) setErrors({ ...errors, date: '' });
+              }}
             />
-            <p className="checkbox-text">
-              I agree to the{' '}
-              <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer">
-                T&C and Privacy Policy
-              </a>
-            </p>
-          </div>
-          {errors.terms && <div className="field-error" style={{ marginLeft: 28 }}>{errors.terms}</div>}
+          </label>
 
-          <button type="submit" className="modal-cta" disabled={submitting}>
-            {submitting ? <><span className="spinner" />Confirming…</> : 'Confirm booking'}
+          <div className="ls-field">
+            <span className="ls-field-label">Time Slot</span>
+            <div className="ls-slot-grid">
+              {TIME_SLOTS.map((t) => (
+                <button
+                  type="button"
+                  key={t}
+                  className={`ls-slot-pill${time === t ? ' selected' : ''}`}
+                  onClick={() => {
+                    setTime(t);
+                    if (errors.time) setErrors({ ...errors, time: '' });
+                  }}
+                >
+                  {t.replace(' - ', ' – ')}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="ls-tc">
+            <input
+              type="checkbox"
+              checked={terms}
+              onChange={(e) => {
+                setTerms(e.target.checked);
+                if (errors.terms) setErrors({ ...errors, terms: '' });
+              }}
+            />
+            <span>
+              I agree to the{' '}
+              <a
+                href="https://www.bajajallianzlife.com/privacy-policy.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#FFD37A', textDecoration: 'underline' }}
+              >
+                T&amp;C and Privacy Policy
+              </a>
+              .
+            </span>
+          </label>
+
+          <div className="ls-error">{firstError}</div>
+
+          <button
+            type="submit"
+            className="ls-btn ls-btn-primary ls-form-cta"
+            disabled={submitting}
+          >
+            {submitting ? 'Confirming…' : 'Confirm booking'}
           </button>
-          <button type="button" className="modal-secondary" onClick={onSkip}>
+
+          <button type="button" className="ls-text-btn" onClick={onSkip}>
             Maybe later
           </button>
         </form>

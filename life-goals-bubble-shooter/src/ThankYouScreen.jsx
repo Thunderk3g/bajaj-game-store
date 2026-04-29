@@ -1,56 +1,109 @@
 // ThankYouScreen.jsx — confirmation after a slot is booked.
+// Restyled to match the stackibility-stack design language.
 import React from 'react';
 
-export default function ThankYouScreen({ details, onPlayAgain, onHome }) {
+function CheckIcon({ size = 34 }) {
   return (
-    <div className="screen-enter" style={{
-      position: 'absolute', inset: 0,
-      background: 'linear-gradient(180deg, #1B2A6E 0%, #0B1E5B 100%)',
-      display: 'flex', flexDirection: 'column',
-      padding: '60px 24px 28px',
-      alignItems: 'center', justifyContent: 'center',
-      textAlign: 'center', color: 'white',
-    }}>
-      <div style={{
-        width: 88, height: 88, borderRadius: '50%',
-        background: 'linear-gradient(180deg, #FFE38A 0%, #FFC845 60%, #E8A60D 100%)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 0 0 6px rgba(255,200,69,0.18), 0 12px 30px rgba(0,0,0,0.35)',
-        marginBottom: 22,
-      }}>
-        <span style={{ fontSize: 40, color: '#061343', fontWeight: 900 }}>✓</span>
-      </div>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff"
+      strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12l5 5L20 7" />
+    </svg>
+  );
+}
 
-      <div className="ribbon" style={{ marginBottom: 14 }}>You're All Set</div>
-      <h1 className="font-display" style={{
-        fontSize: 32, lineHeight: 1.05, color: 'var(--brand-gold)',
-        textShadow: '0 4px 0 rgba(0,0,0,0.3)', marginBottom: 8,
-      }}>
-        Slot booked!
-      </h1>
-      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', fontWeight: 500, maxWidth: 280 }}>
-        A Bajaj Life advisor will reach out to you on{' '}
-        <strong style={{ color: 'white' }}>{details?.date || '—'}</strong> at{' '}
-        <strong style={{ color: 'white' }}>{details?.time || '—'}</strong>.
-      </p>
+export default function ThankYouScreen({ details, onPlayAgain, onHome }) {
+  const date = details?.date || '—';
+  const time = details?.time || '—';
 
-      <div style={{
-        marginTop: 'auto', display: 'flex', flexDirection: 'column',
-        gap: 8, width: '100%', maxWidth: 320,
-      }}>
-        <button onClick={onPlayAgain} className="game-btn chunk-shadow-lg" style={{
-          background: 'linear-gradient(180deg, #FFE38A 0%, #FFC845 50%, #E8A60D 100%)',
-          color: 'var(--brand-navy-deep)',
-          padding: '16px 20px', borderRadius: 16,
-          fontSize: 16, fontWeight: 900,
-        }}>
+  return (
+    <div
+      className="screen-enter"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '60px 22px 36px',
+        gap: 16,
+        overflowY: 'auto',
+        background:
+          'radial-gradient(ellipse at 50% 30%, rgba(14, 79, 148, 0.55), rgba(5, 26, 58, 0.85) 70%), #051a3a',
+        WebkitBackdropFilter: 'blur(8px)',
+        backdropFilter: 'blur(8px)',
+      }}
+    >
+      <div className="ls-card ls-card-thanks">
+        <div className="ls-check" aria-hidden="true">
+          <CheckIcon />
+        </div>
+        <div className="ls-card-title">You're all set!</div>
+        <div className="ls-card-sub">
+          A Bajaj Life advisor will reach out to you on{' '}
+          <strong style={{ color: '#fff' }}>{date}</strong> at{' '}
+          <strong style={{ color: '#fff' }}>{time}</strong>.
+        </div>
+
+        {/* What happens next */}
+        <div
+          style={{
+            marginTop: 18,
+            padding: '14px 14px 12px',
+            borderRadius: 16,
+            background: 'rgba(255, 255, 255, 0.06)',
+            boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.12)',
+            textAlign: 'left',
+          }}
+        >
+          <div style={{
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: '#FFD37A',
+            marginBottom: 8,
+          }}>
+            What happens next
+          </div>
+          <ul style={{
+            margin: 0,
+            padding: 0,
+            listStyle: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            fontSize: 12.5,
+            fontWeight: 600,
+            lineHeight: 1.45,
+            color: 'rgba(255,255,255,0.86)',
+          }}>
+            <li style={{ display: 'flex', gap: 10 }}>
+              <span style={{ color: '#FF8533', fontWeight: 900 }}>1.</span>
+              You'll receive a confirmation SMS shortly.
+            </li>
+            <li style={{ display: 'flex', gap: 10 }}>
+              <span style={{ color: '#FF8533', fontWeight: 900 }}>2.</span>
+              An advisor will call at your booked time.
+            </li>
+            <li style={{ display: 'flex', gap: 10 }}>
+              <span style={{ color: '#FF8533', fontWeight: 900 }}>3.</span>
+              No pressure — just a quick chat about cover.
+            </li>
+          </ul>
+        </div>
+
+        <button
+          type="button"
+          className="ls-btn ls-btn-primary ls-form-cta"
+          onClick={onPlayAgain}
+          style={{ marginTop: 18 }}
+        >
           Play again
         </button>
-        <button onClick={onHome} style={{
-          background: 'transparent', border: 'none',
-          color: 'rgba(255,255,255,0.7)', padding: '8px',
-          fontSize: 13, fontWeight: 700, cursor: 'pointer',
-        }}>← Home</button>
+        <button type="button" className="ls-text-btn" onClick={onHome}>
+          ← Back home
+        </button>
       </div>
     </div>
   );

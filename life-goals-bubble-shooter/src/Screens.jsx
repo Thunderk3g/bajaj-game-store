@@ -1,341 +1,485 @@
 // Screens.jsx — Home + Results screens for the bubble shooter.
+// Restyled to match the stackibility-stack design language.
 import React from 'react';
+import { COLORS } from './data.js';
 
-function BajajLogo() {
+/* ─── Inline icons ─────────────────────────────────────── */
+function PlayIcon({ size = 18 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <div style={{
-        position: 'relative', width: 36, height: 36,
-        background: '#0B3FA8', borderRadius: 4,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 2px 0 rgba(0,0,0,0.25)',
-      }}>
-        <span style={{
-          color: 'white', fontFamily: 'Plus Jakarta Sans, sans-serif',
-          fontWeight: 900, fontSize: 22, lineHeight: 1, letterSpacing: '-0.04em',
-        }}>B</span>
-        <div style={{
-          position: 'absolute', top: 5, right: 5, width: 6, height: 6,
-          borderRadius: '50%', background: '#E63946',
-        }} />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-        <span style={{
-          color: 'white', fontFamily: 'Plus Jakarta Sans, sans-serif',
-          fontWeight: 900, fontSize: 14, letterSpacing: '0.04em',
-        }}>LIFE</span>
-        <span style={{
-          color: 'rgba(255,255,255,0.55)', fontSize: 8,
-          fontWeight: 700, letterSpacing: '0.14em', marginTop: 2,
-        }}>LIFE GOALS DONE</span>
-      </div>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M8 5v14l11-7z" />
+    </svg>
   );
 }
 
-function MiniGamePreview() {
-  const colors = [
-    { c: '#3B82F6', d: '#1E40AF', g: '#93C5FD' },
-    { c: '#EF4444', d: '#991B1B', g: '#FCA5A5' },
-    { c: '#FACC15', d: '#A16207', g: '#FEF08A' },
-    { c: '#10B981', d: '#065F46', g: '#6EE7B7' },
-    { c: '#EC4899', d: '#9D174D', g: '#F9A8D4' },
-    { c: '#8B5CF6', d: '#5B21B6', g: '#C4B5FD' },
-  ];
-  const R = 18;
+function HelpIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7" />
+      <line x1="12" y1="17" x2="12" y2="17.01" />
+    </svg>
+  );
+}
+
+function TrophyIcon({ size = 34 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path d="M9 5h14v5a7 7 0 0 1-14 0V5z" fill="#fff" />
+      <path d="M5 7h4v3a3 3 0 0 1-3-3z" fill="#fff" opacity="0.85" />
+      <path d="M27 7h-4v3a3 3 0 0 0 3-3z" fill="#fff" opacity="0.85" />
+      <rect x="13" y="16" width="6" height="6" fill="#fff" opacity="0.92" />
+      <rect x="9" y="22" width="14" height="4" rx="1.5" fill="#fff" />
+    </svg>
+  );
+}
+
+function HeartBreakIcon({ size = 32 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path d="M16 27s-10-6-10-14a6 6 0 0 1 10-4.5L14 12l4 3-3 4 1 8z" fill="#fff" />
+      <path d="M16 27s10-6 10-14a6 6 0 0 0-10-4.5L18 12l-4 3 3 4-1 8z" fill="#fff" opacity="0.85" />
+    </svg>
+  );
+}
+
+function ShieldIcon({ size = 26, stroke = '#fff' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke}
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z" fill="rgba(255,255,255,0.18)" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+function CalendarIcon({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 9h18M8 3v4M16 3v4" />
+    </svg>
+  );
+}
+
+/* ─── Decorative bubble illustration for the home screen ────────── */
+const BUBBLE_PALETTE = [
+  { c: '#3B82F6', d: '#1E40AF', g: '#93C5FD' }, // blue
+  { c: '#EF4444', d: '#991B1B', g: '#FCA5A5' }, // red
+  { c: '#FACC15', d: '#A16207', g: '#FEF08A' }, // yellow
+  { c: '#10B981', d: '#065F46', g: '#6EE7B7' }, // green
+  { c: '#EC4899', d: '#9D174D', g: '#F9A8D4' }, // pink
+  { c: '#8B5CF6', d: '#5B21B6', g: '#C4B5FD' }, // purple
+];
+
+function bubbleBg(p) {
+  return `radial-gradient(circle at 32% 28%, ${p.g} 0%, ${p.c} 45%, ${p.d} 100%)`;
+}
+
+function HexBubbleField() {
+  // Mini bubble-shooter preview: cluster up top, cannon zone at bottom.
+  const R = 14;
   const D = R * 2;
   const RH = D * 0.866;
-  const cluster = [];
+
+  // 3 hex rows, offset every other row, with a couple of gaps for variety.
+  // null = gap. Palette indices otherwise.
   const pattern = [
-    [0, 1, 2, 3, 4],
-    [5, 0, 1, 2],
-    [3, 3, 3, 4, 5],
-    [0, 2, 5, 1],
+    [0, 1, 2, 3, 4, 5],
+    [2, 3, null, 4, 0],
+    [5, 0, 1, null, 2, 3],
   ];
+
+  const cluster = [];
+  // Centre the cluster horizontally inside the 240-wide container.
+  // Row 0 has 6 bubbles → row width ≈ 6*D = 168 → leftPad ≈ (240-168)/2 ≈ 36.
+  const leftPad = 36;
+  const topPad = 24;
   for (let r = 0; r < pattern.length; r++) {
     const row = pattern[r];
     const offset = r % 2 === 1 ? R : 0;
     for (let c = 0; c < row.length; c++) {
-      const x = R + 4 + c * D + offset;
-      const y = R + 4 + r * RH;
-      cluster.push({ x, y, color: colors[row[c]] });
+      const palIdx = row[c];
+      if (palIdx === null) continue;
+      const x = leftPad + R + c * D + offset;
+      const y = topPad + r * RH;
+      cluster.push({ x, y, p: BUBBLE_PALETTE[palIdx] });
     }
   }
-  const dotPath = [
-    { x: 110, y: 220 }, { x: 116, y: 200 }, { x: 122, y: 180 },
-    { x: 128, y: 160 }, { x: 132, y: 140 }, { x: 136, y: 120 },
+
+  const containerW = 240;
+  const cannonX = containerW / 2; // 120
+  const cannonY = 200;
+  const ammo = BUBBLE_PALETTE[1]; // red, contrasts with palette mix above
+
+  // Aim trail: 5 dots from just above the cannon up toward the cluster.
+  const trail = [
+    { y: 150, op: 0.85 },
+    { y: 138, op: 0.70 },
+    { y: 126, op: 0.55 },
+    { y: 114, op: 0.40 },
+    { y: 102, op: 0.25 },
   ];
-  const cannonX = 100, cannonY = 240;
-  const ammoColor = colors[1];
+
+  // Two queue balls left of (and below) the cannon area.
+  const queue = [
+    { x: 70, y: 240, p: BUBBLE_PALETTE[2] },
+    { x: 98, y: 240, p: BUBBLE_PALETTE[3] },
+  ];
 
   return (
-    <div style={{
-      position: 'relative', width: 220, height: 280, margin: '0 auto',
-      borderRadius: 18, overflow: 'hidden',
-      background: 'linear-gradient(180deg, #0F1B4D 0%, #1B2A6E 60%, #2C3F8F 100%)',
-      boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.45), 0 0 0 1.5px rgba(255,200,69,0.25)',
-    }}>
-      <div className="starfield" style={{ position: 'absolute', inset: 0, opacity: 0.55 }} />
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'relative',
+        width: containerW,
+        height: 280,
+        margin: '0 auto',
+        borderRadius: 22,
+        overflow: 'hidden',
+        background:
+          'radial-gradient(ellipse at 50% 30%, rgba(14,79,148,0.55), rgba(5,26,58,0.85) 70%), #051a3a',
+        animation: 'ls-float 4s ease-in-out infinite',
+        filter: 'drop-shadow(0 22px 26px rgba(0, 0, 0, 0.4))',
+      }}
+    >
+      {/* Faint starfield to read as the in-game playfield */}
+      <div
+        className="starfield"
+        style={{ position: 'absolute', inset: 0, opacity: 0.55 }}
+      />
 
+      {/* Hex cluster — top third */}
       {cluster.map((b, i) => (
         <div key={i} style={{
           position: 'absolute', left: b.x, top: b.y,
           width: D, height: D, borderRadius: '50%',
           transform: 'translate(-50%, -50%)',
-          background: `radial-gradient(circle at 32% 28%, ${b.color.g} 0%, ${b.color.c} 45%, ${b.color.d} 100%)`,
-          boxShadow: 'inset 0 -6px 8px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.4)',
+          background: bubbleBg(b.p),
+          boxShadow: 'inset 0 -5px 7px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.4)',
         }} />
       ))}
 
-      {dotPath.map((d, i) => (
-        <div key={i} className="aim-dot"
-          style={{ left: d.x, top: d.y, width: 4, height: 4, opacity: 1 - i * 0.13 }} />
+      {/* Aim trail — small white dots between cluster and cannon */}
+      {trail.map((t, i) => (
+        <div key={`t${i}`} style={{
+          position: 'absolute',
+          left: cannonX, top: t.y,
+          width: 4, height: 4,
+          borderRadius: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: `rgba(255,255,255,${t.op})`,
+          boxShadow: '0 0 6px rgba(255,255,255,0.4)',
+        }} />
       ))}
 
+      {/* Cannon glow halo */}
       <div className="shooter-glow" style={{
         position: 'absolute', left: cannonX, top: cannonY,
         transform: 'translate(-50%, -50%)',
-        width: 44, height: 44, borderRadius: '50%',
-        background: 'radial-gradient(circle at 30% 28%, #FFE38A 0%, #FFC845 40%, #E8A60D 100%)',
-        boxShadow: '0 0 0 3px rgba(255,200,69,0.2), 0 4px 10px rgba(0,0,0,0.45)',
+        width: 60, height: 60, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(255,133,51,0.55) 0%, rgba(242,105,34,0.30) 45%, transparent 75%)',
       }} />
 
+      {/* Loaded ammo bubble — centred on the halo */}
       <div style={{
         position: 'absolute', left: cannonX, top: cannonY,
         transform: 'translate(-50%, -50%)',
-        width: D, height: D, borderRadius: '50%',
-        background: `radial-gradient(circle at 32% 28%, ${ammoColor.g} 0%, ${ammoColor.c} 45%, ${ammoColor.d} 100%)`,
-        boxShadow: 'inset 0 -6px 8px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.4)',
+        width: D + 4, height: D + 4, borderRadius: '50%',
+        background: bubbleBg(ammo),
+        boxShadow: 'inset 0 -6px 8px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.4), 0 0 14px rgba(239,68,68,0.55)',
       }} />
 
+      {/* "Up Next" label above queue */}
       <div style={{
-        position: 'absolute', left: '50%', bottom: 10,
-        transform: 'translateX(-50%)',
-        background: 'rgba(255,200,69,0.95)',
-        color: '#061343', fontWeight: 900, fontSize: 9,
-        letterSpacing: '0.08em', textTransform: 'uppercase',
-        padding: '4px 10px', borderRadius: 999,
-        boxShadow: '0 2px 0 rgba(0,0,0,0.25)',
+        position: 'absolute',
+        left: 84, top: 224,
+        transform: 'translate(-50%, -50%)',
+        fontFamily: "'Poppins', system-ui, sans-serif",
+        fontSize: 7,
+        fontWeight: 700,
+        letterSpacing: '0.18em',
+        color: 'rgba(255,255,255,0.55)',
+        textTransform: 'uppercase',
         whiteSpace: 'nowrap',
-      }}>Tap to play</div>
-    </div>
-  );
-}
-
-export function HomeScreen({ onStart, theme, levelLabel }) {
-  return (
-    <div className="screen-enter" style={{
-      position: 'absolute', inset: 0,
-      background: theme.homeBg,
-      display: 'flex', flexDirection: 'column',
-      padding: '32px 20px 26px',
-      overflow: 'hidden',
-    }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'relative', zIndex: 2,
       }}>
-        <BajajLogo />
-        <div style={{
-          fontSize: 9, color: 'rgba(255,255,255,0.55)',
-          fontWeight: 800, letterSpacing: '0.16em',
-          background: 'rgba(255,255,255,0.08)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          padding: '3px 8px', borderRadius: 999,
-        }}>BETA</div>
+        Up Next
       </div>
 
-      <div style={{ marginTop: 24, position: 'relative', zIndex: 2 }}>
-        <MiniGamePreview />
-      </div>
-
-      <div style={{ marginTop: 22, textAlign: 'center', position: 'relative', zIndex: 2 }}>
-        <h1 className="font-display" style={{
-          color: 'white', fontSize: 30, lineHeight: 1.05,
-          marginBottom: 8, textShadow: '0 3px 0 rgba(0,0,0,0.25)',
-        }}>
-          Pop the bubbles.<br />
-          <span style={{ color: 'var(--brand-gold)' }}>Save your life goals.</span>
-        </h1>
-        <p style={{
-          color: 'rgba(255,255,255,0.7)', fontSize: 13,
-          fontWeight: 500, lineHeight: 1.4,
-          maxWidth: 280, margin: '0 auto',
-        }}>
-          Match 3 of the same colour. Each colour is a real-life risk Bajaj Life helps you cover.
-        </p>
-      </div>
-
-      <button
-        onClick={onStart}
-        className="game-btn chunk-shadow-lg"
-        style={{
-          marginTop: 'auto',
-          background: 'linear-gradient(180deg, #FFE38A 0%, #FFC845 50%, #E8A60D 100%)',
-          color: 'var(--brand-navy-deep)',
-          padding: '15px 18px', borderRadius: 16,
-          fontSize: 16, fontWeight: 900,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          gap: 8, whiteSpace: 'nowrap',
-          position: 'relative', zIndex: 2,
-        }}
-      >
-        <span style={{ whiteSpace: 'nowrap' }}>▶  Start Game</span>
-        <span style={{
-          background: 'var(--brand-navy-deep)', color: 'var(--brand-gold)',
-          padding: '4px 9px', borderRadius: 999,
-          fontSize: 10, fontWeight: 800, letterSpacing: '0.05em',
-          whiteSpace: 'nowrap',
-        }}>{levelLabel || 'LVL 1'}</span>
-      </button>
+      {/* Queue balls */}
+      {queue.map((b, i) => (
+        <div key={`q${i}`} style={{
+          position: 'absolute', left: b.x, top: b.y,
+          width: 24, height: 24, borderRadius: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: bubbleBg(b.p),
+          boxShadow: 'inset 0 -4px 6px rgba(0,0,0,0.3), inset 0 1.5px 2px rgba(255,255,255,0.4)',
+          opacity: 0.9,
+        }} />
+      ))}
     </div>
   );
 }
 
-function Stat({ label, value }) {
+/* ─── HomeScreen ──────────────────────────────────────── */
+export function HomeScreen({ onStart, theme, levelLabel }) {
+  // theme is accepted for API compat but ignored — body bg handles colour now.
+  void theme;
+
   return (
-    <div style={{
-      background: 'rgba(255,255,255,0.06)',
-      border: '1.5px solid rgba(255,255,255,0.1)',
-      borderRadius: 12, padding: '10px 8px',
-      textAlign: 'center', color: 'white',
-    }}>
+    <div
+      className="screen-enter"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '64px 24px 36px',
+        background:
+          'radial-gradient(ellipse at 50% 30%, rgba(14, 79, 148, 0.55), rgba(5, 26, 58, 0.85) 70%), #051a3a',
+        WebkitBackdropFilter: 'blur(8px)',
+        backdropFilter: 'blur(8px)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Logo + title */}
+      <div style={{ textAlign: 'center', animation: 'ls-rise 600ms ease-out both' }}>
+        <div className="logo-stack" aria-hidden="true">
+          <div className="logo-block logo-block-1" />
+          <div className="logo-block logo-block-2" />
+          <div className="logo-block logo-block-3" />
+        </div>
+        <div className="logo-title">Pop<span>Goals</span></div>
+        <div className="logo-tagline">Match · Pop · Protect</div>
+      </div>
+
+      {/* Hero — bubble field */}
       <div style={{
-        fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.55)',
-        letterSpacing: '0.1em', marginBottom: 4,
-      }}>{label.toUpperCase()}</div>
-      <div className="font-display" style={{
-        fontSize: 22, fontWeight: 900, color: 'var(--brand-gold)', lineHeight: 1,
-      }}>{value}</div>
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        pointerEvents: 'none',
+      }}>
+        <HexBubbleField />
+        <div style={{
+          marginTop: 14,
+          textAlign: 'center',
+          fontFamily: "'Poppins', system-ui, sans-serif",
+          fontWeight: 800,
+          fontSize: 18,
+          letterSpacing: '-0.02em',
+          lineHeight: 1.2,
+          color: '#fff',
+          maxWidth: 300,
+        }}>
+          Pop the bubbles.{' '}
+          <span style={{
+            background: 'linear-gradient(90deg, #FF8533 0%, #FFD37A 100%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            color: 'transparent',
+          }}>
+            Save your life goals.
+          </span>
+        </div>
+      </div>
+
+      {/* CTA stack */}
+      <div className="start-cta-stack">
+        <button
+          type="button"
+          className="ls-btn ls-btn-primary blink"
+          onClick={onStart}
+          style={{ width: '100%', maxWidth: 340, height: 64, fontSize: 19, position: 'relative' }}
+        >
+          <PlayIcon />
+          Play
+          <span style={{
+            position: 'absolute',
+            right: 16,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'rgba(0, 0, 0, 0.32)',
+            color: '#fff',
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: '0.12em',
+            padding: '4px 9px',
+            borderRadius: 999,
+            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.22)',
+          }}>
+            {levelLabel || 'LVL 1'}
+          </span>
+        </button>
+
+        <div className="start-secondary-row">
+          <button
+            type="button"
+            className="ls-btn ls-btn-secondary"
+            style={{ flex: 1, height: 52, fontSize: 13 }}
+            onClick={() => alert(
+              'How to play:\n\n• Drag inside the board to aim, release to fire.\n• Match 3+ bubbles of the same colour to pop them.\n• Clear every bubble before you run out of shots.'
+            )}
+          >
+            <HelpIcon />
+            How to Play
+          </button>
+        </div>
+
+        <div className="bajaj-mark">
+          <span className="bajaj-mark-icon" aria-hidden="true" />
+          Powered by Bajaj Life
+        </div>
+      </div>
     </div>
   );
 }
 
+/* ─── Confetti (kept lightweight) ─────────────────────── */
 function Confetti() {
-  const colors = ['#FFC845', '#FFE38A', '#3B82F6', '#EF4444', '#10B981', '#EC4899', '#8B5CF6'];
+  const colors = ['#FFC845', '#FFE38A', '#FF8533', '#3B8DD4', '#005BAC', '#10B981', '#EC4899'];
   return (
     <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 1 }}>
-      {Array.from({ length: 30 }).map((_, i) => {
+      {Array.from({ length: 26 }).map((_, i) => {
         const left = Math.random() * 100;
         const dur = 2 + Math.random() * 2;
         const delay = Math.random() * 1.5;
         const color = colors[i % colors.length];
         return (
-          <div key={i} className="confetti" style={{
-            left: `${left}%`, background: color,
-            '--dur': `${dur}s`, '--delay': `${delay}s`,
-            top: -20, transform: `rotate(${Math.random() * 360}deg)`,
-          }} />
+          <div
+            key={i}
+            className="confetti"
+            style={{
+              left: `${left}%`,
+              background: color,
+              '--dur': `${dur}s`,
+              '--delay': `${delay}s`,
+              top: -20,
+              transform: `rotate(${Math.random() * 360}deg)`,
+            }}
+          />
         );
       })}
     </div>
   );
 }
 
+/* ─── ResultsScreen — full-screen game-over view ──────── */
+const PRODUCT_LINEUP = ['red', 'blue', 'yellow', 'pink'];
+
 export function ResultsScreen({ stats, won, onRetry, onHome, onBookSlot, retryLabel }) {
-  const score = stats.score || 0;
+  const score = stats?.score || 0;
+  const shotsUsed = stats?.shotsUsed || 0;
   const fsScore = Math.min(100, Math.round(score / 30));
-  const grade = fsScore >= 85 ? 'A+' : fsScore >= 70 ? 'A' : fsScore >= 55 ? 'B' : fsScore >= 40 ? 'C' : 'D';
+
+  // Build a flavor + insurance copy that references colour→product mapping.
+  const productNames = PRODUCT_LINEUP.map((id) => COLORS[id]?.product).filter(Boolean);
+  const productList = productNames.slice(0, 3).join(', ');
 
   return (
-    <div className="screen-enter" style={{
-      position: 'absolute', inset: 0,
-      background: won
-        ? 'linear-gradient(180deg, #1B2A6E 0%, #0B1E5B 100%)'
-        : 'linear-gradient(180deg, #4B1E2E 0%, #1F0E1A 100%)',
-      display: 'flex', flexDirection: 'column',
-      padding: '40px 20px 28px',
-      overflow: 'hidden',
-    }}>
+    <div
+      className="screen-enter"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '60px 22px 28px',
+        gap: 16,
+        overflowY: 'auto',
+        background:
+          'radial-gradient(ellipse at 50% 30%, rgba(14, 79, 148, 0.55), rgba(5, 26, 58, 0.85) 70%), #051a3a',
+        WebkitBackdropFilter: 'blur(8px)',
+        backdropFilter: 'blur(8px)',
+      }}
+    >
       {won && <Confetti />}
-      <div style={{ textAlign: 'center', color: 'white', position: 'relative', zIndex: 2 }}>
-        <div className="ribbon" style={{
-          background: won ? 'var(--brand-gold)' : '#EF4444',
-          color: won ? 'var(--brand-navy-deep)' : 'white',
-        }}>
-          {won ? 'Level Complete' : 'Game Over'}
+
+      {/* Headline glass card */}
+      <div className="go-card">
+        <div
+          className="go-trophy"
+          aria-hidden="true"
+          style={!won ? {
+            background: 'linear-gradient(180deg, #F87171, #B91C1C)',
+          } : undefined}
+        >
+          {won ? <TrophyIcon /> : <HeartBreakIcon />}
         </div>
-        <h1 className="font-display" style={{
-          fontSize: 36, lineHeight: 1, margin: '14px 0 6px',
-          color: won ? 'var(--brand-gold)' : 'white',
-          textShadow: '0 4px 0 rgba(0,0,0,0.3)',
-        }}>
-          {won ? 'Goals secured!' : 'Try again'}
-        </h1>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
-          {won ? 'You cleared every bubble.' : 'The bubbles got too close.'}
-        </p>
-      </div>
 
-      <div style={{ margin: '24px auto', position: 'relative', width: 180, height: 180 }}>
-        <svg viewBox="0 0 180 180" width="180" height="180" style={{ position: 'absolute', inset: 0 }}>
-          <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
-          <circle cx="90" cy="90" r="78" fill="none" stroke="url(#fsGrad)" strokeWidth="10"
-            strokeLinecap="round"
-            strokeDasharray={`${(fsScore / 100) * 490} 490`}
-            transform="rotate(-90 90 90)" />
-          <defs>
-            <linearGradient id="fsGrad" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0%" stopColor="#FFE38A" />
-              <stop offset="100%" stopColor="#E8A60D" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-        }}>
-          <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>SECURITY SCORE</div>
-          <div className="font-display" style={{ fontSize: 56, fontWeight: 900, color: 'var(--brand-gold)', lineHeight: 1 }}>{fsScore}</div>
-          <div style={{ fontSize: 12, fontWeight: 800, color: 'white', marginTop: 2 }}>Grade {grade}</div>
+        <div className="go-eyebrow">{won ? 'Goals Secured' : 'Game Over'}</div>
+        <div className="go-height-row">
+          <span className="ls-num" style={{ fontSize: 84, lineHeight: 1, color: '#fff' }}>
+            {score.toLocaleString()}
+          </span>
+          <span className="go-unit">POINTS</span>
         </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: '0 4px' }}>
-        <Stat label="Score" value={score.toLocaleString()} />
-        <Stat label="Shots Used" value={stats.shotsUsed || 0} />
-      </div>
-
-      <div style={{
-        background: 'rgba(255,255,255,0.07)',
-        border: '1.5px solid rgba(255,255,255,0.12)',
-        borderRadius: 14, padding: '12px 14px',
-        marginTop: 14, color: 'white',
-      }}>
-        <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--brand-gold)', letterSpacing: '0.1em', marginBottom: 4 }}>UNLOCKED INSIGHT</div>
-        <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.4 }}>
+        <div className="go-flavor">
           {won
-            ? 'Just like clearing bubbles, the right cover stops risks before they pile up.'
-            : 'When risks pile up, they catch you off guard. Cover early.'}
+            ? 'Every bubble cleared — every life goal protected.'
+            : 'The bubbles piled up faster than you could pop them.'}
+        </div>
+
+        <div className="go-stats-grid">
+          <div className="go-stat">
+            <div className="hud-label">Shots Used</div>
+            <span className="ls-num">{shotsUsed}</span>
+          </div>
+          <div className="go-stat go-stat-accent">
+            <div className="hud-label">Security Score</div>
+            <span className="ls-num">{fsScore}</span>
+          </div>
         </div>
       </div>
 
-      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* Insurance pitch */}
+      <div className="go-insurance">
+        <div className="go-insurance-icon" aria-hidden="true">
+          <ShieldIcon size={26} />
+        </div>
+        <div className="go-insurance-title">
+          Bubbles burst. <span>Your life goals shouldn't.</span>
+        </div>
+        <div className="go-insurance-body">
+          Each colour you popped stood for a real-life risk — health, income, education, retirement.
+          Bajaj Life products like {productList} keep those goals safe even when life takes an
+          unexpected turn.
+        </div>
         {onBookSlot && (
-          <button onClick={onBookSlot} className="game-btn chunk-shadow" style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08))',
-            border: '1.5px solid rgba(255,255,255,0.25)',
-            color: 'white', padding: '12px 20px', borderRadius: 14,
-            fontSize: 13, fontWeight: 800, letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-          }}>
-            📅 Book a Slot with an Advisor
+          <button
+            type="button"
+            className="ls-btn ls-btn-primary go-insurance-cta"
+            onClick={onBookSlot}
+          >
+            <CalendarIcon />
+            Book a Slot with an Advisor
           </button>
         )}
-        <button onClick={onRetry} className="game-btn chunk-shadow-lg" style={{
-          background: 'linear-gradient(180deg, #FFE38A 0%, #FFC845 50%, #E8A60D 100%)',
-          color: 'var(--brand-navy-deep)',
-          padding: '16px 20px', borderRadius: 16,
-          fontSize: 16, fontWeight: 900,
-        }}>
-          {retryLabel || (won ? 'Play next level →' : 'Try again')}
+        <div className="go-insurance-foot">Free callback · No obligation · 2 minutes</div>
+      </div>
+
+      {/* Bottom CTAs */}
+      <div className="go-cta-stack">
+        <button
+          type="button"
+          className="ls-btn ls-btn-secondary"
+          onClick={onRetry}
+          style={{ height: 52, fontSize: 14 }}
+        >
+          {retryLabel || 'Play Again'} →
         </button>
-        <button onClick={onHome} style={{
-          background: 'transparent', border: 'none',
-          color: 'rgba(255,255,255,0.7)', padding: '8px',
-          fontSize: 13, fontWeight: 700, cursor: 'pointer',
-        }}>← Home</button>
+        <button type="button" className="ls-text-btn" onClick={onHome}>
+          ← Back home
+        </button>
       </div>
     </div>
   );
