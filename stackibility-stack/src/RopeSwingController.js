@@ -3,7 +3,7 @@
 export class RopeSwingController {
     constructor() {
         this.t = 0;
-        this.baseSpeed = 0.95;   // Slower, more deliberate
+        this.baseSpeed = 1.6;
         this.maxAngle = Math.PI / 4;
         this.ropeLength = 150;
         this.released = false;
@@ -12,7 +12,7 @@ export class RopeSwingController {
     reset(level = 1) {
         this.t = 0;
         this.released = false;
-        this.baseSpeed = Math.min(0.95 + (level - 1) * 0.08, 1.8);
+        this.baseSpeed = Math.min(1.6 + (level - 1) * 0.12, 2.6);
     }
 
 

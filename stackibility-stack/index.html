@@ -22,6 +22,10 @@
         <div class="hud-label">Score</div>
         <div class="ls-num" id="score">0</div>
       </div>
+      <div class="ls-chip" id="timer-box">
+        <div class="hud-label">Time Left</div>
+        <div class="ls-num" id="timer">1:00</div>
+      </div>
       <div class="ls-chip" id="height-box">
         <div class="hud-label">Floors</div>
         <div class="ls-num" id="height">0</div>
@@ -173,7 +177,7 @@
           </svg>
           Play
         </button>
-        <div class="start-secondary-row">
+        <div class="start-secondary-row start-secondary-row-single">
           <button class="ls-btn ls-btn-secondary" id="btn-tutorial" type="button">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22.5z" />
@@ -181,20 +185,6 @@
             </svg>
             How to Play
           </button>
-          <button class="ls-btn ls-btn-secondary" type="button" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M6 4h12v4a6 6 0 0 1-12 0z" />
-              <path d="M6 6H3v2a3 3 0 0 0 3 3" />
-              <path d="M18 6h3v2a3 3 0 0 1-3 3" />
-              <path d="M10 16h4l-1 4h-2z" />
-              <path d="M9 20h6" />
-            </svg>
-            Leaderboard
-          </button>
-        </div>
-        <div class="bajaj-mark">
-          <span class="bajaj-mark-icon" aria-hidden="true"></span>
-          Powered by Bajaj Life
         </div>
       </div>
     </div>
@@ -289,26 +279,22 @@
           </svg>
         </div>
 
-        <div class="go-eyebrow">Tower built</div>
+        <div class="go-eyebrow" id="go-greeting">Hi there</div>
+        <div class="go-personal-line">You built a tower of</div>
         <div class="go-height-row">
           <span class="ls-num" id="go-floors">0</span>
           <span class="go-unit">floors</span>
         </div>
-        <div class="go-flavor">Reached the cumulus layer ☁️</div>
 
-        <div class="go-stats-grid">
+        <div class="go-stats-grid go-stats-grid-single">
           <div class="go-stat go-stat-accent">
             <div class="hud-label">Score</div>
             <span class="ls-num" id="go-score">0</span>
           </div>
-          <div class="go-stat">
-            <div class="hud-label">Level</div>
-            <span class="ls-num" id="go-level">1</span>
-          </div>
         </div>
       </div>
 
-      <!-- Insurance pitch: leverage the collapsed-tower moment as a metaphor -->
+      <!-- Insurance pitch: messaging swaps for win/lose scenarios -->
       <div class="go-insurance">
         <div class="go-insurance-icon" aria-hidden="true">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -316,22 +302,40 @@
             <path d="m9 12 2 2 4-4"/>
           </svg>
         </div>
-        <div class="go-insurance-title">
-          Towers fall. <span>Your life goals shouldn’t.</span>
+        <div class="go-insurance-title" id="go-insurance-title">
+          Towers fall, <span>Your Life Goals shouldn't!</span>
         </div>
-        <div class="go-insurance-body">
-          One bad drop ended this run. In real life, an unexpected event shouldn’t end your family’s plans. Protect your loved ones with Bajaj Life term insurance — the safety net that catches you when life shakes.
+        <div class="go-insurance-body" id="go-insurance-body">
+          One bad move ended the game, we can't afford that in real life! Protect your family's Life Goals with Bajaj life term plan and riders now!
         </div>
-        <a class="ls-btn ls-btn-primary go-insurance-cta" id="btn-insurance" href="#" target="_self">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z"/>
-          </svg>
-          Get Term Insurance
-        </a>
-        <div class="go-insurance-foot">Free quote · No obligation · 2 minutes</div>
       </div>
 
       <div class="go-cta-stack">
+        <div class="go-action-row">
+          <button class="ls-btn ls-btn-secondary go-action-btn" id="btn-share" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            Share
+          </button>
+          <a class="ls-btn ls-btn-secondary go-action-btn hidden" id="btn-call" href="#" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            Call now
+          </a>
+        </div>
+        <button class="ls-btn ls-btn-primary go-insurance-cta" id="btn-insurance" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="16" rx="2"/>
+            <path d="M3 9h18M8 3v4M16 3v4"/>
+          </svg>
+          Book a Slot with our Relationship Manager
+        </button>
         <button class="ls-btn ls-btn-secondary" id="btn-restart" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -351,8 +355,8 @@
             <path d="m9 12 2 2 4-4"/>
           </svg>
         </div>
-        <div class="ls-card-title">Secure your real-life stack</div>
-        <div class="ls-card-sub">Share your details to talk to a Bajaj Life advisor — free, no obligation.</div>
+        <div class="ls-card-title">Almost there!</div>
+        <div class="ls-card-sub">Share your details to see your tower score and connect with a Bajaj Life advisor.</div>
 
         <div class="ls-form">
           <label class="ls-field">
@@ -368,11 +372,11 @@
           </label>
           <label class="ls-tc">
             <input type="checkbox" id="lead-tc" />
-            <span>I agree to be contacted by Bajaj Life regarding term insurance.</span>
+            <span>I authorize Bajaj Life Insurance to contact me via call, SMS, email or WhatsApp regarding their products and services, irrespective of my registration on NCPR / NDNC. <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span>
           </label>
           <div class="ls-error" id="lead-error"></div>
           <button class="ls-btn ls-btn-primary ls-form-cta" id="btn-lead-submit" type="button">
-            Get My Free Plan
+            View My Score
           </button>
         </div>
       </div>

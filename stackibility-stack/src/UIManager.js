@@ -19,6 +19,7 @@ export class UIManager {
         this._score = document.getElementById('score');
         this._height = document.getElementById('height');
         this._level = document.getElementById('level-name');
+        this._timer = document.getElementById('timer');
         this._sFill = document.getElementById('stability-fill');
 
         this._combo = document.getElementById('combo-badge');
@@ -38,6 +39,8 @@ export class UIManager {
         this._onSlotConfirm = () => {};
         this._onSlotSkip = () => {};
         this._onPlayAgain = () => {};
+        this._onBookSlot = () => {};
+        this._onShare = () => {};
 
         this._selectedSlot = null;
 
@@ -58,13 +61,43 @@ export class UIManager {
             this.hideTutorial();
         });
 
-        // Insurance CTA on game-over now opens the lead form (not an external link)
+        // "Book a Slot with our Relationship Manager" — moves the player
+        // from the score CTA screen into the date/time slot form.
         const insuranceBtn = document.getElementById('btn-insurance');
         if (insuranceBtn) {
             insuranceBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.showLead();
+                this._onBookSlot();
+            });
+        }
+
+        // Share — uses Web Share API where available; falls back to clipboard.
+        const shareBtn = document.getElementById('btn-share');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this._onShare();
+            });
+        }
+
+        // Call now — surface only when an employee mobile is available
+        // (ie. the deep-link from the gamification harness provided one).
+        const callBtn = document.getElementById('btn-call');
+        const empMobile = sessionStorage.getItem('gamification_emp_mobile')
+            || sessionStorage.getItem('gamification_empMobile');
+        if (callBtn && empMobile) {
+            callBtn.href = `tel:${empMobile}`;
+            callBtn.classList.remove('hidden');
+        }
+
+        // Restart from game-over CTA
+        const restartBtn = document.getElementById('btn-restart');
+        if (restartBtn) {
+            restartBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.hideGameOver();
+                this._onPlayAgain();
             });
         }
 
@@ -130,6 +163,8 @@ export class UIManager {
     setOnSlotConfirm(fn) { this._onSlotConfirm = fn || (() => {}); }
     setOnSlotSkip(fn) { this._onSlotSkip = fn || (() => {}); }
     setOnPlayAgain(fn) { this._onPlayAgain = fn || (() => {}); }
+    setOnBookSlot(fn) { this._onBookSlot = fn || (() => {}); }
+    setOnShare(fn) { this._onShare = fn || (() => {}); }
 
     // ── Lead form ─────────────────────────────────────────────
     _handleLeadSubmit(btn) {
@@ -206,7 +241,7 @@ export class UIManager {
     showTutorial() { this._tutScreen.classList.remove('hidden'); }
     hideTutorial() { this._tutScreen.classList.add('hidden'); }
 
-    updateHUD({ score, floors, levelName, instabilityFraction }) {
+    updateHUD({ score, floors, levelName, instabilityFraction, timeLeftMs }) {
         if (this._score) {
             if (this._score.textContent !== score.toString()) {
                 this._score.textContent = score;
@@ -218,6 +253,16 @@ export class UIManager {
         }
         if (this._height) this._height.textContent = `🏢 ${floors}`;
         if (this._level) this._level.textContent = levelName;
+        if (this._timer && timeLeftMs != null) {
+            const totalSec = Math.max(0, Math.ceil(timeLeftMs / 1000));
+            const m = Math.floor(totalSec / 60);
+            const s = String(totalSec % 60).padStart(2, '0');
+            const formatted = `${m}:${s}`;
+            if (this._timer.textContent !== formatted) {
+                this._timer.textContent = formatted;
+            }
+            this._timer.classList.toggle('timer-low', totalSec <= 10);
+        }
 
         // Stability bar logic
         if (this._sFill) {
@@ -257,10 +302,26 @@ export class UIManager {
 
     showStart() { this._startScreen.classList.remove('hidden'); this._gameoverScreen.classList.add('hidden'); }
     hideStart() { this._startScreen.classList.add('hidden'); }
-    showGameOver({ score, floors, level }) {
+    showGameOver({ name, score, floors, won }) {
         document.getElementById('go-score').textContent = score;
         document.getElementById('go-floors').textContent = floors;
-        document.getElementById('go-level').textContent = level;
+
+        const greetingEl = document.getElementById('go-greeting');
+        if (greetingEl) {
+            const firstName = (name || '').trim().split(/\s+/)[0] || 'there';
+            greetingEl.textContent = `Hi ${firstName}`;
+        }
+
+        const titleEl = document.getElementById('go-insurance-title');
+        const bodyEl = document.getElementById('go-insurance-body');
+        if (won) {
+            if (titleEl) titleEl.innerHTML = `<span>You managed to successfully build your tower!</span>`;
+            if (bodyEl) bodyEl.textContent = `In real life as well, protect your family's Life Goals with Bajaj Life term plan and riders so that they don't fall apart due to one bad move.`;
+        } else {
+            if (titleEl) titleEl.innerHTML = `Towers fall, <span>Your Life Goals shouldn't!</span>`;
+            if (bodyEl) bodyEl.textContent = `One bad move ended the game, we can't afford that in real life! Protect your family's Life Goals with Bajaj Life term plan and riders now!`;
+        }
+
         this._gameoverScreen.classList.remove('hidden');
     }
     hideGameOver() { this._gameoverScreen.classList.add('hidden'); }

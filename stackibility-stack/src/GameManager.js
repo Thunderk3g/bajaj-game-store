@@ -12,6 +12,7 @@ import { submitToLMS, updateLeadNew } from './api.js';
 
 const STATE = { IDLE: 'idle', PLAYING: 'playing', DROPPING: 'dropping', GAMEOVER: 'gameover' };
 const LEVEL_THRESHOLDS = [0, 5, 12, 20, 30, 42];
+const GAME_DURATION_MS = 60_000;
 
 export class GameManager {
     constructor(canvas) {
@@ -35,8 +36,19 @@ export class GameManager {
             this._leadName = name;
             this._leadMobile = mobile;
             this._ui.hideLead();
-            this._ui.showSlot(name, mobile);
+            // After lead capture, reveal the personalized score CTA screen.
+            this._ui.showGameOver({
+                name,
+                score: this._score,
+                floors: this._tower.length - 1,
+                won: this._lastGameWon,
+            });
         });
+        this._ui.setOnBookSlot(() => {
+            this._ui.hideGameOver();
+            this._ui.showSlot(this._leadName, this._leadMobile);
+        });
+        this._ui.setOnShare(() => this._handleShare());
         this._ui.setOnSlotConfirm(async ({ date, time }) => {
             if (this._leadNo) {
                 await updateLeadNew(this._leadNo, {
@@ -70,6 +82,9 @@ export class GameManager {
         this._particles = [];
         this._swingBlock = null;
         this._swingPos = { x: 0, y: 0 };
+        this._timeLeftMs = GAME_DURATION_MS;
+        this._lastTickTs = 0;
+        this._lastGameWon = false;
 
         this._updateLayout();
 
@@ -102,7 +117,7 @@ export class GameManager {
     }
 
     _isFlowOverlayOpen() {
-        const ids = ['lead-screen', 'slot-screen', 'thankyou-screen'];
+        const ids = ['lead-screen', 'slot-screen', 'thankyou-screen', 'gameover-screen'];
         return ids.some((id) => {
             const el = document.getElementById(id);
             return el && !el.classList.contains('hidden');
@@ -118,6 +133,8 @@ export class GameManager {
         this._tower = [];
         this._falling = null;
         this._particles = [];
+        this._timeLeftMs = GAME_DURATION_MS;
+        this._lastTickTs = performance.now();
 
         resetBlockIndex();
         this._camera.reset();
@@ -130,9 +147,11 @@ export class GameManager {
         const baseBlock = spawnBlock(window.innerWidth);
         baseBlock.label = 'Foundation';
         baseBlock.iconType = null;
-        baseBlock.height = 36;
+        baseBlock.height = 56;
         baseBlock.color = '#6D4C41';
         baseBlock.borderColor = '#3E2723';
+        baseBlock.labelHeight = 28;
+        baseBlock.labelFontSize = 16;
         this._tower.push({ block: baseBlock, worldX: this._anchorX, worldY: this._groundWorldY });
 
         this._ui.hideStart();
@@ -228,14 +247,32 @@ export class GameManager {
         if (this._stackStability.isCollapsed) this._triggerGameOver();
     }
 
-    _triggerGameOver() {
-        if (this._state !== STATE.GAMEOVER) {
-             SoundManager.playCrash();
-        }
+    _triggerGameOver(won = false) {
+        if (this._state === STATE.GAMEOVER) return;
+        if (!won) SoundManager.playCrash();
         this._state = STATE.GAMEOVER;
         this._falling = null;
+        this._lastGameWon = !!won;
         this._ui.markPlayed();
-        this._ui.showGameOver({ score: this._score, floors: this._tower.length - 1, level: this._level });
+        // Lead capture comes BEFORE the score CTA. The submit handler
+        // routes onward to the personalized game-over screen.
+        this._ui.showLead();
+    }
+
+    async _handleShare() {
+        const floors = this._tower.length - 1;
+        const url = window.location.href;
+        const senderName = this._leadName || '';
+        const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
+        const message = `Hi,\nI just played LifeStack and built a tower of ${floors} floors.\nSee how high you can stack — try it here: ${url}${signature}`.trim();
+        if (navigator.share) {
+            try { await navigator.share({ title: 'LifeStack', text: message }); } catch {}
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(message);
+            alert('Score and link copied to clipboard!');
+        } catch {}
     }
 
     _spawnParticles(x, worldY, color) {
@@ -252,6 +289,21 @@ export class GameManager {
             this._draw();
             return;
         }
+
+        // Tick the 60-second game timer. When it hits zero with the tower
+        // still standing, that's a "win" — route to the success CTA.
+        const now = performance.now();
+        if (this._state === STATE.PLAYING || this._state === STATE.DROPPING) {
+            const dt = this._lastTickTs ? now - this._lastTickTs : 0;
+            this._timeLeftMs = Math.max(0, this._timeLeftMs - dt);
+            if (this._timeLeftMs <= 0) {
+                this._lastTickTs = now;
+                this._triggerGameOver(true);
+                this._draw();
+                return;
+            }
+        }
+        this._lastTickTs = now;
 
         this._stackStability.update();
 
@@ -296,6 +348,7 @@ export class GameManager {
             floors: this._tower.length - 1,
             levelName: getLevelTheme(this._level).name,
             instabilityFraction: this._stackStability.fraction,
+            timeLeftMs: this._timeLeftMs,
         });
     }
 

@@ -293,7 +293,9 @@ export class Renderer {
         const { width: w, height: h } = block;
         const x = worldX - w / 2 + shakeOffset;
         const y = worldY - h / 2;
-        const labelH = h >= 30 ? Math.max(10, Math.min(14, h * 0.20)) : 0;
+        const labelH = block.labelHeight != null
+            ? block.labelHeight
+            : (h >= 30 ? Math.max(10, Math.min(14, h * 0.20)) : 0);
 
         ctx.globalAlpha = alpha;
 
@@ -339,7 +341,9 @@ export class Renderer {
             ctx.fillStyle = 'rgba(255,255,255,0.18)';
             ctx.fillRect(x, y + h - labelH + 1, w, 0.8);
 
-            const fs = Math.max(7, Math.min(10, h * 0.13));
+            const fs = block.labelFontSize != null
+                ? block.labelFontSize
+                : Math.max(7, Math.min(10, h * 0.13));
             ctx.font = `800 ${fs}px Poppins, system-ui, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';

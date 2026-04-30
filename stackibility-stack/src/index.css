@@ -165,20 +165,32 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: 8px;
   pointer-events: none;
 }
 
 #score-box,
+#timer-box,
 #height-box {
   padding: 10px 16px;
-  min-width: 96px;
+  min-width: 88px;
   display: flex;
   flex-direction: column;
+}
+
+#timer-box {
+  text-align: center;
+  align-items: center;
 }
 
 #height-box {
   text-align: right;
   align-items: flex-end;
+}
+
+#timer.timer-low {
+  color: var(--ls-orange-bright);
+  animation: ls-pulse-soft 0.8s ease-in-out infinite;
 }
 
 .hud-label {
@@ -190,11 +202,17 @@ body {
 }
 
 #score,
-#height {
+#height,
+#timer {
   font-size: 28px;
   color: var(--ls-white);
   margin-top: 2px;
   line-height: 1;
+}
+
+#timer {
+  font-size: 26px;
+  transition: color 200ms ease;
 }
 
 .score-pop {
@@ -827,6 +845,39 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.go-stats-grid-single {
+  grid-template-columns: 1fr;
+}
+
+.go-personal-line {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 8px;
+  letter-spacing: 0.04em;
+}
+
+.go-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.go-action-row:has(#btn-call.hidden) {
+  grid-template-columns: 1fr;
+}
+
+.go-action-btn {
+  height: 48px;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.start-secondary-row-single {
+  max-width: 340px;
+  justify-content: center;
 }
 
 .go-stat {
