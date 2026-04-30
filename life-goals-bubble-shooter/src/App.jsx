@@ -9,8 +9,8 @@ import { LEAD_NO_KEY } from './api.js';
 import { LEVELS } from './data.js';
 
 const THEME = {
-  homeBg: 'linear-gradient(180deg, #0B1E5B 0%, #1B2A6E 50%, #061343 100%)',
-  gameBg: 'linear-gradient(180deg, #0F1B4D 0%, #1B2A6E 60%, #2C3F8F 100%)',
+  homeBg: 'linear-gradient(180deg, #003366 0%, #00509E 50%, #00224B 100%)',
+  gameBg: 'linear-gradient(180deg, #051a3a 0%, #0e4f94 50%, #051a3a 100%)',
 };
 
 export default function App() {
@@ -39,11 +39,15 @@ export default function App() {
   const finishRound = useCallback((nextStats, didWin) => {
     setStats(nextStats);
     setWon(didWin);
-    // Gate results on lead capture the first time, but don't pester returning players.
+    setScreen('results');
+  }, []);
+
+  const handleBookSlot = useCallback(() => {
     if (!sessionStorage.getItem(LEAD_NO_KEY)) {
       setShowLeadModal(true);
+    } else {
+      setShowSlotModal(true);
     }
-    setScreen('results');
   }, []);
 
   const handleWin = useCallback((s) => finishRound(s, true), [finishRound]);
@@ -70,7 +74,7 @@ export default function App() {
       maxWidth: 430,
       margin: '0 auto',
       overflow: 'hidden',
-      background: '#000',
+      background: '#00102A',
     }}>
       {screen === 'home' && (
         <HomeScreen onStart={startGame} theme={THEME} levelLabel={`LVL ${level.id}`} />
@@ -81,28 +85,45 @@ export default function App() {
           position: 'absolute', inset: 0,
           background: THEME.gameBg,
           display: 'flex', flexDirection: 'column',
-          padding: '32px 0 0',
+          padding: '14px 0 8px',
         }}>
           <div style={{
-            padding: '6px 14px 6px',
+            padding: '4px 14px 8px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             color: 'white',
           }}>
             <button onClick={goHome} aria-label="Back" style={{
-              background: 'rgba(255,255,255,0.1)', border: 'none',
-              width: 32, height: 32, borderRadius: '50%', color: 'white',
-              fontSize: 16, cursor: 'pointer',
+              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+              width: 34, height: 34, borderRadius: '50%', color: 'white',
+              fontSize: 16, cursor: 'pointer', fontWeight: 800,
             }}>←</button>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 9, fontWeight: 800, opacity: 0.6, letterSpacing: '0.1em' }}>LEVEL {level.id}</div>
-              <div className="font-display" style={{ fontSize: 15, fontWeight: 900, color: 'var(--brand-gold)', lineHeight: 1 }}>
+            <div style={{ textAlign: 'center', flex: 1 }}>
+              <div className="hud-label">
+                Level {level.id} · {level.subtitle}
+              </div>
+              <div className="ls-display" style={{
+                fontSize: 16, fontWeight: 900, color: '#FFD37A', lineHeight: 1.1, marginTop: 1,
+              }}>
                 {level.name}
               </div>
             </div>
-            <div style={{ width: 32 }} />
+            <div className="ls-chip" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '6px 12px',
+            }}>
+              <div style={{
+                width: 14, height: 14, borderRadius: 4,
+                background: 'linear-gradient(135deg, var(--ls-blue) 0%, var(--ls-orange) 100%)',
+                boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset',
+              }} />
+              <span style={{
+                fontSize: 9, fontWeight: 800, color: 'var(--ls-white)',
+                letterSpacing: '0.18em', textTransform: 'uppercase',
+              }}>Bajaj Life</span>
+            </div>
           </div>
 
-          <div style={{ padding: '4px 8px 0', flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ padding: '0 8px', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
             <BubbleShooter
               key={gameKey}
               level={level}
@@ -111,12 +132,10 @@ export default function App() {
             />
           </div>
 
-          <div style={{
-            padding: '8px 16px 12px',
-            color: 'rgba(255,255,255,0.6)',
-            fontSize: 10, textAlign: 'center', fontWeight: 600,
+          <div className="tap-hint-label" style={{
+            padding: '6px 16px 6px', textAlign: 'center',
           }}>
-            👆 Drag to aim · Release to shoot · Match 3+ same colour
+            👆 Drag inside the board to aim · release to fire
           </div>
         </div>
       )}
@@ -127,7 +146,7 @@ export default function App() {
           won={won}
           onRetry={handleRetry}
           onHome={goHome}
-          onBookSlot={() => setShowSlotModal(true)}
+          onBookSlot={handleBookSlot}
           retryLabel={won && levelIdx < LEVELS.length - 1 ? `Play Level ${LEVELS[levelIdx + 1].id} →` : (won ? 'Play again' : 'Try again')}
         />
       )}
@@ -143,7 +162,7 @@ export default function App() {
       {showLeadModal && (
         <LeadCaptureModal
           score={stats.score}
-          onSubmitted={() => setShowLeadModal(false)}
+          onSubmitted={() => { setShowLeadModal(false); setShowSlotModal(true); }}
           onSkip={() => setShowLeadModal(false)}
         />
       )}
