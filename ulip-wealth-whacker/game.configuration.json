@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "gameId": "ulip-wealth-whacker",
+    "gameName": "ULIP Wealth Whacker",
+    "version": "1.0.0",
+    "product": "ULIP / Market-linked Savings Plans",
+    "port": 8008
+  },
+
+  "gameplay": {
+    "sessionCapSeconds": 60,
+    "maxRounds": null,
+    "difficultyRampEnabled": true,
+    "difficultyRampIntervalSeconds": 15,
+    "gridSize": 9,
+    "spawnIntervalMs": 1200,
+    "moleVisibleMs": 1500,
+    "minSpawnIntervalMs": 700,
+    "minMoleVisibleMs": 900
+  },
+
+  "scoring": {
+    "maxScore": 100,
+    "passingScore": 50,
+    "targetPortfolio": 8000,
+    "moleValues": {
+      "equity":   500,
+      "debt":     300,
+      "balanced": 400,
+      "bullrun":  1000,
+      "crash":   -300,
+      "charges": -200
+    },
+    "moleWeights": {
+      "equity":   35,
+      "debt":     30,
+      "balanced": 20,
+      "bullrun":   5,
+      "crash":     5,
+      "charges":   5
+    }
+  },
+
+  "audio": {
+    "musicEnabledByDefault": true,
+    "sfxEnabledByDefault": true
+  },
+
+  "copy": {
+    "introTitle": "ULIP Wealth Whacker",
+    "introHookLine": "Grow your ULIP portfolio by whacking the right investment opportunities!",
+    "introHowToPlay": "Tap good fund moles to grow your portfolio. Avoid market crashes and hidden charges!",
+    "scoringTagline": "A smart ULIP plan can be your greatest wealth-building partner.",
+    "scoringCtaLine": "Connect with our relationship manager to start your ULIP journey today!",
+    "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
+  },
+
+  "contact": {
+    "callNowNumber": "+91-XXXXXXXXXX",
+    "bookSlotTimeSlots": [
+      "10:00 AM – 11:00 AM",
+      "11:00 AM – 12:00 PM",
+      "2:00 PM – 3:00 PM",
+      "4:00 PM – 5:00 PM"
+    ],
+    "privacyPolicyUrl": ""
+  },
+
+  "ui": {
+    "primaryColor": "#003DA6",
+    "accentColor": "#F26522",
+    "successColor": "#28A745",
+    "fontFamily": "Plus Jakarta Sans"
+  }
+}

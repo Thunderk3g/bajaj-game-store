@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "gameId": "health-shield",
+    "gameName": "Health Shield",
+    "version": "1.0.0",
+    "product": "Health / Critical Illness Insurance",
+    "port": 8003
+  },
+
+  "gameplay": {
+    "sessionCapSeconds": 90,
+    "maxLives": 2,
+    "cols": 7,
+    "baseSpeed": 0.01,
+    "canvasMaxWidth": 480,
+    "brickDefs": [
+      { "label": "Total Shield",     "icon": "🛡️", "powerup": "paddle_grow",   "padMultiplier": 0.20,  "speedMultiplier": 0,    "color": "#ff2d78", "glow": "#ff80b4", "hits": 1, "pts": 30 },
+      { "label": "Cancer Care",      "icon": "🎗️", "powerup": "paddle_shrink", "padMultiplier": -0.18, "speedMultiplier": 0,    "color": "#ff6600", "glow": "#ffb366", "hits": 1, "pts": 25 },
+      { "label": "Critical Shield", "icon": "💊",  "powerup": "paddle_grow", "padMultiplier": 0.1, "speedMultiplier": 0,    "color": "#ffe600", "glow": "#fff176", "hits": 1, "pts": 20 },
+      { "label": "Surgery",          "icon": "🩺",  "powerup": "speed_up",      "padMultiplier": 0,     "speedMultiplier": 0.07, "color": "#39ff14", "glow": "#9dff80", "hits": 1, "pts": 15 },
+      { "label": "Hospital",         "icon": "➕",  "powerup": "speed_up",      "padMultiplier": 0,     "speedMultiplier": 0.07, "color": "#00e5ff", "glow": "#80f2ff", "hits": 1, "pts": 10 },
+      { "label": "Emergency",        "icon": "⚡",  "powerup": "speed_up",      "padMultiplier": 0,     "speedMultiplier": 0.07, "color": "#bf5af2", "glow": "#e0b0ff", "hits": 1, "pts":  5 }
+    ],
+    "speedRamp": {
+      "bricksInterval": 8,
+      "increment": 0.12,
+      "maxMultiplier": 2.0
+    }
+  },
+
+  "scoring": {
+    "maxScore": 100,
+    "coverageWeight": 0.8,
+    "livesBonusMax": 20,
+    "colorThresholds": {
+      "green": 70,
+      "orange": 40
+    },
+    "messages": [
+      {
+        "minScore": 80,
+        "title": "Outstanding Shield!",
+        "body": "You deflected every health crisis like a pro. You clearly understand the value of comprehensive coverage."
+      },
+      {
+        "minScore": 60,
+        "title": "Strong Coverage!",
+        "body": "Great effort! You blocked most health shocks. A few coverage gaps remain — a critical illness plan can fill them."
+      },
+      {
+        "minScore": 40,
+        "title": "Partial Shield",
+        "body": "Some risks broke through your defences. Consider a critical illness plan to strengthen your protection."
+      },
+      {
+        "minScore": 0,
+        "title": "Shield Weakened",
+        "body": "Health risks broke through. This is a reminder — without coverage, one illness can derail your financial goals."
+      }
+    ]
+  },
+
+  "audio": {
+    "masterGain": 0.55,
+    "musicEnabledByDefault": true,
+    "sfxEnabledByDefault": true
+  },
+
+  "copy": {
+    "introTitle": "Health Shield",
+    "introSubtitle": "THE CRITICAL ILLNESS CHALLENGE",
+    "introHowToPlay": [
+      { "icon": "🧱", "text": "Break bricks to get score and power-ups" },
+      { "icon": "🖱️", "text": "Mouse or Touch to move · Tap to launch" },
+      { "icon": "🏆", "text": "Break ALL bricks to win — or survive the 60-second timer!" }
+    ],
+    "scoringTagline": "Protecting your health is even more powerful with a critical illness plan.",
+    "scoringCtaLine": "Connect with our relationship manager now!",
+    "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
+  },
+
+  "contact": {
+    "companyName": "",
+    "callNowNumber": "02261241800",
+    "bookSlotTimeSlots": [
+      "10:00 AM – 11:00 AM",
+      "11:00 AM – 12:00 PM",
+      "12:00 PM – 1:00 PM",
+      "2:00 PM – 3:00 PM",
+      "3:00 PM – 4:00 PM",
+      "4:00 PM – 5:00 PM"
+    ],
+    "privacyPolicyUrl": "",
+    "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, BAJAJ LIFE INSURANCE LTD. ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
+    "tcText": "I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
+  },
+
+  "ui": {
+    "primaryColor": "#7c3aed",
+    "accentColor": "#ff2d78",
+    "successColor": "#39ff14",
+    "fontFamily": "Plus Jakarta Sans"
+  }
+}

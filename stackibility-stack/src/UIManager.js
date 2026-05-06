@@ -1,4 +1,4 @@
-// UIManager.js – DOM overlay management (minimalist)
+// UIManager.js – DOM overlay management (Synchronized with Snake-Life look)
 
 const PLAYED_KEY = 'lifestack_played';
 
@@ -31,6 +31,7 @@ export class UIManager {
         this._leadScreen = document.getElementById('lead-screen');
         this._slotScreen = document.getElementById('slot-screen');
         this._thankyouScreen = document.getElementById('thankyou-screen');
+        this._termsModal = document.getElementById('terms-modal');
 
         this._comboClearTimer = null;
 
@@ -52,17 +53,16 @@ export class UIManager {
         } catch {}
 
         // Tutorial wiring
-        document.getElementById('btn-tutorial').addEventListener('click', (e) => {
+        document.getElementById('btn-tutorial')?.addEventListener('click', (e) => {
             e.stopPropagation();
             this.showTutorial();
         });
-        document.getElementById('btn-tut-close').addEventListener('click', (e) => {
+        document.getElementById('btn-tut-close')?.addEventListener('click', (e) => {
             e.stopPropagation();
             this.hideTutorial();
         });
 
-        // "Book a Slot with our Relationship Manager" — moves the player
-        // from the score CTA screen into the date/time slot form.
+        // "Book a Slot"
         const insuranceBtn = document.getElementById('btn-insurance');
         if (insuranceBtn) {
             insuranceBtn.addEventListener('click', (e) => {
@@ -72,7 +72,7 @@ export class UIManager {
             });
         }
 
-        // Share — uses Web Share API where available; falls back to clipboard.
+        // Share
         const shareBtn = document.getElementById('btn-share');
         if (shareBtn) {
             shareBtn.addEventListener('click', (e) => {
@@ -81,8 +81,7 @@ export class UIManager {
             });
         }
 
-        // Call now — surface only when an employee mobile is available
-        // (ie. the deep-link from the gamification harness provided one).
+        // Call now
         const callBtn = document.getElementById('btn-call');
         const empMobile = sessionStorage.getItem('gamification_emp_mobile')
             || sessionStorage.getItem('gamification_empMobile');
@@ -108,13 +107,13 @@ export class UIManager {
             TIME_SLOTS.forEach((t) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'ls-slot-pill';
+                btn.className = 'ls-slot-pill-premium';
                 btn.dataset.slot = t;
                 btn.textContent = t;
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this._selectedSlot = t;
-                    this._slotTimesEl.querySelectorAll('.ls-slot-pill').forEach((el) => {
+                    this._slotTimesEl.querySelectorAll('.ls-slot-pill-premium').forEach((el) => {
                         el.classList.toggle('selected', el.dataset.slot === t);
                     });
                 });
@@ -130,6 +129,27 @@ export class UIManager {
                 this._handleLeadSubmit(leadSubmit);
             });
         }
+
+        // Terms link/modal
+        document.getElementById('link-tc')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.showTerms();
+        });
+        document.getElementById('btn-terms-close')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.hideTerms();
+        });
+        document.getElementById('terms-overlay')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.hideTerms();
+        });
+        document.getElementById('btn-terms-agree')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const tc = document.getElementById('lead-tc');
+            if (tc) tc.checked = true;
+            this.hideTerms();
+        });
 
         // Slot confirm/skip
         const slotConfirm = document.getElementById('btn-slot-confirm');
@@ -178,22 +198,26 @@ export class UIManager {
         const tc = !!tcEl?.checked;
 
         if (!name) {
-            errEl.textContent = 'Please enter your full name.';
+            if (errEl) errEl.textContent = 'PLEASE ENTER YOUR FULL NAME.';
+            return;
+        }
+        if (!/^[A-Za-z\s]+$/.test(name)) {
+            if (errEl) errEl.textContent = 'LETTERS ONLY FOR NAME.';
             return;
         }
         if (!MOBILE_RE.test(mobile)) {
-            errEl.textContent = 'Please enter a valid 10-digit mobile number.';
+            if (errEl) errEl.textContent = 'INVALID 10-DIGIT MOBILE NUMBER.';
             return;
         }
         if (!tc) {
-            errEl.textContent = 'Please accept the terms to continue.';
+            if (errEl) errEl.textContent = 'PLEASE AGREE TO TERMS.';
             return;
         }
-        errEl.textContent = '';
+        if (errEl) errEl.textContent = '';
 
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = 'Submitting…';
+        btn.textContent = 'SUBMITTING…';
 
         Promise.resolve(this._onLeadSubmit({ name, mobile })).finally(() => {
             btn.disabled = false;
@@ -209,18 +233,18 @@ export class UIManager {
         const time = this._selectedSlot || '';
 
         if (!date) {
-            errEl.textContent = 'Please pick a date.';
+            if (errEl) errEl.textContent = 'PLEASE PICK A DATE.';
             return;
         }
         if (!time) {
-            errEl.textContent = 'Please select a time slot.';
+            if (errEl) errEl.textContent = 'PLEASE SELECT A TIME SLOT.';
             return;
         }
-        errEl.textContent = '';
+        if (errEl) errEl.textContent = '';
 
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = 'Booking…';
+        btn.textContent = 'BOOKING…';
 
         Promise.resolve(this._onSlotConfirm({ date, time })).finally(() => {
             btn.disabled = false;
@@ -238,8 +262,8 @@ export class UIManager {
         this._tapHint?.classList.add('hidden');
     }
 
-    showTutorial() { this._tutScreen.classList.remove('hidden'); }
-    hideTutorial() { this._tutScreen.classList.add('hidden'); }
+    showTutorial() { this._tutScreen?.classList.remove('hidden'); }
+    hideTutorial() { this._tutScreen?.classList.add('hidden'); }
 
     updateHUD({ score, floors, levelName, instabilityFraction, timeLeftMs }) {
         if (this._score) {
@@ -251,7 +275,7 @@ export class UIManager {
                 this._score.classList.add('score-pop');
             }
         }
-        if (this._height) this._height.textContent = `🏢 ${floors}`;
+        if (this._height) this._height.textContent = `${floors}`;
         if (this._level) this._level.textContent = levelName;
         if (this._timer && timeLeftMs != null) {
             const totalSec = Math.max(0, Math.ceil(timeLeftMs / 1000));
@@ -275,11 +299,11 @@ export class UIManager {
             if (wrap) wrap.classList.remove('shake-warning');
 
             if (stability >= 0.7) {
-                this._sFill.style.backgroundColor = '#005BAC'; // Blue
+                this._sFill.style.backgroundColor = '#005BAC';
             } else if (stability >= 0.3) {
-                this._sFill.style.backgroundColor = '#F26922'; // Orange
+                this._sFill.style.backgroundColor = '#F26922';
             } else {
-                this._sFill.style.backgroundColor = '#EF4444'; // Red
+                this._sFill.style.backgroundColor = '#EF4444';
                 if (wrap) wrap.classList.add('shake-warning');
             }
         }
@@ -300,11 +324,13 @@ export class UIManager {
         }, 1400);
     }
 
-    showStart() { this._startScreen.classList.remove('hidden'); this._gameoverScreen.classList.add('hidden'); }
-    hideStart() { this._startScreen.classList.add('hidden'); }
+    showStart() { this._startScreen?.classList.remove('hidden'); this._gameoverScreen?.classList.add('hidden'); }
+    hideStart() { this._startScreen?.classList.add('hidden'); }
     showGameOver({ name, score, floors, won }) {
-        document.getElementById('go-score').textContent = score;
-        document.getElementById('go-floors').textContent = floors;
+        const goScoreEl = document.getElementById('go-score');
+        const goFloorsEl = document.getElementById('go-floors');
+        if (goScoreEl) goScoreEl.textContent = score;
+        if (goFloorsEl) goFloorsEl.textContent = floors;
 
         const greetingEl = document.getElementById('go-greeting');
         if (greetingEl) {
@@ -322,9 +348,9 @@ export class UIManager {
             if (bodyEl) bodyEl.textContent = `One bad move ended the game, we can't afford that in real life! Protect your family's Life Goals with Bajaj Life term plan and riders now!`;
         }
 
-        this._gameoverScreen.classList.remove('hidden');
+        this._gameoverScreen?.classList.remove('hidden');
     }
-    hideGameOver() { this._gameoverScreen.classList.add('hidden'); }
+    hideGameOver() { this._gameoverScreen?.classList.add('hidden'); }
 
     // ── Lead/Slot/Thank-you screen toggles ────────────────────
     showLead() {
@@ -335,7 +361,6 @@ export class UIManager {
     hideLead() { this._leadScreen?.classList.add('hidden'); }
 
     showSlot(name, mobile) {
-        // Reset selections
         this._selectedSlot = null;
         const errEl = document.getElementById('slot-error');
         if (errEl) errEl.textContent = '';
@@ -356,7 +381,7 @@ export class UIManager {
             dateEl.value = '';
         }
         if (this._slotTimesEl) {
-            this._slotTimesEl.querySelectorAll('.ls-slot-pill').forEach((el) => {
+            this._slotTimesEl.querySelectorAll('.ls-slot-pill-premium').forEach((el) => {
                 el.classList.remove('selected');
             });
         }
@@ -367,5 +392,9 @@ export class UIManager {
     showThankYou() { this._thankyouScreen?.classList.remove('hidden'); }
     hideThankYou() { this._thankyouScreen?.classList.add('hidden'); }
 
-    showRiskEvent() { } // no-op, mechanics removed
+    showTerms() { this._termsModal?.classList.remove('hidden'); }
+    hideTerms() { this._termsModal?.classList.add('hidden'); }
+
+    showRiskEvent() { } 
 }
+

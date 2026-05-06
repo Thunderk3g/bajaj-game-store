@@ -347,88 +347,98 @@
     </div>
 
     <!-- ── Lead capture screen ──────────────────────────── -->
-    <div id="lead-screen" class="hidden">
-      <div class="ls-card">
-        <div class="ls-card-icon" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z" fill="rgba(255,255,255,0.18)"/>
-            <path d="m9 12 2 2 4-4"/>
-          </svg>
-        </div>
-        <div class="ls-card-title">Almost there!</div>
-        <div class="ls-card-sub">Share your details to see your tower score and connect with a Bajaj Life advisor.</div>
+    <div id="lead-screen" class="hidden premium-overlay">
+      <div class="ls-card premium-card animate-fade-in">
+        <div class="ls-card-title-premium">ENTER DETAILS</div>
+        <div class="ls-card-sub-premium">To see the results</div>
 
-        <div class="ls-form">
-          <label class="ls-field">
-            <span class="ls-field-label">Full Name</span>
-            <input type="text" id="lead-name" class="ls-input" placeholder="e.g. Priya Sharma" autocomplete="name" />
-          </label>
-          <label class="ls-field">
-            <span class="ls-field-label">Mobile Number</span>
-            <div class="ls-mobile-row">
-              <span class="ls-mobile-prefix">+91</span>
-              <input type="tel" id="lead-mobile" class="ls-input ls-input-mobile" placeholder="10-digit mobile" maxlength="10" inputmode="numeric" autocomplete="tel-national" />
+        <div class="ls-form-premium">
+          <div class="ls-field-premium">
+            <label class="ls-field-label-premium">YOUR NAME</label>
+            <input type="text" id="lead-name" class="ls-input-premium" placeholder="Full Name" autocomplete="name" />
+          </div>
+          <div class="ls-field-premium">
+            <label class="ls-field-label-premium">MOBILE NUMBER</label>
+            <input type="tel" id="lead-mobile" class="ls-input-premium" placeholder="9876543210" maxlength="10" inputmode="numeric" autocomplete="tel-national" />
+          </div>
+
+          
+          <div class="ls-tc-premium">
+            <div class="ls-checkbox-wrapper">
+              <input type="checkbox" id="lead-tc" checked />
+              <div class="ls-checkbox-custom"></div>
             </div>
-          </label>
-          <label class="ls-tc">
-            <input type="checkbox" id="lead-tc" />
-            <span>I authorize Bajaj Life Insurance to contact me via call, SMS, email or WhatsApp regarding their products and services, irrespective of my registration on NCPR / NDNC. <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span>
-          </label>
-          <div class="ls-error" id="lead-error"></div>
-          <button class="ls-btn ls-btn-primary ls-form-cta" id="btn-lead-submit" type="button">
-            View My Score
+            <span class="ls-tc-text">I agree and consent to the <a href="#" id="link-tc" class="ls-link">T&C and Privacy Policy</a></span>
+          </div>
+
+          <div class="ls-error-premium" id="lead-error"></div>
+          
+          <button class="ls-btn-premium-cta" id="btn-lead-submit" type="button">
+            SEE RESULTS!
           </button>
         </div>
       </div>
     </div>
 
     <!-- ── Slot booking screen ──────────────────────────── -->
-    <div id="slot-screen" class="hidden">
-      <div class="ls-card">
-        <div class="ls-card-icon" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="5" width="18" height="16" rx="2" fill="rgba(255,255,255,0.18)"/>
-            <path d="M3 9h18M8 3v4M16 3v4"/>
-          </svg>
-        </div>
-        <div class="ls-card-title">Book a Callback Slot</div>
-        <div class="ls-card-sub">Pick a date and time that works for you.</div>
+    <div id="slot-screen" class="hidden premium-overlay">
+      <div class="ls-card premium-card animate-fade-in">
+        <div class="ls-card-title-premium">BOOK SLOT</div>
+        <div class="ls-card-sub-premium">Pick a preferred time</div>
 
-        <div class="ls-form">
-          <label class="ls-field">
-            <span class="ls-field-label">Date</span>
-            <input type="date" id="slot-date" class="ls-input" />
-          </label>
-          <div class="ls-field">
-            <span class="ls-field-label">Time Slot</span>
-            <div id="slot-times" class="ls-slot-grid"></div>
+        <div class="ls-form-premium">
+          <div class="ls-field-premium">
+            <label class="ls-field-label-premium">DATE</label>
+            <input type="date" id="slot-date" class="ls-input-premium" />
           </div>
-          <div class="ls-error" id="slot-error"></div>
-          <button class="ls-btn ls-btn-primary ls-form-cta" id="btn-slot-confirm" type="button">
-            Confirm Slot
+          <div class="ls-field-premium">
+            <label class="ls-field-label-premium">TIME SLOT</label>
+            <div id="slot-times" class="ls-slot-grid-premium"></div>
+          </div>
+          <div class="ls-error-premium" id="slot-error"></div>
+          <button class="ls-btn-premium-cta" id="btn-slot-confirm" type="button">
+            CONFIRM SLOT!
           </button>
-          <button class="ls-text-btn" id="btn-slot-skip" type="button">
-            Skip for now
+          <button class="ls-text-btn-premium" id="btn-slot-skip" type="button">
+            SKIP FOR NOW
           </button>
         </div>
       </div>
     </div>
 
     <!-- ── Thank-you screen ─────────────────────────────── -->
-    <div id="thankyou-screen" class="hidden">
-      <div class="ls-card ls-card-thanks">
-        <div class="ls-check" aria-hidden="true">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <div id="thankyou-screen" class="hidden premium-overlay">
+      <div class="ls-card premium-card animate-fade-in text-center">
+        <div class="ls-check-premium animate-bounce-slow" aria-hidden="true">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12l5 5L20 7"/>
           </svg>
         </div>
-        <div class="ls-card-title">Application Received!</div>
-        <div class="ls-card-sub">Our advisor will call you shortly to plan your real-life stack.</div>
-        <button class="ls-btn ls-btn-primary ls-form-cta" id="btn-thankyou-restart" type="button">
-          Play Again
+        <div class="ls-card-title-premium mt-4">THANK YOU!</div>
+        <div class="ls-card-sub-premium">Our advisor will call you shortly.</div>
+        <button class="ls-btn-premium-cta mt-6" id="btn-thankyou-restart" type="button">
+          PLAY AGAIN
         </button>
       </div>
     </div>
+
+    <!-- ── Terms Modal ──────────────────────────────────── -->
+    <div id="terms-modal" class="hidden premium-overlay">
+      <div class="modal-overlay" id="terms-overlay"></div>
+      <div class="modal-card premium-card animate-slide-up">
+        <button id="btn-terms-close" class="modal-close-btn">&times;</button>
+        <div class="ls-card-title-premium">TERMS & CONDITIONS</div>
+        <div class="modal-content mt-4">
+          <p>I hereby authorize Bajaj Life Insurance Limited. to call me on the contact number made available by me on the website with a specific request to call back.</p>
+          <p>I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the content of the call may be for the purposes of explaining various insurance products and services or solicitation and procurement of insurance business.</p>
+          <p>Please refer to Bajaj Life <a href="https://www.bajajallianzlife.com/privacy-policy.html" target="_blank" rel="noopener noreferrer" class="ls-link">Privacy Policy</a>.</p>
+        </div>
+        <button class="ls-btn-premium-cta mt-8" id="btn-terms-agree">
+          I AGREE
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <script>

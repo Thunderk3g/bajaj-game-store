@@ -104,13 +104,43 @@ const games = [
   },
   {
     name: "health-shield",
-    source: path.join(ROOT_DIR, "health-shield", "health-shield", "dist"),
+    source: path.join(ROOT_DIR, "health-shield", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "health-shield"),
   },
   {
     name: "life-goals-bubble-shooter",
     source: path.join(ROOT_DIR, "life-goals-bubble-shooter", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "life-goals-bubble-shooter"),
+  },
+  {
+    name: "cover-word-rescue",
+    source: path.join(ROOT_DIR, "cover-word-rescue", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "cover-word-rescue"),
+  },
+  {
+    name: "debt-defender",
+    source: path.join(ROOT_DIR, "debt-defender", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "debt-defender"),
+  },
+  {
+    name: "shield-marble-vita",
+    source: path.join(ROOT_DIR, "shield-marble-vita", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "shield-marble-vita"),
+  },
+  {
+    name: "ulip-picture-puzzle",
+    source: path.join(ROOT_DIR, "ulip-picture-puzzle", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "ulip-picture-puzzle"),
+  },
+  {
+    name: "ulip-wealth-whacker",
+    source: path.join(ROOT_DIR, "ulip-wealth-whacker", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "ulip-wealth-whacker"),
+  },
+  {
+    name: "whole-life-galaga",
+    source: path.join(ROOT_DIR, "whole-life-galaga", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "whole-life-galaga"),
   },
 ];
 
@@ -351,7 +381,61 @@ const manifest = {
     popular: true,
     gameId: "GAME_018",
     assets: [],
-  }
+  },
+  "cover-word-rescue": {
+    remoteEntry: "assets/games/cover-word-rescue/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Cover Word Rescue",
+    popular: true,
+    gameId: "GAME_019",
+    assets: [],
+  },
+  "debt-defender": {
+    remoteEntry: "assets/games/debt-defender/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Debt Defender",
+    popular: true,
+    gameId: "GAME_020",
+    assets: [],
+  },
+  "shield-marble-vita": {
+    remoteEntry: "assets/games/shield-marble-vita/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Shield Marble Vita",
+    popular: true,
+    gameId: "GAME_021",
+    assets: [],
+  },
+  "ulip-picture-puzzle": {
+    remoteEntry: "assets/games/ulip-picture-puzzle/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "ULIP Picture Puzzle",
+    popular: true,
+    gameId: "GAME_022",
+    assets: [],
+  },
+  "ulip-wealth-whacker": {
+    remoteEntry: "assets/games/ulip-wealth-whacker/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "ULIP Wealth Whacker",
+    popular: true,
+    gameId: "GAME_023",
+    assets: [],
+  },
+  "whole-life-galaga": {
+    remoteEntry: "assets/games/whole-life-galaga/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Whole Life Galaga",
+    popular: true,
+    gameId: "GAME_024",
+    assets: [],
+  },
 };
 
 const manifests = [

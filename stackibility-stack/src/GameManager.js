@@ -89,8 +89,15 @@ export class GameManager {
         this._updateLayout();
 
         window.addEventListener('click', () => this._onTap());
-        window.addEventListener('touchstart', e => { e.preventDefault(); this._onTap(); }, { passive: false });
+        window.addEventListener('touchstart', e => {
+            // Only prevent default if we're not tapping on an interactive element
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+                e.preventDefault();
+            }
+            this._onTap();
+        }, { passive: false });
         window.addEventListener('keydown', e => { if (e.code === 'Space' || e.code === 'Enter') this._onTap(); });
+
         window.addEventListener('resize', () => this._updateLayout());
 
         this._ui.showStart();

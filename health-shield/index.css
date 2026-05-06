@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    @apply overflow-hidden h-screen w-screen select-none bg-[#0d0024];
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.btn-press:active {
+  transform: scale(0.96);
+}
+
+@keyframes pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pop {
+  animation: pop 0.3s ease-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
