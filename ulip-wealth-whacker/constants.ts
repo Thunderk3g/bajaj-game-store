@@ -98,8 +98,10 @@ export function applyConfig(c: Record<string, any>): void {
   ORANGE = c.ui.accentColor;
   GREEN = c.ui.successColor;
 
+  const fixPath = (p: string) => (p && p.startsWith('/') ? p.substring(1) : p);
+
   INTRO_TITLE = c.copy.introTitle;
-  INTRO_IMAGE = c.copy.introImage || INTRO_IMAGE;
+  INTRO_IMAGE = fixPath(c.copy.introImage || INTRO_IMAGE);
   HOW_TO_PLAY_ITEMS = Array.isArray(c.copy.introHowToPlay)
     ? c.copy.introHowToPlay
     : [{ icon: 'tap', text: String(c.copy.introHowToPlay || '') }];
@@ -121,7 +123,7 @@ export function applyConfig(c: Record<string, any>): void {
     if (mw[t] !== undefined) MOLE_DEFS[t].weight = mw[t];
   });
 
-  SCORING_BG_IMAGE = c.ui.scoringBgImage ?? '';
+  SCORING_BG_IMAGE = fixPath(c.ui.scoringBgImage ?? '');
 
   COMPANY_NAME = c.contact.companyName || COMPANY_NAME;
   CALL_NOW_NUMBER = c.contact.callNowNumber;

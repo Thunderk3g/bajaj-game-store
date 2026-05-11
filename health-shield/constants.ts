@@ -88,7 +88,9 @@ export function applyConfig(c: Record<string, any>): void {
   SCORE_COLOR_GREEN = c.scoring.colorThresholds.green;
   SCORE_COLOR_ORANGE = c.scoring.colorThresholds.orange;
 
-  SCORING_BG_IMAGE = c.ui.scoringBgImage ?? '';
+  const fixPath = (p: string) => (p && p.startsWith('/') ? p.substring(1) : p);
+
+  SCORING_BG_IMAGE = fixPath(c.ui.scoringBgImage ?? '');
 
   COMPANY_NAME = c.contact.companyName;
   CALL_NOW_NUMBER = c.contact.callNowNumber;

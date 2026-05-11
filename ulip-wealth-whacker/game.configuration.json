@@ -44,7 +44,7 @@
   },
   "copy": {
     "introTitle": "Score Rush",
-    "introImage": "assets/intro-mole-rush.png",
+    "introImage": "./assets/intro-mole-rush.png",
     "introHowToPlay": [
       {
         "icon": "tap",
