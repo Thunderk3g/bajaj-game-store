@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "gameId": "debt-defender",
+    "gameName": "Debt Defender",
+    "version": "1.1.0",
+    "product": "Loan Protection / Term Life Insurance",
+    "port": 8009
+  },
+  "gameplay": {
+    "sessionCapSeconds": 90,
+    "maxRounds": null,
+    "difficultyRampEnabled": true,
+    "difficultyRampIntervalSeconds": 15,
+    "playerSpeed": 180,
+    "bulletSpeed": 310,
+    "fireRateMs": 620,
+    "playerMaxHealth": 5,
+    "enemySpawnIntervalMs": 1650,
+    "minEnemySpawnIntervalMs": 760,
+    "powerUpSpawnIntervalMs": 9000,
+    "powerUpDurationMs": 7000,
+    "fireRateBoostMultiplier": 0.55,
+    "diagonalFireAngleDegrees": 32
+  },
+  "scoring": {
+    "maxScore": 100,
+    "passingScore": 50,
+    "killTargetForMaxScore": 26,
+    "healthBonusPercent": 20
+  },
+  "audio": {
+    "musicEnabledByDefault": true,
+    "sfxEnabledByDefault": true
+  },
+  "copy": {
+    "introTitle": "Debt Defender",
+    "introHookLine": "Defend your income shield before EMIs, credit dues, and sudden shocks reach your family.",
+    "introEyebrow": "Bajaj Life Insurance",
+    "introCta": "PLAY",
+    "howToTitle": "How to Play",
+    "howToSubtitle": "Hold the financial line for 90 seconds.",
+    "howToStartCta": "START",
+    "introHowToPlay": [
+      { "icon": "TAP", "text": "Tap or Click in the arena to Move." },
+      { "icon": "AIM", "text": "Stand still to auto-shoot nearest threat." },
+      { "icon": "RATE", "text": "Fire Rate Boost" },
+      { "icon": "DIAG", "text": "Diagonal Fire Power" },
+      { "icon": "60S", "text": "Survive for 90 Seconds" }
+    ],
+    "greenZoneTitle": "Your Defence Report",
+    "redZoneTitle": "Protect Your Real Future",
+    "scoringHeader": "Financial Defence Report",
+    "scoringTagline": "Protecting your responsibilities is even more powerful.",
+    "scoringCtaLine": "Connect with our relationship manager now!",
+    "shareText": "I defended my family from financial threats and scored {score}/100 in Debt Defender by Bajaj Life. Can you beat my score?",
+    "bookSlotTitle": "Book a Slot",
+    "bookSlotSubline": "Our agent will help you secure your future.",
+    "thankYouTitle": "THANK YOU!",
+    "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly.",
+    "playAgainCta": "PLAY AGAIN"
+  },
+  "contact": {
+    "companyName": "Bajaj Life Insurance",
+    "callNowNumber": "02261241800",
+    "bookSlotTimeSlots": [
+      "10:00 AM - 11:00 AM",
+      "11:00 AM - 12:00 PM",
+      "2:00 PM - 3:00 PM",
+      "4:00 PM - 5:00 PM"
+    ],
+    "privacyPolicyUrl": "https://www.bajajlifeinsurance.com/privacy-policy",
+    "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, {COMPANY} ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
+    "tcText": "I hereby authorize {COMPANY} to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
+  },
+  "ui": {
+    "primaryColor": "#003DA6",
+    "accentColor": "#F26522",
+    "successColor": "#28A745",
+    "fontFamily": "Plus Jakarta Sans"
+  }
+}

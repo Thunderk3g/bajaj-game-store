@@ -1,43 +1,53 @@
 import React from 'react';
-import { INTRO_IMAGE, ORANGE } from '../constants';
 
 interface Props {
   onPlay: () => void;
 }
 
 const IntroScreen: React.FC<Props> = ({ onPlay }) => (
-  <div className="relative h-full min-h-0 w-full overflow-hidden bg-[#071527]">
-    <img
-      src={INTRO_IMAGE}
-      alt=""
-      className="absolute inset-0 h-full w-full object-cover"
-      draggable={false}
-      onError={event => {
-        event.currentTarget.style.display = 'none';
-      }}
-    />
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(255,255,255,0.08),rgba(0,0,0,0.12)_34%,rgba(0,0,0,0.72)_100%)]" />
-    <div
-      className="relative z-10 flex h-full flex-col items-center justify-between px-[6vw] text-center"
-      style={{
-        paddingTop: 'max(2rem, calc(env(safe-area-inset-top) + 1rem))',
-        paddingBottom: 'max(7vh, calc(env(safe-area-inset-bottom) + 1.5rem))',
-      }}
-    >
-      <img
-        className="w-[min(82vw,28rem)] max-h-[28vh] object-contain drop-shadow-[0_0.75rem_1.75rem_rgba(0,0,0,0.75)]"
-        draggable={false}
-      />
-      <button
-        onClick={onPlay}
-        className="btn-press min-h-[3.5rem] w-full max-w-[18rem] rounded-full text-[1.1rem] font-extrabold uppercase tracking-[0.08em] text-white"
+  <div
+    className="screen-scroll flex min-h-full w-full flex-col items-center justify-center"
+    style={{
+      background: 'radial-gradient(circle at top, #24104b 0%, #120326 52%, #080114 100%)',
+    }}
+  >
+    <div className="relative flex h-full min-h-0 w-full max-w-md flex-col justify-end overflow-hidden px-4">
+      <div className="pointer-events-none absolute inset-x-0 top-0 bottom-0 overflow-hidden rounded-none">
+        <img
+          src="intro_page.png"
+          alt="Pulse Breaker intro"
+          className="h-full w-full object-cover object-top"
+          style={{
+            minHeight: 'var(--app-height, 100vh)',
+          }}
+        />
+      </div>
+
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-36"
         style={{
-          background: ORANGE,
-          boxShadow: '0 0.6rem 2rem rgba(242,101,34,0.55), inset 0 0.15rem 0 rgba(255,255,255,0.25)',
+          background: 'linear-gradient(180deg, rgba(8,1,20,0) 0%, rgba(8,1,20,0.7) 45%, rgba(8,1,20,0.96) 100%)',
+        }}
+      />
+
+      <div
+        className="relative z-10 mt-auto w-full"
+        style={{
+          paddingTop: 'max(1rem, env(safe-area-inset-top))',
+          paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
         }}
       >
-        Play
-      </button>
+        <button
+          onClick={onPlay}
+          className="w-full rounded-full py-4 text-lg font-extrabold tracking-wide text-white btn-press"
+          style={{
+            background: 'linear-gradient(90deg, #ff2d78, #ff6bb3)',
+            boxShadow: '0 0 18px rgba(255,45,120,0.7), 0 6px 24px rgba(255,45,120,0.4)',
+          }}
+        >
+          PLAY
+        </button>
+      </div>
     </div>
   </div>
 );

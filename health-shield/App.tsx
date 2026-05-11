@@ -13,10 +13,10 @@ const App: React.FC = () => {
   const [player,     setPlayer]     = useState<PlayerInfo>({ name: '', mobile: '' });
 
   useEffect(() => {
-    fetch('/game.configuration.json', { cache: 'no-store' })
+    fetch('./game.configuration.json', { cache: 'no-store' })
       .then(r => r.json())
-      .then(cfg => { applyConfig(cfg); setReady(true); })
-      .catch(() => setReady(true));
+      .then(config => { applyConfig(config); setReady(true); })
+      .catch(() => setReady(true)); // fall back to hardcoded defaults on error
   }, []);
 
   const handleGameEnd = useCallback((result: GameResult) => {
@@ -38,8 +38,8 @@ const App: React.FC = () => {
 
   return (
     <div className="game-wrap">
-      {screen === Screen.INTRO   && <IntroScreen   onPlay={() => setScreen(Screen.GAME)} />}
-      {screen === Screen.GAME    && <GameScreen     onGameEnd={handleGameEnd} />}
+      {screen === Screen.INTRO       && <IntroScreen onPlay={() => setScreen(Screen.GAME)} />}
+      {screen === Screen.GAME        && <GameScreen onGameEnd={handleGameEnd} />}
       {screen === Screen.DETAILS && <EnterDetailsScreen onSubmit={handleDetailsSubmit} />}
       {screen === Screen.SCORING && gameResult && (
         <ScoringScreen

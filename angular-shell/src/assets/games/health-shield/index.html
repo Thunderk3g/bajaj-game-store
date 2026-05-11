@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Health Shield — Critical Illness Challenge</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,32 +10,63 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      min-height: 100%;
+    }
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #001a5e;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
+      background: #0d0024;
       -webkit-tap-highlight-color: transparent;
-      user-select: none;
+      -moz-user-select: none;
+           user-select: none;
       -webkit-user-select: none;
     }
-    #root { height: 100vh; width: 100vw; display: flex; justify-content: center; }
-    .game-wrap { width: 100%; max-width: 480px; height: 100vh; overflow: hidden; position: relative; }
-    .screen-scroll { width: 100%; height: 100vh; overflow-y: auto; overflow-x: hidden; }
+    #root, .game-wrap {
+      width: 100%;
+      height: var(--app-height, 100vh);
+      min-height: var(--app-height, 100vh);
+    }
+    #root { display: flex; justify-content: center; }
+    .game-wrap { max-width: 480px; overflow: hidden; position: relative; }
+    .screen-scroll {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
     canvas { display: block; touch-action: none; }
-    input, select { -webkit-appearance: none; appearance: none; }
+    input, select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
     ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-thumb { background: #003DA6; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb { background: #ff2d78; border-radius: 2px; }
     .btn-press:active { transform: scale(0.96); }
     @keyframes pop { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
     .pop { animation: pop 0.3s ease-out; }
     @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
     .float { animation: float 3s ease-in-out infinite; }
+    @keyframes neonPulse { 0%,100%{text-shadow:0 0 8px currentColor,0 0 22px currentColor} 50%{text-shadow:0 0 16px currentColor,0 0 44px currentColor,0 0 70px currentColor} }
+    .neon-glow { animation: neonPulse 2s ease-in-out infinite; }
+    @keyframes scanline { 0%{transform:translateY(-100%)} 100%{transform:translateY(100vh)} }
+    .arcade-bg::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px); pointer-events:none; z-index:999; }
   </style>
-  <script type="module" crossorigin src="./assets/index-DVSFIZj2.js"></script>
+  <script>
+    (() => {
+      const syncAppHeight = () => {
+        const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        document.documentElement.style.setProperty('--app-height', `${h}px`);
+      };
+      syncAppHeight();
+      window.addEventListener('resize', syncAppHeight);
+      window.addEventListener('orientationchange', syncAppHeight);
+      if (window.visualViewport) window.visualViewport.addEventListener('resize', syncAppHeight);
+    })();
+  </script>
+  <script type="module" crossorigin src="./assets/index-ZGmjE5Vt.js"></script>
 </head>
 <body>
-  <div id="root"></div>
+  <div id="root"></div>
 </body>
 </html>

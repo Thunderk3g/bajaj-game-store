@@ -1,5 +1,5 @@
 import React from 'react';
-import { COMPANY_NAME, TC_TEXT, PRIVACY_POLICY_URL } from '../constants';
+import { TC_TEXT, PRIVACY_POLICY_URL } from '../constants';
 
 const CYAN = '#22d3ee';
 const CYAN_DARK = '#0891b2';
@@ -23,7 +23,6 @@ const TCModal: React.FC<Props> = ({ onClose }) => (
       </div>
       <p className="text-xs text-gray-600 leading-relaxed mb-5">
         {TC_TEXT}{' '}
-        I agree and consent to the{' '}
         <a
           href={PRIVACY_POLICY_URL || '#'}
           target={PRIVACY_POLICY_URL ? '_blank' : undefined}
@@ -32,8 +31,7 @@ const TCModal: React.FC<Props> = ({ onClose }) => (
           style={{ color: CYAN_DARK }}
         >
           Privacy Policy
-        </a>{' '}
-        of {COMPANY_NAME}.
+        </a>.
       </p>
       <button
         onClick={onClose}
