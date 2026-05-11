@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Screen, GameResult, PlayerInfo } from './types';
 import { applyConfig } from './constants';
 import IntroScreen from './components/IntroScreen';
-import HowToPlayScreen from './components/HowToPlayScreen';
 import GameScreen from './components/GameScreen';
 import EnterDetailsScreen from './components/EnterDetailsScreen';
 import ScoringScreen from './components/ScoringScreen';
@@ -14,10 +13,10 @@ const App: React.FC = () => {
   const [player,     setPlayer]     = useState<PlayerInfo>({ name: '', mobile: '' });
 
   useEffect(() => {
-    fetch('./game.configuration.json', { cache: 'no-store' })
+    fetch('/game.configuration.json', { cache: 'no-store' })
       .then(r => r.json())
-      .then(config => { applyConfig(config); setReady(true); })
-      .catch(() => setReady(true)); // fall back to hardcoded defaults on error
+      .then(cfg => { applyConfig(cfg); setReady(true); })
+      .catch(() => setReady(true));
   }, []);
 
   const handleGameEnd = useCallback((result: GameResult) => {
@@ -39,9 +38,8 @@ const App: React.FC = () => {
 
   return (
     <div className="game-wrap">
-      {screen === Screen.INTRO       && <IntroScreen onPlay={() => setScreen(Screen.HOW_TO_PLAY)} />}
-      {screen === Screen.HOW_TO_PLAY && <HowToPlayScreen onStart={() => setScreen(Screen.GAME)} />}
-      {screen === Screen.GAME        && <GameScreen onGameEnd={handleGameEnd} />}
+      {screen === Screen.INTRO   && <IntroScreen   onPlay={() => setScreen(Screen.GAME)} />}
+      {screen === Screen.GAME    && <GameScreen     onGameEnd={handleGameEnd} />}
       {screen === Screen.DETAILS && <EnterDetailsScreen onSubmit={handleDetailsSubmit} />}
       {screen === Screen.SCORING && gameResult && (
         <ScoringScreen

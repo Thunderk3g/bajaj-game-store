@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "gameId": "ulip-wealth-whacker",
+    "gameName": "Score Rush",
+    "version": "1.0.0",
+    "product": "ULIP / Market-linked Savings Plans",
+    "port": 8004
+  },
+  "gameplay": {
+    "sessionCapSeconds": 60,
+    "maxRounds": null,
+    "difficultyRampEnabled": true,
+    "difficultyRampIntervalSeconds": 15,
+    "gridSize": 9,
+    "spawnIntervalMs": 1200,
+    "moleVisibleMs": 1500,
+    "minSpawnIntervalMs": 700,
+    "minMoleVisibleMs": 900
+  },
+  "scoring": {
+    "maxScore": 100,
+    "passingScore": 50,
+    "targetPortfolio": 8000,
+    "moleValues": {
+      "equity": 500,
+      "debt": 300,
+      "balanced": 400,
+      "bullrun": 1000,
+      "crash": -300,
+      "charges": -200
+    },
+    "moleWeights": {
+      "equity": 35,
+      "debt": 30,
+      "balanced": 20,
+      "bullrun": 5,
+      "crash": 5,
+      "charges": 5
+    }
+  },
+  "audio": {
+    "musicEnabledByDefault": true,
+    "sfxEnabledByDefault": true
+  },
+  "copy": {
+    "introTitle": "Score Rush",
+    "introImage": "/assets/intro-mole-rush.png",
+    "introHowToPlay": [
+      {
+        "icon": "tap",
+        "text": "Tap good moles to grow your virtual portfolio before the clock runs out."
+      },
+      {
+        "icon": "avoid",
+        "text": "Avoid crash and charge moles because they reduce your progress."
+      },
+      {
+        "icon": "bonus",
+        "text": "Catch rare boost moles quickly for the biggest jump toward the target."
+      }
+    ],
+    "scoringTagline": "A market-linked savings plan can pair long-term protection with growth potential.",
+    "scoringCtaLine": "Connect with our relationship manager now!",
+    "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
+  },
+  "contact": {
+    "companyName": "Bajaj Life Insurance",
+    "callNowNumber": "02261241800",
+    "bookSlotTimeSlots": [
+      "10:00 AM - 11:00 AM",
+      "11:00 AM - 12:00 PM",
+      "2:00 PM - 3:00 PM",
+      "4:00 PM - 5:00 PM"
+    ],
+    "privacyPolicyUrl": "",
+    "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, {COMPANY} ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
+    "tcText": "I hereby authorize {COMPANY} to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
+  },
+  "ui": {
+    "primaryColor": "#003DA6",
+    "accentColor": "#F26522",
+    "successColor": "#28A745",
+    "fontFamily": "Plus Jakarta Sans"
+  }
+}

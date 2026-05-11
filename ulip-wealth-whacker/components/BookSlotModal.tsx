@@ -9,6 +9,7 @@ interface Props {
   onBook: () => void;
 }
 
+
 const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
   const [bName,   setBName]   = useState(name);
   const [bMobile, setBMobile] = useState(mobile);
@@ -48,8 +49,8 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
           </div>
 
           {([
-            { label: 'YOUR NAME',     val: bName,   set: (v: string) => setBName(v),                                  type: 'text', err: errors.name   },
-            { label: 'MOBILE NUMBER', val: bMobile, set: (v: string) => setBMobile(v.replace(/\D/g, '').slice(0, 10)), type: 'tel',  err: errors.mobile },
+            { label: 'YOUR NAME',     val: bName,   set: (v: string) => setBName(v),                              type: 'text', err: errors.name },
+            { label: 'MOBILE NUMBER', val: bMobile, set: (v: string) => setBMobile(v.replace(/\D/g,'').slice(0,10)), type: 'tel',  err: errors.mobile },
           ]).map(f => (
             <div key={f.label} className="mb-3">
               <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">{f.label}</label>
@@ -68,9 +69,7 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
           <div className="mb-3">
             <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">PREFERRED DATE</label>
             <input
-              type="date"
-              value={date}
-              min={today}
+              type="date" value={date} min={today}
               onChange={e => { setDate(e.target.value); setErrors({}); }}
               className="w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none"
               style={{ border: `2px solid ${errors.date ? '#EF4444' : '#E2E8F0'}`, background: '#F8FAFF' }}
@@ -103,11 +102,8 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
               </div>
               <span className="text-xs text-gray-500 leading-relaxed">
                 I agree and consent to the{' '}
-                <button
-                  className="underline font-bold"
-                  style={{ color: BLUE }}
-                  onClick={e => { e.preventDefault(); setShowTC(true); }}
-                >
+                <button className="underline font-bold" style={{ color: BLUE }}
+                  onClick={e => { e.preventDefault(); setShowTC(true); }}>
                   T&amp;C and Privacy Policy
                 </button>
               </span>

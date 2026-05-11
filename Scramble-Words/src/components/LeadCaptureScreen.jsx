@@ -72,7 +72,7 @@ const LeadCaptureScreen = ({ onSuccess }) => {
                     <h2 className="text-[#0066B2] text-2xl font-black mb-1 tracking-tight uppercase leading-tight">
                         Enter Your Details
                     </h2>
-                    <p className="text-slate-500 font-bold text-lg">to see your result</p>
+                    <p className="text-slate-500 font-bold text-lg">to see the results</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6 text-left">

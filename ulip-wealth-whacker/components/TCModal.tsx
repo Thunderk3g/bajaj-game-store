@@ -1,5 +1,8 @@
 import React from 'react';
-import { BLUE } from '../constants';
+import { COMPANY_NAME, TC_TEXT, PRIVACY_POLICY_URL } from '../constants';
+
+const CYAN = '#22d3ee';
+const CYAN_DARK = '#0891b2';
 
 interface Props {
   onClose: () => void;
@@ -8,27 +11,34 @@ interface Props {
 const TCModal: React.FC<Props> = ({ onClose }) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center p-4"
-    style={{ background: 'rgba(0,0,0,0.78)' }}
+    style={{ background: 'rgba(8,13,26,0.85)' }}
   >
-    <div className="bg-white rounded-2xl p-6 w-full max-w-sm max-h-[80vh] overflow-y-auto pop">
+    <div
+      className="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[80vh] overflow-y-auto"
+      style={{ border: `3px solid ${CYAN}` }}
+    >
       <div className="flex justify-between items-center mb-4">
-        <h3 className="font-extrabold text-base" style={{ color: BLUE }}>Terms &amp; Conditions</h3>
+        <h3 className="font-extrabold text-base" style={{ color: CYAN_DARK }}>Terms &amp; Conditions</h3>
         <button onClick={onClose} className="text-gray-400 text-2xl leading-none btn-press">&times;</button>
       </div>
       <p className="text-xs text-gray-600 leading-relaxed mb-5">
-        I hereby authorize Bajaj Life Insurance Limited to call me on the contact number made
-        available by me on the website with a specific request to call back. I further declare
-        that, irrespective of my contact number being registered on National Customer Preference
-        Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or
-        WhatsApp sent in response to my request shall not be construed as an Unsolicited
-        Commercial Communication even though the contact number may be registered on DNC.
+        {TC_TEXT}{' '}
         I agree and consent to the{' '}
-        <a href="#" className="underline font-semibold" style={{ color: BLUE }}>Privacy Policy</a>.
+        <a
+          href={PRIVACY_POLICY_URL || '#'}
+          target={PRIVACY_POLICY_URL ? '_blank' : undefined}
+          rel="noopener noreferrer"
+          className="underline font-semibold"
+          style={{ color: CYAN_DARK }}
+        >
+          Privacy Policy
+        </a>{' '}
+        of {COMPANY_NAME}.
       </p>
       <button
         onClick={onClose}
         className="w-full py-3 rounded-full font-extrabold text-white text-sm btn-press"
-        style={{ background: BLUE }}
+        style={{ background: `linear-gradient(135deg, ${CYAN_DARK}, ${CYAN})` }}
       >
         I AGREE
       </button>

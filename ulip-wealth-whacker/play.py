@@ -5,12 +5,13 @@ import webbrowser
 import time
 import threading
 import shutil
+import sys
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 base = os.path.dirname(os.path.abspath(__file__))
 os.chdir(base)
 
-PORT = 8008
+PORT = 8003
 
 def check_and_install_npm():
     if shutil.which('npm'):
@@ -23,16 +24,17 @@ def check_and_install_npm():
         print("npm is required to build this game.")
         return False
 
+    # Try to install using package managers
     if shutil.which('choco'):
         print("\nInstalling Node.js via Chocolatey...")
-        subprocess.run(['choco', 'install', 'nodejs', '-y'], capture_output=True)
+        result = subprocess.run(['choco', 'install', 'nodejs', '-y'], capture_output=True)
         if shutil.which('npm'):
             print("✓ Node.js installed successfully!")
             return True
 
     if shutil.which('scoop'):
         print("\nInstalling Node.js via Scoop...")
-        subprocess.run(['scoop', 'install', 'nodejs'], capture_output=True)
+        result = subprocess.run(['scoop', 'install', 'nodejs'], capture_output=True)
         if shutil.which('npm'):
             print("✓ Node.js installed successfully!")
             return True
@@ -52,16 +54,17 @@ def check_and_install_python():
         print("Python is required to serve this game.")
         return False
 
+    # Try to install using package managers
     if shutil.which('choco'):
         print("\nInstalling Python via Chocolatey...")
-        subprocess.run(['choco', 'install', 'python', '-y'], capture_output=True)
+        result = subprocess.run(['choco', 'install', 'python', '-y'], capture_output=True)
         if shutil.which('python') or shutil.which('python3'):
             print("✓ Python installed successfully!")
             return True
 
     if shutil.which('scoop'):
         print("\nInstalling Python via Scoop...")
-        subprocess.run(['scoop', 'install', 'python'], capture_output=True)
+        result = subprocess.run(['scoop', 'install', 'python'], capture_output=True)
         if shutil.which('python') or shutil.which('python3'):
             print("✓ Python installed successfully!")
             return True
@@ -70,6 +73,7 @@ def check_and_install_python():
     print("Please download and install from: https://www.python.org/")
     return False
 
+# Check for required installations
 if not check_and_install_npm():
     exit(1)
 
@@ -79,7 +83,7 @@ if not check_and_install_python():
 print("Installing dependencies...")
 subprocess.run(['npm', 'install'], check=True)
 
-print("\nBuilding ULIP Wealth Whacker...")
+print("\nBuilding Health Shield...")
 subprocess.run(['npm', 'run', 'build'], check=True)
 
 dist = os.path.join(base, 'dist')
@@ -89,7 +93,7 @@ def open_browser():
     time.sleep(1)
     webbrowser.open(f'http://localhost:{PORT}')
 
-print(f"\nServing ULIP Wealth Whacker at http://localhost:{PORT}")
+print(f"\nServing Health Shield at http://localhost:{PORT}")
 print("Press Ctrl+C to stop\n")
 
 threading.Thread(target=open_browser, daemon=True).start()

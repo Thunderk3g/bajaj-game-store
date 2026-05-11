@@ -1,12 +1,16 @@
-import { MoleType } from './types';
+// All values are populated at runtime by App.tsx fetching /game.configuration.json.
+// Defaults exist only to satisfy TypeScript before applyConfig() runs.
 
-export interface MoleDef {
-  emoji: string;
+export interface BrickDef {
   label: string;
-  value: number;
+  icon: string;
+  powerup: string;
+  padMultiplier: number;
+  speedMultiplier: number;
   color: string;
-  bad: boolean;
-  weight: number;
+  glow: string;
+  hits: number;
+  pts: number;
 }
 
 export interface ScoreMessage {
@@ -15,76 +19,87 @@ export interface ScoreMessage {
   body: string;
 }
 
-// ── UI colours ────────────────────────────────────────────────────────────────
-export let BLUE   = '#003DA6';
+export interface HowToPlayItem {
+  icon: string;
+  text: string;
+}
+
+export let BLUE = '#003DA6';
 export let ORANGE = '#F26522';
-export let GREEN  = '#28A745';
+export let GREEN = '#27AE60';
 
-// ── Gameplay ──────────────────────────────────────────────────────────────────
-export let GAME_SECS            = 60;
-export let SPAWN_INTERVAL_MS    = 1200;
-export let MOLE_VISIBLE_MS      = 1500;
-export let MIN_SPAWN_MS         = 700;
-export let MIN_MOLE_VISIBLE_MS  = 900;
-export let RAMP_INTERVAL_SECS   = 15;
-export let GRID_SIZE            = 9;
+export let MAX_LIVES = 2;
+export let GAME_SECS = 60;
+export let COLS = 3;
+export let BASE_SPEED = 0.01;
 
-// ── Scoring ───────────────────────────────────────────────────────────────────
-export let TARGET_PORTFOLIO = 8000;
-
-export let MOLE_DEFS: Record<MoleType, MoleDef> = {
-  equity:   { emoji: '💹', label: 'Equity Fund',   value: 500,  color: '#22C55E', bad: false, weight: 35 },
-  debt:     { emoji: '🏦', label: 'Debt Fund',     value: 300,  color: '#3B82F6', bad: false, weight: 30 },
-  balanced: { emoji: '⚖️', label: 'Balanced',      value: 400,  color: '#EAB308', bad: false, weight: 20 },
-  bullrun:  { emoji: '🚀', label: 'Bull Run!',     value: 1000, color: '#A855F7', bad: false, weight: 5  },
-  crash:    { emoji: '💥', label: 'Market Crash',  value: -300, color: '#EF4444', bad: true,  weight: 5  },
-  charges:  { emoji: '💸', label: 'Fund Charges',  value: -200, color: '#F97316', bad: true,  weight: 5  },
-};
-
-export let SCORE_MESSAGES: ScoreMessage[] = [
-  { minScore: 80, title: 'ULIP Maestro!',         body: 'Outstanding! You have a natural instinct for market-linked investments. Your virtual portfolio is thriving — imagine what a real ULIP could do!' },
-  { minScore: 60, title: 'Smart Investor!',        body: 'Well played! You know how to spot good investment opportunities and dodge hidden charges. A ULIP plan could accelerate your real wealth journey.' },
-  { minScore: 40, title: 'Learning the Markets!',  body: 'Good effort! Markets can be tricky, but every expert started somewhere. A Bajaj Life ULIP advisor can help you navigate the real opportunities.' },
-  { minScore: 0,  title: 'Markets Are Complex!',   body: 'Don\'t worry — that\'s exactly why ULIP has professional fund managers working for you. Let our experts turn market opportunities into your wealth.' },
+export let BRICK_DEFS: BrickDef[] = [
+  { label: 'Salary', icon: '/brick_spritesheet/Savings.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#23e76c', glow: '#8dffb2', hits: 1, pts: 1000 },
+  { label: 'Investment', icon: '/brick_spritesheet/Investment.png', powerup: 'bomb', padMultiplier: 0, speedMultiplier: 0, color: '#10ffa3', glow: '#80ffce', hits: 1, pts: 2500 },
+  { label: 'Rental', icon: '/brick_spritesheet/Rental.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 2000 },
+  { label: 'Retirement', icon: '/brick_spritesheet/Retirement.png', powerup: 'paddle_grow', padMultiplier: 0.2, speedMultiplier: 0, color: '#4f4dc7', glow: '#9c5cc7', hits: 1, pts: 3000 },
+  { label: 'Deposits', icon: '/brick_spritesheet/Deposits.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 1500 },
+  { label: 'Death', icon: '/brick_spritesheet/Death.png', powerup: 'paddle_shrink', padMultiplier: -0.2, speedMultiplier: 0, color: '#ff2d78', glow: '#ff80b4', hits: 1, pts: -3000 },
+  { label: 'Cancer', icon: '/brick_spritesheet/Cancer.png', powerup: 'paddle_shrink', padMultiplier: -0.1, speedMultiplier: 0, color: '#ff7a18', glow: '#ffb366', hits: 1, pts: -2500 },
+  { label: 'Disability', icon: '/brick_spritesheet/Disability.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.06, color: '#ff9900', glow: '#fff176', hits: 1, pts: -1500 },
+  { label: 'Hospitalization', icon: '/brick_spritesheet/Hospitalization.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ffef0a', glow: '#ffd280', hits: 1, pts: -500 },
+  { label: 'Heart Disease', icon: '/brick_spritesheet/Heart.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ff9f0a', glow: '#ffd280', hits: 1, pts: -1000 }, 
 ];
+export let ROWS = COLS;
+export let TOTAL_BRICKS = ROWS * COLS;
 
-// ── Contact ───────────────────────────────────────────────────────────────────
-export let CALL_NOW_NUMBER  = '';
+export let SCORE_MESSAGES: ScoreMessage[] = [];
+export let COVERAGE_WEIGHT = 0.8;
+export let LIVES_BONUS_MAX = 20;
+export let SCORE_COLOR_GREEN = 70;
+export let SCORE_COLOR_ORANGE = 40;
+
+export let COMPANY_NAME = '';
+export let CALL_NOW_NUMBER = '';
 export let BOOK_SLOT_TIMES: string[] = [];
+export let PRIVACY_POLICY_URL = '';
+export let DISCLAIMER = '';
+export let TC_TEXT = '';
 
-// ── Copy ──────────────────────────────────────────────────────────────────────
-export let SCORING_TAGLINE  = '';
+export let INTRO_HOW_TO_PLAY: HowToPlayItem[] = [];
+export let INTRO_TITLE = '';
+export let SCORING_TAGLINE = '';
 export let SCORING_CTA_LINE = '';
-export let THANK_YOU_BODY   = '';
+export let THANK_YOU_BODY = '';
+export let SCORING_BG_IMAGE = '';
 
-// ── Config loader ─────────────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function applyConfig(c: Record<string, any>): void {
-  BLUE   = c.ui.primaryColor;
+  BLUE = c.ui.primaryColor;
   ORANGE = c.ui.accentColor;
-  GREEN  = c.ui.successColor;
+  GREEN = c.ui.successColor;
 
-  GAME_SECS           = c.gameplay.sessionCapSeconds;
-  SPAWN_INTERVAL_MS   = c.gameplay.spawnIntervalMs;
-  MOLE_VISIBLE_MS     = c.gameplay.moleVisibleMs;
-  MIN_SPAWN_MS        = c.gameplay.minSpawnIntervalMs;
-  MIN_MOLE_VISIBLE_MS = c.gameplay.minMoleVisibleMs;
-  RAMP_INTERVAL_SECS  = c.gameplay.difficultyRampIntervalSeconds;
-  GRID_SIZE           = c.gameplay.gridSize;
+  MAX_LIVES = c.gameplay.maxLives;
+  GAME_SECS = c.gameplay.sessionCapSeconds;
+  COLS = c.gameplay.cols;
+  BASE_SPEED = c.gameplay.baseSpeed ?? 0.01;
 
-  TARGET_PORTFOLIO = c.scoring.targetPortfolio;
+  ROWS = c.gameplay.cols;
+  TOTAL_BRICKS = ROWS * COLS;
 
-  const mv = c.scoring.moleValues;
-  const mw = c.scoring.moleWeights;
-  (Object.keys(MOLE_DEFS) as MoleType[]).forEach(t => {
-    if (mv[t] !== undefined) MOLE_DEFS[t].value  = mv[t];
-    if (mw[t] !== undefined) MOLE_DEFS[t].weight = mw[t];
-  });
+  SCORE_MESSAGES = c.scoring.messages;
+  COVERAGE_WEIGHT = c.scoring.coverageWeight;
+  LIVES_BONUS_MAX = c.scoring.livesBonusMax;
+  SCORE_COLOR_GREEN = c.scoring.colorThresholds.green;
+  SCORE_COLOR_ORANGE = c.scoring.colorThresholds.orange;
 
+  SCORING_BG_IMAGE = c.ui.scoringBgImage ?? '';
+
+  COMPANY_NAME = c.contact.companyName;
   CALL_NOW_NUMBER = c.contact.callNowNumber;
   BOOK_SLOT_TIMES = c.contact.bookSlotTimeSlots;
+  PRIVACY_POLICY_URL = c.contact.privacyPolicyUrl ?? '';
+  DISCLAIMER = c.contact.disclaimer;
+  TC_TEXT = c.contact.tcText;
 
-  SCORING_TAGLINE  = c.copy.scoringTagline;
+  INTRO_HOW_TO_PLAY = c.copy.introHowToPlay;
+  INTRO_TITLE = c.copy.introTitle;
+  SCORING_TAGLINE = c.copy.scoringTagline;
   SCORING_CTA_LINE = c.copy.scoringCtaLine;
-  THANK_YOU_BODY   = c.copy.thankYouBody;
+  THANK_YOU_BODY = c.copy.thankYouBody;
 }

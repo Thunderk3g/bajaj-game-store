@@ -1,37 +1,42 @@
 import React from 'react';
-import { ORANGE, BRICK_DEFS, INTRO_HOW_TO_PLAY, COMPANY_NAME } from '../constants';
-
-import introBgImg from '../assets/intro_page.png';
+import { INTRO_IMAGE, ORANGE } from '../constants';
 
 interface Props {
   onPlay: () => void;
 }
 
 const IntroScreen: React.FC<Props> = ({ onPlay }) => (
-  <div
-    className="screen-scroll flex flex-col items-center"
-    style={{
-      backgroundImage: `url(${introBgImg})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center top',
-      backgroundRepeat: 'no-repeat',
-    }}
-  >
-    <div className="w-full max-w-sm flex flex-col items-center min-h-screen px-6 pt-6 pb-8">
-
-      {/* Spacer — pushes controls to the bottom, letting the bg image show through */}
-      <div className="flex-1" />
-
-      {/* CTA */}
+  <div className="relative h-full min-h-0 w-full overflow-hidden bg-[#071527]">
+    <img
+      src={INTRO_IMAGE}
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover"
+      draggable={false}
+      onError={event => {
+        event.currentTarget.style.display = 'none';
+      }}
+    />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(255,255,255,0.08),rgba(0,0,0,0.12)_34%,rgba(0,0,0,0.72)_100%)]" />
+    <div
+      className="relative z-10 flex h-full flex-col items-center justify-between px-[6vw] text-center"
+      style={{
+        paddingTop: 'max(2rem, calc(env(safe-area-inset-top) + 1rem))',
+        paddingBottom: 'max(7vh, calc(env(safe-area-inset-bottom) + 1.5rem))',
+      }}
+    >
+      <img
+        className="w-[min(82vw,28rem)] max-h-[28vh] object-contain drop-shadow-[0_0.75rem_1.75rem_rgba(0,0,0,0.75)]"
+        draggable={false}
+      />
       <button
         onClick={onPlay}
-        className="w-full py-4 rounded-full font-extrabold text-white text-lg tracking-wide btn-press"
+        className="btn-press min-h-[3.5rem] w-full max-w-[18rem] rounded-full text-[1.1rem] font-extrabold uppercase tracking-[0.08em] text-white"
         style={{
-          background: 'linear-gradient(90deg, #ff2d78, #ff6bb3)',
-          boxShadow: '0 0 18px rgba(255,45,120,0.7), 0 6px 24px rgba(255,45,120,0.4)',
+          background: ORANGE,
+          boxShadow: '0 0.6rem 2rem rgba(242,101,34,0.55), inset 0 0.15rem 0 rgba(255,255,255,0.25)',
         }}
       >
-        ▶ PLAY NOW
+        Play
       </button>
     </div>
   </div>

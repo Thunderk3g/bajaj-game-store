@@ -1,20 +1,22 @@
 export enum Screen {
-  INTRO   = 'intro',
-  GAME    = 'game',
-  DETAILS = 'details',
-  SCORING = 'scoring',
+  INTRO        = 'intro',
+  GAME         = 'game',
+  DETAILS      = 'details',
+  SCORING      = 'scoring',
 }
 
-export type MoleType = 'equity' | 'debt' | 'balanced' | 'bullrun' | 'crash' | 'charges';
-
 export interface GameResult {
-  portfolio: number;
-  molesSeen: number;
-  molesWhacked: number;
-  goodWhacks: number;
-  badWhacks: number;
+  bricksCleared: number;
+  totalBricks: number;
+  ballsLost: number;
+  livesRemaining: number;
   timeSeconds: number;
   rawScore: number;
+  won: boolean;
+  positiveBricksHit: number;
+  negativeBricksHit: number;
+  gainPts: number;
+  drainPts: number;
 }
 
 export interface PlayerInfo {

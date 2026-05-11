@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { GameResult } from '../types';
 import {
-  GREEN,
-  MAX_LIVES, TOTAL_BRICKS,
-  SCORE_MESSAGES, COVERAGE_WEIGHT, LIVES_BONUS_MAX,
-  SCORE_COLOR_GREEN, SCORE_COLOR_ORANGE,
-  COMPANY_NAME, CALL_NOW_NUMBER, DISCLAIMER,
-  SCORING_TAGLINE, SCORING_CTA_LINE, THANK_YOU_BODY,
+  BLUE,
+  CALL_NOW_NUMBER,
+  DISCLAIMER,
+  ORANGE,
+  SCORE_MESSAGES,
+  SCORING_BG_IMAGE,
+  SCORING_CTA_LINE,
+  SCORING_TAGLINE,
+  TARGET_PORTFOLIO,
+  THANK_YOU_BODY,
 } from '../constants';
 import BookSlotModal from './BookSlotModal';
 
@@ -17,235 +21,291 @@ interface Props {
   onPlayAgain: () => void;
 }
 
-function getMessage(score: number) {
-  return SCORE_MESSAGES.find(m => score >= m.minScore) ?? SCORE_MESSAGES[SCORE_MESSAGES.length - 1];
+function arcPath(cx: number, cy: number, r: number, startDeg: number, endDeg: number): string {
+  const toRad = (d: number) => (d - 90) * (Math.PI / 180);
+  const x1 = cx + r * Math.cos(toRad(startDeg));
+  const y1 = cy + r * Math.sin(toRad(startDeg));
+  const x2 = cx + r * Math.cos(toRad(endDeg));
+  const y2 = cy + r * Math.sin(toRad(endDeg));
+  const large = endDeg - startDeg > 180 ? 1 : 0;
+  return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`;
 }
-
-const NEON_PRIMARY = '#7c3aed';
-const NEON_ACCENT  = '#ff2d78';
-const NEON_CYAN    = '#00e5ff';
-const NEON_GREEN   = '#39ff14';
 
 const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPlayAgain }) => {
   const [showBook, setShowBook] = useState(false);
-  const [booked,   setBooked]   = useState(false);
+  const [booked, setBooked] = useState(false);
 
-  const { bricksCleared, ballsLost, livesRemaining, timeSeconds } = result;
+  const { portfolio, gains, losses } = result;
+  const finalScore = Math.min(100, Math.max(0, Math.round((portfolio / TARGET_PORTFOLIO) * 100)));
+  const msg = SCORE_MESSAGES.find(m => finalScore >= m.minScore) ?? SCORE_MESSAGES[SCORE_MESSAGES.length - 1];
+  const hasBg = !!SCORING_BG_IMAGE;
 
-  const coverage   = Math.round((bricksCleared / TOTAL_BRICKS) * 100);
-  const livesBonus = Math.round((livesRemaining / MAX_LIVES) * LIVES_BONUS_MAX);
-  const finalScore = Math.min(100, Math.round(coverage * COVERAGE_WEIGHT + livesBonus));
+  const totalPts = gains + losses || 1;
+  const gainPct = Math.round((gains / totalPts) * 100);
+  const drainPct = 100 - gainPct;
+  const diff = gains - losses;
 
-  const mm = String(Math.floor(timeSeconds / 60)).padStart(2, '0');
-  const ss = String(timeSeconds % 60).padStart(2, '0');
+  const GAP = 4;
+  const gainsDeg = (gainPct / 100) * 360 - GAP;
+  const drainsDeg = (drainPct / 100) * 360 - GAP;
+  const cx = 50; const cy = 50; const r = 42; const stroke = 9;
+  const innerR = r - stroke / 2;
+  const gainsEnd = gainsDeg;
+  const drainsStart = gainsEnd + GAP;
+  const drainsEnd = drainsStart + drainsDeg;
 
-  const scoreColor = finalScore >= SCORE_COLOR_GREEN
-    ? NEON_GREEN
-    : finalScore >= SCORE_COLOR_ORANGE
-      ? '#ffe600'
-      : NEON_ACCENT;
-  const { title: greenTitle, body: greenBody } = getMessage(finalScore);
+  const scoreColor = finalScore >= 70 ? '#22C55E' : finalScore >= 40 ? '#F97316' : '#EF4444';
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Wealth Whacker Score',
+        text: `I scored ${finalScore}/100 in Wealth Whacker! Can you beat me?`,
+      });
+    }
+  };
 
   if (booked) {
     return (
       <div
-        className="screen-scroll flex flex-col items-center justify-center min-h-screen px-6 py-12 text-center arcade-bg"
-        style={{ background: 'linear-gradient(170deg, #0d0024 0%, #1a0040 55%, #0d0024 100%)' }}
+        className="screen-scroll flex min-h-full flex-col items-center justify-center px-[6vw] py-[6vh] text-center"
+        style={{ background: BLUE }}
       >
-        <div className="text-7xl mb-5 pop">🎉</div>
-        <h2 className="text-white text-4xl font-extrabold pop">THANK YOU!</h2>
-        <h3
-          className="font-extrabold text-2xl mt-2 mb-5 pop neon-glow"
-          style={{ color: NEON_CYAN, textShadow: `0 0 12px ${NEON_CYAN}, 0 0 30px rgba(0,229,255,0.5)` }}
-        >
+        <h2 className="pop text-[clamp(2.4rem,12vw,4rem)] font-extrabold text-white">THANK YOU!</h2>
+        <h3 className="pop mb-[1.2rem] mt-[0.6rem] text-[clamp(1.4rem,7vw,2rem)] font-extrabold" style={{ color: ORANGE }}>
           {playerName.toUpperCase()}
         </h3>
-        <p className="text-sm leading-relaxed mb-10 max-w-xs" style={{ color: '#d8b4fe' }}>
-          {THANK_YOU_BODY}
-        </p>
+        <p className="mb-[2.4rem] max-w-[21rem] text-[0.95rem] leading-relaxed text-blue-100">{THANK_YOU_BODY}</p>
         <button
           onClick={onPlayAgain}
-          className="px-12 py-4 rounded-full font-extrabold text-white text-base btn-press"
-          style={{
-            background: `linear-gradient(90deg, ${NEON_ACCENT}, #ff6bb3)`,
-            boxShadow: `0 0 18px rgba(255,45,120,0.7), 0 6px 24px rgba(255,45,120,0.4)`,
-          }}
+          className="btn-press rounded-full px-[3rem] py-[1rem] text-[1rem] font-extrabold text-white"
+          style={{ background: ORANGE }}
         >
           PLAY AGAIN
         </button>
-        <p className="text-xs font-semibold mt-10 tracking-widest" style={{ color: 'rgba(192,132,252,0.5)' }}>
-          {COMPANY_NAME.toUpperCase()}
-        </p>
       </div>
     );
   }
 
   return (
     <div
-      className="screen-scroll arcade-bg"
-      style={{ background: 'linear-gradient(180deg, #0d0024 0%, #130033 50%, #0d0024 100%)' }}
+      className="screen-scroll"
+      style={{ position: 'relative', backgroundColor: hasBg ? '#111' : '#EEF2FF', height: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column' }}
     >
-      {showBook && (
-        <BookSlotModal
-          name={playerName}
-          mobile={playerMobile}
-          onClose={() => setShowBook(false)}
-          onBook={() => { setBooked(true); setShowBook(false); }}
-        />
+      {hasBg && (
+        <>
+          <div
+            aria-hidden
+            style={{
+              position: 'fixed', inset: 0,
+              backgroundImage: `url(${SCORING_BG_IMAGE})`,
+              backgroundSize: 'cover', backgroundPosition: 'center',
+              filter: 'blur(14px)', transform: 'scale(1.1)',
+              zIndex: 0, pointerEvents: 'none',
+            }}
+          />
+          <div
+            aria-hidden
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1, pointerEvents: 'none' }}
+          />
+        </>
       )}
 
-      {/* Header */}
-      <div
-        className="px-6 pt-7 pb-14"
-        style={{ background: 'linear-gradient(135deg, #1a0040 0%, #250060 100%)' }}
-      >
-        <p
-          className="text-[10px] font-bold uppercase tracking-widest"
-          style={{ color: 'rgba(192,132,252,0.7)' }}
-        >
-          {COMPANY_NAME.toUpperCase()}
-        </p>
-        <h2 className="text-white text-2xl font-extrabold mt-1">Hi {playerName}! 👋</h2>
-        <p className="text-sm mt-0.5" style={{ color: '#d8b4fe' }}>Here's your Health Shield Report</p>
-      </div>
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', flex: 1 }}>
+        {showBook && (
+          <BookSlotModal
+            name={playerName}
+            mobile={playerMobile}
+            onClose={() => setShowBook(false)}
+            onBook={() => { setBooked(true); setShowBook(false); }}
+          />
+        )}
 
-      {/* Score badge */}
-      <div className="flex justify-center -mt-10 mb-4">
+        {/* Header — anchored top, respects device safe-area */}
         <div
-          className="rounded-full flex flex-col items-center justify-center pop"
+          className="px-6 pb-6 text-center"
           style={{
-            width: 118,
-            height: 118,
-            background: '#0d0024',
-            border: `5px solid ${scoreColor}`,
-            boxShadow: `0 0 24px ${scoreColor}66, 0 8px 32px rgba(0,0,0,0.6)`,
+            paddingTop: 'max(1.75rem, env(safe-area-inset-top))',
+            ...(hasBg ? {} : { background: 'linear-gradient(135deg, #003DA6, #172554)' }),
           }}
         >
-          <span
-            className="font-extrabold text-4xl leading-none neon-glow"
-            style={{ color: scoreColor }}
+          <h2
+            className="text-2xl font-extrabold text-white"
+            style={hasBg ? { textShadow: '0 2px 10px rgba(0,0,0,0.6)' } : undefined}
           >
-            {finalScore}
-          </span>
-          <span className="text-xs font-bold" style={{ color: '#c084fc' }}>/ 100</span>
+            Hi {playerName}!
+          </h2>
+          <p
+            className="mt-1 text-base font-semibold"
+            style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#bfdbfe', textShadow: hasBg ? '0 1px 6px rgba(0,0,0,0.5)' : undefined }}
+          >
+            {msg.title}
+          </p>
         </div>
-      </div>
 
-      {/* Stats */}
-      <div className="flex gap-2.5 px-4 mb-4">
-        {[
-          { label: 'TIME TAKEN', value: `${mm}:${ss}` },
-          { label: 'BALLS LOST', value: ballsLost       },
-          { label: 'COVERAGE',   value: `${coverage}%`  },
-        ].map(s => (
-          <div
-            key={s.label}
-            className="flex-1 rounded-2xl p-3 text-center"
-            style={{
-              background: 'rgba(124,58,237,0.12)',
-              border: '1px solid rgba(191,90,242,0.25)',
-              backdropFilter: 'blur(4px)',
-            }}
+        {/* Score card */}
+        <div
+          className="mx-4 px-4 pt-4 pb-5"
+          style={hasBg
+            ? { background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', borderRadius: 16 }
+            : { background: 'white', borderRadius: 16 }}
+        >
+          <p
+            className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-center"
+            style={{ color: hasBg ? 'rgba(255,255,255,0.7)' : '#9ca3af' }}
           >
-            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#a78bfa' }}>
-              {s.label}
-            </p>
-            <p className="font-extrabold text-xl mt-0.5" style={{ color: NEON_CYAN }}>{s.value}</p>
-          </div>
-        ))}
-      </div>
+            Scoring
+          </p>
 
-      {/* Green zone */}
-      <div
-        className="mx-4 mb-3 rounded-2xl p-4"
-        style={{
-          background: 'rgba(57,255,20,0.06)',
-          border: `1.5px solid rgba(57,255,20,0.5)`,
-          backdropFilter: 'blur(4px)',
-        }}
-      >
-        <p className="text-[10px] font-extrabold uppercase tracking-wider mb-2" style={{ color: NEON_GREEN }}>
-          ✅ Your Health Shield
-        </p>
-        <p className="text-sm font-bold mb-1" style={{ color: '#a7ffb0' }}>{greenTitle}</p>
-        <p className="text-xs leading-relaxed mb-3" style={{ color: '#80e890' }}>{greenBody}</p>
-        <div>
-          <div className="flex justify-between text-xs font-bold mb-1" style={{ color: NEON_GREEN }}>
-            <span>Shield Strength</span><span>{coverage}%</span>
-          </div>
-          <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(57,255,20,0.18)' }}>
+          {/* 3-widget row: Gainers | Dial | Drainers */}
+          <div className="flex items-center gap-2 mb-4">
+
+            {/* Wealth Gainers */}
             <div
-              className="h-full rounded-full transition-all"
-              style={{ width: `${coverage}%`, background: NEON_GREEN, boxShadow: `0 0 8px ${NEON_GREEN}` }}
-            ></div>
+              className="flex-1 flex flex-col items-center rounded-2xl px-2 py-3 gap-1"
+              style={{ background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.35)' }}
+            >
+              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight" style={{ color: '#22C55E' }}>
+                Points{'\n'}Gained
+              </span>
+              <span className="text-lg font-extrabold leading-none" style={{ color: '#22C55E' }}>
+                +₹{gains.toLocaleString('en-IN')}
+              </span>
+              <span className="text-[10px] font-bold" style={{ color: 'rgba(34,197,94,0.75)' }}>
+                {gainPct}%
+              </span>
+            </div>
+
+            {/* Center dial */}
+            <div className="flex flex-col items-center">
+              <div style={{ position: 'relative', width: 100, height: 100 }}>
+                <svg viewBox="0 0 100 100" width={100} height={100}>
+                  <circle cx={cx} cy={cy} r={innerR} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={stroke} />
+                  {gainsDeg > 0 && (
+                    <path
+                      d={arcPath(cx, cy, innerR, 0, gainsEnd)}
+                      fill="none" stroke="#22C55E" strokeWidth={stroke} strokeLinecap="round"
+                    />
+                  )}
+                  {drainsDeg > 0 && (
+                    <path
+                      d={arcPath(cx, cy, innerR, drainsStart, drainsEnd)}
+                      fill="none" stroke="#EF4444" strokeWidth={stroke} strokeLinecap="round"
+                    />
+                  )}
+                </svg>
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: 1,
+                }}>
+                  <span
+                    className="text-[10px] font-extrabold leading-none"
+                    style={{ color: diff >= 0 ? '#22C55E' : '#EF4444' }}
+                  >
+                    {diff >= 0 ? '+' : ''}₹{Math.abs(diff).toLocaleString('en-IN')}
+                  </span>
+                  <span className="text-[8px] font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>net</span>
+                  <span
+                    className="text-[10px] font-extrabold leading-none"
+                    style={{ color: scoreColor }}
+                  >
+                    {finalScore}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Wealth Drainers */}
+            <div
+              className="flex-1 flex flex-col items-center rounded-2xl px-2 py-3 gap-1"
+              style={{ background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.35)' }}
+            >
+              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight" style={{ color: '#EF4444' }}>
+                Points{'\n'}Drained
+              </span>
+              <span className="text-lg font-extrabold leading-none" style={{ color: '#EF4444' }}>
+                -₹{losses.toLocaleString('en-IN')}
+              </span>
+              <span className="text-[10px] font-bold" style={{ color: 'rgba(239,68,68,0.75)' }}>
+                {drainPct}%
+              </span>
+            </div>
           </div>
+
+          <p
+            className="text-sm font-bold leading-relaxed text-center"
+            style={{ color: hasBg ? 'rgba(255,255,255,0.9)' : '#1f2937' }}
+          >
+            {SCORING_TAGLINE}
+          </p>
         </div>
-      </div>
 
-      {/* Red zone */}
-      <div
-        className="mx-4 mb-3 rounded-2xl p-4"
-        style={{
-          background: 'rgba(255,45,120,0.06)',
-          border: `1.5px solid rgba(255,45,120,0.45)`,
-          backdropFilter: 'blur(4px)',
-        }}
-      >
-        <p className="text-[10px] font-extrabold uppercase tracking-wider mb-2" style={{ color: NEON_ACCENT }}>
-          🛡️ Protect What Matters
-        </p>
-        <p className="text-sm font-bold mb-1" style={{ color: '#ffb3cc' }}>{SCORING_TAGLINE}</p>
-        <p className="text-xs mb-3" style={{ color: '#ff80a8' }}>{SCORING_CTA_LINE}</p>
-        <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(255,130,160,0.7)' }}>
-          {DISCLAIMER}
-        </p>
-      </div>
+        {/* CTA line */}
+        <div className="mx-4 mt-4">
+          <p className="text-sm font-semibold leading-relaxed text-center" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
+            {SCORING_CTA_LINE}
+          </p>
+        </div>
 
-      {/* Action buttons */}
-      <div className="px-4 pb-10 grid grid-cols-2 gap-3 mt-1">
-        <button
-          className="py-3.5 rounded-2xl font-bold text-sm text-white btn-press"
-          style={{ background: '#25D366', boxShadow: '0 4px 12px rgba(37,211,102,0.4)' }}
-          onClick={() => {
-            if (navigator.share) {
-              navigator.share({ title: 'Health Shield Score', text: `I scored ${finalScore}/100 on Health Shield by Bajaj Life! Can you beat me?` });
-            }
-          }}
-        >
-          📤 Share Score
-        </button>
-        <a
-          href={`tel:${CALL_NOW_NUMBER}`}
-          className="py-3.5 rounded-2xl font-bold text-sm text-white text-center flex items-center justify-center btn-press"
+        {/* Spacer — pushes action buttons toward vertical center */}
+        <div style={{ flex: 1 }} />
+
+        {/* Action buttons — centered in remaining space */}
+        <div className="space-y-3 px-4 py-4">
+
+          <button
+            className="btn-press w-full rounded-xl py-3.5 text-sm font-bold text-white"
+            style={{ background: '#25D366' }}
+            onClick={handleShare}
+          >
+            📤 Share
+          </button>
+
+          <div
+            className="rounded-2xl p-4"
+            style={{ background: hasBg ? 'rgba(30,58,138,0.75)' : '#1e3a8a' }}
+          >
+            <a
+              href={`tel:${CALL_NOW_NUMBER}`}
+              className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
+              style={{ background: ORANGE }}
+            >
+              📞 Call now
+            </a>
+            <button
+              onClick={() => setShowBook(true)}
+              className="btn-press w-full rounded-xl py-3 text-sm font-extrabold text-white"
+              style={{ background: '#0D9488' }}
+            >
+              📅 Book a Slot
+            </button>
+          </div>
+
+          <button
+            onClick={onPlayAgain}
+            className="btn-press w-full rounded-xl py-3.5 text-sm font-bold"
+            style={hasBg
+              ? { color: 'white', border: '2px solid rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.12)' }
+              : { color: BLUE, border: `2px solid ${BLUE}`, background: 'white' }}
+          >
+            ▶ Play Again
+          </button>
+        </div>
+
+        {/* Spacer — keeps disclaimer at bottom */}
+        <div style={{ flex: 1 }} />
+
+        {/* Disclaimer — anchored bottom, respects device safe-area */}
+        <p
+          className="px-4 text-[9px] leading-relaxed"
           style={{
-            background: `linear-gradient(90deg, ${NEON_ACCENT}, #ff6bb3)`,
-            boxShadow: '0 4px 12px rgba(255,45,120,0.4)',
+            color: hasBg ? 'rgba(255,255,255,0.5)' : '#9ca3af',
+            paddingBottom: 'max(2rem, env(safe-area-inset-bottom))',
           }}
         >
-          📞 Call Now
-        </a>
-        <button
-          onClick={() => setShowBook(true)}
-          className="col-span-2 py-3.5 rounded-2xl font-extrabold text-white text-sm btn-press"
-          style={{
-            background: `linear-gradient(90deg, ${NEON_PRIMARY}, #9d4edd)`,
-            boxShadow: `0 4px 18px rgba(124,58,237,0.5)`,
-          }}
-        >
-          📅 Book a Slot with Our Expert
-        </button>
-        <button
-          onClick={onPlayAgain}
-          className="col-span-2 py-3.5 rounded-2xl font-bold text-sm btn-press"
-          style={{
-            background: 'rgba(255,255,255,0.05)',
-            color: NEON_CYAN,
-            border: `2px solid rgba(0,229,255,0.5)`,
-            textShadow: `0 0 8px rgba(0,229,255,0.6)`,
-          }}
-        >
-          🔄 Play Again
-        </button>
+          DISCLAIMER: {DISCLAIMER}
+        </p>
       </div>
     </div>
   );
