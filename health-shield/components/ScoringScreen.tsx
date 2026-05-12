@@ -8,6 +8,7 @@ import {
   SCORE_COLOR_GREEN, SCORE_COLOR_ORANGE,
   CALL_NOW_NUMBER, DISCLAIMER,
   SCORING_BG_IMAGE, SCORING_TAGLINE, SCORING_CTA_LINE, THANK_YOU_BODY,
+  RELATIONSHIP_MANAGER_LINE,
 } from '../constants';
 import BookSlotModal from './BookSlotModal';
 
@@ -216,9 +217,13 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
         </div>
 
         {/* CTA line */}
-        <div className="mx-4 mt-4">
-          <p className="text-sm font-semibold leading-relaxed text-center" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
-            {SCORING_CTA_LINE}
+        <div className="mx-4 mt-4 px-2">
+          <p className="text-base font-medium leading-relaxed text-center" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
+            <span className="font-extrabold">Why choose between growth and security?</span>
+            <br />
+            <span className="text-sm opacity-90">
+              Invest in a dual-benefit plan that builds your wealth and protects it simultaneously.
+            </span>
           </p>
         </div>
 
@@ -241,6 +246,10 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
           >
             Share
           </button>
+          
+          <p className="text-base font-semibold leading-relaxed text-center px-2" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
+            {RELATIONSHIP_MANAGER_LINE}
+          </p>
 
           <div className="rounded-2xl p-4" style={{ background: hasBg ? 'rgba(30,58,138,0.75)' : '#1e3a8a' }}>
             <a

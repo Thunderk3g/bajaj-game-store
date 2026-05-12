@@ -90,6 +90,7 @@ export let TC_TEXT = '';
 export let SCORING_TAGLINE = '';
 export let SCORING_CTA_LINE = '';
 export let THANK_YOU_BODY = '';
+export let RELATIONSHIP_MANAGER_LINE = '';
 export let SCORING_BG_IMAGE = '';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -134,5 +135,6 @@ export function applyConfig(c: Record<string, any>): void {
 
   SCORING_TAGLINE = c.copy.scoringTagline;
   SCORING_CTA_LINE = c.copy.scoringCtaLine;
+  RELATIONSHIP_MANAGER_LINE = c.copy.relationshipManagerLine;
   THANK_YOU_BODY = c.copy.thankYouBody;
 }

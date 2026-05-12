@@ -11,6 +11,7 @@ import {
   SCORING_TAGLINE,
   TARGET_PORTFOLIO,
   THANK_YOU_BODY,
+  RELATIONSHIP_MANAGER_LINE,
 } from '../constants';
 import BookSlotModal from './BookSlotModal';
 
@@ -234,26 +235,19 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
           </div>
 
           <p
-            className="text-sm font-bold leading-relaxed text-center"
+            className="text-lg font-bold leading-relaxed text-center"
             style={{ color: hasBg ? 'rgba(255,255,255,0.9)' : '#1f2937' }}
           >
             {SCORING_TAGLINE}
           </p>
         </div>
 
-        {/* CTA line */}
-        <div className="mx-4 mt-4">
-          <p className="text-sm font-semibold leading-relaxed text-center" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
-            {SCORING_CTA_LINE}
-          </p>
-        </div>
 
-        {/* Spacer — pushes action buttons toward vertical center */}
+        {/* Equal spacer above Share button */}
         <div style={{ flex: 1 }} />
 
-        {/* Action buttons — centered in remaining space */}
-        <div className="space-y-3 px-4 py-4">
-
+        {/* Share + RM line — centered between score card and call/book section */}
+        <div className="px-4 space-y-2">
           <button
             className="btn-press w-full rounded-xl py-3.5 text-sm font-bold text-white"
             style={{ background: '#25D366' }}
@@ -262,6 +256,16 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             📤 Share
           </button>
 
+          <p className="text-base font-semibold leading-relaxed text-center px-2" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
+            {RELATIONSHIP_MANAGER_LINE}
+          </p>
+        </div>
+
+        {/* Equal spacer below Share + RM (mirrors spacer above) */}
+        <div style={{ flex: 1 }} />
+
+        {/* Call now / Book a Slot / Play Again */}
+        <div className="space-y-3 px-4 pb-4">
           <div
             className="rounded-2xl p-4"
             style={{ background: hasBg ? 'rgba(30,58,138,0.75)' : '#1e3a8a' }}

@@ -76,7 +76,8 @@
       { "icon": "🖱️", "text": "Mouse or Touch to move paddle· Tap to launch" }
     ],
     "scoringTagline": "Protecting your health is even more powerful with a critical illness plan.",
-    "scoringCtaLine": "Connect with our relationship manager now!",
+    "scoringCtaLine": "",
+    "relationshipManagerLine": "Call your Relationship Manager now to secure your financial journey.",
     "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
   },
 
