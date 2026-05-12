@@ -12,7 +12,7 @@ interface Props {
 const EnterDetailsScreen: React.FC<Props> = ({ onSubmit }) => {
   const [name,   setName]   = useState('');
   const [mobile, setMobile] = useState('');
-  const [agreed, setAgreed] = useState(false);
+  const [agreed, setAgreed] = useState(true);
   const [showTC, setShowTC] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -98,8 +98,9 @@ const EnterDetailsScreen: React.FC<Props> = ({ onSubmit }) => {
             <span className="text-xs text-gray-500 leading-relaxed">
               I agree and consent to the{' '}
               <button
+                type="button"
                 className="font-bold underline"
-                style={{ color: CYAN_DARK }}
+                style={{ color: CYAN_DARK, display: 'inline' }}
                 onClick={e => { e.preventDefault(); setShowTC(true); }}
               >
                 T&amp;C and Privacy Policy

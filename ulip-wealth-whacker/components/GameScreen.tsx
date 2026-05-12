@@ -236,7 +236,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         playSFX('gameover');
         const { molesSeen, molesWhacked, goodWhacks, badWhacks, gains, losses } = statsRef.current;
         onGameEnd({
-          portfolio: Math.max(0, portfolioRef.current),
+          portfolio: portfolioRef.current,
           molesSeen,
           molesWhacked,
           goodWhacks,
@@ -244,7 +244,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           gains,
           losses,
           timeSeconds: GAME_SECS,
-          rawScore: Math.min(100, Math.max(0, Math.round((portfolioRef.current / TARGET_PORTFOLIO) * 100))),
+          rawScore: Math.round((portfolioRef.current / TARGET_PORTFOLIO) * 100),
         });
       }
     }, 1000);
@@ -320,7 +320,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
   const mm = String(Math.floor(timeLeft / 60)).padStart(2, '0');
   const ss = String(timeLeft % 60).padStart(2, '0');
-  const displayPortfolio = Math.max(0, portfolio);
+  const displayPortfolio = portfolio;
   const timerCritical = timeLeft <= 10;
 
   const totalWealth = gains + losses || 1;
@@ -421,7 +421,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       <div className="mx-[4vw] mb-[0.5vh] flex-shrink-0">
         <div className={`mb-[0.3rem] text-center ${shake ? 'shake' : ''}`}>
           <span className="text-[clamp(1rem,4.6vw,1.25rem)] font-extrabold" style={{ color: GREEN }}>
-            Rs {displayPortfolio.toLocaleString('en-IN')}
+            {displayPortfolio.toLocaleString('en-IN')}
           </span>
         </div>
         <div className="h-[0.65rem] overflow-hidden rounded-full bg-white/10 flex">

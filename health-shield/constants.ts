@@ -34,16 +34,16 @@ export let COLS = 3;
 export let BASE_SPEED = 0.01;
 
 export let BRICK_DEFS: BrickDef[] = [
-  { label: 'Salary', icon: 'brick_spritesheet/Savings.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#23e76c', glow: '#8dffb2', hits: 1, pts: 1000 },
-  { label: 'Investment', icon: 'brick_spritesheet/Investment.png', powerup: 'bomb', padMultiplier: 0, speedMultiplier: 0, color: '#10ffa3', glow: '#80ffce', hits: 1, pts: 2500 },
-  { label: 'Rental', icon: 'brick_spritesheet/Rental.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 2000 },
-  { label: 'Retirement', icon: 'brick_spritesheet/Retirement.png', powerup: 'paddle_grow', padMultiplier: 0.2, speedMultiplier: 0, color: '#4f4dc7', glow: '#9c5cc7', hits: 1, pts: 3000 },
-  { label: 'Deposits', icon: 'brick_spritesheet/Deposits.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 1500 },
-  { label: 'Death', icon: 'brick_spritesheet/Death.png', powerup: 'paddle_shrink', padMultiplier: -0.2, speedMultiplier: 0, color: '#ff2d78', glow: '#ff80b4', hits: 1, pts: -3000 },
-  { label: 'Cancer', icon: 'brick_spritesheet/Cancer.png', powerup: 'paddle_shrink', padMultiplier: -0.1, speedMultiplier: 0, color: '#ff7a18', glow: '#ffb366', hits: 1, pts: -2500 },
-  { label: 'Disability', icon: 'brick_spritesheet/Disability.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.06, color: '#ff9900', glow: '#fff176', hits: 1, pts: -1500 },
-  { label: 'Hospitalization', icon: 'brick_spritesheet/Hospitalization.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ffef0a', glow: '#ffd280', hits: 1, pts: -500 },
-  { label: 'Heart Disease', icon: 'brick_spritesheet/Heart.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ff9f0a', glow: '#ffd280', hits: 1, pts: -1000 }, 
+  { label: 'Salary', icon: '/brick_spritesheet/Savings.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#23e76c', glow: '#8dffb2', hits: 1, pts: 1000 },
+  { label: 'Investment', icon: '/brick_spritesheet/Investment.png', powerup: 'bomb', padMultiplier: 0, speedMultiplier: 0, color: '#10ffa3', glow: '#80ffce', hits: 1, pts: 2500 },
+  { label: 'Rental', icon: '/brick_spritesheet/Rental.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 2000 },
+  { label: 'Retirement', icon: '/brick_spritesheet/Retirement.png', powerup: 'paddle_grow', padMultiplier: 0.2, speedMultiplier: 0, color: '#4f4dc7', glow: '#9c5cc7', hits: 1, pts: 3000 },
+  { label: 'Deposits', icon: '/brick_spritesheet/Deposits.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 1500 },
+  { label: 'Death', icon: '/brick_spritesheet/Death.png', powerup: 'paddle_shrink', padMultiplier: -0.2, speedMultiplier: 0, color: '#ff2d78', glow: '#ff80b4', hits: 1, pts: -3000 },
+  { label: 'Cancer', icon: '/brick_spritesheet/Cancer.png', powerup: 'paddle_shrink', padMultiplier: -0.1, speedMultiplier: 0, color: '#ff7a18', glow: '#ffb366', hits: 1, pts: -2500 },
+  { label: 'Disability', icon: '/brick_spritesheet/Disability.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.06, color: '#ff9900', glow: '#fff176', hits: 1, pts: -1500 },
+  { label: 'Hospitalization', icon: '/brick_spritesheet/Hospitalization.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ffef0a', glow: '#ffd280', hits: 1, pts: -500 },
+  { label: 'Heart Disease', icon: '/brick_spritesheet/Heart.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ff9f0a', glow: '#ffd280', hits: 1, pts: -1000 }, 
 ];
 export let ROWS = COLS;
 export let TOTAL_BRICKS = ROWS * COLS;
@@ -66,7 +66,6 @@ export let INTRO_TITLE = '';
 export let SCORING_TAGLINE = '';
 export let SCORING_CTA_LINE = '';
 export let THANK_YOU_BODY = '';
-export let RELATIONSHIP_MANAGER_LINE = '';
 export let SCORING_BG_IMAGE = '';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,9 +88,7 @@ export function applyConfig(c: Record<string, any>): void {
   SCORE_COLOR_GREEN = c.scoring.colorThresholds.green;
   SCORE_COLOR_ORANGE = c.scoring.colorThresholds.orange;
 
-  const fixPath = (p: string) => (p && p.startsWith('/') ? p.substring(1) : p);
-
-  SCORING_BG_IMAGE = fixPath(c.ui.scoringBgImage ?? '');
+  SCORING_BG_IMAGE = c.ui.scoringBgImage ?? '';
 
   COMPANY_NAME = c.contact.companyName;
   CALL_NOW_NUMBER = c.contact.callNowNumber;
@@ -104,6 +101,5 @@ export function applyConfig(c: Record<string, any>): void {
   INTRO_TITLE = c.copy.introTitle;
   SCORING_TAGLINE = c.copy.scoringTagline;
   SCORING_CTA_LINE = c.copy.scoringCtaLine;
-  RELATIONSHIP_MANAGER_LINE = c.copy.relationshipManagerLine;
   THANK_YOU_BODY = c.copy.thankYouBody;
 }

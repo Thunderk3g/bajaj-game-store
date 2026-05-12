@@ -15,7 +15,7 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
   const [bMobile, setBMobile] = useState(mobile);
   const [date,    setDate]    = useState('');
   const [time,    setTime]    = useState('');
-  const [agreed,  setAgreed]  = useState(false);
+  const [agreed,  setAgreed]  = useState(true);
   const [showTC,  setShowTC]  = useState(false);
   const [errors,  setErrors]  = useState<Record<string, string>>({});
 
@@ -102,7 +102,7 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
               </div>
               <span className="text-xs text-gray-500 leading-relaxed">
                 I agree and consent to the{' '}
-                <button className="underline font-bold" style={{ color: BLUE }}
+                <button type="button" className="underline font-bold" style={{ color: BLUE, display: 'inline' }}
                   onClick={e => { e.preventDefault(); setShowTC(true); }}>
                   T&amp;C and Privacy Policy
                 </button>

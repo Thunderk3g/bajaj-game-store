@@ -26,8 +26,8 @@ export let ORANGE = '#F26522';
 export let GREEN = '#28A745';
 
 export let INTRO_TITLE = 'Score Rush';
-export let INTRO_IMAGE = 'assets/intro-mole-rush.png';
-export let INTRO_TITLE_IMAGE = 'assets/score_rush_title.png';
+export let INTRO_IMAGE = '/assets/intro-mole-rush.png';
+export let INTRO_TITLE_IMAGE = '/assets/score_rush_title.png';
 export let HOW_TO_PLAY_ITEMS: HowToPlayItem[] = [
   { icon: 'tap', text: 'Tap good moles to grow your virtual portfolio before the clock runs out.' },
   { icon: 'avoid', text: 'Avoid crash and charge moles because they reduce your progress.' },
@@ -45,16 +45,16 @@ export let GRID_SIZE = 9;
 export let TARGET_PORTFOLIO = 8000;
 
 export let MOLE_DEFS: Record<MoleType, MoleDef> = {
-  investment:      { emoji: '💰', icon: 'assets/Investment.png',      label: 'Investment',      value:  1000, color: '#22C55E', bad: false, weight: 15 },
-  salary:          { emoji: '💰', icon: 'assets/Investment.png',      label: 'Salary',          value:  1000, color: '#22C55E', bad: false, weight: 15 },
-  savings:         { emoji: '🏦', icon: 'assets/Savings.png',         label: 'Savings',         value:   800, color: '#3B82F6', bad: false, weight: 10 },
-  rental:          { emoji: '🏠', icon: 'assets/Rental.png',          label: 'Rental',          value:   500, color: '#EAB308', bad: false, weight: 10 },
-  retirement:      { emoji: '👴', icon: 'assets/Retirement.png',      label: 'Retirement Fund', value:   300, color: '#A855F7', bad: false, weight: 5 },
-  heart:           { emoji: '❤️', icon: 'assets/Heart Dieses.png',    label: 'Heart Disease',   value: -1500, color: '#dd3333', bad: true,  weight: 10 },
-  death:           { emoji: '⚠️', icon: 'assets/Death.png',           label: 'Death',value: -2000, color: '#B91C1C', bad: true,  weight: 5 },
-  disability:      { emoji: '💳', icon: 'assets/Disability.png',      label: 'Disability',      value:  -500, color: '#F97316', bad: true,  weight: 10 },
-  cancer:          { emoji: '☠️', icon: 'assets/Cancer.png',          label: 'Critical Illness', value: -2500, color: '#a10e0e', bad: true, weight: 5 },
-  hospitalization: { emoji: '🏥', icon: 'assets/Hospitalization.png', label: 'Hospitalization', value: -1000, color: '#7C3AED', bad: true,  weight: 15 },
+  investment:      { emoji: '💰', icon: '/assets/Investment.png',      label: 'Investment',      value:  1000, color: '#22C55E', bad: false, weight: 15 },
+  salary:          { emoji: '💰', icon: '/assets/Investment.png',      label: 'Salary',          value:  1000, color: '#22C55E', bad: false, weight: 15 },
+  savings:         { emoji: '🏦', icon: '/assets/Savings.png',         label: 'Savings',         value:   800, color: '#3B82F6', bad: false, weight: 10 },
+  rental:          { emoji: '🏠', icon: '/assets/Rental.png',          label: 'Rental',          value:   500, color: '#EAB308', bad: false, weight: 10 },
+  retirement:      { emoji: '👴', icon: '/assets/Retirement.png',      label: 'Retirement Fund', value:   300, color: '#A855F7', bad: false, weight: 5 },
+  heart:           { emoji: '❤️', icon: '/assets/Heart Dieses.png',    label: 'Heart Disease',   value: -1500, color: '#dd3333', bad: true,  weight: 10 },
+  death:           { emoji: '⚠️', icon: '/assets/Death.png',           label: 'Death',value: -2000, color: '#B91C1C', bad: true,  weight: 5 },
+  disability:      { emoji: '💳', icon: '/assets/Disability.png',      label: 'Disability',      value:  -500, color: '#F97316', bad: true,  weight: 10 },
+  cancer:          { emoji: '☠️', icon: '/assets/Cancer.png',          label: 'Critical Illness', value: -2500, color: '#a10e0e', bad: true, weight: 5 },
+  hospitalization: { emoji: '🏥', icon: '/assets/Hospitalization.png', label: 'Hospitalization', value: -1000, color: '#7C3AED', bad: true,  weight: 15 },
 };
 
 export let SCORE_MESSAGES: ScoreMessage[] = [
@@ -90,7 +90,6 @@ export let TC_TEXT = '';
 export let SCORING_TAGLINE = '';
 export let SCORING_CTA_LINE = '';
 export let THANK_YOU_BODY = '';
-export let RELATIONSHIP_MANAGER_LINE = '';
 export let SCORING_BG_IMAGE = '';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,10 +98,8 @@ export function applyConfig(c: Record<string, any>): void {
   ORANGE = c.ui.accentColor;
   GREEN = c.ui.successColor;
 
-  const fixPath = (p: string) => (p && p.startsWith('/') ? p.substring(1) : p);
-
   INTRO_TITLE = c.copy.introTitle;
-  INTRO_IMAGE = fixPath(c.copy.introImage || INTRO_IMAGE);
+  INTRO_IMAGE = c.copy.introImage || INTRO_IMAGE;
   HOW_TO_PLAY_ITEMS = Array.isArray(c.copy.introHowToPlay)
     ? c.copy.introHowToPlay
     : [{ icon: 'tap', text: String(c.copy.introHowToPlay || '') }];
@@ -124,7 +121,7 @@ export function applyConfig(c: Record<string, any>): void {
     if (mw[t] !== undefined) MOLE_DEFS[t].weight = mw[t];
   });
 
-  SCORING_BG_IMAGE = fixPath(c.ui.scoringBgImage ?? '');
+  SCORING_BG_IMAGE = c.ui.scoringBgImage ?? '';
 
   COMPANY_NAME = c.contact.companyName || COMPANY_NAME;
   CALL_NOW_NUMBER = c.contact.callNowNumber;
@@ -135,6 +132,5 @@ export function applyConfig(c: Record<string, any>): void {
 
   SCORING_TAGLINE = c.copy.scoringTagline;
   SCORING_CTA_LINE = c.copy.scoringCtaLine;
-  RELATIONSHIP_MANAGER_LINE = c.copy.relationshipManagerLine;
   THANK_YOU_BODY = c.copy.thankYouBody;
 }

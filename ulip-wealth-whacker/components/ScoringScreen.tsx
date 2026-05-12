@@ -11,7 +11,6 @@ import {
   SCORING_TAGLINE,
   TARGET_PORTFOLIO,
   THANK_YOU_BODY,
-  RELATIONSHIP_MANAGER_LINE,
 } from '../constants';
 import BookSlotModal from './BookSlotModal';
 
@@ -37,7 +36,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const [booked, setBooked] = useState(false);
 
   const { portfolio, gains, losses } = result;
-  const finalScore = Math.min(100, Math.max(0, Math.round((portfolio / TARGET_PORTFOLIO) * 100)));
+  const finalScore = Math.round((portfolio / TARGET_PORTFOLIO) * 100);
   const msg = SCORE_MESSAGES.find(m => finalScore >= m.minScore) ?? SCORE_MESSAGES[SCORE_MESSAGES.length - 1];
   const hasBg = !!SCORING_BG_IMAGE;
 
@@ -107,7 +106,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
           />
           <div
             aria-hidden
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1, pointerEvents: 'none' }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 1, pointerEvents: 'none' }}
           />
         </>
       )}
@@ -136,12 +135,6 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
           >
             Hi {playerName}!
           </h2>
-          <p
-            className="mt-1 text-base font-semibold"
-            style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#bfdbfe', textShadow: hasBg ? '0 1px 6px rgba(0,0,0,0.5)' : undefined }}
-          >
-            {msg.title}
-          </p>
         </div>
 
         {/* Score card */}
@@ -153,7 +146,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
         >
           <p
             className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-center"
-            style={{ color: hasBg ? 'rgba(255,255,255,0.7)' : '#9ca3af' }}
+            style={{ color: hasBg ? 'rgba(230, 210, 210, 1)' : '#9ca3af' }}
           >
             Scoring
           </p>
@@ -164,15 +157,15 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             {/* Wealth Gainers */}
             <div
               className="flex-1 flex flex-col items-center rounded-2xl px-2 py-3 gap-1"
-              style={{ background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.35)' }}
+              style={{ background: 'rgba(7, 7, 7, 0.1)', border: '1px solid rgba(76, 221, 130, 0.97)' }}
             >
-              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight" style={{ color: '#22C55E' }}>
+              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight" style={{ color: 'rgba(76, 221, 130, 0.97)' }}>
                 Points{'\n'}Gained
               </span>
-              <span className="text-lg font-extrabold leading-none" style={{ color: '#22C55E' }}>
-                +₹{gains.toLocaleString('en-IN')}
+              <span className="text-lg font-extrabold leading-none" style={{ color: 'rgba(76, 221, 130, 0.97)' }}>
+                +{gains.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] font-bold" style={{ color: 'rgba(34,197,94,0.75)' }}>
+              <span className="text-[10px] font-bold" style={{ color: 'rgb(74, 228, 130)' }}>
                 {gainPct}%
               </span>
             </div>
@@ -185,7 +178,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
                   {gainsDeg > 0 && (
                     <path
                       d={arcPath(cx, cy, innerR, 0, gainsEnd)}
-                      fill="none" stroke="#22C55E" strokeWidth={stroke} strokeLinecap="round"
+                      fill="none" stroke="rgb(74, 228, 130)" strokeWidth={stroke} strokeLinecap="round"
                     />
                   )}
                   {drainsDeg > 0 && (
@@ -202,17 +195,12 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
                 }}>
                   <span
                     className="text-[10px] font-extrabold leading-none"
-                    style={{ color: diff >= 0 ? '#22C55E' : '#EF4444' }}
+                    style={{ color: diff >= 0 ? 'rgb(74, 228, 130)' : '#EF4444' }}
                   >
-                    {diff >= 0 ? '+' : ''}₹{Math.abs(diff).toLocaleString('en-IN')}
+                    {diff >= 0 ? '+' : '-'}{Math.abs(diff).toLocaleString('en-IN')}
                   </span>
-                  <span className="text-[8px] font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>net</span>
-                  <span
-                    className="text-[10px] font-extrabold leading-none"
-                    style={{ color: scoreColor }}
-                  >
-                    {finalScore}%
-                  </span>
+                  <span className="text-[10px] font-bold" style={{ color: 'rgba(255,255,255,0.9)' }}>net score</span>
+                  
                 </div>
               </div>
             </div>
@@ -220,22 +208,22 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             {/* Wealth Drainers */}
             <div
               className="flex-1 flex flex-col items-center rounded-2xl px-2 py-3 gap-1"
-              style={{ background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.35)' }}
+              style={{ background: 'rgba(7, 7, 7, 0.1)', border: '1px solid rgb(255, 52, 1)' }}
             >
-              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight" style={{ color: '#EF4444' }}>
+              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight" style={{ color: 'rgb(255, 52, 1)' }}>
                 Points{'\n'}Drained
               </span>
-              <span className="text-lg font-extrabold leading-none" style={{ color: '#EF4444' }}>
-                -₹{losses.toLocaleString('en-IN')}
+              <span className="text-lg font-extrabold leading-none" style={{ color: 'rgb(255, 52, 1)' }}>
+                -{losses.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] font-bold" style={{ color: 'rgba(239,68,68,0.75)' }}>
+              <span className="text-[10px] font-bold" style={{ color: 'rgb(255, 52, 1)' }}>
                 {drainPct}%
               </span>
             </div>
           </div>
 
           <p
-            className="text-lg font-bold leading-relaxed text-center"
+            className="text-sm font-bold leading-relaxed text-center"
             style={{ color: hasBg ? 'rgba(255,255,255,0.9)' : '#1f2937' }}
           >
             {SCORING_TAGLINE}
@@ -243,11 +231,12 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
         </div>
 
 
-        {/* Equal spacer above Share button */}
+        {/* Spacer — pushes action buttons toward vertical center */}
         <div style={{ flex: 1 }} />
 
-        {/* Share + RM line — centered between score card and call/book section */}
-        <div className="px-4 space-y-2">
+        {/* Action buttons — centered in remaining space */}
+        <div className="space-y-3 px-4 py-4">
+
           <button
             className="btn-press w-full rounded-xl py-3.5 text-sm font-bold text-white"
             style={{ background: '#25D366' }}
@@ -255,17 +244,9 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
           >
             📤 Share
           </button>
-
-          <p className="text-base font-semibold leading-relaxed text-center px-2" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
-            {RELATIONSHIP_MANAGER_LINE}
+          <p className="text-sm font-semibold leading-relaxed text-center" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
+            {SCORING_CTA_LINE}
           </p>
-        </div>
-
-        {/* Equal spacer below Share + RM (mirrors spacer above) */}
-        <div style={{ flex: 1 }} />
-
-        {/* Call now / Book a Slot / Play Again */}
-        <div className="space-y-3 px-4 pb-4">
           <div
             className="rounded-2xl p-4"
             style={{ background: hasBg ? 'rgba(30,58,138,0.75)' : '#1e3a8a' }}

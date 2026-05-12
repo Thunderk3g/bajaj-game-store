@@ -52,16 +52,15 @@
   },
   "copy": {
     "introTitle": "Score Rush",
-    "introImage": "assets/intro-mole-rush.png",
+    "introImage": "/assets/intro-mole-rush-1.png",
     "introHowToPlay": [
       {
         "icon": "tap",
         "text": "Whack good moles to grow portfolio and Avoid bad ones"
       }
     ],
-    "scoringTagline": "Don't let life's uncertainties 'whack' your hard-earned wealth. Secure your portfolio with life cover.",
-    "scoringCtaLine": "",
-    "relationshipManagerLine": "Connect with our relationship manager now!",
+    "scoringTagline": "A market-linked savings plan can pair long-term protection with growth potential.",
+    "scoringCtaLine": "Connect with our relationship manager now!",
     "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
   },
   "contact": {
@@ -82,6 +81,6 @@
     "accentColor": "#F26522",
     "successColor": "#28A745",
     "fontFamily": "Plus Jakarta Sans",
-    "scoringBgImage": "assets/intro-mole-rush.png"
+    "scoringBgImage": "/assets/intro-mole-rush-1.png"
   }
 }

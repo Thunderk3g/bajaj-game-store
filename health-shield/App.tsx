@@ -13,7 +13,7 @@ const App: React.FC = () => {
   const [player,     setPlayer]     = useState<PlayerInfo>({ name: '', mobile: '' });
 
   useEffect(() => {
-    fetch('./game.configuration.json', { cache: 'no-store' })
+    fetch('/game.configuration.json', { cache: 'no-store' })
       .then(r => r.json())
       .then(config => { applyConfig(config); setReady(true); })
       .catch(() => setReady(true)); // fall back to hardcoded defaults on error

@@ -26,14 +26,14 @@
       },
       {
         "label": "Investment",
-        "icon": "💊",
-        "powerup": "paddle_grow",
-        "padMultiplier": 0.1,
+        "icon": "🎗️",
+        "powerup": "paddle_shrink",
+        "padMultiplier": -0.18,
         "speedMultiplier": 0,
-        "color": "#ffe600",
-        "glow": "#fff176",
+        "color": "#ff6600",
+        "glow": "#ffb366",
         "hits": 1,
-        "pts": 20
+        "pts": 25
       },
       {
         "label": "Salary",
@@ -158,8 +158,7 @@
       }
     ],
     "scoringTagline": "A strong portfolio needs a strong shield. Don’t let life’s uncertainties reset your progress.",
-    "scoringCtaLine": "",
-    "relationshipManagerLine": "Call your Relationship Manager now to secure your financial journey.",
+    "scoringCtaLine": "Why choose between growth and security? To Invest in Dual Benefit Plan, Call your relationship manager now!",
     "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
   },
   "contact": {
