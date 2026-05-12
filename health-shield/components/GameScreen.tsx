@@ -5,6 +5,7 @@ import {
   BRICK_DEFS,
   COLS,
   GAME_SECS,
+  GREEN,
   INTRO_TITLE,
   MAX_LIVES,
   ROWS,

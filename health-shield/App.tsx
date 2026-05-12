@@ -13,10 +13,11 @@ const App: React.FC = () => {
   const [player,     setPlayer]     = useState<PlayerInfo>({ name: '', mobile: '' });
 
   useEffect(() => {
-    fetch('/game.configuration.json', { cache: 'no-store' })
+    const configUrl = new URL('game.configuration.json', import.meta.url).href;
+    fetch(configUrl, { cache: 'no-store' })
       .then(r => r.json())
       .then(config => { applyConfig(config); setReady(true); })
-      .catch(() => setReady(true)); // fall back to hardcoded defaults on error
+      .catch(() => setReady(true));
   }, []);
 
   const handleGameEnd = useCallback((result: GameResult) => {

@@ -16,6 +16,7 @@ const LMS_UPDATE_URLS: Record<string, string> = {
 };
 
 export default defineConfig(({ mode }) => ({
+  base: './',
   server: {
     port: 3008,
     host: '0.0.0.0',
@@ -25,6 +26,17 @@ export default defineConfig(({ mode }) => ({
     alias: {
       '@': path.resolve(__dirname, '.'),
     },
+  },
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]',
+        format: 'es'
+      }
+    }
   },
   define: {
     __LMS_BASE_URL__: JSON.stringify(LMS_URLS[mode] || LMS_URLS.uat),

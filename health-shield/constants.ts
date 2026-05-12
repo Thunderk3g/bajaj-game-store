@@ -1,5 +1,6 @@
 // All values are populated at runtime by App.tsx fetching /game.configuration.json.
 // Defaults exist only to satisfy TypeScript before applyConfig() runs.
+const getAssetUrl = (path: string) => new URL(path, import.meta.url).href;
 
 export interface BrickDef {
   label: string;
@@ -34,16 +35,16 @@ export let COLS = 3;
 export let BASE_SPEED = 0.01;
 
 export let BRICK_DEFS: BrickDef[] = [
-  { label: 'Salary', icon: '/brick_spritesheet/Savings.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#23e76c', glow: '#8dffb2', hits: 1, pts: 1000 },
-  { label: 'Investment', icon: '/brick_spritesheet/Investment.png', powerup: 'bomb', padMultiplier: 0, speedMultiplier: 0, color: '#10ffa3', glow: '#80ffce', hits: 1, pts: 2500 },
-  { label: 'Rental', icon: '/brick_spritesheet/Rental.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 2000 },
-  { label: 'Retirement', icon: '/brick_spritesheet/Retirement.png', powerup: 'paddle_grow', padMultiplier: 0.2, speedMultiplier: 0, color: '#4f4dc7', glow: '#9c5cc7', hits: 1, pts: 3000 },
-  { label: 'Deposits', icon: '/brick_spritesheet/Deposits.png', powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 1500 },
-  { label: 'Death', icon: '/brick_spritesheet/Death.png', powerup: 'paddle_shrink', padMultiplier: -0.2, speedMultiplier: 0, color: '#ff2d78', glow: '#ff80b4', hits: 1, pts: -3000 },
-  { label: 'Cancer', icon: '/brick_spritesheet/Cancer.png', powerup: 'paddle_shrink', padMultiplier: -0.1, speedMultiplier: 0, color: '#ff7a18', glow: '#ffb366', hits: 1, pts: -2500 },
-  { label: 'Disability', icon: '/brick_spritesheet/Disability.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.06, color: '#ff9900', glow: '#fff176', hits: 1, pts: -1500 },
-  { label: 'Hospitalization', icon: '/brick_spritesheet/Hospitalization.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ffef0a', glow: '#ffd280', hits: 1, pts: -500 },
-  { label: 'Heart Disease', icon: '/brick_spritesheet/Heart.png', powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ff9f0a', glow: '#ffd280', hits: 1, pts: -1000 }, 
+  { label: 'Salary', icon: getAssetUrl('brick_spritesheet/Savings.png'), powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#23e76c', glow: '#8dffb2', hits: 1, pts: 1000 },
+  { label: 'Investment', icon: getAssetUrl('brick_spritesheet/Investment.png'), powerup: 'bomb', padMultiplier: 0, speedMultiplier: 0, color: '#10ffa3', glow: '#80ffce', hits: 1, pts: 2500 },
+  { label: 'Rental', icon: getAssetUrl('brick_spritesheet/Rental.png'), powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 2000 },
+  { label: 'Retirement', icon: getAssetUrl('brick_spritesheet/Retirement.png'), powerup: 'paddle_grow', padMultiplier: 0.2, speedMultiplier: 0, color: '#4f4dc7', glow: '#9c5cc7', hits: 1, pts: 3000 },
+  { label: 'Deposits', icon: getAssetUrl('brick_spritesheet/Deposits.png'), powerup: 'paddle_grow', padMultiplier: 0.1, speedMultiplier: 0, color: '#bf5af2', glow: '#e0b0ff', hits: 1, pts: 1500 },
+  { label: 'Death', icon: getAssetUrl('brick_spritesheet/Death.png'), powerup: 'paddle_shrink', padMultiplier: -0.2, speedMultiplier: 0, color: '#ff2d78', glow: '#ff80b4', hits: 1, pts: -3000 },
+  { label: 'Cancer', icon: getAssetUrl('brick_spritesheet/Cancer.png'), powerup: 'paddle_shrink', padMultiplier: -0.1, speedMultiplier: 0, color: '#ff7a18', glow: '#ffb366', hits: 1, pts: -2500 },
+  { label: 'Disability', icon: getAssetUrl('brick_spritesheet/Disability.png'), powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.06, color: '#ff9900', glow: '#fff176', hits: 1, pts: -1500 },
+  { label: 'Hospitalization', icon: getAssetUrl('brick_spritesheet/Hospitalization.png'), powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ffef0a', glow: '#ffd280', hits: 1, pts: -500 },
+  { label: 'Heart Disease', icon: getAssetUrl('brick_spritesheet/Heart.png'), powerup: 'speed_up', padMultiplier: 0, speedMultiplier: 0.07, color: '#ff9f0a', glow: '#ffd280', hits: 1, pts: -1000 }, 
 ];
 export let ROWS = COLS;
 export let TOTAL_BRICKS = ROWS * COLS;

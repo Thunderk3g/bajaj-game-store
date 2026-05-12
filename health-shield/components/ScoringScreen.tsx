@@ -225,9 +225,14 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
               try {
                 const rawUrl = buildShareUrl() || window.location.href;
                 const shareUrl = await shortenUrl(rawUrl) || rawUrl;
+                const shareText = `Hi,
+I just found out interesting fact about balancing wealth creation and protecting it. My score is ${finalScore}.
+Are you curious to see how ready you are - play now: ${shareUrl}
+
+${playerName}`;
                 const shareData = {
                   title: 'Health Shield',
-                  text: `Hi, I scored ${finalScore}... Try it: ${shareUrl}`,
+                  text: shareText,
                   url: shareUrl,
                 };
                 if (navigator.share) {

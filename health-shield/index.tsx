@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { decryptToken } from './utils/crypto';
+import './index.css';
 
 // ── Decrypt gamification token, store payload in sessionStorage & clean URL ──
 (() => {

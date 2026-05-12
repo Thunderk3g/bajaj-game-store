@@ -61,9 +61,14 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const handleShare = async () => {
     const rawUrl = buildShareUrl() || window.location.href;
     const shareUrl = await shortenUrl(rawUrl);
+    const shareText = `Hi,
+I just played this simple but challenging game about balancing wealth creation and protecting it. My score is ${finalScore}.
+Let's see how many wealth drainers you can avoid - play now: ${shareUrl}
+
+${playerName}`;
     const shareData = {
       title: 'ULIP Wealth Whacker',
-      text: `Hi, I scored ${finalScore}/100 in ULIP Wealth Whacker! Try it: ${shareUrl}`,
+      text: shareText,
       url: shareUrl,
     };
     try {
