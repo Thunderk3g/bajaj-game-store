@@ -9,6 +9,8 @@ import { Renderer, getLevelTheme } from './Renderer.js';
 import { UIManager } from './UIManager.js';
 import { SoundManager } from './SoundManager.js';
 import { submitToLMS, updateLeadNew } from './api.js';
+import { buildShareUrl } from './utils/crypto.js';
+import { shortenUrl } from './utils/shortener.js';
 
 const STATE = { IDLE: 'idle', PLAYING: 'playing', DROPPING: 'dropping', GAMEOVER: 'gameover' };
 const LEVEL_THRESHOLDS = [0, 5, 12, 20, 30, 42];
@@ -268,16 +270,17 @@ export class GameManager {
 
     async _handleShare() {
         const floors = this._tower.length - 1;
-        const url = window.location.href;
+        const rawUrl = buildShareUrl() || window.location.href;
+        const shareUrl = await shortenUrl(rawUrl);
         const senderName = this._leadName || '';
         const signature = senderName ? `\n\nBest Regards,\n${senderName}` : '';
-        const message = `Hi,\nI just played LifeStack and built a tower of ${floors} floors.\nSee how high you can stack — try it here: ${url}${signature}`.trim();
+        const message = `Hi,\nI just played LifeStack and built a tower of ${floors} floors.\nSee how high you can stack — try it here: ${shareUrl}${signature}`.trim();
         if (navigator.share) {
-            try { await navigator.share({ title: 'LifeStack', text: message }); } catch {}
+            try { await navigator.share({ title: 'LifeStack', text: message, url: shareUrl }); } catch {}
             return;
         }
         try {
-            await navigator.clipboard.writeText(message);
+            await navigator.clipboard.writeText(shareUrl);
             alert('Score and link copied to clipboard!');
         } catch {}
     }

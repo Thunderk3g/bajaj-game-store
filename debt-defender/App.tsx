@@ -47,7 +47,7 @@ const App: React.FC = () => {
       {screen === Screen.INTRO && <IntroScreen onPlay={() => setScreen(Screen.HOW_TO_PLAY)} />}
       {screen === Screen.HOW_TO_PLAY && <HowToPlayScreen onStart={() => setScreen(Screen.GAME)} />}
       {screen === Screen.GAME && <GameScreen onGameEnd={handleGameEnd} />}
-      {screen === Screen.DETAILS && <EnterDetailsScreen onSubmit={handleDetailsSubmit} />}
+      {screen === Screen.DETAILS && <EnterDetailsScreen onSubmit={handleDetailsSubmit} result={gameResult} />}
       {screen === Screen.SCORING && gameResult && (
         <ScoringScreen
           result={gameResult}

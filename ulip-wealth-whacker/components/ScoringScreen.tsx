@@ -13,6 +13,8 @@ import {
   THANK_YOU_BODY,
 } from '../constants';
 import BookSlotModal from './BookSlotModal';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 
 interface Props {
   result: GameResult;
@@ -56,12 +58,22 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
 
   const scoreColor = finalScore >= 70 ? '#22C55E' : finalScore >= 40 ? '#F97316' : '#EF4444';
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Wealth Whacker Score',
-        text: `I scored ${finalScore}/100 in Wealth Whacker! Can you beat me?`,
-      });
+  const handleShare = async () => {
+    const rawUrl = buildShareUrl() || window.location.href;
+    const shareUrl = await shortenUrl(rawUrl);
+    const shareData = {
+      title: 'ULIP Wealth Whacker',
+      text: `Hi, I scored ${finalScore}/100 in ULIP Wealth Whacker! Try it: ${shareUrl}`,
+      url: shareUrl,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+    } catch (err) {
+      console.error('[Share] Error:', err);
     }
   };
 

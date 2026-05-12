@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Lead } from "../types";
 import { CONFIG } from "../constants";
+import { submitToLMS } from "../utils/api";
 
 interface EnterDetailsScreenProps {
   lead: Lead;
@@ -16,12 +17,12 @@ export function EnterDetailsScreen({ lead, setLead, onSubmit, setShowTcModal }: 
   const validName = lead.name.trim().length >= 2;
   const [agreed, setAgreed] = useState(false);
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validName) { setError("Please enter your name."); return; }
     if (!validPhone) { setError("Enter a valid 10-digit mobile."); return; }
     if (!agreed) { setError("Please accept T&C to continue."); return; }
-    
+
     const savedLead = {
       ...lead,
       phone: phoneClean,
@@ -31,6 +32,22 @@ export function EnterDetailsScreen({ lead, setLead, onSubmit, setShowTcModal }: 
     };
     const existing = JSON.parse(localStorage.getItem("wholeLifeLeads") || "[]");
     localStorage.setItem("wholeLifeLeads", JSON.stringify([...existing, savedLead]));
+
+    try {
+      const apiResult = await submitToLMS({
+        name: lead.name.trim(),
+        mobile_no: phoneClean,
+        summary_dtls: "Whole Life Galaga - Post Game Lead",
+      });
+      if (apiResult.success) {
+        const responseData = apiResult.data || apiResult;
+        const ln = responseData.leadNo || responseData.LeadNo;
+        if (ln) sessionStorage.setItem("wholeLifeGalagaLeadNo", ln);
+      }
+    } catch (err) {
+      console.error("LMS submission failed", err);
+    }
+
     onSubmit();
   };
 

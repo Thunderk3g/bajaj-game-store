@@ -2,6 +2,8 @@
 // Restyled to match the stackibility-stack design language.
 import React from 'react';
 import { COLORS } from './data.js';
+import { buildShareUrl } from './utils/crypto';
+import { shortenUrl } from './utils/shortener';
 
 /* ─── Inline icons ─────────────────────────────────────── */
 function PlayIcon({ size = 18 }) {
@@ -384,6 +386,21 @@ export function ResultsScreen({ stats, won, onRetry, onHome, onBookSlot, retryLa
   const productNames = PRODUCT_LINEUP.map((id) => COLORS[id]?.product).filter(Boolean);
   const productList = productNames.slice(0, 3).join(', ');
 
+  async function handleShare() {
+    const rawUrl = buildShareUrl() || window.location.href;
+    const shareUrl = await shortenUrl(rawUrl);
+    const shareData = {
+      title: 'Life Goals Bubble Shooter',
+      text: `Hi, I scored ${score} on this game. Try it: ${shareUrl}`,
+      url: shareUrl,
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch { /* dismissed */ }
+    } else {
+      try { await navigator.clipboard.writeText(shareUrl); } catch { /* ignore */ }
+    }
+  }
+
   return (
     <div
       className="screen-enter"
@@ -476,6 +493,14 @@ export function ResultsScreen({ stats, won, onRetry, onHome, onBookSlot, retryLa
           style={{ height: 52, fontSize: 14 }}
         >
           {retryLabel || 'Play Again'} →
+        </button>
+        <button
+          type="button"
+          className="ls-btn ls-btn-secondary"
+          onClick={handleShare}
+          style={{ height: 52, fontSize: 14 }}
+        >
+          Share
         </button>
         <button type="button" className="ls-text-btn" onClick={onHome}>
           ← Back home

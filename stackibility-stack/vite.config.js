@@ -1,14 +1,14 @@
 import { defineConfig } from 'vite';
 
 const LMS_URLS = {
-  uat: 'https://uatapiin.bajajallianzlife.com/BagicWhatsAppService/api/Whatsapp',
-  preprod: 'https://preprodapiin.bajajallianzlife.com/BagicWhatsAppService/api/Whatsapp',
-  production: 'https://apiin.bajajallianzlife.com/BagicWhatsAppService/api/Whatsapp',
+  uat: 'https://sales.bajajlife.com/BalicLmsUtil',
+  preprod: 'https://sales.bajajlife.com/BalicLmsUtil',
+  production: 'https://sales.bajajlife.com/BalicLmsUtil',
 };
 const LMS_UPDATE_URLS = {
-  uat: 'https://uatapiin.bajajallianzlife.com/LMSService/api/LMS',
-  preprod: 'https://preprodapiin.bajajallianzlife.com/LMSService/api/LMS',
-  production: 'https://apiin.bajajallianzlife.com/LMSService/api/LMS',
+  uat: 'https://sales.bajajlife.com/BalicLmsUtil',
+  preprod: 'https://sales.bajajlife.com/BalicLmsUtil',
+  production: 'https://sales.bajajlife.com/BalicLmsUtil',
 };
 
 export default defineConfig(({ mode }) => ({

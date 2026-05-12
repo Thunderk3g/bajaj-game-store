@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Lead } from "../types";
 import { CONFIG } from "../constants";
+import { updateLeadNew, submitToLMS } from "../utils/api";
 
 interface BookSlotScreenProps {
   lead: Lead;
@@ -18,22 +19,46 @@ export function BookSlotScreen({ lead, onComplete, setShowTcModal }: BookSlotScr
 
   const timeSlots = CONFIG.contact.bookSlotTimeSlots;
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) { setError("Enter your name"); return; }
     if (!phone.match(/^[6-9]\d{9}$/)) { setError("Enter valid mobile"); return; }
     if (!date) { setError("Select a date"); return; }
     if (!time) { setError("Select a time slot"); return; }
     if (!agreed) { setError("Accept T&C to continue"); return; }
-    
+
     const bookings = JSON.parse(localStorage.getItem("wholeLifeBookings") || "[]");
-    localStorage.setItem("wholeLifeBookings", JSON.stringify([...bookings, { 
-      name, 
-      phone, 
-      date, 
-      time, 
-      createdAt: new Date().toISOString() 
+    localStorage.setItem("wholeLifeBookings", JSON.stringify([...bookings, {
+      name,
+      phone,
+      date,
+      time,
+      createdAt: new Date().toISOString()
     }]));
+
+    try {
+      const leadNo = sessionStorage.getItem("wholeLifeGalagaLeadNo");
+      if (leadNo) {
+        await updateLeadNew(leadNo, {
+          name: name.trim(),
+          mobile: phone,
+          date: date,
+          time: time,
+          remarks: "Whole Life Galaga - Appointment",
+        });
+      } else {
+        await submitToLMS({
+          name: name.trim(),
+          mobile_no: phone,
+          date: date,
+          timeSlot: time,
+          summary_dtls: "Whole Life Galaga - Appointment",
+        });
+      }
+    } catch (err) {
+      console.error("Booking submission failed", err);
+    }
+
     onComplete();
   };
 

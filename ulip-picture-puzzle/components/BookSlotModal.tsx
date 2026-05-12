@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { BLUE, BOOK_SLOT_TIMES } from '../constants';
 import TCModal from './TCModal';
+import { updateLeadNew, submitToLMS } from '../services/api';
+import { GameResult } from '../types';
 
 interface Props {
   name: string;
   mobile: string;
   onClose: () => void;
   onBook: () => void;
+  result: GameResult | null;
 }
 
-const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
+const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result }) => {
   const [bookingName, setBookingName] = useState(name);
   const [bookingMobile, setBookingMobile] = useState(mobile);
   const [date, setDate] = useState('');
@@ -20,7 +23,7 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
 
   const today = new Date().toISOString().split('T')[0];
 
-  function submit(): void {
+  async function submit(): Promise<void> {
     const nextErrors: Record<string, string> = {};
     if (!bookingName.trim()) nextErrors.name = 'Required';
     if (!/^[6-9]\d{9}$/.test(bookingMobile)) nextErrors.mobile = 'Invalid mobile';
@@ -31,7 +34,33 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
       setErrors(nextErrors);
       return;
     }
-    onBook();
+
+    try {
+      const finalScore = result ? Math.max(0, Math.min(100, result.rawScore)) : 0;
+      const leadNo = sessionStorage.getItem('ulipPicturePuzzleLeadNo');
+      if (leadNo) {
+        await updateLeadNew(leadNo, {
+          name: bookingName.trim(),
+          mobile: bookingMobile,
+          date: date,
+          time: time,
+          remarks: `ULIP Picture Puzzle - Appointment | Score: ${finalScore}`,
+        });
+      } else {
+        await submitToLMS({
+          name: bookingName.trim(),
+          mobile_no: bookingMobile,
+          score: finalScore,
+          date: date,
+          timeSlot: time,
+          summary_dtls: 'ULIP Picture Puzzle - Appointment',
+        });
+      }
+    } catch (err) {
+      console.error('Booking failed', err);
+    } finally {
+      onBook();
+    }
   }
 
   return (

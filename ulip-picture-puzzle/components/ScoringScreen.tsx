@@ -13,6 +13,8 @@ import {
 } from '../constants';
 import { GameResult, PlayerInfo } from '../types';
 import BookSlotModal from './BookSlotModal';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 
 interface Props {
   result: GameResult;
@@ -31,7 +33,25 @@ const ScoringScreen: React.FC<Props> = ({ result, player, onBookComplete, onPlay
   const mm = String(Math.floor(result.timeSeconds / 60)).padStart(2, '0');
   const ss = String(result.timeSeconds % 60).padStart(2, '0');
   const scoreMessage = useMemo(() => messageFor(finalScore), [finalScore]);
-  const shareText = `I scored ${finalScore}/100 on ULIP Picture Puzzle. Protection + market-linked savings in one plan.`;
+
+  const handleShare = async () => {
+    try {
+      const rawUrl = buildShareUrl() || window.location.href;
+      const shareUrl = await shortenUrl(rawUrl) || rawUrl;
+      const shareData = {
+        title: 'ULIP Picture Puzzle',
+        text: `Hi, I scored ${finalScore}... Try it: ${shareUrl}`,
+        url: shareUrl,
+      };
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+    } catch (err) {
+      console.error('[Share] failed', err);
+    }
+  };
 
   return (
     <div className="screen-scroll" style={{ background: 'linear-gradient(180deg, #f7faff 0%, #e5efff 46%, #fff 100%)' }}>
@@ -39,6 +59,7 @@ const ScoringScreen: React.FC<Props> = ({ result, player, onBookComplete, onPlay
         <BookSlotModal
           name={player.name}
           mobile={player.mobile}
+          result={result}
           onClose={() => setShowBook(false)}
           onBook={() => {
             setShowBook(false);
@@ -99,13 +120,7 @@ const ScoringScreen: React.FC<Props> = ({ result, player, onBookComplete, onPlay
           <button
             className="py-3.5 rounded-full text-white font-extrabold text-sm btn-press"
             style={{ background: '#25D366' }}
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({ title: 'ULIP Picture Puzzle Score', text: shareText });
-              } else {
-                void navigator.clipboard?.writeText(shareText);
-              }
-            }}
+            onClick={handleShare}
           >
             Share
           </button>

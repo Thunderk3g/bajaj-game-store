@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { PlayerInfo } from '../types';
+import { GameResult, PlayerInfo } from '../types';
 import { BLUE, ORANGE } from '../constants';
 import TCModal from './TCModal';
+import { submitToLMS } from '../services/api';
 
 interface Props {
   onSubmit: (info: PlayerInfo) => void;
+  result: GameResult | null;
 }
 
-const EnterDetailsScreen: React.FC<Props> = ({ onSubmit }) => {
+const EnterDetailsScreen: React.FC<Props> = ({ onSubmit, result }) => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -22,13 +24,31 @@ const EnterDetailsScreen: React.FC<Props> = ({ onSubmit }) => {
     return e;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     const e = validate();
     if (Object.keys(e).length) {
       setErrors(e);
       return;
     }
-    onSubmit({ name: name.trim(), mobile });
+
+    try {
+      const finalScore = result ? Math.max(0, Math.min(100, result.rawScore)) : 0;
+      const apiResult = await submitToLMS({
+        name: name.trim(),
+        mobile_no: mobile,
+        score: finalScore,
+        summary_dtls: 'Debt Defender - Post Game Lead',
+      });
+      if (apiResult.success) {
+        const responseData: any = (apiResult as any).data || apiResult;
+        const ln = responseData.leadNo || responseData.LeadNo;
+        if (ln) sessionStorage.setItem('debtDefenderLeadNo', ln);
+      }
+    } catch (err) {
+      console.error('API submission failed', err);
+    } finally {
+      onSubmit({ name: name.trim(), mobile });
+    }
   }
 
   return (

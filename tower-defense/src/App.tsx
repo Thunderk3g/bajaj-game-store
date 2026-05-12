@@ -5,6 +5,8 @@ import { StatusBar } from './components/StatusBar';
 import { TowerSelectionPanel } from './components/TowerSelectionPanel';
 import { TOWER_DEFINITIONS } from '../shared/game-data';
 import { useGameSession } from './hooks/useGameSession';
+import { buildShareUrl } from './utils/crypto';
+import { shortenUrl } from './utils/shortener';
 
 const App = () => {
   const {
@@ -37,6 +39,27 @@ const App = () => {
 
   const selectedTower = TOWER_DEFINITIONS[selectedTowerType];
 
+  const handleShare = async () => {
+    const rawUrl = buildShareUrl() || window.location.href;
+    const shareUrl = (await shortenUrl(rawUrl)) || rawUrl;
+    const shareData = {
+      title: 'Legacy Defenders',
+      text: `Hi, I survived ${snapshot.waveNumber}/${snapshot.totalWaves} waves in Legacy Defenders. Try it: ${shareUrl}`,
+      url: shareUrl,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        /* user dismissed share sheet */
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+    }
+  };
+
+  const isMatchOver = snapshot.status === 'won' || snapshot.status === 'lost';
+
   return (
     <div className="app-shell">
       <StatusBar
@@ -60,6 +83,11 @@ const App = () => {
             <div className="state-banner failure">
               The core was breached. Rebuild and try again.
             </div>
+          ) : null}
+          {isMatchOver ? (
+            <button className="secondary-button" type="button" onClick={handleShare}>
+              Share
+            </button>
           ) : null}
           <GameCanvas
             snapshot={snapshot}

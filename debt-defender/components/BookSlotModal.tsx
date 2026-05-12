@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { BLUE, BOOK_SLOT_SUBLINE, BOOK_SLOT_TIMES, BOOK_SLOT_TITLE } from '../constants';
 import TCModal from './TCModal';
+import { updateLeadNew, submitToLMS } from '../services/api';
+import { GameResult } from '../types';
 
 interface Props {
   name: string;
   mobile: string;
+  result: GameResult | null;
   onClose: () => void;
   onBook: () => void;
 }
 
-const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
+const BookSlotModal: React.FC<Props> = ({ name, mobile, result, onClose, onBook }) => {
   const [bName,   setBName]   = useState(name);
   const [bMobile, setBMobile] = useState(mobile);
   const [date,    setDate]    = useState('');
@@ -20,7 +23,7 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
 
   const today = new Date().toISOString().split('T')[0];
 
-  function handleBook() {
+  async function handleBook() {
     const e: Record<string, string> = {};
     if (!bName.trim())                  e.name   = 'Required';
     if (!/^[6-9]\d{9}$/.test(bMobile)) e.mobile = 'Invalid mobile';
@@ -28,7 +31,34 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
     if (!time)                          e.time   = 'Required';
     if (!agreed)                        e.agreed = 'Please accept T&C';
     if (Object.keys(e).length) { setErrors(e); return; }
-    onBook();
+
+    try {
+      const finalScore = result ? Math.max(0, Math.min(100, result.rawScore)) : 0;
+      const leadNo = sessionStorage.getItem('debtDefenderLeadNo');
+      if (leadNo) {
+        await updateLeadNew(leadNo, {
+          name: bName.trim(),
+          mobile: bMobile,
+          date: date,
+          time: time,
+          remarks: `Debt Defender - Appointment | Score: ${finalScore}`,
+        });
+      } else {
+        // Fallback to submitToLMS if leadNo is missing
+        await submitToLMS({
+          name: bName.trim(),
+          mobile_no: bMobile,
+          score: finalScore,
+          date: date,
+          timeSlot: time,
+          summary_dtls: 'Debt Defender - Appointment',
+        });
+      }
+    } catch (err) {
+      console.error('Booking failed', err);
+    } finally {
+      onBook();
+    }
   }
 
   return (

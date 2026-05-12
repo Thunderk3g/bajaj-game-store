@@ -1,5 +1,8 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import heroArt from "./assets/shield-marble-hero.webp";
+import { submitToLMS } from "./utils/api";
+import { buildShareUrl } from "./utils/crypto";
+import { shortenUrl } from "./utils/shortener";
 
 type Screen = "splash" | "menu" | "instructions" | "game" | "lesson" | "lead" | "score";
 type Cell = "invalid" | "empty" | "marble";
@@ -372,7 +375,7 @@ function LeadCapture({
   const validPhone = /^[6-9]\d{9}$/.test(phoneClean);
   const validName = lead.name.trim().length >= 2;
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!validName) {
       setError("Please enter your name.");
@@ -391,7 +394,18 @@ function LeadCapture({
     };
     const existing = JSON.parse(localStorage.getItem("shieldMarbleVitaLeads") || "[]");
     localStorage.setItem("shieldMarbleVitaLeads", JSON.stringify([...existing, savedLead]));
-    onDone();
+    try {
+      await submitToLMS({
+        name: lead.name.trim(),
+        mobile_no: phoneClean,
+        score: result.score,
+        summary_dtls: "Shield Marble Vita - Post Game Lead"
+      });
+    } catch (err) {
+      console.error("API submission failed", err);
+    } finally {
+      onDone();
+    }
   };
 
   return (
@@ -428,6 +442,25 @@ function LeadCapture({
 }
 
 function Score({ lead, result, onRetry }: { lead: Lead; result: Result; onRetry: () => void }) {
+  const handleShare = async () => {
+    const rawUrl = buildShareUrl() || window.location.href;
+    const shareUrl = await shortenUrl(rawUrl);
+    const shareData = {
+      title: "Shield Marble Vita",
+      text: `Hi, I scored ${result.score} on this game. Try it: ${shareUrl}`,
+      url: shareUrl
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        /* share cancelled */
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+    }
+  };
+
   return (
     <div className="panel-screen score-screen">
       <div className="section-heading score-heading">
@@ -453,6 +486,7 @@ function Score({ lead, result, onRetry }: { lead: Lead; result: Result; onRetry:
         You lost because the final risk cannot be solved by clever moves alone. Term insurance helps protect the family before the board changes.
       </p>
       <div className="thanks-note">Thanks for subscribing to a Bajaj Life insurance marketing call.</div>
+      <button className="ghost-button" onClick={handleShare}>Share</button>
       <button className="ghost-button" onClick={onRetry}>Play again</button>
     </div>
   );

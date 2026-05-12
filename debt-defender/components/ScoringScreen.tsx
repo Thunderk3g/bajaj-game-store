@@ -17,6 +17,8 @@ import {
   SHARE_TEXT,
 } from '../constants';
 import BookSlotModal from './BookSlotModal';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 
 interface Props {
   result: GameResult;
@@ -39,12 +41,19 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onBo
   const killPct = Math.min(100, Math.round((killCount / KILL_TARGET) * 100));
   const healthPct = Math.max(0, Math.round((healthRemaining / maxHp) * 100));
 
-  function handleShare() {
-    const text = SHARE_TEXT.replace('{score}', String(finalScore));
-    if (navigator.share) {
-      navigator.share({ title: 'Debt Defender Score', text });
-    } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+  async function handleShare() {
+    const rawUrl = buildShareUrl() || window.location.href;
+    const shareUrl = await shortenUrl(rawUrl);
+    const text = `${SHARE_TEXT.replace('{score}', String(finalScore))} ${shareUrl}`;
+    const shareData = { title: 'Debt Defender', text, url: shareUrl };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+    } catch (err) {
+      console.error('[Share] failed', err);
     }
   }
 
@@ -54,6 +63,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onBo
         <BookSlotModal
           name={playerName}
           mobile={playerMobile}
+          result={result}
           onClose={() => setShowBook(false)}
           onBook={() => {
             setShowBook(false);

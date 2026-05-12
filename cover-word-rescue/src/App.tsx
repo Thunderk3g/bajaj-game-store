@@ -1,5 +1,8 @@
 import { CSSProperties, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import heroArt from "./assets/cover-word-hero.webp";
+import { submitToLMS } from "./utils/api";
+import { buildShareUrl } from "./utils/crypto";
+import { shortenUrl } from "./utils/shortener";
 
 type Screen = "splash" | "menu" | "instructions" | "game" | "lesson" | "lead" | "score";
 
@@ -304,6 +307,12 @@ function LeadCapture({
     const existingRaw = localStorage.getItem("coverWordRescueLeads");
     const existing = existingRaw ? JSON.parse(existingRaw) : [];
     localStorage.setItem("coverWordRescueLeads", JSON.stringify([...existing, savedLead]));
+    void submitToLMS({
+      name: lead.name.trim(),
+      mobile_no: phoneClean,
+      score: result.score,
+      summary_dtls: `Solved ${result.solvedWords} words | Shield ${result.shield}%`
+    });
     onDone();
   };
 
@@ -345,6 +354,25 @@ function LeadCapture({
 }
 
 function Score({ lead, result, onRetry }: { lead: Lead; result: Result; onRetry: () => void }) {
+  async function handleShare() {
+    const rawUrl = buildShareUrl() || window.location.href;
+    const shareUrl = await shortenUrl(rawUrl);
+    const shareData = {
+      title: "Cover Word Rescue",
+      text: `Hi, I scored ${result.score} on this game. Try it: ${shareUrl}`,
+      url: shareUrl
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        /* user dismissed share sheet */
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+    }
+  }
+
   return (
     <div className="panel-screen score-screen">
       <p className="eyebrow">Thank you, {lead.name.trim()}</p>
@@ -363,6 +391,7 @@ function Score({ lead, result, onRetry }: { lead: Lead; result: Result; onRetry:
       </p>
       <div className="thanks-note">Thanks for subscribing to a Bajaj Life insurance marketing call.</div>
       <button className="ghost-button" onClick={onRetry}>Play again</button>
+      <button className="ghost-button" onClick={handleShare}>Share</button>
     </div>
   );
 }

@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import { BLUE, GAME_NAME, ORANGE } from '../constants';
-import { PlayerInfo } from '../types';
+import { GameResult, PlayerInfo } from '../types';
 import TCModal from './TCModal';
+import { submitToLMS } from '../services/api';
 
 interface Props {
   onSubmit: (info: PlayerInfo) => void;
+  result: GameResult | null;
 }
 
-const EnterDetailsScreen: React.FC<Props> = ({ onSubmit }) => {
+const EnterDetailsScreen: React.FC<Props> = ({ onSubmit, result }) => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [showTc, setShowTc] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  function submit(): void {
+  async function submit(): Promise<void> {
     const nextErrors: Record<string, string> = {};
     if (!name.trim()) nextErrors.name = 'Please enter your name';
     if (!/^[6-9]\d{9}$/.test(mobile)) nextErrors.mobile = 'Enter a valid 10-digit mobile number';
@@ -23,7 +25,25 @@ const EnterDetailsScreen: React.FC<Props> = ({ onSubmit }) => {
       setErrors(nextErrors);
       return;
     }
-    onSubmit({ name: name.trim(), mobile });
+
+    try {
+      const finalScore = result ? Math.max(0, Math.min(100, result.rawScore)) : 0;
+      const apiResult = await submitToLMS({
+        name: name.trim(),
+        mobile_no: mobile,
+        score: finalScore,
+        summary_dtls: 'ULIP Picture Puzzle - Post Game Lead',
+      });
+      if (apiResult.success) {
+        const responseData = apiResult.data || apiResult;
+        const ln = responseData.leadNo || responseData.LeadNo;
+        if (ln) sessionStorage.setItem('ulipPicturePuzzleLeadNo', ln);
+      }
+    } catch (err) {
+      console.error('API submission failed', err);
+    } finally {
+      onSubmit({ name: name.trim(), mobile });
+    }
   }
 
   return (

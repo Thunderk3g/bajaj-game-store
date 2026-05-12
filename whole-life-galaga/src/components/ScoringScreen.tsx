@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Lead, GameResult } from "../types";
 import { CONFIG, DISCLAIMER_TEXT } from "../constants";
 import { audioEngine } from "../audio";
+import { buildShareUrl } from "../utils/crypto";
+import { shortenUrl } from "../utils/shortener";
 
 interface ScoringScreenProps {
   lead: Lead;
@@ -21,14 +23,20 @@ export function ScoringScreen({ lead, result, onBookSlot, onPlayAgain }: Scoring
 
   const handleShare = async () => {
     audioEngine.playSound("click");
-    const text = `I scored ${score}/100 in ${CONFIG.meta.gameName}! Can you beat my score?`;
-    
+    const rawUrl = buildShareUrl() || window.location.href;
+    const shareUrl = await shortenUrl(rawUrl);
+    const shareData = {
+      title: "Whole Life Galaga",
+      text: `Hi, I scored ${score}/100 in ${CONFIG.meta.gameName}! Can you beat my score? Try it: ${shareUrl}`,
+      url: shareUrl,
+    };
+
     if (navigator.share) {
       try {
-        await navigator.share({ text });
+        await navigator.share(shareData);
       } catch {}
     } else {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }

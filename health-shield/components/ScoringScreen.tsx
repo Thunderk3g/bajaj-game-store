@@ -9,6 +9,8 @@ import {
   SCORING_BG_IMAGE, SCORING_TAGLINE, SCORING_CTA_LINE, THANK_YOU_BODY,
 } from '../constants';
 import BookSlotModal from './BookSlotModal';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 
 interface Props {
   result: GameResult;
@@ -219,12 +221,22 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
           <button
             className="btn-press w-full rounded-xl py-3.5 text-sm font-bold text-white"
             style={{ background: '#25D366' }}
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: 'Health Shield Score',
-                  text: `I scored ${finalScore}/100 on Health Shield! Can you beat me?`,
-                });
+            onClick={async () => {
+              try {
+                const rawUrl = buildShareUrl() || window.location.href;
+                const shareUrl = await shortenUrl(rawUrl) || rawUrl;
+                const shareData = {
+                  title: 'Health Shield',
+                  text: `Hi, I scored ${finalScore}... Try it: ${shareUrl}`,
+                  url: shareUrl,
+                };
+                if (navigator.share) {
+                  await navigator.share(shareData);
+                } else {
+                  await navigator.clipboard.writeText(shareUrl);
+                }
+              } catch (err) {
+                console.error('[Share] failed', err);
               }
             }}
           >
