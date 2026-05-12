@@ -420,7 +420,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
       <div className="mx-[4vw] mb-[0.5vh] flex-shrink-0">
         <div className={`mb-[0.3rem] text-center ${shake ? 'shake' : ''}`}>
-          <span className="text-[clamp(1rem,4.6vw,1.25rem)] font-extrabold" style={{ color: GREEN }}>
+          <span className="text-[clamp(1rem,4.6vw,1.25rem)] font-extrabold" style={{ color: displayPortfolio < 0 ? '#EF4444' : GREEN }}>
             {displayPortfolio.toLocaleString('en-IN')}
           </span>
         </div>

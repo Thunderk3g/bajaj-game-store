@@ -1104,7 +1104,13 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           ))}
         </div>
 
-        <div className="text-sm font-extrabold" style={{ color: '#00e5ff', textShadow: '0 0 8px rgba(0,229,255,0.8)' }}>
+        <div
+          className="text-sm font-extrabold"
+          style={{
+            color: hud.score < 0 ? '#ff2d78' : GREEN,
+            textShadow: `0 0 8px ${hud.score < 0 ? 'rgba(255,45,120,0.8)' : 'rgba(39,174,96,0.8)'}`,
+          }}
+        >
           🛡️ {hud.score}
         </div>
 

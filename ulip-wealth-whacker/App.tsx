@@ -40,7 +40,7 @@ const App: React.FC = () => {
     <div className="game-wrap">
       {screen === Screen.INTRO   && <IntroScreen   onPlay={() => setScreen(Screen.GAME)} />}
       {screen === Screen.GAME    && <GameScreen     onGameEnd={handleGameEnd} />}
-      {screen === Screen.DETAILS && <EnterDetailsScreen onSubmit={handleDetailsSubmit} />}
+      {screen === Screen.DETAILS && <EnterDetailsScreen onSubmit={handleDetailsSubmit} result={gameResult} />}
       {screen === Screen.SCORING && gameResult && (
         <ScoringScreen
           result={gameResult}

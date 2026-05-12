@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { BLUE, BOOK_SLOT_TIMES } from '../constants';
+import { BLUE, BOOK_SLOT_TIMES, TARGET_PORTFOLIO } from '../constants';
 import TCModal from './TCModal';
+import { updateLeadNew, submitToLMS } from '../services/api';
+import { GameResult } from '../types';
 
 interface Props {
   name: string;
   mobile: string;
   onClose: () => void;
   onBook: () => void;
+  result: GameResult | null;
 }
 
-const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
+const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result }) => {
   const [bName,   setBName]   = useState(name);
   const [bMobile, setBMobile] = useState(mobile);
   const [date,    setDate]    = useState('');
@@ -17,10 +20,11 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
   const [agreed,  setAgreed]  = useState(true);
   const [showTC,  setShowTC]  = useState(false);
   const [errors,  setErrors]  = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
 
-  function handleBook() {
+  async function handleBook() {
     const e: Record<string, string> = {};
     if (!bName.trim())                  e.name   = 'Required';
     if (!/^[6-9]\d{9}$/.test(bMobile)) e.mobile = 'Invalid mobile';
@@ -28,7 +32,41 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
     if (!time)                          e.time   = 'Required';
     if (!agreed)                        e.agreed = 'Please accept T&C';
     if (Object.keys(e).length) { setErrors(e); return; }
-    onBook();
+
+    setIsSubmitting(true);
+    try {
+      const leadNo = sessionStorage.getItem('wealthWhackerLeadNo');
+      let finalScore = 0;
+      if (result) {
+        finalScore = Math.round((result.portfolio / TARGET_PORTFOLIO) * 100);
+      }
+
+      if (leadNo) {
+        await updateLeadNew(leadNo, {
+          name: bName.trim(),
+          mobile: bMobile,
+          date: date,
+          time: time,
+          remarks: `ULIP Wealth Whacker - Appointment | Score: ${finalScore}`
+        });
+      } else {
+        // Fallback to submitToLMS
+        await submitToLMS({
+          name: bName.trim(),
+          mobile_no: bMobile,
+          score: finalScore,
+          date: date,
+          timeSlot: time,
+          summary_dtls: 'ULIP Wealth Whacker - Appointment'
+        });
+      }
+      onBook();
+    } catch (err) {
+      console.error('Booking failed', err);
+      setErrors({ submit: 'Failed to book. Please try again.' });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -118,11 +156,13 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook }) => {
 
           <button
             onClick={handleBook}
-            className="w-full py-3.5 rounded-2xl font-extrabold text-white text-sm tracking-wide btn-press"
+            disabled={isSubmitting}
+            className="w-full py-3.5 rounded-2xl font-extrabold text-white text-sm tracking-wide btn-press disabled:opacity-50"
             style={{ background: BLUE, boxShadow: `0 4px 16px rgba(0,61,166,0.35)` }}
           >
-            Confirm Booking
+            {isSubmitting ? 'Booking...' : 'Confirm Booking'}
           </button>
+          {errors.submit && <p className="text-red-500 text-xs mt-2 text-center font-bold">{errors.submit}</p>}
         </div>
       </div>
     </div>

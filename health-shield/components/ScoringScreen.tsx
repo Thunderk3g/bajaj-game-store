@@ -78,6 +78,8 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
     );
   }
 
+  const empPhone = sessionStorage.getItem('gamification_emp_mobile');
+
   return (
     <div
       className="screen-scroll"
@@ -105,6 +107,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             mobile={playerMobile}
             onClose={() => setShowBook(false)}
             onBook={() => { setBooked(true); setShowBook(false); }}
+            result={result}
           />
         )}
 
@@ -239,13 +242,15 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             className="rounded-2xl p-4"
             style={{ background: hasBg ? 'rgba(30,58,138,0.75)' : '#1e3a8a' }}
           >
-            <a
-              href={`tel:${CALL_NOW_NUMBER}`}
-              className="flex items-center justify-center w-full py-3 rounded-xl font-bold text-white text-sm mb-3 btn-press"
-              style={{ background: ORANGE }}
-            >
-              📞 Call now
-            </a>
+            {empPhone && (
+              <a
+                href={`tel:${empPhone}`}
+                className="flex items-center justify-center w-full py-3 rounded-xl font-bold text-white text-sm mb-3 btn-press"
+                style={{ background: ORANGE }}
+              >
+                📞 Call now
+              </a>
+            )}
             <button
               onClick={() => setShowBook(true)}
               className="w-full py-3 rounded-xl font-extrabold text-white text-sm btn-press"
