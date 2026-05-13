@@ -238,7 +238,7 @@ ${playerName}`;
                 // Try to include thumbnail
                 if (SCORING_BG_IMAGE) {
                   try {
-                    const imgUrl = new URL(SCORING_BG_IMAGE, window.location.origin).href;
+                    const imgUrl = new URL(SCORING_BG_IMAGE, import.meta.url).href;
                     const res = await fetch(imgUrl);
                     const blob = await res.blob();
                     const file = new File([blob], 'health-shield-thumbnail.png', { type: blob.type });
