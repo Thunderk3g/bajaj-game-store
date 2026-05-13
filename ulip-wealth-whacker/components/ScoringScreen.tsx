@@ -59,23 +59,39 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const scoreColor = finalScore >= 70 ? '#22C55E' : finalScore >= 40 ? '#F97316' : '#EF4444';
 
   const handleShare = async () => {
-    const rawUrl = buildShareUrl() || window.location.href;
-    const shareUrl = await shortenUrl(rawUrl);
-    const shareText = `Hi,
+    try {
+      const rawUrl = buildShareUrl() || window.location.href;
+      const shareUrl = await shortenUrl(rawUrl) || rawUrl;
+      const shareText = `Hi,
 I just played this simple but challenging game about balancing wealth creation and protecting it. My score is ${finalScore}.
 Let's see how many wealth drainers you can avoid - play now: ${shareUrl}
 
 ${playerName}`;
-    const shareData = {
-      title: 'ULIP Wealth Whacker',
-      text: shareText,
-      url: shareUrl,
-    };
-    try {
+      const shareData: any = {
+        title: 'ULIP Wealth Whacker',
+        text: shareText,
+      };
+
+      // Try to include thumbnail
+      if (SCORING_BG_IMAGE) {
+        try {
+          const imgUrl = new URL(SCORING_BG_IMAGE, window.location.origin).href;
+          const res = await fetch(imgUrl);
+          const blob = await res.blob();
+          const file = new File([blob], 'wealth-whacker-thumbnail.png', { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+          }
+        } catch (e) {
+          console.warn('[Share] Failed to fetch thumbnail', e);
+        }
+      }
+
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(shareUrl);
+        await navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}`);
+        alert('Share text and link copied to clipboard!');
       }
     } catch (err) {
       console.error('[Share] Error:', err);

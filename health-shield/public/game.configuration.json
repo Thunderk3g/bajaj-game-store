@@ -1,7 +1,7 @@
 {
   "meta": {
-    "gameId": "wealth-shield",
-    "gameName": "Wealth Breakout",
+    "gameId": "health-shield",
+    "gameName": "Health Shield",
     "version": "1.0.0",
     "product": "Wealth / Critical Illness Insurance",
     "port": 8003
@@ -145,7 +145,7 @@
     "sfxEnabledByDefault": true
   },
   "copy": {
-    "introTitle": "Wealth Breakout",
+    "introTitle": "Health Shield",
     "introSubtitle": "Balance your Growth and Protection",
     "introHowToPlay": [
       {

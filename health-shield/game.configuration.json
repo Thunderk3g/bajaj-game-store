@@ -1,7 +1,7 @@
 {
   "meta": {
-    "gameId": "wealth-shield",
-    "gameName": "Wealth Breakout",
+    "gameId": "health-shield",
+    "gameName": "Health Shield",
     "version": "1.0.0",
     "product": "Wealth / Critical Illness Insurance",
     "port": 8003
@@ -69,14 +69,14 @@
   },
 
   "copy": {
-    "introTitle": "Wealth Breakout",
+    "introTitle": "Health Shield",
     "introSubtitle": "Balance your Growth and Protection",
     "introHowToPlay": [
       { "icon": "🧱", "text": "Break bricks to score" },
       { "icon": "🖱️", "text": "Mouse or Touch to move paddle· Tap to launch" }
     ],
-    "scoringTagline": "Protecting your health is even more powerful with a critical illness plan.",
-    "scoringCtaLine": "",
+    "scoringTagline": "A strong portfolio needs a strong shield. Don’t let life’s uncertainties reset your progress.",
+    "scoringCtaLine": "Why choose between growth and security? To Invest in Dual Benefit Plan, Call your relationship manager now!",
     "relationshipManagerLine": "Call your Relationship Manager now to secure your financial journey.",
     "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
   },

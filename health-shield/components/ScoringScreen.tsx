@@ -226,19 +226,35 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
                 const rawUrl = buildShareUrl() || window.location.href;
                 const shareUrl = await shortenUrl(rawUrl) || rawUrl;
                 const shareText = `Hi,
-I just found out interesting fact about balancing wealth creation and protecting it. My score is ${finalScore}.
+I just found out interesting fact about protecting health and financial goals. My score is ${finalScore}.
 Are you curious to see how ready you are - play now: ${shareUrl}
 
 ${playerName}`;
-                const shareData = {
+                const shareData: any = {
                   title: 'Health Shield',
                   text: shareText,
-                  url: shareUrl,
                 };
+                
+                // Try to include thumbnail
+                if (SCORING_BG_IMAGE) {
+                  try {
+                    const imgUrl = new URL(SCORING_BG_IMAGE, window.location.origin).href;
+                    const res = await fetch(imgUrl);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'health-shield-thumbnail.png', { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                      shareData.files = [file];
+                    }
+                  } catch (e) {
+                    console.warn('[Share] Failed to fetch thumbnail', e);
+                  }
+                }
+
                 if (navigator.share) {
                   await navigator.share(shareData);
                 } else {
-                  await navigator.clipboard.writeText(shareUrl);
+                  await navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}`);
+                  alert('Share text and link copied to clipboard!');
                 }
               } catch (err) {
                 console.error('[Share] failed', err);
@@ -247,14 +263,18 @@ ${playerName}`;
           >
             📤 Share with Friends
           </button>
-          <div className="text-center px-4">
-            <p className="text-base font-bold leading-tight mb-1" style={{ color: hasBg ? 'white' : '#1e3a8a' }}>
-              {SCORING_CTA_LINE.split('?')[0]}?
-            </p>
-            <p className="text-sm font-semibold leading-relaxed" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
-              {SCORING_CTA_LINE.split('?').slice(1).join('?').trim()}
-            </p>
-          </div>
+          {SCORING_CTA_LINE?.trim() && (
+            <div className="text-center px-4">
+              <p className="text-base font-bold leading-tight mb-1" style={{ color: hasBg ? 'white' : '#1e3a8a' }}>
+                {SCORING_CTA_LINE.includes('?') ? SCORING_CTA_LINE.split('?')[0] + '?' : SCORING_CTA_LINE}
+              </p>
+              {SCORING_CTA_LINE.includes('?') && (
+                <p className="text-sm font-semibold leading-relaxed" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
+                  {SCORING_CTA_LINE.split('?').slice(1).join('?').trim()}
+                </p>
+              )}
+            </div>
+          )}
           <div
             className="rounded-2xl p-4"
             style={{ background: hasBg ? 'rgba(30,58,138,0.75)' : '#1e3a8a' }}

@@ -1,6 +1,6 @@
 // All values are populated at runtime by App.tsx fetching /game.configuration.json.
 // Defaults exist only to satisfy TypeScript before applyConfig() runs.
-const getAssetUrl = (path: string) => new URL(path, import.meta.url).href;
+const getAssetUrl = (path: string) => `./${path}`;
 
 export interface BrickDef {
   label: string;
