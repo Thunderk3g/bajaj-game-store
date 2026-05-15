@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./styles.css";
 import { decryptToken } from "./utils/crypto";
+import { incrementPlayCount } from "./services/playCount";
 
 // ── Decrypt gamification token, store payload in sessionStorage & clean URL ──
 (() => {
@@ -43,6 +44,8 @@ import { decryptToken } from "./utils/crypto";
     window.history.replaceState({}, "", window.location.pathname);
   }
 })();
+
+incrementPlayCount();
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

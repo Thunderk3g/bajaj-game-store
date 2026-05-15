@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
 import { decryptToken } from './utils/crypto';
+import { incrementPlayCount } from './services/playCount';
 
 // Capture gamification URL params (userId, gameId, empName, etc.) into sessionStorage
 // so the LMS lead/slot APIs can attribute leads to the right sales person.
@@ -40,6 +41,8 @@ import { decryptToken } from './utils/crypto';
     window.history.replaceState({}, '', window.location.pathname);
   }
 })();
+
+incrementPlayCount();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

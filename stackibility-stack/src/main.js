@@ -3,6 +3,7 @@
 import './index.css';
 import { GameManager } from './GameManager.js';
 import { decryptToken } from './utils/crypto.js';
+import { incrementPlayCount } from './services/playCount.js';
 
 // Capture URL params from the gamification deep-link and stash them in
 // sessionStorage so the LMS payload can include the user/game context.
@@ -40,6 +41,8 @@ if (token && token !== 'GUEST_SESSION') {
 if (params.toString()) {
     window.history.replaceState({}, document.title, window.location.pathname);
 }
+
+incrementPlayCount();
 
 const canvas = document.getElementById('c');
 const game = new GameManager(canvas);

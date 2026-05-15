@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+import { incrementPlayCount } from './services/playCount'
 
 // Add Google Fonts
 const link = document.createElement('link');
@@ -18,6 +19,8 @@ const referral = urlParams.get('referral');
 if (userId) sessionStorage.setItem('gamification_userId', userId);
 if (gameId) sessionStorage.setItem('gamification_gameId', gameId);
 if (referral) sessionStorage.setItem('gamification_referral', referral);
+
+incrementPlayCount();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

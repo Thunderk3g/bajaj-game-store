@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { decryptToken } from './utils/crypto';
+import { incrementPlayCount } from './services/playCount';
 
 // ── Decrypt gamification token, store payload in sessionStorage & clean URL ──
 ; (() => {
@@ -25,6 +26,8 @@ import { decryptToken } from './utils/crypto';
     }
     if (hasParams) window.history.replaceState({}, '', window.location.pathname);
 })();
+
+incrementPlayCount();
 
 const container = document.getElementById('root');
 if (container) {

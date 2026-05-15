@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { decryptToken } from './utils/crypto';
+import { incrementPlayCount } from './services/playCount';
 import './index.css';
 
 // ── Decrypt gamification token, store payload in sessionStorage & clean URL ──
@@ -39,5 +40,7 @@ import './index.css';
 
   if (hasParams) window.history.replaceState({}, '', window.location.pathname);
 })();
+
+incrementPlayCount();
 
 createRoot(document.getElementById('root')!).render(<App />);

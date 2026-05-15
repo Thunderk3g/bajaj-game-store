@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { GameProvider } from './hooks/useGameState.jsx'
 import { decryptToken } from './utils/crypto'
+import { incrementPlayCount } from './services/playCount'
 
   // ── Decrypt gamification token, store payload in sessionStorage & clean URL ──
   ; (() => {
@@ -28,6 +29,8 @@ import { decryptToken } from './utils/crypto'
     }
     if (hasParams) window.history.replaceState({}, '', window.location.pathname);
   })();
+
+incrementPlayCount();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
