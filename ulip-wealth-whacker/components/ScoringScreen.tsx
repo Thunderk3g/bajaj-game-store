@@ -63,7 +63,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
       const rawUrl = buildShareUrl() || window.location.href;
       const shareUrl = await shortenUrl(rawUrl) || rawUrl;
       const shareText = `Hi,
-I just played this simple but challenging game about balancing wealth creation and protecting it. My score is ${finalScore}.
+I just played this simple but challenging game about balancing wealth creation and protecting it. My net score is ${diff > 0 ? diff.toLocaleString('en-IN') : '0'}.
 Let's see how many wealth drainers you can avoid - play now: ${shareUrl}
 
 ${playerName}`;
