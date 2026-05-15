@@ -14,7 +14,7 @@ export const incrementPlayCount = async (): Promise<void> => {
 
   try {
     const res = await fetch(
-      `${PLAYCOUNT_API_BASE}/incrementPlayCount/${encodeURIComponent(gameId)}`,
+      `${PLAYCOUNT_API_BASE}/incrementPlayCount?gameId=${encodeURIComponent(gameId)}`,
       { method: 'POST', headers: { Accept: 'application/json' } }
     );
     if (res.ok) {
