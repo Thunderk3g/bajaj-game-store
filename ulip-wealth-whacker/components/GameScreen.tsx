@@ -286,7 +286,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       setGains(statsRef.current.gains);
     }
 
-    if (mole.type === 'bullrun') playSFX('bullrun');
+    if ((mole.type as string) === 'bullrun') playSFX('bullrun');
     else if (def.bad) playSFX('bad');
     else playSFX('good');
 

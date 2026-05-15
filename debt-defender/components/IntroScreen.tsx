@@ -1,5 +1,5 @@
 import React from 'react';
-import { COMPANY_NAME, INTRO_CTA, INTRO_EYEBROW, INTRO_HOOK } from '../constants';
+import { INTRO_CTA, INTRO_HOOK } from '../constants';
 
 import introArtImg from '../assets/intro_screen.png';
 
