@@ -123,10 +123,15 @@ export class FederationService {
 
       const storeState = this.store.getSnapshot();
       const params = new URLSearchParams();
+      // Use the canonical API gameId (e.g. GAME_024) from the manifest entry,
+      // not the route slug (e.g. whole-life-galaga). The iframe writes this
+      // value into sessionStorage.gamification_gameId, which is read by
+      // incrementPlayCount and other backend calls.
+      const apiGameId = entry.gameId || gameId;
 
       if (storeState && storeState.salesPerson) {
         params.set('userId', storeState.salesPerson.id || 'GUEST_USER');
-        params.set('gameId', gameId);
+        params.set('gameId', apiGameId);
         params.set('empName', storeState.salesPerson.name || '');
         params.set('empMobile', storeState.salesPerson.mobile || '');
         params.set('location', storeState.salesPerson.region || '');
@@ -135,7 +140,7 @@ export class FederationService {
       } else {
         const salesPersonId = this.store.getSalesPersonId() || 'GUEST_USER';
         params.set('salesPersonId', salesPersonId);
-        params.set('gameId', gameId);
+        params.set('gameId', apiGameId);
       }
 
       const manifestUrl = `${this.baseHref}${basePath}?${params.toString()}`;

@@ -22,28 +22,28 @@
     "passingScore": 50,
     "targetPortfolio": 8000,
     "moleValues": {
-      "investment":1500,
+      "investment": 1500,
       "salary": 1000,
       "savings": 800,
       "rental": 500,
       "retirement": 300,
-      "heart":-800,
+      "heart": -800,
       "disability": -500,
       "hospitalization": -2000,
       "cancer": -2500,
       "death": -3000
     },
     "moleWeights": {
-      "investment":10,
+      "investment": 10,
       "salary": 10,
       "savings": 10,
       "rental": 10,
       "retirement": 10,
-      "heart" : 10,
+      "heart": 10,
       "disability": 10,
       "hospitalization": 10,
       "cancer": 10,
-      "death":10
+      "death": 10
     }
   },
   "audio": {
@@ -52,26 +52,33 @@
   },
   "copy": {
     "introTitle": "Score Rush",
-    "introImage": "assets/intro-mole-rush.png",
+    "introImage": "/assets/intro-mole-rush-1.png",
     "introHowToPlay": [
       {
         "icon": "tap",
         "text": "Whack good moles to grow portfolio and Avoid bad ones"
       }
     ],
-    "scoringTagline": "Don't let life's uncertainties 'whack' your hard-earned wealth. Secure your portfolio with life cover.",
-    "scoringCtaLine": "",
-    "relationshipManagerLine": "Connect with our relationship manager now!",
+    "scoringTagline": "Don't let life's uncertainties 'Hamper' your hard-earned wealth.",
+    "scoringCtaLine": "Secure your Wealth along with your Life Cover. Connect with our relationship manager now!",
     "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
   },
   "contact": {
     "companyName": "Bajaj Life Insurance",
     "callNowNumber": "02261241800",
     "bookSlotTimeSlots": [
+      "9:00 AM - 10:00 AM",
       "10:00 AM - 11:00 AM",
       "11:00 AM - 12:00 PM",
+      "12:00 PM - 1:00 PM",
+      "1:00 PM - 2:00 PM",
       "2:00 PM - 3:00 PM",
-      "4:00 PM - 5:00 PM"
+      "3:00 PM - 4:00 PM",
+      "4:00 PM - 5:00 PM",
+      "5:00 PM - 6:00 PM",
+      "6:00 PM - 7:00 PM",
+      "7:00 PM - 8:00 PM",
+      "8:00 PM - 9:00 PM"
     ],
     "privacyPolicyUrl": "",
     "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, {COMPANY} ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
@@ -82,6 +89,6 @@
     "accentColor": "#F26522",
     "successColor": "#28A745",
     "fontFamily": "Plus Jakarta Sans",
-    "scoringBgImage": "assets/intro-mole-rush.png"
+    "scoringBgImage": "/assets/intro-mole-rush-1.png"
   }
 }
