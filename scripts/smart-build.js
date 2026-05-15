@@ -43,6 +43,7 @@ const SOURCE_PATTERNS = [
     "postcss.config.js",
     "tsconfig.json",
     "tsconfig.app.json",
+    "game.configuration.json",
 ];
 
 // Also include any .env* files

@@ -22,10 +22,14 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result 
   const [errors,  setErrors]  = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const today = new Date().toISOString().split('T')[0];
+  const todayLocal = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  const today = todayLocal();
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-  const maxDate = thirtyDaysFromNow.toISOString().split("T")[0];
+  const maxDate = `${thirtyDaysFromNow.getFullYear()}-${String(thirtyDaysFromNow.getMonth() + 1).padStart(2, '0')}-${String(thirtyDaysFromNow.getDate()).padStart(2, '0')}`;
 
   async function handleBook() {
     const e: Record<string, string> = {};
@@ -130,12 +134,12 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result 
             >
               <option value="">Select Slot</option>
               {BOOK_SLOT_TIMES.map(s => {
-                const isToday = date === today;
-                if (isToday) {
-                  const [startTime] = s.split(/[-\u2013\u2014]/);
+                if (date === today) {
+                  const [startTime] = s.split(/[-–—]/);
                   if (startTime) {
-                    const slotHour = parseInt(startTime.split(':')[0], 10);
-                    const isPM = startTime.includes('PM');
+                    const trimmed = startTime.trim();
+                    const isPM = trimmed.includes('PM');
+                    const slotHour = parseInt(trimmed.split(':')[0], 10);
                     const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
                     if (normalizedHour <= new Date().getHours()) return null;
                   }
@@ -143,10 +147,11 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result 
                 return <option key={s} value={s}>{s}</option>;
               }).filter(Boolean)}
               {date === today && BOOK_SLOT_TIMES.filter(s => {
-                const [startTime] = s.split(/[-\u2013\u2014]/);
+                const [startTime] = s.split(/[-–—]/);
                 if (startTime) {
-                  const slotHour = parseInt(startTime.split(':')[0], 10);
-                  const isPM = startTime.includes('PM');
+                  const trimmed = startTime.trim();
+                  const isPM = trimmed.includes('PM');
+                  const slotHour = parseInt(trimmed.split(':')[0], 10);
                   const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
                   return normalizedHour > new Date().getHours();
                 }
