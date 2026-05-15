@@ -226,7 +226,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
                 const rawUrl = buildShareUrl() || window.location.href;
                 const shareUrl = await shortenUrl(rawUrl) || rawUrl;
                 const shareText = `Hi,
-I just found out interesting fact about balancing wealth creation and protecting it. My score is ${finalScore}.
+I just found out interesting fact about balancing wealth creation and protecting it. My net score is ${diff > 0 ? diff.toLocaleString('en-IN') : '0'}.
 Are you curious to see how ready you are - play now: ${shareUrl}
 
 ${playerName}`;

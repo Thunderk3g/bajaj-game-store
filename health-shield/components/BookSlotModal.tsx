@@ -24,6 +24,9 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+  const maxDate = thirtyDaysFromNow.toISOString().split("T")[0];
 
   async function handleBook() {
     const e: Record<string, string> = {};
@@ -109,7 +112,7 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result 
           <div className="mb-3">
             <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">PREFERRED DATE</label>
             <input
-              type="date" value={date} min={today}
+              type="date" value={date} min={today} max={maxDate}
               onChange={e => { setDate(e.target.value); setErrors({}); }}
               className="w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none"
               style={{ border: `2px solid ${errors.date ? '#EF4444' : '#E2E8F0'}`, background: '#F8FAFF' }}
@@ -126,7 +129,31 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result 
               style={{ border: `2px solid ${errors.time ? '#EF4444' : '#E2E8F0'}` }}
             >
               <option value="">Select Slot</option>
-              {BOOK_SLOT_TIMES.map(s => <option key={s} value={s}>{s}</option>)}
+              {BOOK_SLOT_TIMES.map(s => {
+                const isToday = date === today;
+                if (isToday) {
+                  const [startTime] = s.split(/[-\u2013\u2014]/);
+                  if (startTime) {
+                    const slotHour = parseInt(startTime.split(':')[0], 10);
+                    const isPM = startTime.includes('PM');
+                    const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                    if (normalizedHour <= new Date().getHours()) return null;
+                  }
+                }
+                return <option key={s} value={s}>{s}</option>;
+              }).filter(Boolean)}
+              {date === today && BOOK_SLOT_TIMES.filter(s => {
+                const [startTime] = s.split(/[-\u2013\u2014]/);
+                if (startTime) {
+                  const slotHour = parseInt(startTime.split(':')[0], 10);
+                  const isPM = startTime.includes('PM');
+                  const normalizedHour = isPM ? (slotHour === 12 ? 12 : slotHour + 12) : (slotHour === 12 ? 0 : slotHour);
+                  return normalizedHour > new Date().getHours();
+                }
+                return true;
+              }).length === 0 && (
+                <option disabled value="">No slots available for today</option>
+              )}
             </select>
             {errors.time && <p className="text-red-500 text-xs mt-0.5">{errors.time}</p>}
           </div>
