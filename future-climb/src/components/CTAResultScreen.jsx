@@ -12,7 +12,46 @@ const CTAResultScreen = () => {
     const { leadData, coins, distance, setStatus, resetGame } = useGameStore();
     const [showBooking, setShowBooking] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [bookingData, setBookingData] = useState({ date: '', time: '' });
+    const [bookingData, setBookingData] = useState({ 
+        name: leadData?.name || '', 
+        phone: leadData?.phone || '', 
+        date: '', 
+        time: '' 
+    });
+
+    // Calculate Date constraints
+    const today = new Date();
+    const localToday = new Date(today.getTime() - (today.getTimezoneOffset() * 60000));
+    const minDate = localToday.toISOString().split('T')[0];
+    
+    const nextMonth = new Date(localToday);
+    nextMonth.setMonth(localToday.getMonth() + 1);
+    const maxDate = nextMonth.toISOString().split('T')[0];
+
+    // Generate Time Slots (9am to 9pm)
+    const generateTimeSlots = (selectedDate) => {
+        const slots = [];
+        const isToday = selectedDate === minDate;
+        const currentHour = today.getHours();
+
+        for (let hour = 9; hour < 21; hour++) {
+            // If today, skip past hours
+            if (isToday && currentHour >= hour) continue;
+
+            const formatAMPM = (h) => {
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const formattedHour = h % 12 || 12;
+                return `${formattedHour}:00 ${ampm}`;
+            };
+
+            const startStr = formatAMPM(hour);
+            const endStr = formatAMPM(hour + 1);
+            slots.push(`${startStr} - ${endStr}`);
+        }
+        return slots;
+    };
+    
+    const availableSlots = generateTimeSlots(bookingData.date);
 
     // Calculate a "Future Readiness Score" (0-100)
     const readinessScore = Math.min(100, Math.floor((coins / 10) + (distance / 5)));
@@ -187,14 +226,14 @@ const CTAResultScreen = () => {
 
                             <form className="space-y-6" onSubmit={async (e) => {
                                 e.preventDefault();
-                                if (!bookingData.date || !bookingData.time) return alert("Please select date and time");
+                                if (!bookingData.name || !bookingData.phone || !bookingData.date || !bookingData.time) return alert("Please fill all details");
                                 
                                 setIsSubmitting(true);
                                 try {
                                     const leadNo = sessionStorage.getItem('futureClimbLeadNo');
                                     const result = await updateLeadNew(leadNo, {
-                                        name: leadData?.name,
-                                        mobile: leadData?.phone,
+                                        name: bookingData.name,
+                                        mobile: bookingData.phone,
                                         date: bookingData.date,
                                         time: bookingData.time,
                                         remarks: `Future Climb Slot Booking | Readiness Score: ${readinessScore}`
@@ -211,12 +250,45 @@ const CTAResultScreen = () => {
                                 }
                             }}>
                                 <div className="space-y-1 text-left">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Name</label>
+                                    <div className="relative">
+                                        <input 
+                                            type="text" 
+                                            value={bookingData.name}
+                                            onChange={e => setBookingData(p => ({ ...p, name: e.target.value }))}
+                                            className="w-full bg-slate-50 h-12 border-2 border-slate-100 text-slate-800 text-xs font-bold px-4 focus:border-[#0066B2] focus:outline-none" 
+                                            required 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1 text-left">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+                                    <div className="relative">
+                                        <input 
+                                            type="tel" 
+                                            maxLength={10}
+                                            value={bookingData.phone}
+                                            onChange={e => setBookingData(p => ({ ...p, phone: e.target.value.replace(/\D/g, '') }))}
+                                            className="w-full bg-slate-50 h-12 border-2 border-slate-100 text-slate-800 text-xs font-bold px-4 focus:border-[#0066B2] focus:outline-none" 
+                                            required 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1 text-left">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Preferred Date</label>
                                     <div className="relative">
                                         <input 
                                             type="date" 
+                                            min={minDate}
+                                            max={maxDate}
                                             value={bookingData.date}
-                                            onChange={e => setBookingData(p => ({ ...p, date: e.target.value }))}
+                                            onChange={e => {
+                                                const newDate = e.target.value;
+                                                // Reset time when date changes to prevent invalid old time selection
+                                                setBookingData(p => ({ ...p, date: newDate, time: '' }));
+                                            }}
                                             className="w-full bg-slate-50 h-12 border-2 border-slate-100 text-slate-800 text-xs font-bold px-4 focus:border-[#0066B2] focus:outline-none" 
                                             required 
                                         />
@@ -233,10 +305,13 @@ const CTAResultScreen = () => {
                                             required
                                         >
                                             <option value="">Select a time</option>
-                                            <option>10:00 AM - 11:00 AM</option>
-                                            <option>11:00 AM - 12:00 PM</option>
-                                            <option>02:00 PM - 03:00 PM</option>
-                                            <option>04:00 PM - 05:00 PM</option>
+                                            {availableSlots.length > 0 ? (
+                                                availableSlots.map(slot => (
+                                                    <option key={slot} value={slot}>{slot}</option>
+                                                ))
+                                            ) : (
+                                                <option value="" disabled>No slots available today</option>
+                                            )}
                                         </select>
                                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                                     </div>

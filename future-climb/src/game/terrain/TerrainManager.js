@@ -81,12 +81,8 @@ export default class TerrainManager {
         
         if (this.points.length < 2) return;
 
-        // Texture fill (using the 'dirt' image)
-        // We can use fillTexture if we have a pattern, but graphics.fillPath with a texture is tricky
-        // Instead, we'll draw the dirt texture as a tileSprite or use a custom shader.
-        // For simplicity and quality, let's use a colored fill with a top line.
-        
-        this.graphics.fillStyle(0x3d2b1f, 1); // Dark brown
+        // Base fill (Solid Pure Black)
+        this.graphics.fillStyle(0x000000, 1);
         this.graphics.beginPath();
         this.graphics.moveTo(this.points[0].x, 2000);
         
@@ -98,8 +94,8 @@ export default class TerrainManager {
         this.graphics.closePath();
         this.graphics.fillPath();
 
-        // Surface (Grass/Road)
-        this.graphics.lineStyle(12, 0x4ade80, 1); // Bright green grass
+        // Surface (Neon Pink Line)
+        this.graphics.lineStyle(8, 0xf472b6, 1);
         this.graphics.beginPath();
         this.graphics.moveTo(this.points[0].x, this.points[0].y);
         
@@ -108,11 +104,25 @@ export default class TerrainManager {
         }
         
         this.graphics.strokePath();
+        
+        // Inner Glow (Cyan)
+        this.graphics.lineStyle(3, 0x22d3ee, 0.8);
+        this.graphics.beginPath();
+        this.graphics.moveTo(this.points[0].x, this.points[0].y + 4);
+        
+        for (let i = 1; i < this.points.length; i++) {
+            this.graphics.lineTo(this.points[i].x, this.points[i].y + 4);
+        }
+        
+        this.graphics.strokePath();
 
-        // Add some depth details (rocks/texture)
-        this.graphics.fillStyle(0x000000, 0.1);
-        for (let i = 0; i < this.points.length; i += 4) {
-            this.graphics.fillCircle(this.points[i].x, this.points[i].y + 50, Math.random() * 20);
+        // Depth details (Vertical Grid lines)
+        this.graphics.lineStyle(1, 0x22d3ee, 0.2);
+        for (let i = 0; i < this.points.length; i += 2) {
+            this.graphics.beginPath();
+            this.graphics.moveTo(this.points[i].x, this.points[i].y);
+            this.graphics.lineTo(this.points[i].x, 2000);
+            this.graphics.strokePath();
         }
     }
 

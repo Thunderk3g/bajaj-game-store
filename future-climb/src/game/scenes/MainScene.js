@@ -16,30 +16,139 @@ export default class MainScene extends Phaser.Scene {
         this.matter.world.setGravity(0, 2.8);
         this.matter.world.setBounds(0, -2000, 1000000, 4000, true, false, false, false);
 
-        // Background (Parallax)
+        // Background (Parallax setup)
         this.bgBack = this.add.tileSprite(0, 0, width, height, 'background')
             .setOrigin(0, 0)
             .setScrollFactor(0)
-            .setAlpha(0.4);
+            .setAlpha(0.1)
+            .setTint(0x8b5cf6);
         
         this.bgMid = this.add.tileSprite(0, 0, width, height, 'background')
             .setOrigin(0, 0)
             .setScrollFactor(0)
-            .setAlpha(0.6);
+            .setAlpha(0.2)
+            .setTint(0xf472b6);
 
-        // Atmosphere (Daytime Clouds)
-        this.clouds = [];
-        for (let i = 0; i < 12; i++) {
-            const cloud = this.add.sprite(
-                Math.random() * width * 2, 
-                Math.random() * height * 0.5, 
-                'cloud'
-            ).setScrollFactor(Math.random() * 0.3)
-             .setAlpha(0.6 + Math.random() * 0.2)
-             .setScale(0.5 + Math.random() * 1.5);
+        // Space Background (Planet & Spaceships)
+        const planetX = width * 0.8;
+        const planetY = height * 0.3;
+        
+        // Large Planet
+        this.planet = this.add.circle(planetX, planetY, 80, 0x9333ea, 0.8) // Purple planet
+            .setScrollFactor(0.01) // Moves very slowly
+            .setDepth(-10);
             
-            this.clouds.push(cloud);
+        // Planet Glow
+        this.planetGlow = this.add.circle(planetX, planetY, 100, 0x9333ea, 0.2)
+            .setScrollFactor(0.01)
+            .setDepth(-11);
+            
+        // Planet Ring
+        this.planetRing = this.add.ellipse(planetX, planetY, 240, 40, 0xc084fc, 0.5)
+            .setScrollFactor(0.01)
+            .setDepth(-9)
+            .setRotation(-0.2);
+
+        // Stars (Random dots)
+        this.stars = this.add.graphics().setScrollFactor(0).setDepth(-12);
+        this.stars.fillStyle(0xffffff, 0.8);
+        for(let i = 0; i < 100; i++) {
+            const rx = Phaser.Math.Between(0, width);
+            const ry = Phaser.Math.Between(0, height * 0.6);
+            const size = Phaser.Math.Between(1, 3);
+            this.stars.fillCircle(rx, ry, size);
         }
+
+        // ----------------------------------------------------
+        // BACKGROUND AMBIENCE: Shooting Stars, Rockets, UFOs
+        // ----------------------------------------------------
+        
+        // 1. Shooting Stars
+        this.time.addEvent({
+            delay: 2000,
+            callback: () => {
+                if (Math.random() > 0.4) return;
+                const startX = Phaser.Math.Between(width * 0.2, width + 100);
+                const startY = Phaser.Math.Between(-50, height * 0.2);
+                
+                const star = this.add.graphics().setScrollFactor(0).setDepth(-11);
+                star.fillStyle(0xffffff, 1);
+                star.fillCircle(0, 0, 2);
+                
+                star.lineStyle(2, 0x00f2fe, 0.8);
+                star.beginPath();
+                star.moveTo(0, 0);
+                star.lineTo(60, -40); // Tail
+                star.strokePath();
+
+                star.setPosition(startX, startY);
+
+                this.tweens.add({
+                    targets: star,
+                    x: startX - 600,
+                    y: startY + 400,
+                    alpha: 0,
+                    duration: Phaser.Math.Between(600, 1200),
+                    ease: 'Power2',
+                    onComplete: () => star.destroy()
+                });
+            },
+            loop: true
+        });
+
+        // 2. Futuristic Rockets
+        this.time.addEvent({
+            delay: 5000,
+            callback: () => {
+                const y = Phaser.Math.Between(50, height * 0.35);
+                const speed = Phaser.Math.Between(3, 6);
+                const shipContainer = this.add.container(width + 50, y).setScrollFactor(0).setDepth(-5);
+                
+                const ship = this.add.graphics();
+                // Rocket body
+                ship.fillStyle(0xcbd5e1, 1); // Silver
+                ship.fillEllipse(0, 0, 30, 10);
+                // Cockpit window
+                ship.fillStyle(0x00f2fe, 1); // Cyan glow
+                ship.fillEllipse(-8, -2, 8, 4);
+                // Fins
+                ship.fillStyle(0xff007f, 1); // Pink
+                ship.beginPath();
+                ship.moveTo(10, 0); ship.lineTo(20, -12); ship.lineTo(15, 0);
+                ship.moveTo(10, 0); ship.lineTo(20, 12); ship.lineTo(15, 0);
+                ship.fillPath();
+                
+                // Engine flame
+                const flame = this.add.graphics();
+                flame.fillStyle(0xfacc15, 1); // Yellow
+                flame.beginPath();
+                flame.moveTo(15, -3); flame.lineTo(30, 0); flame.lineTo(15, 3);
+                flame.fillPath();
+
+                this.tweens.add({
+                    targets: flame,
+                    scaleX: 1.4,
+                    alpha: 0.5,
+                    duration: 80,
+                    yoyo: true,
+                    repeat: -1
+                });
+
+                shipContainer.add([flame, ship]);
+                
+                this.tweens.add({
+                    targets: shipContainer,
+                    x: -100,
+                    duration: (width + 150) / speed * 10,
+                    onComplete: () => shipContainer.destroy()
+                });
+            },
+            loop: true
+        });
+
+        // Alien UFO logic is now tied to player movement (see update loop)
+        this.ufoSpawned = false;
+        this.ufo100mSpawned = false;
 
         // Terrain
         this.terrain = new TerrainManager(this);
@@ -53,7 +162,7 @@ export default class MainScene extends Phaser.Scene {
         // Camera configuration
         this.cameras.main.startFollow(this.vehicle.container, true, 1, 0.08);
         this.cameras.main.setFollowOffset(-width * 0.2, 0);
-        this.cameras.main.setBackgroundColor(0x7dd3fc); // Sky Blue
+        this.cameras.main.setBackgroundColor(0x0f172a); // Synthwave Dark Slate
 
         // Audio Helper initialization
         this.lastX = this.vehicle.x;
@@ -120,7 +229,123 @@ export default class MainScene extends Phaser.Scene {
         }
     }
 
+    spawnUFO(textMessage = 'Hii!') {
+        const { width, height } = this.cameras.main;
+        const y = Phaser.Math.Between(80, height * 0.3);
+        const ufoContainer = this.add.container(width + 80, y).setScrollFactor(0).setDepth(-4);
+        
+        // Alien (Green guy)
+        const alien = this.add.graphics();
+        alien.fillStyle(0x22c55e, 1); 
+        alien.fillEllipse(0, -6, 10, 14); // Head
+        alien.fillStyle(0x000000, 1); // Eyes
+        alien.fillEllipse(-3, -8, 2, 4);
+        alien.fillEllipse(3, -8, 2, 4);
+        
+        // Glass Dome
+        const ufo = this.add.graphics();
+        ufo.fillStyle(0x00f2fe, 0.4); 
+        ufo.lineStyle(2, 0x00f2fe, 0.8);
+        ufo.beginPath();
+        ufo.arc(0, 0, 20, Math.PI, 0, false); 
+        ufo.fillPath();
+        ufo.strokePath();
+        
+        // Saucer body
+        const saucer = this.add.graphics();
+        saucer.fillStyle(0x94a3b8, 1); 
+        saucer.fillEllipse(0, 2, 45, 12);
+        saucer.lineStyle(2, 0xff007f, 1); 
+        saucer.strokeEllipse(0, 2, 45, 12);
+ 
+        // Flashing lights
+        const lights = [];
+        for(let i = -15; i <= 15; i+=15) {
+            const light = this.add.circle(i, 4, 3, 0xfacc15);
+            lights.push(light);
+            this.tweens.add({
+                targets: light,
+                alpha: 0.2,
+                duration: 300 + (Math.random() * 200),
+                yoyo: true,
+                repeat: -1
+            });
+        }
+        
+        ufoContainer.add([alien, ufo, saucer, ...lights]);
+        
+        // 1. Move to center
+        this.tweens.add({
+            targets: ufoContainer,
+            x: width / 2 + 40,
+            y: height * 0.55, // Hovering perfectly right next to / slightly above the vehicle
+            scaleX: 2.5,     // Make it appear bigger
+            scaleY: 2.5,
+            duration: 2000,
+            ease: 'Sine.easeOut',
+            onComplete: () => {
+                // Play Alien voice
+                this.playAlienHii();
+ 
+                // 2. Start bobbing animation ONLY after the entry tween completes
+                // This resolves the Phaser tween conflict where two tweens fought over the 'y' property
+                const bobTween = this.tweens.add({
+                    targets: ufoContainer,
+                    y: '+=15',
+                    duration: 1000,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+ 
+                // Speech Bubble (Dynamically size based on message length)
+                const bubble = this.add.graphics();
+                bubble.fillStyle(0xffffff, 0.9);
+                
+                const isLongMessage = textMessage.length > 5;
+                const bubbleWidth = isLongMessage ? 110 : 60;
+                const bubbleX = isLongMessage ? -55 : -30;
+                bubble.fillRoundedRect(bubbleX, -60, bubbleWidth, 30, 8);
+                
+                // Bubble pointer
+                bubble.beginPath();
+                bubble.moveTo(-5, -30);
+                bubble.lineTo(0, -20);
+                bubble.lineTo(5, -30);
+                bubble.fillPath();
+ 
+                const text = this.add.text(0, -45, textMessage, {
+                    fontSize: '16px',
+                    color: '#000',
+                    fontWeight: 'bold'
+                }).setOrigin(0.5);
+ 
+                ufoContainer.add([bubble, text]);
+ 
+                // Wait 2.5 seconds, then leave
+                this.time.delayedCall(2500, () => {
+                    bobTween.stop(); // Stop bobbing before departure
+                    bubble.destroy();
+                    text.destroy();
+                    
+                    // 3. Go away
+                    this.tweens.add({
+                        targets: ufoContainer,
+                        x: -200,
+                        y: height * 0.2, // Fly upward and away
+                        scaleX: 0.5,
+                        scaleY: 0.5,
+                        duration: 2500,
+                        ease: 'Power2',
+                        onComplete: () => ufoContainer.destroy()
+                    });
+                });
+            }
+        });
+    }
+
     playTone(freq, type = 'sine', duration = 0.1, volume = 0.1) {
+        if (this.isMuted) return;
         try {
             const ctx = this.game.sound.context;
             if (!ctx || ctx.state === 'suspended') return;
@@ -142,6 +367,44 @@ export default class MainScene extends Phaser.Scene {
         } catch (e) {}
     }
 
+    playAlienHii() {
+        if (this.isMuted) return;
+        try {
+            const ctx = this.game.sound.context;
+            if (!ctx || ctx.state === 'suspended') return;
+            
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sawtooth';
+            // "Hiiii" squeaky alien voice using frequency modulation
+            osc.frequency.setValueAtTime(1200, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + 0.1);
+            osc.frequency.exponentialRampToValueAtTime(1500, ctx.currentTime + 0.3);
+            
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+            
+            // Add a little vibrato (LFO)
+            const lfo = ctx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.value = 15; // fast wobble
+            const lfoGain = ctx.createGain();
+            lfoGain.gain.value = 50;
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.frequency);
+            lfo.start();
+            lfo.stop(ctx.currentTime + 0.3);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
+        } catch (e) {}
+    }
+
     setupControls() {
         const { width, height } = this.cameras.main;
 
@@ -150,37 +413,338 @@ export default class MainScene extends Phaser.Scene {
         this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
-        // Touch zones
-        this.input.on('pointerdown', (pointer) => {
-            if (pointer.x > width / 2) {
-                this.vehicle.setGas(true);
-            } else {
-                this.vehicle.setBrake(true);
+        // Visual UI Controls
+        this.createUIControls();
+    }
+
+    createUIControls() {
+        const { width, height } = this.cameras.main;
+        
+        // Pedals and Gauges should be fixed to the screen (ignore camera scroll)
+        const uiContainer = this.add.container(0, 0).setScrollFactor(0);
+
+        // =========================
+        // MUTE BUTTON
+        // =========================
+        this.isMuted = false;
+        const muteBtn = this.add.container(width - 50, 130).setScrollFactor(0).setDepth(100);
+        
+        const muteBg = this.add.graphics();
+        muteBg.fillStyle(0x0f172a, 0.7);
+        muteBg.lineStyle(2, 0x00f2fe, 1);
+        muteBg.fillCircle(0, 0, 25);
+        muteBg.strokeCircle(0, 0, 25);
+
+        const muteIcon = this.add.text(0, 0, '🔊', { fontSize: '24px' }).setOrigin(0.5);
+        
+        muteBtn.add([muteBg, muteIcon]);
+
+        // Flat scene-level Zone for bulletproof click detection on the mute button
+        const muteZone = this.add.zone(width - 50, 130, 60, 60)
+            .setOrigin(0.5)
+            .setInteractive()
+            .setScrollFactor(0)
+            .setDepth(101);
+        
+        muteZone.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event && event.stopPropagation) event.stopPropagation(); // Stop click from triggering anything else
+            
+            this.isMuted = !this.isMuted;
+            
+            // Set both properties and formal methods on Scene and Game-level sound managers
+            this.sound.mute = this.isMuted;
+            if (this.sound.setMute) {
+                this.sound.setMute(this.isMuted);
+            }
+            if (this.game.sound) {
+                this.game.sound.mute = this.isMuted;
+                if (this.game.sound.setMute) {
+                    this.game.sound.setMute(this.isMuted);
+                }
+            }
+            
+            muteIcon.setText(this.isMuted ? '🔇' : '🔊');
+            
+            const ctx = this.game.sound ? this.game.sound.context : null;
+            if (ctx) {
+                // Instantly resume context if unmuting
+                if (!this.isMuted && ctx.state === 'suspended') {
+                    ctx.resume().catch(e => console.warn("Could not resume AudioContext:", e));
+                }
+            }
+
+            // Instantly transition the engine gain so sound starts/stops immediately
+            if (this.engineGain && ctx) {
+                if (this.isMuted) {
+                    this.engineGain.gain.setTargetAtTime(0, ctx.currentTime, 0.02);
+                } else {
+                    const isGas = this.vehicle ? this.vehicle.isGas : false;
+                    const speed = this.vehicle ? this.vehicle.container.body.speed : 0;
+                    const targetGain = 0.08 + (isGas ? 0.07 : 0);
+                    this.engineGain.gain.setTargetAtTime(targetGain, ctx.currentTime, 0.02);
+                }
             }
         });
+        
+        this.muteBtn = muteBtn;
+        this.muteZone = muteZone;
 
-        this.input.on('pointerup', () => {
-            this.vehicle.setGas(false);
-            this.vehicle.setBrake(false);
+        // =========================
+        // BRAKE PEDAL (Left - Visual Only)
+        // =========================
+        const brakePedal = this.add.container(80, height - 90);
+        
+        const brakeBg = this.add.graphics();
+        brakeBg.fillStyle(0x0f172a, 0.7);
+        brakeBg.lineStyle(3, 0x00f2fe, 1); // Neon Cyan border
+        brakeBg.fillRoundedRect(-50, -70, 100, 140, 15);
+        brakeBg.strokeRoundedRect(-50, -70, 100, 140, 15);
+
+        const brakeGrips = this.add.graphics();
+        brakeGrips.lineStyle(4, 0x00f2fe, 0.6);
+        brakeGrips.beginPath();
+        brakeGrips.moveTo(-20, -30); brakeGrips.lineTo(20, -30);
+        brakeGrips.moveTo(-20, -10); brakeGrips.lineTo(20, -10);
+        brakeGrips.moveTo(-20, 10); brakeGrips.lineTo(20, 10);
+        brakeGrips.strokePath();
+
+        const brakeLabel = this.add.text(0, 45, 'BRAKE', {
+            fontSize: '20px',
+            fill: '#ffffff',
+            fontWeight: '900',
+            stroke: '#00f2fe',
+            strokeThickness: 2
+        }).setOrigin(0.5);
+        
+        brakePedal.add([brakeBg, brakeGrips, brakeLabel]);
+        
+        // =========================
+        // GAS PEDAL (Right - Visual Only)
+        // =========================
+        const gasPedal = this.add.container(width - 80, height - 90);
+        
+        const gasBg = this.add.graphics();
+        gasBg.fillStyle(0x0f172a, 0.7);
+        gasBg.lineStyle(3, 0xff007f, 1); // Neon Pink border
+        gasBg.fillRoundedRect(-50, -70, 100, 140, 15);
+        gasBg.strokeRoundedRect(-50, -70, 100, 140, 15);
+
+        const gasGrips = this.add.graphics();
+        gasGrips.lineStyle(4, 0xff007f, 0.6);
+        gasGrips.beginPath();
+        gasGrips.moveTo(-20, -30); gasGrips.lineTo(20, -30);
+        gasGrips.moveTo(-20, -10); gasGrips.lineTo(20, -10);
+        gasGrips.moveTo(-20, 10); gasGrips.lineTo(20, 10);
+        gasGrips.strokePath();
+
+        const gasLabel = this.add.text(0, 45, 'GAS', {
+            fontSize: '20px',
+            fill: '#ffffff',
+            fontWeight: '900',
+            stroke: '#ff007f',
+            strokeThickness: 2
+        }).setOrigin(0.5);
+        
+        gasPedal.add([gasBg, gasGrips, gasLabel]);
+
+        // =========================
+        // GAUGES (Center)
+        // =========================
+        const gaugeCenter = width / 2;
+        const gaugeY = height - 80;
+        
+        // Speedometer (Centered)
+        const speedGauge = this.add.container(gaugeCenter, gaugeY);
+        
+        const speedBg = this.add.graphics();
+        speedBg.fillStyle(0x0f172a, 0.8);
+        speedBg.lineStyle(4, 0x00f2fe, 1); // Neon Cyan border
+        speedBg.fillCircle(0, 0, 60);
+        speedBg.strokeCircle(0, 0, 60);
+
+        // Inner glowing ring
+        const speedInner = this.add.graphics();
+        speedInner.lineStyle(2, 0xff007f, 0.5); // Pink inner
+        speedInner.strokeCircle(0, 0, 45);
+
+        // Ticks for speedometer
+        const speedTicks = this.add.graphics();
+        speedTicks.lineStyle(2, 0xffffff, 0.8);
+        speedTicks.beginPath();
+        for(let i = -120; i <= 120; i += 30) {
+            const rad = Phaser.Math.DegToRad(i - 90);
+            const x1 = Math.cos(rad) * 45;
+            const y1 = Math.sin(rad) * 45;
+            const x2 = Math.cos(rad) * 55;
+            const y2 = Math.sin(rad) * 55;
+            speedTicks.moveTo(x1, y1);
+            speedTicks.lineTo(x2, y2);
+        }
+        speedTicks.strokePath();
+
+        const speedLabel = this.add.text(0, 35, 'SPEED', { 
+            fontSize: '14px', 
+            fill: '#00f2fe', 
+            fontWeight: '900'
+        }).setOrigin(0.5);
+
+        // Center pin
+        const centerPin = this.add.circle(0, 0, 6, 0xffffff);
+
+        // Stylized Needle
+        this.speedNeedle = this.add.graphics();
+        this.speedNeedle.fillStyle(0xff007f, 1);
+        this.speedNeedle.beginPath();
+        this.speedNeedle.moveTo(-4, 0);
+        this.speedNeedle.lineTo(4, 0);
+        this.speedNeedle.lineTo(0, -50);
+        this.speedNeedle.closePath();
+        this.speedNeedle.fillPath();
+        
+        speedGauge.add([speedBg, speedInner, speedTicks, speedLabel, this.speedNeedle, centerPin]);
+
+        uiContainer.add([brakePedal, gasPedal, speedGauge]);
+        
+        // ================================================================
+        // SCENE-LEVEL INTERACTIVE TOUCH ZONES (100% reliable, no nested container bugs)
+        // ================================================================
+        const brakeZone = this.add.zone(80, height - 90, 100, 140)
+            .setOrigin(0.5)
+            .setInteractive()
+            .setScrollFactor(0);
+            
+        const gasZone = this.add.zone(width - 80, height - 90, 100, 140)
+            .setOrigin(0.5)
+            .setInteractive()
+            .setScrollFactor(0);
+
+        // Enable multi-touch in Phaser
+        this.input.addPointer(2);
+
+        this.uiBrakeDown = false;
+        this.uiGasDown = false;
+
+        // Perfect direct touch handlers
+        brakeZone.on('pointerdown', () => this.uiBrakeDown = true);
+        brakeZone.on('pointerup', () => this.uiBrakeDown = false);
+        brakeZone.on('pointerout', () => this.uiBrakeDown = false);
+
+        gasZone.on('pointerdown', () => this.uiGasDown = true);
+        gasZone.on('pointerup', () => this.uiGasDown = false);
+        gasZone.on('pointerout', () => this.uiGasDown = false);
+
+        // Tutorial Animation
+        this.tutorialContainer = this.add.container(width - 60, height - 150).setScrollFactor(0);
+        
+        // Text Box
+        const tutorialBg = this.add.rectangle(0, -40, 140, 40, 0x00f2fe, 0.9).setStrokeStyle(2, 0xffffff);
+        const tutorialLabel = this.add.text(0, -40, 'HOLD TO DRIVE', {
+            fontSize: '14px',
+            fontFamily: 'Arial',
+            fontStyle: 'bold',
+            fill: '#0f172a'
+        }).setOrigin(0.5);
+        
+        // Hand Icon
+        this.tutorialHand = this.add.text(0, 10, '👆', {
+            fontSize: '40px'
+        }).setOrigin(0.5);
+
+        this.tutorialContainer.add([tutorialBg, tutorialLabel, this.tutorialHand]);
+
+        // Hand pressing animation
+        this.tweens.add({
+            targets: this.tutorialHand,
+            scaleX: 0.8,
+            scaleY: 0.8,
+            y: 25,
+            duration: 500,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Floating animation for the whole container
+        this.tweens.add({
+            targets: this.tutorialContainer,
+            y: height - 160,
+            duration: 1000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        const hideTutorial = () => {
+            if (this.tutorialContainer && this.tutorialContainer.active) {
+                this.tutorialContainer.destroy();
+            }
+        };
+        gasZone.on('pointerdown', hideTutorial);
+        this.input.keyboard.once('keydown-RIGHT', hideTutorial);
+        this.input.keyboard.once('keydown-D', hideTutorial);
+
+
+        // Handle resize to keep UI visible on all devices (like iPhone SE)
+        this.scale.on('resize', (gameSize) => {
+            const w = gameSize.width;
+            const h = gameSize.height;
+            brakePedal.setPosition(80, h - 90);
+            gasPedal.setPosition(w - 80, h - 90);
+            speedGauge.setPosition(w / 2, h - 80);
+            if (this.muteBtn) this.muteBtn.setPosition(w - 50, 130);
+            if (this.muteZone) this.muteZone.setPosition(w - 50, 130);
+            
+            // Keep interactive zones perfectly aligned with visual graphics
+            brakeZone.setPosition(80, h - 90);
+            gasZone.setPosition(w - 80, h - 90);
+            
+            if (this.tutorialContainer && this.tutorialContainer.active) {
+                this.tutorialContainer.setPosition(w - 60, h - 150);
+            }
+            
+            // Update sun position on resize
+            if (this.sun) this.sun.setPosition(w / 2, h * 0.4);
+            if (this.sunGlow) this.sunGlow.setPosition(w / 2, h * 0.4);
         });
     }
 
     update(time, delta) {
         if (this.store.status !== GAME_STATUS.PLAYING) return;
-
-        // Keyboard Input Mapping
-        if (this.cursors.right.isDown || this.keyD.isDown) {
-            this.vehicle.setGas(true);
-        } else if (this.cursors.left.isDown || this.keyA.isDown) {
-            this.vehicle.setBrake(true);
-        } else if (this.input.activePointer.isDown === false) {
-            this.vehicle.setGas(false);
-            this.vehicle.setBrake(false);
+        // Update Needles
+        if (this.vehicle && this.speedNeedle) {
+            const speed = Math.abs(this.vehicle.container.body.velocity.x);
+            const maxSpeed = this.vehicle.maxSpeed;
+            
+            // Map speed to target angle (-120 to 120 degrees)
+            let targetAngle = (speed / maxSpeed) * 240 - 120;
+            
+            // Clamp target angle to prevent it from spinning backwards if maxSpeed is exceeded
+            if (targetAngle > 120) targetAngle = 120;
+            if (targetAngle < -120) targetAngle = -120;
+            
+            // Smoothly interpolate the needle angle to prevent flickering
+            const currentAngle = this.speedNeedle.angle;
+            const smoothedAngle = Phaser.Math.Linear(currentAngle, targetAngle, 0.15); // 0.15 smoothing factor
+            
+            this.speedNeedle.setAngle(smoothedAngle);
         }
+
+        // Input Mapping (Keyboard + Touch)
+        const isRightDown = this.cursors.right.isDown || this.keyD.isDown;
+        const isLeftDown = this.cursors.left.isDown || this.keyA.isDown;
+        
+        this.vehicle.setGas(isRightDown || this.uiGasDown);
+        this.vehicle.setBrake(isLeftDown || this.uiBrakeDown);
 
         this.vehicle.update();
         this.terrain.update(this.vehicle.x);
         this.pickups.update(this.vehicle.x, this.terrain);
+
+        // Spawn UFO when the user first starts driving
+        if (!this.ufoSpawned && this.vehicle.x > 300) {
+            this.ufoSpawned = true;
+            this.spawnUFO();
+        }
 
         // Engine Sound Modulation (Improved)
         if (this.engineOsc && this.engineGain) {
@@ -192,7 +756,7 @@ export default class MainScene extends Phaser.Scene {
             const targetFreq2 = targetFreq * 1.5; // Harmonic
             const targetChug = isGas ? 15 + (speed * 0.5) : 8;
             
-            const targetGain = this.store.status === GAME_STATUS.PLAYING ? 0.08 + (isGas ? 0.07 : 0) : 0;
+            const targetGain = (this.store.status === GAME_STATUS.PLAYING && !this.isMuted) ? 0.08 + (isGas ? 0.07 : 0) : 0;
             
             this.engineOsc.frequency.setTargetAtTime(targetFreq, ctx.currentTime, 0.1);
             if (this.engineOsc2) this.engineOsc2.frequency.setTargetAtTime(targetFreq2, ctx.currentTime, 0.1);
@@ -208,6 +772,12 @@ export default class MainScene extends Phaser.Scene {
         // Distance & Health Drain
         const distance = Math.max(0, Math.floor((this.vehicle.x - 100) / 50));
         this.store.setDistance(distance);
+
+        // Spawn UFO again when player completes 100m and alien says "Good Job!"
+        if (!this.ufo100mSpawned && distance >= 100) {
+            this.ufo100mSpawned = true;
+            this.spawnUFO('Good Job!');
+        }
 
         // Health drain (More aggressive)
         const currentHealth = useGameStore.getState().health;
@@ -288,7 +858,7 @@ export default class MainScene extends Phaser.Scene {
         if (this.engineGain) {
             this.engineGain.gain.setTargetAtTime(0, this.game.sound.context.currentTime, 0.05);
         }
-        this.store.setStatus(GAME_STATUS.GAMEOVER);
+        this.store.setStatus(GAME_STATUS.LEAD_CAPTURE);
         this.scene.pause();
     }
 }

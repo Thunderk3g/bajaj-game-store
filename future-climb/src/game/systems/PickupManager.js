@@ -24,8 +24,8 @@ export default class PickupManager {
 
     update(playerX, terrain) {
         if (playerX + 1000 > this.nextSpawnX) {
-            // Very rare health kits (5% chance)
-            const type = Math.random() < 0.05 ? 'health' : 'coin';
+            // Health kits (30% chance) and coins (70% chance)
+            const type = Math.random() < 0.30 ? 'health' : 'coin';
             
             // Get height from terrain
             const groundY = terrain.getHeightAt(this.nextSpawnX);
@@ -55,9 +55,24 @@ export default class PickupManager {
                 state.showToast("Health Restored!", 1000);
             }
 
-            // Remove pickup
+            // Remove physics body so it can't be collected again
             this.scene.matter.world.remove(pickupBody);
-            if (pickupBody.gameObject) pickupBody.gameObject.destroy();
+            
+            const gameObject = pickupBody.gameObject;
+            if (gameObject) {
+                // Play collection animation
+                this.scene.tweens.add({
+                    targets: gameObject,
+                    y: gameObject.y - 80,
+                    alpha: 0,
+                    scale: 1.8,
+                    duration: 600,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        gameObject.destroy();
+                    }
+                });
+            }
             return type;
         }
         return null;

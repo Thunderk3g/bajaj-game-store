@@ -38,40 +38,41 @@ export default class PreloadScene extends Phaser.Scene {
     createCoinTexture() {
         const graphics = this.make.graphics({ x: 0, y: 0, add: false });
         
-        // Outer glow
-        graphics.fillStyle(0xffd700, 0.3);
-        graphics.fillCircle(32, 32, 30);
-        
-        // Main gold body
-        graphics.fillStyle(0xfacc15, 1);
+        // Classic Gold Coin
+        // Outer rim
+        graphics.fillStyle(0xDAA520, 1);
         graphics.fillCircle(32, 32, 24);
         
-        // Inner rim
-        graphics.lineStyle(3, 0xca8a04, 1);
-        graphics.strokeCircle(32, 32, 20);
+        // Inner gold
+        graphics.fillStyle(0xFFD700, 1);
+        graphics.fillCircle(32, 32, 18);
         
-        // Symbol (C)
-        graphics.fillStyle(0xca8a04, 1);
-        graphics.fillCircle(32, 32, 8);
+        // C symbol (simplified)
+        graphics.lineStyle(4, 0xDAA520, 1);
+        graphics.beginPath();
+        graphics.arc(32, 32, 8, 0.5, Math.PI * 1.5, false);
+        graphics.strokePath();
         
         graphics.generateTexture('coin', 64, 64);
     }
-
+ 
     createHealthTexture() {
         const graphics = this.make.graphics({ x: 0, y: 0, add: false });
         
-        // Medical Kit Body (White with Red Cross)
+        // Classic Health Kit (White Box, Red Cross)
+        
+        // Main body (White)
         graphics.fillStyle(0xffffff, 1);
-        graphics.fillRoundedRect(12, 12, 40, 40, 8);
+        graphics.fillRoundedRect(12, 12, 40, 40, 6);
+        
+        // Light grey border
+        graphics.lineStyle(2, 0xd1d5db, 1);
+        graphics.strokeRoundedRect(12, 12, 40, 40, 6);
         
         // Red Cross
-        graphics.fillStyle(0xef4444, 1);
-        graphics.fillRect(28, 18, 8, 28); // Vertical
-        graphics.fillRect(18, 28, 28, 8); // Horizontal
-        
-        // Handle
-        graphics.lineStyle(4, 0x94a3b8, 1);
-        graphics.strokeRect(24, 6, 16, 8);
+        graphics.fillStyle(0xff0000, 1);
+        graphics.fillRect(28, 20, 8, 24); // Vertical
+        graphics.fillRect(20, 28, 24, 8); // Horizontal
         
         graphics.generateTexture('health', 64, 64);
     }
