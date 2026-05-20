@@ -6,27 +6,27 @@ import MainScene from '../game/scenes/MainScene';
 import PreloadScene from '../game/scenes/PreloadScene';
 
 const HUD = () => {
-    const { health, coins, distance } = useGameStore();
+    const { shield, coins, distance } = useGameStore();
 
     return (
         <div className="absolute top-0 left-0 w-full p-4 pt-8 pointer-events-none flex justify-between items-start z-50">
-            {/* Left: Progress & Health */}
+            {/* Left: Progress & Shield */}
             <div className="flex flex-col gap-3 max-w-[200px] w-full">
                 <div className="p-3 flex flex-col gap-2 rounded-xl" style={{ border: '1px solid #00f2fe', boxShadow: '0 0 15px rgba(0, 242, 254, 0.3)', background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)' }}>
                     <div className="flex justify-between items-center text-xs font-black text-cyan-400 tracking-widest" style={{ textShadow: '0 0 8px rgba(0,242,254,0.5)' }}>
                         <div className="flex items-center gap-1.5">
                             <Shield size={14} className="text-cyan-400" />
-                            <span>HULL</span>
+                            <span>SHIELD</span>
                         </div>
-                        <span className={health < 30 ? 'text-red-500 animate-pulse' : 'text-white'}>{Math.floor(health)}%</span>
+                        <span className={shield < 30 ? 'text-red-500 animate-pulse' : 'text-white'}>{Math.floor(shield)}%</span>
                     </div>
                     <div className="arcade-meter bg-slate-900 border border-cyan-500/30 overflow-hidden">
                         <div 
                             className="arcade-meter-fill transition-all duration-300"
                             style={{ 
-                                width: `${health}%`, 
-                                backgroundColor: health < 30 ? '#ef4444' : '#00f2fe',
-                                boxShadow: `0 0 15px ${health < 30 ? '#ef4444' : '#00f2fe'}`
+                                width: `${shield}%`, 
+                                backgroundColor: shield < 30 ? '#ef4444' : '#00f2fe',
+                                boxShadow: `0 0 15px ${shield < 30 ? '#ef4444' : '#00f2fe'}`
                             }}
                         />
                     </div>

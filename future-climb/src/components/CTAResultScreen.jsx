@@ -10,6 +10,7 @@ import { updateLeadNew } from '../utils/api';
 
 const CTAResultScreen = () => {
     const { leadData, coins, distance, setStatus, resetGame } = useGameStore();
+    const empPhone = sessionStorage.getItem('gamification_emp_mobile');
     const [showBooking, setShowBooking] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingData, setBookingData] = useState({ 
@@ -159,16 +160,20 @@ const CTAResultScreen = () => {
                     </p>
 
                     <div className="space-y-4">
-                        <a href="tel:+911800123456" className="block w-full">
-                            <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3.5 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest border-2 border-white/20">
-                                <Phone className="w-4 h-4" /> CALL NOW
-                            </button>
-                        </a>
+                        {empPhone && (
+                            <>
+                                <a href={`tel:${empPhone}`} className="block w-full">
+                                    <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3.5 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest border-2 border-white/20">
+                                        <Phone className="w-4 h-4" /> CALL NOW
+                                    </button>
+                                </a>
 
-                        <div className="relative py-1 flex items-center justify-center">
-                            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
-                            <span className="relative px-4 bg-white text-slate-300 font-black text-[10px] tracking-widest uppercase">Or</span>
-                        </div>
+                                <div className="relative py-1 flex items-center justify-center">
+                                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
+                                    <span className="relative px-4 bg-white text-slate-300 font-black text-[10px] tracking-widest uppercase">Or</span>
+                                </div>
+                            </>
+                        )}
 
                         <button
                             onClick={() => setShowBooking(true)}

@@ -162,18 +162,36 @@ export default class Vehicle {
 
     // Apply force at the bottom of the vehicle (simulating wheel drive)
     // ONLY when grounded!
-    if (forceX !== 0 && grounded) {
-      if (body.velocity.x < this.maxSpeed) {
-        // Apply force at a point below the center of mass (wheels level)
+    if (grounded) {
+      if (forceX !== 0) {
+        this.container.setFriction(0.8);
+        if (body.velocity.x < this.maxSpeed) {
+          // Apply force at a point below the center of mass (wheels level)
+          const forcePoint = {
+            x: this.container.x,
+            y: this.container.y + 20
+          };
+          Phaser.Physics.Matter.Matter.Body.applyForce(body, forcePoint, { x: forceX, y: 0 });
+        }
+        
+        // Apply the balancing torque
+        body.torque += torque;
+      } else {
+        // Coasting on ground - lower friction to allow rolling
+        this.container.setFriction(0.15);
+        
+        // Calculate downhill rolling force based on tilt (slope angle)
+        // If tilt is negative (uphill), Math.sin(tilt) is negative -> rolls backward (left)
+        // If tilt is positive (downhill), Math.sin(tilt) is positive -> rolls forward (right)
+        const rollFactor = 0.035; 
+        const rollForceX = Math.sin(tilt) * rollFactor;
+        
         const forcePoint = {
           x: this.container.x,
           y: this.container.y + 20
         };
-        Phaser.Physics.Matter.Matter.Body.applyForce(body, forcePoint, { x: forceX, y: 0 });
+        Phaser.Physics.Matter.Matter.Body.applyForce(body, forcePoint, { x: rollForceX, y: 0 });
       }
-      
-      // Apply the balancing torque
-      body.torque += torque;
     }
 
     // Wheel Rotation based on velocity

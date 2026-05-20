@@ -7,47 +7,44 @@ const WelcomeScreen = () => {
     const { setStatus } = useGameStore();
 
     return (
-        <div className="relative w-full h-full flex flex-col items-center justify-center bg-[#0B1221] overflow-hidden px-6">
-            {/* Animated Background Elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <motion.div 
-                    animate={{ 
-                        scale: [1, 1.2, 1],
-                        opacity: [0.3, 0.5, 0.3]
-                    }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute -top-1/4 -right-1/4 w-[150%] h-[150%] bg-gradient-radial from-primary/20 via-transparent to-transparent"
-                />
-                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="relative w-full h-full flex flex-col justify-end items-center bg-[#090d16] overflow-hidden p-6">
+            {/* Background Image (Shifted up with pb-24, and blended edges) */}
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none pb-24">
+                <div className="relative w-full h-full flex items-center justify-center">
+                    <img
+                        src="./assets/ui/Thumbnail Future Climb.png"
+                        alt="Future Climb Background"
+                        className="w-full h-full object-contain"
+                    />
+
+                    {/* Edge-Blending Gradient Overlays */}
+                    {/* Top Edge Fade */}
+                    <div className="absolute top-0 left-0 right-0 h-1/5 bg-gradient-to-b from-[#090d16] to-transparent z-10" />
+                    {/* Bottom Edge Fade */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-[#090d16] to-transparent z-10" />
+                    {/* Left Edge Fade */}
+                    <div className="absolute top-0 bottom-0 left-0 w-1/12 bg-gradient-to-r from-[#090d16] to-transparent z-10" />
+                    {/* Right Edge Fade */}
+                    <div className="absolute top-0 bottom-0 right-0 w-1/12 bg-gradient-to-l from-[#090d16] to-transparent z-10" />
+                </div>
             </div>
 
-            {/* Thumbnail */}
+            {/* Subtle overlay */}
+            <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+
+            {/* Play Button - Positioned below the main artwork */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="relative z-10 mb-8"
+                transition={{ delay: 0.2 }}
+                className="relative z-10 mb-10 w-full flex justify-center"
             >
-                <img 
-                    src="/assets/ui/thumbnail.png" 
-                    alt="Future Climb" 
-                    className="w-full max-w-sm rounded-2xl border border-white/10 shadow-2xl"
-                />
-            </motion.div>
-
-            {/* Play Button */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
-                className="relative z-10"
-            >
-                <button 
+                <button
                     onClick={() => setStatus(GAME_STATUS.PLAYING)}
-                    className="btn-secondary group relative overflow-hidden px-12 py-5 flex items-center gap-3"
+                    className="btn-secondary group relative overflow-hidden px-14 py-5 flex items-center gap-3 shadow-2xl"
                 >
                     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                    <span className="relative font-black text-xl tracking-tight">START JOURNEY</span>
+                    <span className="relative font-black text-xl tracking-tight">PLAY</span>
                     <Play size={24} className="relative fill-primary" />
                 </button>
             </motion.div>

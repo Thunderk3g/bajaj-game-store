@@ -13,13 +13,16 @@ export const useGameStore = create((set) => ({
     status: GAME_STATUS.START,
     score: 0,
     coins: 0,
-    health: 100,
+    shield: 100,   // Financial concept: Insurance Shield / Protection Cover
     distance: 0,
     highScore: parseInt(localStorage.getItem('futureClimbHighScore') || '0'),
     leadData: null,
     toast: null,
 
-    setStatus: (status) => set({ status }),
+    setStatus: (status) => set((state) => ({
+        status,
+        ...(status !== GAME_STATUS.PLAYING ? { toast: null } : {})
+    })),
     
     setScore: (score) => set((state) => {
         if (score > state.highScore) {
@@ -31,7 +34,7 @@ export const useGameStore = create((set) => ({
 
     setCoins: (coins) => set({ coins }),
     addCoins: (amount) => set((state) => ({ coins: state.coins + amount })),
-    setHealth: (health) => set({ health }),
+    setShield: (shield) => set({ shield }),   // Replaces setHealth
     setDistance: (distance) => set({ distance }),
     setLeadData: (leadData) => set({ leadData }),
     
@@ -44,7 +47,7 @@ export const useGameStore = create((set) => ({
         status: GAME_STATUS.PLAYING,
         score: 0,
         coins: 0,
-        health: 100,
+        shield: 100,   // Full insurance cover on restart
         distance: 0,
         toast: null
     })

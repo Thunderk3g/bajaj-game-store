@@ -4,14 +4,14 @@ import { useGameStore, GAME_STATUS } from '../store/useGameStore';
 import { Trophy, Fuel, Coins as CoinsIcon, Navigation } from 'lucide-react';
 
 const GameOverScreen = () => {
-    const { score, distance, coins, fuel, setStatus } = useGameStore();
+    const { score, distance, coins, shield, setStatus } = useGameStore();
 
-    const isBalanced = fuel > 0 && coins > 0;
-    const message = fuel <= 0 
-        ? "Wealth grew, but protection ended the journey."
-        : coins === 0 
-            ? "Safe journey, but limited growth for your future goals."
-            : "Perfectly balanced! You've secured a strong future.";
+    const isBalanced = shield > 30 && coins > 0;
+    const message = shield <= 30
+        ? "Wealth grew, but your protection ran thin. Secure your shield!"
+        : coins === 0
+            ? "Well protected, but limited wealth growth for your future goals."
+            : "Perfectly balanced! Protection & wealth secured for the future.";
 
     return (
         <div className="flex flex-col h-full items-center justify-center p-6 bg-[#0B1221] overflow-hidden">

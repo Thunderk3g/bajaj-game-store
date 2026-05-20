@@ -142,6 +142,11 @@ const games = [
     source: path.join(ROOT_DIR, "whole-life-galaga", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "whole-life-galaga"),
   },
+  {
+    name: "future-climb",
+    source: path.join(ROOT_DIR, "future-climb", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "future-climb"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -434,6 +439,15 @@ const manifest = {
     displayName: "Whole Life Galaga",
     popular: true,
     gameId: "GAME_024",
+    assets: [],
+  },
+  "future-climb": {
+    remoteEntry: "assets/games/future-climb/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Future Climb",
+    popular: true,
+    gameId: "GAME_025",
     assets: [],
   },
 };

@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+import { decryptToken } from './utils/crypto'
 import { incrementPlayCount } from './services/playCount'
 
 // Add Google Fonts
@@ -10,15 +11,29 @@ link.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;70
 link.rel = 'stylesheet';
 document.head.appendChild(link);
 
-// Initialize session data from URL if present
-const urlParams = new URLSearchParams(window.location.search);
-const userId = urlParams.get('userId');
-const gameId = urlParams.get('gameId');
-const referral = urlParams.get('referral');
-
-if (userId) sessionStorage.setItem('gamification_userId', userId);
-if (gameId) sessionStorage.setItem('gamification_gameId', gameId);
-if (referral) sessionStorage.setItem('gamification_referral', referral);
+// Initialize session data from URL & Token if present
+; (() => {
+  const params = new URLSearchParams(window.location.search);
+  const basicKeys = ['userId', 'gameId', 'empName', 'empMobile', 'location', 'zone'];
+  let hasParams = false;
+  basicKeys.forEach(key => { const v = params.get(key); if (v) { sessionStorage.setItem(`gamification_${key}`, v); hasParams = true; } });
+  // Normalize: URL param empMobile → also write to snake_case key used by components
+  const urlEmpMobile = sessionStorage.getItem('gamification_empMobile');
+  if (urlEmpMobile) sessionStorage.setItem('gamification_emp_mobile', urlEmpMobile);
+  const token = params.get('token');
+  if (token) {
+    hasParams = true;
+    if (token !== 'GUEST_SESSION') {
+      sessionStorage.setItem('gamification_rawToken', token);
+      const payload = decryptToken(token);
+      if (payload) {
+        ['game_id', 'emp_id', 'emp_name', 'emp_mobile', 'location', 'zone'].forEach(k => { if (payload[k] != null) sessionStorage.setItem(`gamification_${k}`, String(payload[k])); });
+        sessionStorage.setItem('gamification_referral', payload.referral || 'N');
+      }
+    }
+  }
+  if (hasParams) window.history.replaceState({}, '', window.location.pathname);
+})();
 
 incrementPlayCount();
 

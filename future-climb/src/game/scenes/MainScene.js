@@ -174,18 +174,26 @@ export default class MainScene extends Phaser.Scene {
             event.pairs.forEach(pair => {
                 const result = this.pickups.handleCollision(pair);
                 if (result === 'coin') this.playTone(1200, 'sine', 0.1, 0.1);
-                if (result === 'health') {
+                if (result === 'shield') {
+                    // Shield pickup sound (rising tone = protection gained)
                     this.playTone(440, 'sine', 0.1, 0.1);
                     this.playTone(660, 'sine', 0.1, 0.1);
+                }
+                if (result === 'sip') {
+                    // SIP Boost — rich reward sound
+                    this.playTone(600, 'sine', 0.1, 0.08);
+                    this.playTone(900, 'sine', 0.1, 0.08);
+                    this.playTone(1200, 'sine', 0.1, 0.08);
                 }
             });
         });
 
-        // Stunts & Rewards
+        // Stunts & Rewards (financial language)
         this.events.on('flip_complete', (isBackflip) => {
+            if (useGameStore.getState().status !== GAME_STATUS.PLAYING) return;
             const reward = 500;
             this.store.addCoins(reward);
-            this.showStuntToast(isBackflip ? 'BACKFLIP!' : 'FRONTFLIP!', reward);
+            this.showStuntToast(isBackflip ? '📈 BACKFLIP RETURNS!' : '📈 FRONTFLIP RETURNS!', reward);
             this.playTone(800, 'square', 0.1, 0.05);
             this.playTone(1000, 'square', 0.1, 0.05);
         });
@@ -230,9 +238,15 @@ export default class MainScene extends Phaser.Scene {
     }
 
     spawnUFO(textMessage = 'Hii!') {
+        if (this.activeUFO) {
+            this.activeUFO.destroy();
+            this.activeUFO = null;
+        }
+
         const { width, height } = this.cameras.main;
         const y = Phaser.Math.Between(80, height * 0.3);
         const ufoContainer = this.add.container(width + 80, y).setScrollFactor(0).setDepth(-4);
+        this.activeUFO = ufoContainer;
         
         // Alien (Green guy)
         const alien = this.add.graphics();
@@ -317,7 +331,8 @@ export default class MainScene extends Phaser.Scene {
                 const text = this.add.text(0, -45, textMessage, {
                     fontSize: '16px',
                     color: '#000',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    resolution: 4
                 }).setOrigin(0.5);
  
                 ufoContainer.add([bubble, text]);
@@ -337,7 +352,12 @@ export default class MainScene extends Phaser.Scene {
                         scaleY: 0.5,
                         duration: 2500,
                         ease: 'Power2',
-                        onComplete: () => ufoContainer.destroy()
+                        onComplete: () => {
+                            if (this.activeUFO === ufoContainer) {
+                                this.activeUFO = null;
+                            }
+                            ufoContainer.destroy();
+                        }
                     });
                 });
             }
@@ -419,6 +439,11 @@ export default class MainScene extends Phaser.Scene {
 
     createUIControls() {
         const { width, height } = this.cameras.main;
+
+        // ── Small-screen responsive pedal inset ──────────────────────────────
+        // On narrow screens (Galaxy S8 = 360px, iPhone SE = 375px) the default
+        // 80px inset causes the brake/gauge/gas to overlap. Use 48px instead.
+        const pedalInset = width <= 380 ? 60 : 80;
         
         // Pedals and Gauges should be fixed to the screen (ignore camera scroll)
         const uiContainer = this.add.container(0, 0).setScrollFactor(0);
@@ -492,7 +517,7 @@ export default class MainScene extends Phaser.Scene {
         // =========================
         // BRAKE PEDAL (Left - Visual Only)
         // =========================
-        const brakePedal = this.add.container(80, height - 90);
+        const brakePedal = this.add.container(pedalInset, height - 90);
         
         const brakeBg = this.add.graphics();
         brakeBg.fillStyle(0x0f172a, 0.7);
@@ -521,7 +546,7 @@ export default class MainScene extends Phaser.Scene {
         // =========================
         // GAS PEDAL (Right - Visual Only)
         // =========================
-        const gasPedal = this.add.container(width - 80, height - 90);
+        const gasPedal = this.add.container(width - pedalInset, height - 90);
         
         const gasBg = this.add.graphics();
         gasBg.fillStyle(0x0f172a, 0.7);
@@ -608,12 +633,12 @@ export default class MainScene extends Phaser.Scene {
         // ================================================================
         // SCENE-LEVEL INTERACTIVE TOUCH ZONES (100% reliable, no nested container bugs)
         // ================================================================
-        const brakeZone = this.add.zone(80, height - 90, 100, 140)
+        const brakeZone = this.add.zone(pedalInset, height - 90, 100, 140)
             .setOrigin(0.5)
             .setInteractive()
             .setScrollFactor(0);
             
-        const gasZone = this.add.zone(width - 80, height - 90, 100, 140)
+        const gasZone = this.add.zone(width - pedalInset, height - 90, 100, 140)
             .setOrigin(0.5)
             .setInteractive()
             .setScrollFactor(0);
@@ -633,83 +658,130 @@ export default class MainScene extends Phaser.Scene {
         gasZone.on('pointerup', () => this.uiGasDown = false);
         gasZone.on('pointerout', () => this.uiGasDown = false);
 
-        // Tutorial Animation
-        this.tutorialContainer = this.add.container(width - 60, height - 150).setScrollFactor(0);
-        
-        // Text Box
-        const tutorialBg = this.add.rectangle(0, -40, 140, 40, 0x00f2fe, 0.9).setStrokeStyle(2, 0xffffff);
-        const tutorialLabel = this.add.text(0, -40, 'HOLD TO DRIVE', {
-            fontSize: '14px',
-            fontFamily: 'Arial',
+        // Modern Animated Dual-Pedal Tutorial Overlay
+        this.tutorialGroup = this.add.container(0, 0).setScrollFactor(0).setDepth(100);
+
+        // 1. Instruction Banner
+        const bannerBg = this.add.rectangle(width / 2, height / 3, 340, 60, 0x0f172a, 0.85)
+            .setStrokeStyle(2, 0x00f2fe, 1);
+        const bannerText = this.add.text(width / 2, height / 3, "HOLD GAS [RIGHT] TO CLIMB\nHOLD BRAKE [LEFT] TO STEER / SLOW", {
+            fontSize: '13px',
+            fontFamily: 'Montserrat, Arial, sans-serif',
             fontStyle: 'bold',
-            fill: '#0f172a'
+            fill: '#ffffff',
+            align: 'center',
+            lineSpacing: 4
         }).setOrigin(0.5);
         
-        // Hand Icon
-        this.tutorialHand = this.add.text(0, 10, '👆', {
-            fontSize: '40px'
-        }).setOrigin(0.5);
+        // 2. Gas Pedal Tutorial Hand & Pulse
+        const gasX = width - pedalInset;
+        const gasY = height - 90;
+        
+        const gasPulse = this.add.circle(gasX, gasY, 20, 0xff007f, 0.4);
+        const gasHand = this.add.text(gasX + 15, gasY + 40, '👆', { fontSize: '42px' }).setOrigin(0.5);
+        gasHand.setAngle(-45);
 
-        this.tutorialContainer.add([tutorialBg, tutorialLabel, this.tutorialHand]);
+        // 3. Brake Pedal Tutorial Hand & Pulse
+        const brakeX = pedalInset;
+        const brakeY = height - 90;
+        
+        const brakePulse = this.add.circle(brakeX, brakeY, 20, 0x00f2fe, 0.4);
+        const brakeHand = this.add.text(brakeX - 15, brakeY + 40, '👆', { fontSize: '42px' }).setOrigin(0.5);
+        brakeHand.setAngle(45);
 
-        // Hand pressing animation
+        this.tutorialGroup.add([bannerBg, bannerText, gasPulse, gasHand, brakePulse, brakeHand]);
+
+        // Animations:
+        // Gas Pulse (expanding ripple)
         this.tweens.add({
-            targets: this.tutorialHand,
-            scaleX: 0.8,
-            scaleY: 0.8,
-            y: 25,
-            duration: 500,
+            targets: gasPulse,
+            scale: 2.2,
+            alpha: 0,
+            duration: 1200,
+            repeat: -1
+        });
+        
+        // Gas Hand (tapping gesture)
+        this.tweens.add({
+            targets: gasHand,
+            x: gasX,
+            y: gasY,
+            scale: 0.8,
+            duration: 800,
             yoyo: true,
             repeat: -1,
-            ease: 'Sine.easeInOut'
+            ease: 'Cubic.easeInOut'
         });
 
-        // Floating animation for the whole container
+        // Brake Pulse (expanding ripple)
         this.tweens.add({
-            targets: this.tutorialContainer,
-            y: height - 160,
-            duration: 1000,
+            targets: brakePulse,
+            scale: 2.2,
+            alpha: 0,
+            duration: 1200,
+            repeat: -1
+        });
+        
+        // Brake Hand (tapping gesture)
+        this.tweens.add({
+            targets: brakeHand,
+            x: brakeX,
+            y: brakeY,
+            scale: 0.8,
+            duration: 800,
             yoyo: true,
             repeat: -1,
-            ease: 'Sine.easeInOut'
+            ease: 'Cubic.easeInOut'
         });
 
         const hideTutorial = () => {
-            if (this.tutorialContainer && this.tutorialContainer.active) {
-                this.tutorialContainer.destroy();
+            if (this.tutorialGroup && this.tutorialGroup.active) {
+                this.tweens.add({
+                    targets: this.tutorialGroup,
+                    alpha: 0,
+                    scale: 0.8,
+                    duration: 300,
+                    onComplete: () => {
+                        this.tutorialGroup.destroy();
+                    }
+                });
             }
         };
         gasZone.on('pointerdown', hideTutorial);
-        this.input.keyboard.once('keydown-RIGHT', hideTutorial);
-        this.input.keyboard.once('keydown-D', hideTutorial);
+        brakeZone.on('pointerdown', hideTutorial);
+        this.input.keyboard.once('keydown', hideTutorial);
 
 
         // Handle resize to keep UI visible on all devices (like iPhone SE)
         this.scale.on('resize', (gameSize) => {
             const w = gameSize.width;
             const h = gameSize.height;
-            brakePedal.setPosition(80, h - 90);
-            gasPedal.setPosition(w - 80, h - 90);
+            // Recalculate inset for the new width (small-screen fix)
+            const inset = w <= 380 ? 60 : 80;
+            brakePedal.setPosition(inset, h - 90);
+            gasPedal.setPosition(w - inset, h - 90);
             speedGauge.setPosition(w / 2, h - 80);
             if (this.muteBtn) this.muteBtn.setPosition(w - 50, 130);
             if (this.muteZone) this.muteZone.setPosition(w - 50, 130);
             
             // Keep interactive zones perfectly aligned with visual graphics
-            brakeZone.setPosition(80, h - 90);
-            gasZone.setPosition(w - 80, h - 90);
+            brakeZone.setPosition(inset, h - 90);
+            gasZone.setPosition(w - inset, h - 90);
             
-            if (this.tutorialContainer && this.tutorialContainer.active) {
-                this.tutorialContainer.setPosition(w - 60, h - 150);
+            if (this.tutorialGroup && this.tutorialGroup.active) {
+                this.tutorialGroup.destroy();
             }
             
             // Update sun position on resize
             if (this.sun) this.sun.setPosition(w / 2, h * 0.4);
             if (this.sunGlow) this.sunGlow.setPosition(w / 2, h * 0.4);
         });
+
+        this.gameStartedMoving = false;
     }
 
     update(time, delta) {
-        if (this.store.status !== GAME_STATUS.PLAYING) return;
+        if (useGameStore.getState().status !== GAME_STATUS.PLAYING) return;
         // Update Needles
         if (this.vehicle && this.speedNeedle) {
             const speed = Math.abs(this.vehicle.container.body.velocity.x);
@@ -756,7 +828,7 @@ export default class MainScene extends Phaser.Scene {
             const targetFreq2 = targetFreq * 1.5; // Harmonic
             const targetChug = isGas ? 15 + (speed * 0.5) : 8;
             
-            const targetGain = (this.store.status === GAME_STATUS.PLAYING && !this.isMuted) ? 0.08 + (isGas ? 0.07 : 0) : 0;
+            const targetGain = (useGameStore.getState().status === GAME_STATUS.PLAYING && !this.isMuted) ? 0.08 + (isGas ? 0.07 : 0) : 0;
             
             this.engineOsc.frequency.setTargetAtTime(targetFreq, ctx.currentTime, 0.1);
             if (this.engineOsc2) this.engineOsc2.frequency.setTargetAtTime(targetFreq2, ctx.currentTime, 0.1);
@@ -773,29 +845,42 @@ export default class MainScene extends Phaser.Scene {
         const distance = Math.max(0, Math.floor((this.vehicle.x - 100) / 50));
         this.store.setDistance(distance);
 
-        // Spawn UFO again when player completes 100m and alien says "Good Job!"
+        // Spawn UFO again when player completes 100m — financial tip
         if (!this.ufo100mSpawned && distance >= 100) {
             this.ufo100mSpawned = true;
-            this.spawnUFO('Good Job!');
+            this.spawnUFO('Diversify!');
         }
 
-        // Health drain (More aggressive)
-        const currentHealth = useGameStore.getState().health;
+        // Check if player has started driving/moving (explicit input trigger only)
+        if (!this.gameStartedMoving) {
+            const hasInput = isRightDown || this.uiGasDown || isLeftDown || this.uiBrakeDown;
+            if (hasInput) {
+                this.gameStartedMoving = true;
+            }
+        }
+
+        // Shield drain — represents unprotected risk exposure over time
+        const currentShield = useGameStore.getState().shield;
         const movement = Math.abs(this.vehicle.x - this.lastX);
         
-        // Passive drain (~3% per second) + Movement drain
-        const drainAmount = (delta * 0.003) + (movement * 0.01);
+        // Passive drain (~2% per second) + movement risk drain (only active once car starts running)
+        const drainAmount = this.gameStartedMoving ? ((delta * 0.002) + (movement * 0.007)) : 0;
         
-        this.store.setHealth(Math.max(0, currentHealth - drainAmount));
+        this.store.setShield(Math.max(0, currentShield - drainAmount));
         this.lastX = this.vehicle.x;
 
-        if (useGameStore.getState().health <= 0) {
+        if (useGameStore.getState().shield <= 0) {
             this.gameOver("Out of Health!");
         }
 
         // Flip check (Game Over if vehicle touches ground upside down)
         if (Math.abs(this.vehicle.angle) > 120 && this.isChassisTouchingGround()) {
             this.gameOver("Vehicle Flipped!");
+        }
+
+        // Abyss check (Game Over if vehicle falls off the terrain)
+        if (this.vehicle.y > 1100) {
+            this.gameOver("Fell into the Abyss!");
         }
     }
 
@@ -806,9 +891,15 @@ export default class MainScene extends Phaser.Scene {
     }
 
     showStuntToast(message, reward) {
+        if (this.activeToast) {
+            this.activeToast.destroy();
+            this.activeToast = null;
+        }
+
         const { width, height } = this.cameras.main;
         
         const toast = this.add.container(width / 2, height / 3);
+        this.activeToast = toast;
         
         // Premium Background Panel
         const panel = this.add.rectangle(0, 25, 600, 160, 0x000000, 0.7)
@@ -846,7 +937,12 @@ export default class MainScene extends Phaser.Scene {
                         alpha: 0,
                         y: height / 3 - 150,
                         duration: 600,
-                        onComplete: () => toast.destroy()
+                        onComplete: () => {
+                            if (this.activeToast === toast) {
+                                this.activeToast = null;
+                            }
+                            toast.destroy();
+                        }
                     });
                 });
             }
@@ -857,6 +953,14 @@ export default class MainScene extends Phaser.Scene {
         this.playTone(200, 'sawtooth', 0.5, 0.2); // Death sound
         if (this.engineGain) {
             this.engineGain.gain.setTargetAtTime(0, this.game.sound.context.currentTime, 0.05);
+        }
+        if (this.activeToast) {
+            this.activeToast.destroy();
+            this.activeToast = null;
+        }
+        if (this.activeUFO) {
+            this.activeUFO.destroy();
+            this.activeUFO = null;
         }
         this.store.setStatus(GAME_STATUS.LEAD_CAPTURE);
         this.scene.pause();

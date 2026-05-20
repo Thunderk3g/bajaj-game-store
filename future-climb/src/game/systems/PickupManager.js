@@ -24,15 +24,19 @@ export default class PickupManager {
 
     update(playerX, terrain) {
         if (playerX + 1000 > this.nextSpawnX) {
-            // Health kits (30% chance) and coins (70% chance)
-            const type = Math.random() < 0.30 ? 'health' : 'coin';
+            // Spawn type probabilities:
+            // 15% → SIP Boost (Wealth + Shield)
+            // 25% → Insurance Shield (restore shield)
+            // 60% → Coin (Wealth)
+            const roll = Math.random();
+            const type = roll < 0.15 ? 'sip' : roll < 0.40 ? 'shield' : 'coin';
             
             // Get height from terrain
             const groundY = terrain.getHeightAt(this.nextSpawnX);
             const y = groundY - 60; // 60px above ground
             
             this.spawn(this.nextSpawnX, y, type);
-            this.nextSpawnX += 800 + Math.random() * 1200; // Much larger spacing for difficulty
+            this.nextSpawnX += 800 + Math.random() * 1200;
         }
     }
 
@@ -40,8 +44,11 @@ export default class PickupManager {
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
 
-        const pickupBody = bodyA.label === 'coin' || bodyA.label === 'health' ? bodyA : (bodyB.label === 'coin' || bodyB.label === 'health' ? bodyB : null);
-        const playerBody = bodyA.label === 'vehicle' ? bodyA : (bodyB.label === 'vehicle' ? bodyB : null);
+        const validLabels = ['coin', 'shield', 'sip'];
+        const pickupBody = validLabels.includes(bodyA.label) ? bodyA
+            : validLabels.includes(bodyB.label) ? bodyB : null;
+        const playerBody = bodyA.label === 'vehicle' ? bodyA
+            : (bodyB.label === 'vehicle' ? bodyB : null);
 
         if (pickupBody && playerBody) {
             const type = pickupBody.label;
@@ -49,10 +56,18 @@ export default class PickupManager {
 
             if (type === 'coin') {
                 state.setCoins(state.coins + 50);
-                state.showToast("+50 Wealth Units", 1000);
-            } else if (type === 'health') {
-                state.setHealth(Math.min(100, state.health + 40));
-                state.showToast("Health Restored!", 1000);
+                state.showToast('+₹50 Wealth Added! 💰', 2000);
+
+            } else if (type === 'shield') {
+                // Insurance Shield — restores protection cover
+                state.setShield(Math.min(100, state.shield + 40));
+                state.showToast('🛡️ Shield Restored! +40 Cover', 2000);
+
+            } else if (type === 'sip') {
+                // SIP Boost — compound benefit: wealth + protection
+                state.setCoins(state.coins + 200);
+                state.setShield(Math.min(100, state.shield + 20));
+                state.showToast('📈 SIP Returns! +₹200 & +20 Shield', 2000);
             }
 
             // Remove physics body so it can't be collected again

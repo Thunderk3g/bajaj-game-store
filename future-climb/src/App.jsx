@@ -87,16 +87,29 @@ const App = () => {
         )}
       </AnimatePresence>
 
-      {/* Toast Notifications */}
+      {/* Toast Notifications — compact pill, above pedals, no HUD overlap */}
       <AnimatePresence>
-        {toast && (
+        {status === GAME_STATUS.PLAYING && toast && (
           <motion.div
-            initial={{ opacity: 0, y: -50, x: '-50%' }}
-            animate={{ opacity: 1, y: 20, x: '-50%' }}
-            exit={{ opacity: 0, y: -50, x: '-50%' }}
-            className="fixed top-10 left-1/2 z-[100] px-6 py-3 rounded-full bg-white text-primary font-bold shadow-2xl border border-primary/20 pointer-events-none"
+            key={toast}
+            initial={{ opacity: 0, y: 20, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -16, x: '-50%' }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
+            className="fixed bottom-[185px] left-1/2 z-[200] pointer-events-none"
           >
-            {toast}
+            <div
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl text-white text-base font-black whitespace-nowrap"
+              style={{
+                background: 'rgba(10, 18, 36, 0.92)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(0, 242, 254, 0.35)',
+                boxShadow: '0 0 18px rgba(0, 242, 254, 0.25), 0 6px 24px rgba(0,0,0,0.6)',
+                letterSpacing: '0.04em'
+              }}
+            >
+              {toast}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
