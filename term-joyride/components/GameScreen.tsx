@@ -80,7 +80,7 @@ function setAudioMuted(muted: boolean) {
   if (masterGain) masterGain.gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.05);
 }
 
-function playSFX(type: 'collect' | 'shield' | 'bad' | 'gameover' | 'btn' | 'thrust') {
+function playSFX(type: 'collect' | 'shield' | 'bad' | 'gameover' | 'btn' | 'thrust' | 'siren') {
   const ctx = getCtx();
   if (!masterGain) return;
   const t = ctx.currentTime;
@@ -100,6 +100,18 @@ function playSFX(type: 'collect' | 'shield' | 'bad' | 'gameover' | 'btn' | 'thru
   if (type === 'gameover') [440, 392, 349.23, 261.63].forEach((f, i) => noteAt(f, i * 0.18, 0.22, 'sine', 0.25));
   if (type === 'btn')      noteAt(660, 0, 0.06, 'sine', 0.15);
   if (type === 'thrust')   noteAt(180, 0, 0.08, 'triangle', 0.08);
+  if (type === 'siren')    noteAt(720, 0, 0.05, 'sawtooth', 0.12);
+}
+
+// ─── Bounding Line Distance Helper for fair hit detection ──────────────────
+function distanceToSegment(px: number, py: number, x1: number, y1: number, x2: number, y2: number): number {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
 }
 
 // ─── Game Objects ────────────────────────────────────────────────────────────
@@ -125,6 +137,7 @@ interface Obstacle {
   warningTime: number; // For missiles, warns player before entering
   speed: number;
   itemType?: ItemType;
+  orientation?: 'vertical' | 'horizontal' | 'diagonal'; // Vertical, Horizontal or Diagonal
 }
 
 interface Collectible {
@@ -158,6 +171,9 @@ interface Scientist {
   panic: boolean;
   panicTimer: number;
   walkFrame: number;
+  cowering?: boolean;
+  bubbleText?: string;
+  bubbleTimer?: number;
 }
 
 interface Props {
@@ -190,9 +206,7 @@ function removeCheckerboardAndWhite(img: HTMLImageElement): HTMLCanvasElement {
 
     // Helper to check if a pixel is background-like (off-white or grey checkerboard)
     const isBg = (r: number, g: number, b: number) => {
-      // 1. Off-white background pixels
       if (r > 215 && g > 215 && b > 215) return true;
-      // 2. Grey checkerboard pixels (typically r==g==b in light grey range)
       if (Math.abs(r - g) < 8 && Math.abs(g - b) < 8 && r > 170 && r < 235) return true;
       return false;
     };
@@ -201,16 +215,15 @@ function removeCheckerboardAndWhite(img: HTMLImageElement): HTMLCanvasElement {
     const visited = new Uint8Array(w * h);
     const queue: number[] = [];
     
-    // Push all border pixels
     for (let x = 0; x < w; x++) {
-      queue.push(x, 0);       // Top border
-      queue.push(x, h - 1);   // Bottom border
+      queue.push(x, 0);
+      queue.push(x, h - 1);
       visited[x] = 1;
       visited[x + (h - 1) * w] = 1;
     }
     for (let y = 1; y < h - 1; y++) {
-      queue.push(0, y);       // Left border
-      queue.push(w - 1, y);   // Right border
+      queue.push(0, y);
+      queue.push(w - 1, y);
       visited[y * w] = 1;
       visited[w - 1 + y * w] = 1;
     }
@@ -225,7 +238,7 @@ function removeCheckerboardAndWhite(img: HTMLImageElement): HTMLCanvasElement {
       const b = data[idx + 2];
       
       if (data[idx + 3] === 0 || isBg(r, g, b)) {
-        data[idx + 3] = 0; // set transparent
+        data[idx + 3] = 0;
         
         const neighbors = [
           [cx + 1, cy],
@@ -246,11 +259,11 @@ function removeCheckerboardAndWhite(img: HTMLImageElement): HTMLCanvasElement {
       }
     }
     
-    // Pass 3: Edge Halo Smoothing (look for solid pixels next to transparent ones that are near-white/checkerboard)
+    // Pass 3: Edge Halo Smoothing
     for (let y = 1; y < h - 1; y++) {
       for (let x = 1; x < w - 1; x++) {
         const idx = (x + y * w) * 4;
-        if (data[idx + 3] > 0) { // Not transparent
+        if (data[idx + 3] > 0) {
           const r = data[idx];
           const g = data[idx + 1];
           const b = data[idx + 2];
@@ -296,6 +309,12 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const portfolioRef = useRef(0);
   const distanceRef = useRef(0);
 
+  // Sound context trackings
+  const isAudioMutedRef = useRef(false);
+
+  // Screen shake amount
+  const screenShakeRef = useRef(0);
+
   // Physics stats tracking
   const statsRef = useRef({
     coinsCollected: 0,
@@ -305,17 +324,17 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     losses: 0,
   });
 
-  // Player physics
+  // Player physics (Tuned to be floatier and more controllable)
   const playerRef = useRef({
     x: 75,
     y: 200,
     vy: 0,
     width: 48,
     height: 48,
-    gravity: 0.35,
-    thrust: -0.85,
-    maxFallSpeed: 7,
-    maxRiseSpeed: -6,
+    gravity: 0.22,      // Floatier gravity (from 0.26)
+    thrust: -0.58,       // Floatier thrust (from -0.65)
+    maxFallSpeed: 5.0,   // Controlled fall speed (from 5.5)
+    maxRiseSpeed: -4.0,  // Controlled rise speed (from -4.5)
     shield: false,
     invincibleTimer: 0,
   });
@@ -330,7 +349,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const scientistsRef = useRef<Scientist[]>([]);
 
   // Spawning logic parameters
-  const gameSpeedRef = useRef(4.0);
+  const gameSpeedRef = useRef(2.0); // Slower starting speed (from 2.8)
   const spawnTimerRef = useRef(0);
   const nextEntityIdRef = useRef(0);
 
@@ -369,11 +388,9 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           processedCache[key] = img;
         }
       };
-      // Fallback initially
       processedCache[key] = img;
     });
 
-    // Dynamically load & process all 8 custom item icons in ITEM_DEFS
     (Object.keys(ITEM_DEFS) as ItemType[]).forEach((key) => {
       const img = new Image();
       img.src = ITEM_DEFS[key].icon;
@@ -385,7 +402,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           processedCache[key] = img;
         }
       };
-      // Fallback initially
       processedCache[key] = img;
     });
   }, []);
@@ -395,6 +411,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     const next = !muted;
     setMuted(next);
     setAudioMuted(next);
+    isAudioMutedRef.current = next;
     if (!next) playSFX('btn');
   }
 
@@ -410,7 +427,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       const speed = 2 + Math.random() * 4;
       const size = 3 + Math.random() * 6;
       particlesRef.current.push({
-        x: x - 5, // Offset slightly to line up with jetpack back
+        x: x - 5,
         y: y + 25,
         vx: Math.cos(angle) * speed + (Math.random() - 0.5) * 1.5 - gameSpeedRef.current * 0.5,
         vy: Math.sin(angle) * speed,
@@ -418,6 +435,34 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         maxLife: 20 + Math.random() * 20,
         color: Math.random() > 0.4 ? 'rgba(242, 101, 34, 0.95)' : 'rgba(253, 224, 71, 0.95)', // Orange and golden sparks
         size,
+      });
+    }
+
+    // Spawn falling machine gun bullet/wealth pellets!
+    if (Math.random() < 0.7) {
+      particlesRef.current.push({
+        x: x - 8,
+        y: y + 30,
+        vx: -gameSpeedRef.current + (Math.random() - 0.5) * 1.5,
+        vy: 7 + Math.random() * 4, // falling fast downwards
+        life: 0,
+        maxLife: 50,
+        color: 'rgba(234, 179, 8, 0.95)', // gold bullet pellet
+        size: 3,
+      });
+    }
+
+    // Spawn high-fidelity white-grey jetpack nozzle smoke cloud!
+    if (Math.random() < 0.4) {
+      particlesRef.current.push({
+        x: x - 8,
+        y: y + 25,
+        vx: -gameSpeedRef.current * 0.8 - Math.random() * 1.5,
+        vy: 1 + Math.random() * 2, // gently drifting downwards
+        life: 0,
+        maxLife: 30 + Math.random() * 20,
+        color: 'rgba(226, 232, 240, 0.42)', // very soft white-grey
+        size: 8 + Math.random() * 6, // larger smoke cloud
       });
     }
   }
@@ -439,6 +484,87 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     }
   }
 
+  // ─── Coin Formation Spawner (Jetpack Joyride Patterns) ─────────────────────
+  function spawnCoinFormation(activeType: ItemType, canvasWidth: number, canvasHeight: number) {
+    const patternChoice = Math.random();
+    const startY = 100 + Math.random() * (canvasHeight - 240);
+    
+    if (patternChoice < 0.28) {
+      // 1. SINE WAVE
+      const count = 6 + Math.floor(Math.random() * 5); // 6-10 coins
+      for (let i = 0; i < count; i++) {
+        collectiblesRef.current.push({
+          id: nextEntityIdRef.current++,
+          type: activeType,
+          x: canvasWidth + i * 36,
+          y: Math.max(80, Math.min(canvasHeight - 110, startY + Math.sin(i * 0.8) * 50)),
+          w: 24,
+          h: 24,
+          collected: false,
+        });
+      }
+    } else if (patternChoice < 0.52) {
+      // 2. CIRCLE RING (8 coins around a center)
+      const centerX = canvasWidth + 80;
+      const centerY = startY + 60;
+      const radius = 50;
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4;
+        collectiblesRef.current.push({
+          id: nextEntityIdRef.current++,
+          type: activeType,
+          x: centerX + Math.cos(angle) * radius - 12,
+          y: Math.max(80, Math.min(canvasHeight - 110, centerY + Math.sin(angle) * radius - 12)),
+          w: 24,
+          h: 24,
+          collected: false,
+        });
+      }
+    } else if (patternChoice < 0.76) {
+      // 3. DIAMOND (8 coins)
+      const centerX = canvasWidth + 80;
+      const centerY = startY + 60;
+      const offsets = [
+        [0, -45], [30, -22], [60, 0], [30, 22],
+        [0, 45], [-30, 22], [-60, 0], [-30, -22]
+      ];
+      offsets.forEach(([ox, oy]) => {
+        collectiblesRef.current.push({
+          id: nextEntityIdRef.current++,
+          type: activeType,
+          x: centerX + ox - 12,
+          y: Math.max(80, Math.min(canvasHeight - 110, centerY + oy - 12)),
+          w: 24,
+          h: 24,
+          collected: false,
+        });
+      });
+    } else {
+      // 4. PARALLEL LANES (2 lines of 5 coins)
+      const count = 5;
+      for (let i = 0; i < count; i++) {
+        collectiblesRef.current.push({
+          id: nextEntityIdRef.current++,
+          type: activeType,
+          x: canvasWidth + i * 36,
+          y: Math.max(80, Math.min(canvasHeight - 110, startY)),
+          w: 24,
+          h: 24,
+          collected: false,
+        });
+        collectiblesRef.current.push({
+          id: nextEntityIdRef.current++,
+          type: activeType,
+          x: canvasWidth + i * 36,
+          y: Math.max(80, Math.min(canvasHeight - 110, startY + 40)),
+          w: 24,
+          h: 24,
+          collected: false,
+        });
+      }
+    }
+  }
+
   // ─── Spawning Generator ───────────────────────────────────────────────────
   function spawnEntities(canvasWidth: number, canvasHeight: number) {
     spawnTimerRef.current++;
@@ -447,31 +573,13 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     const randomChoice = Math.random();
 
-    if (randomChoice < 0.42) {
-      // Spawn standard Coin Curves (deposits, savings, salary, retirement)
+    if (randomChoice < 0.45) {
+      // Spawn structured coin curves (deposits, savings, salary, retirement)
       const coinTypes: (ItemType | 'shield')[] = ['deposits', 'savings', 'salary', 'retirement'];
-      const activeType = coinTypes[Math.floor(Math.random() * coinTypes.length)];
+      const activeType = coinTypes[Math.floor(Math.random() * coinTypes.length)] as ItemType;
       
-      const count = 4 + Math.floor(Math.random() * 5); // 4-8 coins
-      const patternType = Math.random() > 0.5 ? 'wave' : 'line';
-      const startY = 100 + Math.random() * (canvasHeight - 200);
-
-      for (let i = 0; i < count; i++) {
-        let y = startY;
-        if (patternType === 'wave') {
-          y = startY + Math.sin(i * 0.8) * 45;
-        }
-        collectiblesRef.current.push({
-          id: nextEntityIdRef.current++,
-          type: activeType,
-          x: canvasWidth + i * 36,
-          y: Math.max(80, Math.min(canvasHeight - 80, y)),
-          w: 24,
-          h: 24,
-          collected: false,
-        });
-      }
-    } else if (randomChoice < 0.52) {
+      spawnCoinFormation(activeType, canvasWidth, canvasHeight);
+    } else if (randomChoice < 0.54) {
       // Spawn premium Life Shield power-up!
       collectiblesRef.current.push({
         id: nextEntityIdRef.current++,
@@ -483,32 +591,50 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         collected: false,
       });
     } else if (randomChoice < 0.82) {
-      // Spawn red laser static zapper
-      const zapperHeight = 70 + Math.random() * 70;
+      // Spawn lightning static / diagonal / horizontal zappers
+      const zapperHeight = 80 + Math.random() * 80;
+      const zapperWidth = 80 + Math.random() * 80;
+      const orientRoll = Math.random();
+      
+      let orientation: 'vertical' | 'horizontal' | 'diagonal' = 'vertical';
+      let w = 18;
+      let h = zapperHeight;
+      
+      if (orientRoll < 0.35) {
+        orientation = 'horizontal';
+        w = zapperWidth;
+        h = 18;
+      } else if (orientRoll < 0.65) {
+        orientation = 'diagonal';
+        w = zapperWidth;
+        h = zapperHeight;
+      }
+
       obstaclesRef.current.push({
         id: nextEntityIdRef.current++,
         type: 'zapper',
         x: canvasWidth,
-        y: 60 + Math.random() * (canvasHeight - zapperHeight - 120),
-        w: 18,
-        h: zapperHeight,
+        y: 60 + Math.random() * (canvasHeight - h - 120),
+        w,
+        h,
         active: true,
         warningTime: 0,
         speed: 0,
         itemType: Math.random() > 0.5 ? 'hospitalization' : 'disability',
+        orientation,
       });
     } else {
-      // Spawn fast homing rocket missile with flash warnings!
+      // Spawn red homing warning alert rocket missile!
       obstaclesRef.current.push({
         id: nextEntityIdRef.current++,
         type: 'missile',
-        x: canvasWidth + 150, // Spawn offscreen
-        y: 100 + Math.random() * (canvasHeight - 220),
+        x: canvasWidth + 200, // Offscreen starting lane
+        y: playerRef.current.y, // Lock onto player Y initially
         w: 42,
         h: 24,
         active: true,
-        warningTime: 85, // Warns player for 85 frames
-        speed: 8.5,
+        warningTime: 110, // Slower warning time (from 85) for reaction
+        speed: 5.5, // Slower missile speed (from 8.5)
         itemType: Math.random() > 0.5 ? 'cancer' : 'accident',
       });
     }
@@ -518,7 +644,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       scientistsRef.current.push({
         id: nextEntityIdRef.current++,
         x: canvasWidth + 20,
-        y: canvasHeight - 45 - 28, // right on the floor (45 is floor height, 28 is scientist height)
+        y: canvasHeight - 45 - 28,
         vx: -1.0 - Math.random() * 1.0,
         vy: 0,
         width: 16,
@@ -541,27 +667,109 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     const w = canvas.width;
     const h = canvas.height;
 
-    // 1. CLEAR & BACKGROUND SCROLL (Parallax Skyline)
-    ctx.fillStyle = '#00081a';
-    ctx.fillRect(0, 0, w, h);
-
-    // Parallax scrolling skyline vector art
-    skylineScrollRef.current = (skylineScrollRef.current - gameSpeedRef.current * 0.15) % w;
-    const imgSkyline = imagesCache.current.skyline;
-    if (imgSkyline && imgSkyline.complete) {
-      ctx.drawImage(imgSkyline, skylineScrollRef.current, h - 230, w, 180);
-      ctx.drawImage(imgSkyline, skylineScrollRef.current + w, h - 230, w, 180);
-    } else {
-      // Fallback skyline shapes
-      ctx.fillStyle = '#001438';
-      for (let i = 0; i < 6; i++) {
-        const xOffset = ((i * 120 + skylineScrollRef.current) % (w + 120)) - 120;
-        ctx.fillRect(xOffset, h - 140, 80, 140);
-      }
+    // Apply Screen Shake if active
+    ctx.save();
+    if (screenShakeRef.current > 0) {
+      const shakeVal = screenShakeRef.current;
+      const dx = (Math.random() - 0.5) * shakeVal;
+      const dy = (Math.random() - 0.5) * shakeVal;
+      ctx.translate(dx, dy);
+      screenShakeRef.current -= 0.8;
     }
 
+    // 1. DYNAMIC LABORATORY SCENERY & WINDOW PARALLAX
+    ctx.fillStyle = '#1e293b'; // Base steel grey panels
+    ctx.fillRect(0, 0, w, h);
+
+    // Parallax Window pane calculation
+    const windowPeriod = 750;
+    skylineScrollRef.current = (skylineScrollRef.current - gameSpeedRef.current * 0.15) % w;
+    const windowScrollVal = (skylineScrollRef.current * 1.2) % windowPeriod;
+
+    for (let xOffset = windowScrollVal - windowPeriod; xOffset < w + windowPeriod; xOffset += windowPeriod) {
+      const windowWidth = 460;
+      
+      // Draw window viewport clipping mask
+      ctx.save();
+      ctx.fillStyle = '#020617'; // darker sky inside window
+      ctx.fillRect(xOffset, 32, windowWidth, h - 77);
+
+      ctx.beginPath();
+      ctx.rect(xOffset, 32, windowWidth, h - 77);
+      ctx.clip();
+
+      const imgSkyline = imagesCache.current.skyline;
+      if (imgSkyline && imgSkyline.complete) {
+        ctx.drawImage(imgSkyline, skylineScrollRef.current, h - 230, w, 180);
+        ctx.drawImage(imgSkyline, skylineScrollRef.current + w, h - 230, w, 180);
+      } else {
+        ctx.fillStyle = '#001438';
+        for (let i = 0; i < 6; i++) {
+          const xs = ((i * 120 + skylineScrollRef.current) % (w + 120)) - 120;
+          ctx.fillRect(xs, h - 140, 80, 140);
+        }
+      }
+      ctx.restore();
+
+      // Window Glass Reflections/Lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(xOffset + windowWidth / 3, 32);
+      ctx.lineTo(xOffset + windowWidth / 3, h - 45);
+      ctx.moveTo(xOffset + (2 * windowWidth) / 3, 32);
+      ctx.lineTo(xOffset + (2 * windowWidth) / 3, h - 45);
+      ctx.stroke();
+
+      // Draw metallic solid lab panels where windows aren't present
+      const wallWidth = windowPeriod - windowWidth;
+      ctx.fillStyle = '#334155'; // darker laboratory panels
+      ctx.fillRect(xOffset + windowWidth, 32, wallWidth, h - 77);
+
+      // Panel joint lines
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 3.5;
+      ctx.strokeRect(xOffset + windowWidth, 32, wallWidth, h - 77);
+
+      ctx.beginPath();
+      ctx.moveTo(xOffset + windowWidth + wallWidth / 2, 32);
+      ctx.lineTo(xOffset + windowWidth + wallWidth / 2, h - 45);
+      ctx.stroke();
+
+      // Blinking laboratory alarms
+      const panelCenterX = xOffset + windowWidth + wallWidth / 2;
+      const blinkOn = Math.floor(distanceRef.current / 22) % 2 === 0;
+      
+      ctx.beginPath();
+      ctx.arc(panelCenterX, 95, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = blinkOn ? '#f97316' : '#7c2d12'; // amber siren
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(panelCenterX, 110, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = !blinkOn ? '#ef4444' : '#7f1d1d'; // red alert siren
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // High tech conduits / power pipes
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(0, 32, w, 6);
+    ctx.fillRect(0, h - 51, w, 6);
+
+    ctx.strokeStyle = Math.random() > 0.4 ? '#38bdf8' : '#0284c7'; // buzzing cyan energy conduits
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(0, 35);
+    ctx.lineTo(w, 35);
+    ctx.moveTo(0, h - 48);
+    ctx.lineTo(w, h - 48);
+    ctx.stroke();
+
     // Floor and Ceiling bounds
-    ctx.fillStyle = '#061633';
+    ctx.fillStyle = '#0f172a';
     ctx.fillRect(0, 0, w, 32); // Ceiling
     ctx.fillRect(0, h - 45, w, 45); // Floor
 
@@ -573,7 +781,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     // 2. HERO / PLAYER PHYSICS
     const p = playerRef.current;
 
-    // Apply thrust or gravity
     if (isThrustingRef.current) {
       p.vy += p.thrust;
       if (p.vy < p.maxRiseSpeed) p.vy = p.maxRiseSpeed;
@@ -598,22 +805,18 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       p.vy = 0;
     }
 
-    // Shield status synchronization
     if (p.shield !== hasShield) {
       setHasShield(p.shield);
     }
 
-    // Invincible flashing timer decay
     if (p.invincibleTimer > 0) p.invincibleTimer--;
 
-    // GROUND RUNNING STATE & DUST PUFFS
+    // Ground running particles
     const groundRunning = p.y >= floorLimit;
     let runBob = 0;
     if (groundRunning) {
-      // Bobble up and down slightly to simulate running steps
       runBob = Math.sin(distanceRef.current * 0.4) * 2;
       
-      // Emit grey dust particles from player's feet
       if (distanceRef.current % 4 === 0) {
         const dustSpeedX = -gameSpeedRef.current * 0.7 - Math.random() * 2;
         const dustSpeedY = -0.5 - Math.random() * 1.5;
@@ -624,53 +827,47 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           vy: dustSpeedY,
           life: 0,
           maxLife: 15 + Math.random() * 10,
-          color: 'rgba(100, 116, 139, 0.7)', // Slate grey `#64748b`
+          color: 'rgba(100, 116, 139, 0.7)',
           size: 2 + Math.random() * 4,
         });
       }
     }
 
-    // CHARACTER ROTATION/TILT BASED ON VELOCITY
-    // Running bobble tilt, flying climb/fall tilt
     let rotationDeg = 0;
     if (groundRunning) {
-      rotationDeg = Math.sin(distanceRef.current * 0.4) * 3; // slight run sway
+      rotationDeg = Math.sin(distanceRef.current * 0.4) * 3;
     } else {
       rotationDeg = Math.min(12, Math.max(-8, p.vy * (p.vy < 0 ? 2 : 1.5)));
     }
     const rotationRad = (rotationDeg * Math.PI) / 180;
 
-    // DRAW HERO SPRITE
+    // Draw Hero Sprite
     ctx.save();
     ctx.translate(p.x + p.width / 2, p.y + p.height / 2 + runBob);
     ctx.rotate(rotationRad);
 
     const heroImg = imagesCache.current.hero;
     
-    // Flashing if invincible/hurt
     if (p.invincibleTimer === 0 || Math.floor(p.invincibleTimer / 4) % 2 === 0) {
       if (heroImg) {
         ctx.drawImage(heroImg as any, -p.width / 2, -p.height / 2, p.width, p.height);
       } else {
-        // Fallback Nano Banana vector
         ctx.fillStyle = '#eab308';
         ctx.beginPath();
         ctx.arc(0, 0, p.width/2, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = '#3b82f6';
-        ctx.fillRect(5, -9, 12, 8); // cyber goggles
+        ctx.fillRect(5, -9, 12, 8);
       }
     }
 
-    // Draw active shield bubble
     if (p.shield) {
       ctx.beginPath();
-      // Shield is drawn relative to translated center
       ctx.arc(0, 0, p.width * 0.72, 0, Math.PI * 2);
       ctx.strokeStyle = '#06b6d4';
       ctx.lineWidth = 3;
       ctx.shadowColor = '#06b6d4';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 12;
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
@@ -678,9 +875,8 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     // 3. COLLIDABLES / COLLECTIBLES (Gains)
     collectiblesRef.current.forEach(c => {
-      c.x -= gameSpeedRef.current; // Scroll left
+      c.x -= gameSpeedRef.current;
 
-      // Collision test (Bounding box overlap)
       const buffer = 4;
       const isColliding = (
         p.x + buffer < c.x + c.w &&
@@ -693,13 +889,11 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         c.collected = true;
 
         if (c.type === 'shield') {
-          // Gained Life Shield!
           p.shield = true;
           setHasShield(true);
           playSFX('shield');
           addHitParticles(c.x + c.w/2, c.y + c.h/2, '#06b6d4', 15);
         } else {
-          // Collected normal coin!
           const def = ITEM_DEFS[c.type as ItemType];
           portfolioRef.current += def.value;
           setPortfolio(portfolioRef.current);
@@ -712,7 +906,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           playSFX('collect');
           addHitParticles(c.x + c.w/2, c.y + c.h/2, '#eab308', 6);
 
-          // Add floating text
           const textId = nextEntityIdRef.current++;
           floatingTextsRef.current.push({
             id: textId,
@@ -726,7 +919,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         }
       }
 
-      // Draw Collectible
       if (!c.collected && c.x > -50) {
         const itemImg = imagesCache.current[c.type];
         const shieldImg = imagesCache.current.shield;
@@ -763,7 +955,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       }
     });
 
-    // Filter offscreen or collected coins
     collectiblesRef.current = collectiblesRef.current.filter(c => !c.collected && c.x > -50);
 
     // 4. OBSTACLES (Risks)
@@ -772,68 +963,97 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         if (o.warningTime > 0) {
           o.warningTime--;
           
-          // Draw pulsating warning laser beam across screen
+          // Homing Lock-on Phase: follows player Y coordinates smoothly
+          const dy = (p.y + p.height/2 - o.h/2) - o.y;
+          o.y += dy * 0.07; // smooth homing pull!
+
+          // Alert Beep Synth
+          if (o.warningTime % 18 === 0 && !isAudioMutedRef.current) {
+            playSFX('siren');
+          }
+
+          // Pulsating warning tracking laser
           ctx.save();
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
-          ctx.lineWidth = 1 + Math.sin(o.warningTime * 0.3) * 0.8;
-          ctx.setLineDash([8, 4]); // Dashed line
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+          ctx.lineWidth = 1.5 + Math.sin(o.warningTime * 0.3) * 0.8;
+          ctx.setLineDash([8, 4]);
           ctx.beginPath();
           ctx.moveTo(0, o.y + o.h/2);
           ctx.lineTo(w, o.y + o.h/2);
           ctx.stroke();
           ctx.restore();
 
-          // Render warning flash indicator on right edge
-          if (Math.floor(o.warningTime / 6) % 2 === 0) {
+          // Exclamation Warning flashing card on the screen edge
+          if (Math.floor(o.warningTime / 5) % 2 === 0) {
             ctx.save();
             ctx.fillStyle = '#ef4444';
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(w - 22, o.y + 12, 10, 0, Math.PI*2);
+            ctx.moveTo(w - 30, o.y + o.h/2 - 12);
+            ctx.lineTo(w - 12, o.y + o.h/2);
+            ctx.lineTo(w - 30, o.y + o.h/2 + 12);
+            ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 12px Plus Jakarta Sans';
+            ctx.font = 'black 12px Plus Jakarta Sans';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('!', w - 22, o.y + 12);
+            ctx.fillText('!', w - 24, o.y + o.h/2);
             ctx.restore();
           }
-          return; // Don't move missile across yet
+          return; // Don't slide in yet!
         }
         o.x -= (gameSpeedRef.current + o.speed);
       } else {
-        o.x -= gameSpeedRef.current; // Standard zapper scrolling
+        o.x -= gameSpeedRef.current;
       }
 
-      // Collision test (Bounding box overlap)
+      // High-precision segment collision check for zappers, box collision for missiles
+      let isColliding = false;
       const buffer = 8;
-      const isColliding = (
-        p.x + buffer < o.x + o.w &&
-        p.x + p.width - buffer > o.x &&
-        p.y + buffer < o.y + o.h &&
-        p.y + p.height - buffer > o.y
-      );
+      
+      if (o.type === 'zapper') {
+        const orientation = o.orientation || 'vertical';
+        let x1 = o.x + o.w/2, y1 = o.y + 10;
+        let x2 = o.x + o.w/2, y2 = o.y + o.h - 10;
+        
+        if (orientation === 'horizontal') {
+          x1 = o.x + 10; y1 = o.y + o.h/2;
+          x2 = o.x + o.w - 10; y2 = o.y + o.h/2;
+        } else if (orientation === 'diagonal') {
+          x1 = o.x + 10; y1 = o.y + 10;
+          x2 = o.x + o.w - 10; y2 = o.y + o.h - 10;
+        }
+        
+        const dist = distanceToSegment(p.x + p.width/2, p.y + p.height/2, x1, y1, x2, y2);
+        isColliding = dist < 22; // 22px precision hit boundary
+      } else {
+        isColliding = (
+          p.x + buffer < o.x + o.w &&
+          p.x + p.width - buffer > o.x &&
+          p.y + buffer < o.y + o.h &&
+          p.y + p.height - buffer > o.y
+        );
+      }
 
       if (isColliding && o.active && p.invincibleTimer === 0) {
-        o.active = false; // Disable to avoid repeating hit
+        o.active = false;
         statsRef.current.badHit++;
+        screenShakeRef.current = 15; // Trigger Screen Shake!
 
-        // Select the pre-assigned specific financial risk
         const chosenRisk = o.itemType || 'hospitalization';
         const def = ITEM_DEFS[chosenRisk];
 
         if (p.shield) {
-          // SHIELD ABSORBS COLLISION IMPACT!
           p.shield = false;
           setHasShield(false);
-          p.invincibleTimer = 45; // Grants temporary invulnerability frames
-          playSFX('shield'); // play high shield decay sound
+          p.invincibleTimer = 45;
+          playSFX('shield');
           addHitParticles(p.x + p.width/2, p.y + p.height/2, '#06b6d4', 25);
 
-          // Add shield block float text
           const textId = nextEntityIdRef.current++;
           floatingTextsRef.current.push({
             id: textId,
@@ -845,24 +1065,22 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             timer: 50,
           });
         } else {
-          // UNPROTECTED COLLISION - DRIP PORTFOLIO!
-          portfolioRef.current += def.value; // Drains balance (value is negative)
-          if (portfolioRef.current < 0) portfolioRef.current = 0; // Floor at zero
+          portfolioRef.current += def.value;
+          if (portfolioRef.current < 0) portfolioRef.current = 0;
           setPortfolio(portfolioRef.current);
 
           statsRef.current.losses += Math.abs(def.value);
           setLosses(statsRef.current.losses);
 
-          p.invincibleTimer = 65; // Hurt frames
+          p.invincibleTimer = 65;
           playSFX('bad');
-          addHitParticles(o.x + o.w/2, o.y + o.h/2, '#ef4444', 30);
+          addHitParticles(p.x + p.width/2, p.y + p.height/2, '#ef4444', 30);
 
-          // Add drain floating text
           const textId = nextEntityIdRef.current++;
           floatingTextsRef.current.push({
             id: textId,
-            x: o.x,
-            y: o.y - 10,
+            x: p.x,
+            y: p.y - 10,
             text: `${def.value}`,
             color: '#fca5a5',
             alpha: 1.0,
@@ -871,45 +1089,109 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         }
       }
 
-      // DRAW OBSTACLE
+      // Draw Obstacles
       if (o.active && o.x > -100 && o.x < w + 200) {
         const riskImg = o.itemType ? imagesCache.current[o.itemType] : null;
 
         if (o.type === 'zapper') {
-          // Draw electrical glowing frame
+          const orientation = o.orientation || 'vertical';
           ctx.save();
-          ctx.shadowBlur = 8;
+          ctx.shadowBlur = 10;
           ctx.shadowColor = '#ef4444';
           
-          // Top & Bottom caps
+          let x1 = o.x + o.w/2, y1 = o.y + 10;
+          let x2 = o.x + o.w/2, y2 = o.y + o.h - 10;
+          
+          if (orientation === 'horizontal') {
+            x1 = o.x + 10; y1 = o.y + o.h/2;
+            x2 = o.x + o.w - 10; y2 = o.y + o.h/2;
+          } else if (orientation === 'diagonal') {
+            x1 = o.x + 10; y1 = o.y + 10;
+            x2 = o.x + o.w - 10; y2 = o.y + o.h - 10;
+          }
+          
+          // Endpoint Metal Rod Caps
           ctx.fillStyle = '#1e293b';
           ctx.strokeStyle = '#f87171';
           ctx.lineWidth = 1.5;
           
-          ctx.fillRect(o.x, o.y, o.w, 10);
-          ctx.strokeRect(o.x, o.y, o.w, 10);
+          if (orientation === 'vertical') {
+            ctx.fillRect(o.x, o.y, o.w, 10);
+            ctx.strokeRect(o.x, o.y, o.w, 10);
+            ctx.fillRect(o.x, o.y + o.h - 10, o.w, 10);
+            ctx.strokeRect(o.x, o.y + o.h - 10, o.w, 10);
+          } else if (orientation === 'horizontal') {
+            ctx.fillRect(o.x, o.y, 10, o.h);
+            ctx.strokeRect(o.x, o.y, 10, o.h);
+            ctx.fillRect(o.x + o.w - 10, o.y, 10, o.h);
+            ctx.strokeRect(o.x + o.w - 10, o.y, 10, o.h);
+          } else {
+            ctx.beginPath(); ctx.arc(x1, y1, 8, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.arc(x2, y2, 8, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+          }
           
-          ctx.fillRect(o.x, o.y + o.h - 10, o.w, 10);
-          ctx.strokeRect(o.x, o.y + o.h - 10, o.w, 10);
-          
-          // Laser beam
-          ctx.strokeStyle = Math.random() > 0.5 ? '#ef4444' : '#fee2e2';
-          ctx.lineWidth = 3;
+          // Dual-Layer Electric Neon lightning bolt!
+          ctx.strokeStyle = '#facc15';
+          ctx.lineWidth = 4.5 + Math.random() * 2.0;
           ctx.beginPath();
-          ctx.moveTo(o.x + o.w/2, o.y + 10);
-          ctx.lineTo(o.x + o.w/2, o.y + o.h - 10);
+          ctx.moveTo(x1, y1);
+          
+          const segments = 6;
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          for (let i = 1; i <= segments; i++) {
+            const pct = i / segments;
+            const nx = -dy;
+            const ny = dx;
+            const len = Math.sqrt(nx*nx + ny*ny) || 1;
+            const offset = (Math.random() - 0.5) * 12;
+            const bx = x1 + dx * pct + (nx / len) * offset;
+            const by = y1 + dy * pct + (ny / len) * offset;
+            ctx.lineTo(bx, by);
+          }
+          ctx.stroke();
+          
+          // Inner bright white electrical lightning core
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
           ctx.stroke();
           ctx.restore();
 
-          // Draw custom risk icon in the center of the zapper
+          // Spawning neon sparks at terminals
+          if (Math.random() < 0.18) {
+            particlesRef.current.push({
+              x: x1 + (Math.random() - 0.5) * 6,
+              y: y1 + (Math.random() - 0.5) * 6,
+              vx: (Math.random() - 0.5) * 2 - gameSpeedRef.current * 0.2,
+              vy: (Math.random() - 0.5) * 2,
+              life: 0,
+              maxLife: 12 + Math.random() * 10,
+              color: '#facc15',
+              size: 1.5 + Math.random() * 2,
+            });
+            particlesRef.current.push({
+              x: x2 + (Math.random() - 0.5) * 6,
+              y: y2 + (Math.random() - 0.5) * 6,
+              vx: (Math.random() - 0.5) * 2 - gameSpeedRef.current * 0.2,
+              vy: (Math.random() - 0.5) * 2,
+              life: 0,
+              maxLife: 12 + Math.random() * 10,
+              color: '#facc15',
+              size: 1.5 + Math.random() * 2,
+            });
+          }
+
+          // Render Risk Badge in the center of the zapper line
           if (riskImg) {
-            const size = 32;
-            const rx = o.x + o.w/2 - size/2;
-            const ry = o.y + o.h/2 - size/2;
+            const cx = (x1 + x2) / 2;
+            const cy = (y1 + y2) / 2;
+            const size = 30;
+            const rx = cx - size/2;
+            const ry = cy - size/2;
             
             ctx.save();
             ctx.beginPath();
-            ctx.arc(rx + size/2, ry + size/2, size/2 + 2, 0, Math.PI*2);
+            ctx.arc(cx, cy, size/2 + 2, 0, Math.PI*2);
             ctx.fillStyle = '#0f172a';
             ctx.strokeStyle = '#ef4444';
             ctx.lineWidth = 1.5;
@@ -920,20 +1202,19 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             ctx.restore();
           }
         } else {
-          // Draw warned high speed rocket missile with risk icon badge
+          // Draw Homing Missile Rocket
           ctx.save();
           ctx.shadowBlur = 8;
           ctx.shadowColor = '#ef4444';
           
-          // Rocket body shape facing left
           ctx.fillStyle = '#0f172a';
           ctx.strokeStyle = '#f87171';
           ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.moveTo(o.x + o.w, o.y + 4); // Tail top
-          ctx.lineTo(o.x + 12, o.y + 4); // Body top
-          ctx.quadraticCurveTo(o.x, o.y + o.h/2, o.x + 12, o.y + o.h - 4); // Nose cone
-          ctx.lineTo(o.x + o.w, o.y + o.h - 4); // Body bottom
+          ctx.moveTo(o.x + o.w, o.y + 4);
+          ctx.lineTo(o.x + 12, o.y + 4);
+          ctx.quadraticCurveTo(o.x, o.y + o.h/2, o.x + 12, o.y + o.h - 4);
+          ctx.lineTo(o.x + o.w, o.y + o.h - 4);
           ctx.closePath();
           ctx.fill();
           ctx.stroke();
@@ -952,7 +1233,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           ctx.closePath();
           ctx.fill();
           
-          // Draw risk icon badge in the middle of the rocket
           if (riskImg) {
             const size = 20;
             const rx = o.x + o.w/2 - size/2;
@@ -966,80 +1246,120 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             ctx.drawImage(riskImg as any, rx, ry, size, size);
           }
           ctx.restore();
+          
+          // Spawn Billowing Smoke particles from missile
+          if (o.warningTime === 0 && distanceRef.current % 2 === 0) {
+            particlesRef.current.push({
+              x: o.x + o.w - 5,
+              y: o.y + o.h/2 + (Math.random() - 0.5) * 6,
+              vx: 1.5 + Math.random() * 2.0,
+              vy: (Math.random() - 0.5) * 1.0,
+              life: 0,
+              maxLife: 25 + Math.random() * 15,
+              color: Math.random() > 0.4 ? 'rgba(120, 113, 108, 0.65)' : 'rgba(168, 162, 158, 0.45)',
+              size: 4 + Math.random() * 5,
+            });
+          }
         }
       }
     });
 
-    // Filter out inactive or offscreen obstacles
     obstaclesRef.current = obstaclesRef.current.filter(o => o.active && o.x > -100);
 
-    // 4.5 DRAW SCARED EMPLOYEES/SCIENTISTS RUNNING ON THE GROUND
+    // 4.5 DRAW INTERACTIVE SCARED EMPLOYEES/SCIENTISTS RUNNING & COWERING
     scientistsRef.current.forEach(s => {
-      // Move scientist
-      s.x += s.vx; // walk speed
-      s.x -= gameSpeedRef.current; // scroll speed
+      s.x += s.vx;
+      s.x -= gameSpeedRef.current;
       
-      // Determine walk frame animation
       s.walkFrame = (s.walkFrame + 0.15) % (Math.PI * 2);
       
-      // Check if player is nearby or flying to trigger panic
       const dx = Math.abs(p.x - s.x);
-      if (dx < 200) {
+      if (dx < 180) {
         s.panic = true;
-        s.panicTimer = 60; // panic for 60 frames
+        s.panicTimer = 60;
+        
+        // Trigger scientist comic text bubbles!
+        if (!s.bubbleText && Math.random() < 0.08) {
+          const quotes = ['Aaaah!', 'Watch out!', 'Save me!', 'Cyborg Banana!', 'Look Up!', 'Help!', 'Run!'];
+          s.bubbleText = quotes[Math.floor(Math.random() * quotes.length)];
+          s.bubbleTimer = 65;
+          
+          // With 25% chance, panicked scientist cowers on the floor!
+          if (Math.random() < 0.25) {
+            s.cowering = true;
+          }
+        }
       }
       
-      if (s.panic) {
-        // Run away faster!
-        s.vx = -3.2 - Math.random() * 0.8;
+      if (s.cowering) {
+        s.vx = -0.5; // crawl slowly
+      } else if (s.panic) {
+        s.vx = -3.2 - Math.random() * 0.8; // run away fast!
       } else {
         s.vx = -1.2;
       }
 
-      // Draw little hazard-suited employee
       ctx.save();
-      // Draw white hazmat suit body
+      
+      const legBob = s.cowering ? 0 : Math.sin(s.walkFrame) * 2.2;
+      const sy = s.y + legBob;
+      
+      // Draw white scientist hazmat suit
       ctx.fillStyle = '#ffffff';
       ctx.strokeStyle = '#003da6';
       ctx.lineWidth = 1;
       
-      // Bobble height based on walking frame
-      const legBob = Math.sin(s.walkFrame) * 2;
-      const sy = s.y + legBob;
+      if (s.cowering) {
+        // Cowering pose (huddled down)
+        ctx.beginPath();
+        ctx.arc(s.x + s.width/2, sy + 18, 5, 0, Math.PI*2);
+        ctx.fill(); ctx.stroke();
+        
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(s.x + s.width/2 - 2, sy + 16, 4, 3);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(s.x + s.width/2 - 6, sy + 22, 12, 6);
+        ctx.strokeRect(s.x + s.width/2 - 6, sy + 22, 12, 6);
+      } else {
+        // Head / helmet
+        ctx.beginPath();
+        ctx.arc(s.x + s.width/2, sy + 6, 5, 0, Math.PI*2);
+        ctx.fill(); ctx.stroke();
+        
+        // visor
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(s.x + s.width/2 - 2, sy + 3, 5, 3);
+        
+        // Body
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(s.x + s.width/2 - 4, sy + 10, 8, 12);
+        ctx.strokeRect(s.x + s.width/2 - 4, sy + 10, 8, 12);
+        
+        // Legs
+        ctx.fillRect(s.x + s.width/2 - 4, sy + 22, 3, 6 + legBob);
+        ctx.fillRect(s.x + s.width/2 + 1, sy + 22, 3, 6 - legBob);
+      }
       
-      // Head/Helmet
-      ctx.beginPath();
-      ctx.arc(s.x + s.width/2, sy + 6, 5, 0, Math.PI*2);
-      ctx.fill();
-      ctx.stroke();
-      
-      // Blue visor
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(s.x + s.width/2 - 2, sy + 3, 5, 3);
-      
-      // Body
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(s.x + s.width/2 - 4, sy + 10, 8, 12);
-      ctx.strokeRect(s.x + s.width/2 - 4, sy + 10, 8, 12);
-      
-      // Legs (walking animation)
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(s.x + s.width/2 - 4, sy + 22, 3, 6 + legBob); // left leg
-      ctx.fillRect(s.x + s.width/2 + 1, sy + 22, 3, 6 - legBob); // right leg
-      
-      // Arms (Waving in panic if panicked!)
+      // Arms (Waving in panic if panicked, cowering if cowered)
       ctx.strokeStyle = '#1e293b';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      if (s.panic) {
-        // Arms waved up in the air!
+      
+      if (s.cowering) {
+        // Cowering arms shielding the head
+        ctx.moveTo(s.x + s.width/2 - 5, sy + 22);
+        ctx.lineTo(s.x + s.width/2 - 2, sy + 14);
+        ctx.moveTo(s.x + s.width/2 + 5, sy + 22);
+        ctx.lineTo(s.x + s.width/2 + 2, sy + 14);
+      } else if (s.panic) {
+        // Arm waving in panic!
         const armWave = Math.sin(distanceRef.current * 0.6) * 4;
         ctx.moveTo(s.x + s.width/2 - 4, sy + 12);
         ctx.lineTo(s.x + s.width/2 - 9, sy + 2 + armWave);
         ctx.moveTo(s.x + s.width/2 + 4, sy + 12);
         ctx.lineTo(s.x + s.width/2 + 9, sy + 2 - armWave);
       } else {
-        // Arms swinging normally
         const armSwing = Math.cos(s.walkFrame) * 4;
         ctx.moveTo(s.x + s.width/2 - 4, sy + 12);
         ctx.lineTo(s.x + s.width/2 - 7, sy + 18 + armSwing);
@@ -1048,9 +1368,41 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       }
       ctx.stroke();
       ctx.restore();
+
+      // Render Comic Speech Bubbles
+      if (s.bubbleText && s.bubbleTimer && s.bubbleTimer > 0) {
+        s.bubbleTimer--;
+        ctx.save();
+        ctx.font = 'bold 9px Plus Jakarta Sans';
+        const tw = ctx.measureText(s.bubbleText).width;
+        const bx = s.x + s.width/2 - tw/2 - 4;
+        const by = sy - 22;
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#003da6';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(bx, by, tw + 8, 12, 4);
+        ctx.fill();
+        ctx.stroke();
+        
+        // arrow pointing down
+        ctx.beginPath();
+        ctx.moveTo(s.x + s.width/2 - 3, by + 12);
+        ctx.lineTo(s.x + s.width/2, by + 15);
+        ctx.lineTo(s.x + s.width/2 + 3, by + 12);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.fillStyle = '#003da6';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(s.bubbleText, s.x + s.width/2, by + 6);
+        ctx.restore();
+      }
     });
     
-    // Filter offscreen scientists
     scientistsRef.current = scientistsRef.current.filter(s => s.x > -50);
 
     // 5. DRAW SPARKS / EXHAUST PARTICLES
@@ -1059,12 +1411,27 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       pt.y += pt.vy;
       pt.life++;
 
-      // Floor Exhaust Bounce!
       const floorBoundary = h - 45;
       if (pt.y >= floorBoundary) {
-        pt.y = floorBoundary - 1;
-        pt.vy = -Math.abs(pt.vy) * 0.45;
-        pt.vx += (Math.random() - 0.5) * 2;
+        if (pt.vy > 5 && pt.color.includes('234')) {
+          pt.life = pt.maxLife; // terminate bullet
+          for (let s = 0; s < 3; s++) {
+            particlesRef.current.push({
+              x: pt.x,
+              y: floorBoundary - 2,
+              vx: (Math.random() - 0.5) * 4 - gameSpeedRef.current * 0.4,
+              vy: -2 - Math.random() * 3,
+              life: 0,
+              maxLife: 15 + Math.random() * 10,
+              color: '#facc15',
+              size: 1.5 + Math.random() * 2,
+            });
+          }
+        } else {
+          pt.y = floorBoundary - 1;
+          pt.vy = -Math.abs(pt.vy) * 0.45;
+          pt.vx += (Math.random() - 0.5) * 2;
+        }
       }
 
       const pct = (pt.maxLife - pt.life) / pt.maxLife;
@@ -1079,7 +1446,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     // 6. DRAW FLOATING POPUP TEXTS
     floatingTextsRef.current.forEach(ft => {
-      ft.y -= 0.6; // rise upwards
+      ft.y -= 0.6;
       ft.timer--;
       if (ft.timer < 15) {
         ft.alpha = ft.timer / 15;
@@ -1101,16 +1468,16 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       setDistance(Math.floor(distanceRef.current / 10));
     }
 
-    // Slowly increase background speed
-    gameSpeedRef.current += 0.0007;
+    // Smoothly and slowly increase background speed over time
+    gameSpeedRef.current += 0.0003;
 
-    // SPAWN NEW COLLECTIBLES/OBSTACLES
     spawnEntities(w, h);
 
-    // Loop
     if (gameplayActiveRef.current) {
       requestAnimationFrame(runGameFrame);
     }
+    
+    ctx.restore(); // Restore screen shake ctx states
   }, [hasShield, muted]);
 
   // Handle Touch/Mouse Click thrust triggers
@@ -1138,7 +1505,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     let gameTimer: ReturnType<typeof setInterval>;
 
-    // 45 seconds game session countdown
     gameTimer = setInterval(() => {
       timeLeftRef.current -= 1;
       setTimeLeft(timeLeftRef.current);
@@ -1164,7 +1530,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       }
     }, 1000);
 
-    // Kickoff frame loop
     requestAnimationFrame(runGameFrame);
 
     return () => {
@@ -1195,59 +1560,69 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         <canvas ref={canvasRef} className="block w-full h-full" />
       </div>
 
-      {/* TOP-LEFT OVERLAY: Distance & Growth Coins */}
-      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-4 pointer-events-none flex flex-col gap-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
-        <div className="text-[2.2rem] font-black italic tracking-tighter text-white font-mono leading-none flex items-baseline">
-          {distance}<span className="text-[1.25rem] font-extrabold not-italic text-slate-300 ml-0.5">M</span>
+      {/* TOP-LEFT OVERLAY: Gold Currency Capsule (Jetpack Joyride Stash Style) */}
+      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-4 pointer-events-none flex flex-col gap-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+        <div className="flex items-center gap-2 bg-gradient-to-r from-amber-600/90 to-yellow-500/90 pl-1.5 pr-3.5 py-1.5 rounded-full border-2 border-yellow-300 shadow-[0_4px_12px_rgba(234,179,8,0.45)]">
+          {/* Spinning gold coin wrapper */}
+          <div className="flex h-[1.8rem] w-[1.8rem] items-center justify-center rounded-full bg-yellow-400 text-[1.15rem] font-black text-amber-950 shadow-[0_0_8px_#ffffff] border border-amber-300 animate-[spin_3s_linear_infinite]">
+            ₹
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[0.52rem] font-black tracking-widest text-amber-100 uppercase leading-none mb-0.5">PORTFOLIO</span>
+            <span className="text-[1.1rem] font-black tracking-tight text-white font-mono leading-none">
+              {portfolio.toLocaleString('en-IN')}
+            </span>
+          </div>
         </div>
-        
-        {/* Compound Growth Coins (Portfolio Balance) */}
-        <div className="flex items-center gap-1.5 bg-black/45 px-2.5 py-1 rounded-full border border-yellow-500/20 backdrop-blur-xs">
-          <span className="flex h-[0.9rem] w-[0.9rem] items-center justify-center rounded-full bg-amber-500 text-[0.55rem] font-black text-amber-950 shadow-[0_0_5px_#eab308]">₹</span>
-          <span className="text-[0.9rem] font-black tracking-tight text-amber-400 font-mono leading-none">
-            {portfolio.toLocaleString('en-IN')}
-          </span>
-        </div>
+
+        {/* Shield Inventory Badge */}
+        {hasShield && (
+          <div className="flex h-7 items-center justify-center rounded-full bg-cyan-500 px-3 border-2 border-cyan-300 text-[0.58rem] font-black text-white uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.6)] animate-pulse w-fit">
+            🛡 SHIELD ACTIVE
+          </div>
+        )}
       </div>
 
       {/* TOP-CENTER OVERLAY: Sleek Sci-Fi Goal Progress Bar */}
-      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 pointer-events-none w-[38vw] max-w-[12rem] flex flex-col items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
-        <div className="flex justify-between w-full text-[0.52rem] font-extrabold text-slate-300 uppercase tracking-widest mb-0.5">
-          <span>GOAL</span>
-          <span className="text-emerald-400 font-mono">{Math.round((portfolio / TARGET_PORTFOLIO) * 100)}%</span>
+      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 pointer-events-none w-[34vw] max-w-[12rem] flex flex-col items-center drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)]">
+        <div className="flex justify-between w-full text-[0.55rem] font-black text-emerald-300 uppercase tracking-widest mb-1">
+          <span>GROWTH GOAL</span>
+          <span className="text-emerald-400 font-mono font-black">{Math.round((portfolio / TARGET_PORTFOLIO) * 100)}%</span>
         </div>
-        <div className="w-full h-1.5 bg-slate-950/80 rounded-full overflow-hidden border border-white/10 p-[1px]">
+        <div className="w-full h-2 bg-slate-950/90 rounded-full overflow-hidden border-2 border-emerald-500/40 p-[1px] shadow-[0_0_8px_rgba(16,185,129,0.25)]">
           <div
-            className="h-full rounded-full transition-all duration-300"
+            className="h-full rounded-full transition-all duration-300 bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_6px_#10b981]"
             style={{
               width: `${Math.min(100, (portfolio / TARGET_PORTFOLIO) * 100)}%`,
-              background: `linear-gradient(90deg, #10B981, #34D399)`,
-              boxShadow: '0 0 6px rgba(16,185,129,0.5)'
             }}
           />
         </div>
       </div>
 
-      {/* TOP-RIGHT OVERLAY: Sound, Shield, and Timer Capsules */}
-      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 flex items-center gap-1.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
-        {/* Active Shield Badge */}
-        {hasShield && (
-          <div className="flex h-7 items-center justify-center rounded-full bg-cyan-500/20 px-2.5 border border-cyan-400/30 text-[0.55rem] font-black text-cyan-300 uppercase tracking-widest animate-pulse backdrop-blur-xs">
-            🛡 SHIELD
-          </div>
-        )}
-        
+      {/* TOP-RIGHT OVERLAY: Retro Arcade Large Distance Meter (Jetpack Joyride Style) */}
+      <div 
+        className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 pointer-events-none text-[2.6rem] font-black italic tracking-tighter text-white select-none font-sans drop-shadow-[0_4px_6px_rgba(0,0,0,0.95)]"
+        style={{
+          WebkitTextStroke: '2px #000000',
+          textShadow: '3px 3px 0px #000000',
+        }}
+      >
+        {distance}<span className="text-[1.35rem] font-extrabold not-italic text-yellow-400 ml-1">M</span>
+      </div>
+
+      {/* BOTTOM-RIGHT CAPSULE: Digital Time & Sound Controls */}
+      <div className="absolute bottom-16 right-4 flex items-center gap-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
         {/* Digital Time capsule */}
         <div 
-          className="flex h-7 items-center gap-1 bg-black/45 px-2.5 rounded-full border border-white/10 backdrop-blur-xs font-mono"
+          className="flex h-8 items-center gap-1.5 bg-black/65 px-3 rounded-full border border-white/20 backdrop-blur-xs font-mono"
           style={{
-            borderColor: timeLeft <= 10 ? '#EF4444' : 'rgba(255,255,255,0.1)',
-            boxShadow: timeLeft <= 10 ? '0 0 10px rgba(239,68,68,0.3)' : 'none'
+            borderColor: timeLeft <= 10 ? '#EF4444' : 'rgba(255,255,255,0.2)',
+            boxShadow: timeLeft <= 10 ? '0 0 10px rgba(239,68,68,0.45)' : 'none'
           }}
         >
-          <span className="text-[0.52rem] font-extrabold text-slate-300 uppercase tracking-wider">TIME</span>
+          <span className="text-[0.55rem] font-black text-slate-300 uppercase tracking-widest">TIME</span>
           <span 
-            className="text-[0.8rem] font-black leading-none"
+            className="text-[0.85rem] font-black leading-none"
             style={{ color: timeLeft <= 10 ? '#EF4444' : 'white' }}
           >
             {displayTime}
@@ -1257,12 +1632,12 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         {/* Mute/Sound toggle speaker button */}
         <button
           onClick={handleMuteToggle}
-          className="btn-press flex h-7 w-7 items-center justify-center rounded-full bg-black/45 border border-white/10 hover:bg-black/60 text-white backdrop-blur-xs"
+          className="btn-press flex h-8 w-8 items-center justify-center rounded-full bg-black/65 border border-white/20 hover:bg-black/80 text-white backdrop-blur-xs shadow-md"
         >
           {muted ? (
-            <span className="text-[0.62rem]">🔇</span>
+            <span className="text-[0.75rem]">🔇</span>
           ) : (
-            <span className="text-[0.62rem]">🔊</span>
+            <span className="text-[0.75rem]">🔊</span>
           )}
         </button>
       </div>
