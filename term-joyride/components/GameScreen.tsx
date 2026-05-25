@@ -147,6 +147,19 @@ interface FloatingText {
   timer: number;
 }
 
+interface Scientist {
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  width: number;
+  height: number;
+  panic: boolean;
+  panicTimer: number;
+  walkFrame: number;
+}
+
 interface Props {
   onGameEnd: (result: GameResult) => void;
 }
@@ -314,6 +327,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const collectiblesRef = useRef<Collectible[]>([]);
   const particlesRef = useRef<Particle[]>([]);
   const floatingTextsRef = useRef<FloatingText[]>([]);
+  const scientistsRef = useRef<Scientist[]>([]);
 
   // Spawning logic parameters
   const gameSpeedRef = useRef(4.0);
@@ -496,6 +510,22 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         warningTime: 85, // Warns player for 85 frames
         speed: 8.5,
         itemType: Math.random() > 0.5 ? 'cancer' : 'accident',
+      });
+    }
+
+    // Spawn scared scientists/employees running on the ground
+    if (Math.random() < 0.35 && scientistsRef.current.length < 4) {
+      scientistsRef.current.push({
+        id: nextEntityIdRef.current++,
+        x: canvasWidth + 20,
+        y: canvasHeight - 45 - 28, // right on the floor (45 is floor height, 28 is scientist height)
+        vx: -1.0 - Math.random() * 1.0,
+        vy: 0,
+        width: 16,
+        height: 28,
+        panic: false,
+        panicTimer: 0,
+        walkFrame: Math.random() * Math.PI * 2,
       });
     }
   }
@@ -943,6 +973,86 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     // Filter out inactive or offscreen obstacles
     obstaclesRef.current = obstaclesRef.current.filter(o => o.active && o.x > -100);
 
+    // 4.5 DRAW SCARED EMPLOYEES/SCIENTISTS RUNNING ON THE GROUND
+    scientistsRef.current.forEach(s => {
+      // Move scientist
+      s.x += s.vx; // walk speed
+      s.x -= gameSpeedRef.current; // scroll speed
+      
+      // Determine walk frame animation
+      s.walkFrame = (s.walkFrame + 0.15) % (Math.PI * 2);
+      
+      // Check if player is nearby or flying to trigger panic
+      const dx = Math.abs(p.x - s.x);
+      if (dx < 200) {
+        s.panic = true;
+        s.panicTimer = 60; // panic for 60 frames
+      }
+      
+      if (s.panic) {
+        // Run away faster!
+        s.vx = -3.2 - Math.random() * 0.8;
+      } else {
+        s.vx = -1.2;
+      }
+
+      // Draw little hazard-suited employee
+      ctx.save();
+      // Draw white hazmat suit body
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#003da6';
+      ctx.lineWidth = 1;
+      
+      // Bobble height based on walking frame
+      const legBob = Math.sin(s.walkFrame) * 2;
+      const sy = s.y + legBob;
+      
+      // Head/Helmet
+      ctx.beginPath();
+      ctx.arc(s.x + s.width/2, sy + 6, 5, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+      
+      // Blue visor
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(s.x + s.width/2 - 2, sy + 3, 5, 3);
+      
+      // Body
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(s.x + s.width/2 - 4, sy + 10, 8, 12);
+      ctx.strokeRect(s.x + s.width/2 - 4, sy + 10, 8, 12);
+      
+      // Legs (walking animation)
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(s.x + s.width/2 - 4, sy + 22, 3, 6 + legBob); // left leg
+      ctx.fillRect(s.x + s.width/2 + 1, sy + 22, 3, 6 - legBob); // right leg
+      
+      // Arms (Waving in panic if panicked!)
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (s.panic) {
+        // Arms waved up in the air!
+        const armWave = Math.sin(distanceRef.current * 0.6) * 4;
+        ctx.moveTo(s.x + s.width/2 - 4, sy + 12);
+        ctx.lineTo(s.x + s.width/2 - 9, sy + 2 + armWave);
+        ctx.moveTo(s.x + s.width/2 + 4, sy + 12);
+        ctx.lineTo(s.x + s.width/2 + 9, sy + 2 - armWave);
+      } else {
+        // Arms swinging normally
+        const armSwing = Math.cos(s.walkFrame) * 4;
+        ctx.moveTo(s.x + s.width/2 - 4, sy + 12);
+        ctx.lineTo(s.x + s.width/2 - 7, sy + 18 + armSwing);
+        ctx.moveTo(s.x + s.width/2 + 4, sy + 12);
+        ctx.lineTo(s.x + s.width/2 + 7, sy + 18 - armSwing);
+      }
+      ctx.stroke();
+      ctx.restore();
+    });
+    
+    // Filter offscreen scientists
+    scientistsRef.current = scientistsRef.current.filter(s => s.x > -50);
+
     // 5. DRAW SPARKS / EXHAUST PARTICLES
     particlesRef.current.forEach(pt => {
       pt.x += pt.vx;
@@ -1065,56 +1175,16 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   }, [started, onGameEnd, runGameFrame]);
 
   const displayTime = `${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`;
-  const totalWealth = gains + losses || 1;
-  const gainPct = Math.round((gains / totalWealth) * 100);
-  const lossPct = 100 - gainPct;
 
   return (
     <div
-      className="relative flex h-full min-h-0 flex-col overflow-hidden"
-      style={{ background: 'linear-gradient(165deg, #00091A 0%, #001535 40%, #000C22 70%, #00071A 100%)' }}
+      className="relative h-full w-full overflow-hidden select-none"
+      style={{ background: '#00081a' }}
     >
-      {/* HUD Header */}
-      <div
-        className="flex flex-shrink-0 items-center justify-between px-[4vw] pb-[0.8vh]"
-        style={{ paddingTop: 'max(1.5vh, calc(env(safe-area-inset-top) + 0.3rem))' }}
-      >
-        <button
-          onClick={handleMuteToggle}
-          className="btn-press flex h-[2.6rem] min-w-[4rem] flex-shrink-0 items-center justify-center rounded-full px-[0.6rem] text-[0.7rem] font-extrabold uppercase text-white"
-          style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)' }}
-        >
-          {muted ? 'Muted' : 'Sound'}
-        </button>
-
-        <div className="text-center">
-          <div
-            className="font-extrabold tabular-nums transition-colors"
-            style={{
-              color: timeLeft <= 10 ? '#EF4444' : 'white',
-              fontSize: 'clamp(1.75rem, 8vw, 2.15rem)',
-              textShadow: timeLeft <= 10 ? '0 0 12px rgba(239,68,68,0.6)' : 'none',
-            }}
-          >
-            {displayTime}
-          </div>
-          <div className="text-[0.58rem] font-bold uppercase tracking-[0.12em] text-blue-300">Time Remaining</div>
-        </div>
-
-        {/* Live Active Shield indicator */}
-        <div className="flex h-[2.6rem] min-w-[4rem] flex-shrink-0 items-center justify-center rounded-full">
-          {hasShield && (
-            <span className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 text-[0.58rem] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider animate-pulse">
-              🛡 Shield On
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Main Canvas Area */}
+      {/* Immersive Full Screen Canvas Area */}
       <div
         ref={containerRef}
-        className="relative flex-1 overflow-hidden select-none cursor-pointer"
+        className="absolute inset-0 select-none cursor-pointer"
         onTouchStart={triggerThrustStart}
         onTouchEnd={triggerThrustEnd}
         onMouseDown={triggerThrustStart}
@@ -1123,69 +1193,88 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         style={{ touchAction: 'none' }}
       >
         <canvas ref={canvasRef} className="block w-full h-full" />
-
-        {started && timeLeft > 40 && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <p className="text-[0.7rem] font-extrabold uppercase tracking-[0.18em] text-white/30 animate-pulse">
-              Press & Hold screen to activate Jetpack!
-            </p>
-          </div>
-        )}
       </div>
 
-      {/* Wealth Portfolio Tracker (Footer HUD) */}
-      <div className="mx-[4vw] mb-[0.4vh] flex-shrink-0 mt-1">
-        <div className="mb-[0.2rem] flex justify-between items-end">
-          <span className="text-[0.58rem] font-bold uppercase text-slate-400">Total Distance: {distance}m</span>
-          <span className="text-xl font-black text-emerald-400">
-            ₹{portfolio.toLocaleString('en-IN')}
-          </span>
+      {/* TOP-LEFT OVERLAY: Distance & Growth Coins */}
+      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-4 pointer-events-none flex flex-col gap-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+        <div className="text-[2.2rem] font-black italic tracking-tighter text-white font-mono leading-none flex items-baseline">
+          {distance}<span className="text-[1.25rem] font-extrabold not-italic text-slate-300 ml-0.5">M</span>
         </div>
         
-        {/* Compound growth / risk drained slider */}
-        <div className="flex h-[0.55rem] overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full transition-all duration-300"
-            style={{ width: `${gainPct || 100}%`, background: `linear-gradient(90deg, ${GREEN}, #34D399)`, borderRadius: gainPct > 0 ? '9999px 0 0 9999px' : undefined }}
-          />
-          <div
-            className="h-full transition-all duration-300"
-            style={{ width: `${lossPct || 0}%`, background: 'linear-gradient(90deg, #F87171, #EF4444)', borderRadius: lossPct > 0 && gainPct === 0 ? '9999px' : undefined }}
-          />
-        </div>
-        <div className="mt-[0.2rem] flex justify-between text-[0.52rem] font-bold">
-          <span className="text-emerald-400">{gains > 0 ? `${gainPct}%` : '0%'} Compounded</span>
-          <span className="text-red-400">{losses > 0 ? `${lossPct}%` : '0%'} Risk-Drained</span>
+        {/* Compound Growth Coins (Portfolio Balance) */}
+        <div className="flex items-center gap-1.5 bg-black/45 px-2.5 py-1 rounded-full border border-yellow-500/20 backdrop-blur-xs">
+          <span className="flex h-[0.9rem] w-[0.9rem] items-center justify-center rounded-full bg-amber-500 text-[0.55rem] font-black text-amber-950 shadow-[0_0_5px_#eab308]">₹</span>
+          <span className="text-[0.9rem] font-black tracking-tight text-amber-400 font-mono leading-none">
+            {portfolio.toLocaleString('en-IN')}
+          </span>
         </div>
       </div>
 
-      {/* Avoidable Risks Legend Footer */}
-      <div
-        className="flex-shrink-0 px-[4vw]"
-        style={{ paddingBottom: 'max(1.5vh, calc(env(safe-area-inset-bottom) + 0.4rem))' }}
-      >
-        <div className="rounded-[0.9rem] border border-white/10 bg-white/5 px-[0.7rem] py-[0.45rem]">
-          <p className="mb-[0.2rem] text-[0.52rem] font-extrabold uppercase tracking-[0.08em] text-red-300">Dodged Financial Risks</p>
-          <div className="flex justify-between items-center w-full gap-[0.2rem]">
-            {(Object.entries(ITEM_DEFS) as [ItemType, (typeof ITEM_DEFS)[ItemType]][])
-              .filter(([, d]) => d.bad)
-              .slice(0, 4)
-              .map(([type, def]) => (
-                <div key={type} className="flex items-center gap-[0.25rem]">
-                  <span
-                    className="flex h-[1.5rem] w-[1.5rem] flex-shrink-0 items-center justify-center rounded-full"
-                    style={{ background: def.color + '22', border: `1px solid ${def.color}55` }}
-                  >
-                    <img src={def.icon} alt={def.label} className="h-[1.1rem] w-[1.1rem] object-contain" />
-                  </span>
-                  <div>
-                    <p className="text-[0.5rem] font-black leading-tight text-red-300">-{Math.abs(def.value).toLocaleString('en-IN')}</p>
-                  </div>
-                </div>
-              ))}
-          </div>
+      {/* TOP-CENTER OVERLAY: Sleek Sci-Fi Goal Progress Bar */}
+      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 pointer-events-none w-[38vw] max-w-[12rem] flex flex-col items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+        <div className="flex justify-between w-full text-[0.52rem] font-extrabold text-slate-300 uppercase tracking-widest mb-0.5">
+          <span>GOAL</span>
+          <span className="text-emerald-400 font-mono">{Math.round((portfolio / TARGET_PORTFOLIO) * 100)}%</span>
+        </div>
+        <div className="w-full h-1.5 bg-slate-950/80 rounded-full overflow-hidden border border-white/10 p-[1px]">
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{
+              width: `${Math.min(100, (portfolio / TARGET_PORTFOLIO) * 100)}%`,
+              background: `linear-gradient(90deg, #10B981, #34D399)`,
+              boxShadow: '0 0 6px rgba(16,185,129,0.5)'
+            }}
+          />
         </div>
       </div>
+
+      {/* TOP-RIGHT OVERLAY: Sound, Shield, and Timer Capsules */}
+      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 flex items-center gap-1.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+        {/* Active Shield Badge */}
+        {hasShield && (
+          <div className="flex h-7 items-center justify-center rounded-full bg-cyan-500/20 px-2.5 border border-cyan-400/30 text-[0.55rem] font-black text-cyan-300 uppercase tracking-widest animate-pulse backdrop-blur-xs">
+            🛡 SHIELD
+          </div>
+        )}
+        
+        {/* Digital Time capsule */}
+        <div 
+          className="flex h-7 items-center gap-1 bg-black/45 px-2.5 rounded-full border border-white/10 backdrop-blur-xs font-mono"
+          style={{
+            borderColor: timeLeft <= 10 ? '#EF4444' : 'rgba(255,255,255,0.1)',
+            boxShadow: timeLeft <= 10 ? '0 0 10px rgba(239,68,68,0.3)' : 'none'
+          }}
+        >
+          <span className="text-[0.52rem] font-extrabold text-slate-300 uppercase tracking-wider">TIME</span>
+          <span 
+            className="text-[0.8rem] font-black leading-none"
+            style={{ color: timeLeft <= 10 ? '#EF4444' : 'white' }}
+          >
+            {displayTime}
+          </span>
+        </div>
+
+        {/* Mute/Sound toggle speaker button */}
+        <button
+          onClick={handleMuteToggle}
+          className="btn-press flex h-7 w-7 items-center justify-center rounded-full bg-black/45 border border-white/10 hover:bg-black/60 text-white backdrop-blur-xs"
+        >
+          {muted ? (
+            <span className="text-[0.62rem]">🔇</span>
+          ) : (
+            <span className="text-[0.62rem]">🔊</span>
+          )}
+        </button>
+      </div>
+
+      {/* Tap & Hold thrust hint at start */}
+      {started && timeLeft > 40 && (
+        <div className="pointer-events-none absolute bottom-12 inset-x-0 flex justify-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+          <p className="text-[0.58rem] font-black uppercase tracking-[0.2em] text-white/50 bg-black/35 px-4 py-1.5 rounded-full border border-white/5 backdrop-blur-xs animate-pulse">
+            👆 Tap & Hold screen to activate Thruster!
+          </p>
+        </div>
+      )}
 
       {!started && <HowToPlayPopup onStart={handleStart} />}
     </div>
