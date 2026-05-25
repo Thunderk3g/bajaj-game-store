@@ -142,7 +142,7 @@ interface Obstacle {
 
 interface Collectible {
   id: number;
-  type: ItemType | 'shield' | 'boost'; // Normal icons, Shield, or Maturity Boost
+  type: ItemType | 'shield' | 'boost' | 'bird'; // Normal icons, Shield, Maturity Boost, or Profit Bird Vehicle
   x: number;
   y: number;
   w: number;
@@ -303,6 +303,9 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const [gains, setGains] = useState(0);
   const [losses, setLosses] = useState(0);
 
+  // Active Vehicle state ('bird' | null)
+  const [vehicleActive, setVehicleActive] = useState<string | null>(null);
+
   // Maturity Speed Boost powerup tracking state
   const [boostActive, setBoostActive] = useState(false);
   const [boostTimeLeft, setBoostTimeLeft] = useState(0);
@@ -319,10 +322,15 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   // Screen shake amount
   const screenShakeRef = useRef(0);
 
+  // Profit Bird vehicle refs
+  const vehicleActiveRef = useRef<string | null>(null);
+  const birdWingAngleRef = useRef(0);
+  const birdWingFlapDirRef = useRef(1);
+
   // Maturity Speed Boost powerup refs
   const boostActiveRef = useRef(false);
   const boostTimerRef = useRef(0);
-  const speedBeforeBoostRef = useRef(1.4);
+  const speedBeforeBoostRef = useRef(1.0);
   const boostMaxDuration = 180; // 3 seconds at 60 FPS
 
   // Physics stats tracking
@@ -359,7 +367,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const scientistsRef = useRef<Scientist[]>([]);
 
   // Spawning logic parameters (Significantly slowed down base values to address user feedback)
-  const gameSpeedRef = useRef(1.4); // Slower starting speed (from 2.0 to 1.4)
+  const gameSpeedRef = useRef(1.0); // Ultra slow base speed (from 1.4 to 1.0)
   const spawnTimerRef = useRef(0);
   const nextEntityIdRef = useRef(0);
 
@@ -427,6 +435,23 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
   // ─── Particle Thruster Exhaust System ───────────────────────────────────────
   function addThrustParticles(x: number, y: number, count = 3) {
+    if (vehicleActiveRef.current === 'bird') {
+      // Sprays green paper rupee cash sheets trailing behind the bird tail!
+      if (Math.random() < 0.45) {
+        particlesRef.current.push({
+          x: x + 20,
+          y: y + 25,
+          vx: 1.5 + Math.random() * 2,
+          vy: (Math.random() - 0.5) * 3,
+          life: 0,
+          maxLife: 45 + Math.random() * 20,
+          color: 'rgba(34, 197, 94, 0.9)', // emerald rupee bill green
+          size: 6,
+        });
+      }
+      return;
+    }
+
     for (let i = 0; i < count; i++) {
       const angle = Math.PI / 2 + (Math.random() - 0.5) * 0.4;
       const speed = 2 + Math.random() * 4;
@@ -487,11 +512,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         size: 2 + Math.random() * 4,
       });
     }
-  }
-
-  function handleStart() {
-    playSFX('btn');
-    setStarted(true);
   }
 
   // ─── Coin Formation Spawner (Jetpack Joyride Patterns) ─────────────────────
@@ -578,18 +598,18 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   // ─── Spawning Generator ───────────────────────────────────────────────────
   function spawnEntities(canvasWidth: number, canvasHeight: number) {
     spawnTimerRef.current++;
-    if (spawnTimerRef.current < 100) return; // Expanded spacing (from 65 to 100 frames) to slow down speed density
+    if (spawnTimerRef.current < 120) return; // Expanded spacing (from 100 to 120 frames) to slow down speed density
     spawnTimerRef.current = 0;
 
     const randomChoice = Math.random();
 
-    if (randomChoice < 0.42) {
+    if (randomChoice < 0.40) {
       // Spawn structured coin curves (deposits, savings, salary, retirement)
-      const coinTypes: (ItemType | 'shield' | 'boost')[] = ['deposits', 'savings', 'salary', 'retirement'];
+      const coinTypes: (ItemType | 'shield' | 'boost' | 'bird')[] = ['deposits', 'savings', 'salary', 'retirement'];
       const activeType = coinTypes[Math.floor(Math.random() * coinTypes.length)] as ItemType;
       
       spawnCoinFormation(activeType, canvasWidth, canvasHeight);
-    } else if (randomChoice < 0.49) {
+    } else if (randomChoice < 0.46) {
       // Spawn premium Life Shield power-up!
       collectiblesRef.current.push({
         id: nextEntityIdRef.current++,
@@ -600,8 +620,19 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         h: 32,
         collected: false,
       });
-    } else if (randomChoice < 0.56) {
-      // Spawn new premium glowing golden Maturity Speed Boost orb!
+    } else if (randomChoice < 0.52) {
+      // Spawn glowing red Profit Bird vehicle token!
+      collectiblesRef.current.push({
+        id: nextEntityIdRef.current++,
+        type: 'bird',
+        x: canvasWidth,
+        y: 120 + Math.random() * (canvasHeight - 240),
+        w: 32,
+        h: 32,
+        collected: false,
+      });
+    } else if (randomChoice < 0.58) {
+      // Spawn golden Maturity Speed Boost orb!
       collectiblesRef.current.push({
         id: nextEntityIdRef.current++,
         type: 'boost',
@@ -650,12 +681,12 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         id: nextEntityIdRef.current++,
         type: 'missile',
         x: canvasWidth + 200,
-        y: playerRef.current.y, // tracking height
+        y: playerRef.current.y, // tracking Y lane
         w: 42,
         h: 24,
         active: true,
         warningTime: 110,
-        speed: 3.5, // Slowed down rocket flight speed (from 5.5 to 3.5)
+        speed: 2.2, // Slower missile speed (from 3.5 to 2.2) to make it super relaxed
         itemType: Math.random() > 0.5 ? 'cancer' : 'accident',
       });
     }
@@ -712,7 +743,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       
       // Draw window viewport clipping mask
       ctx.save();
-      ctx.fillStyle = '#020617'; // darker sky inside window
+      ctx.fillStyle = '#020617';
       ctx.fillRect(xOffset, 32, windowWidth, h - 77);
 
       ctx.beginPath();
@@ -780,7 +811,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     ctx.fillRect(0, 32, w, 6);
     ctx.fillRect(0, h - 51, w, 6);
 
-    ctx.strokeStyle = Math.random() > 0.4 ? '#38bdf8' : '#0284c7'; // buzzing cyan energy conduits
+    ctx.strokeStyle = Math.random() > 0.4 ? '#38bdf8' : '#0284c7';
     ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.moveTo(0, 35);
@@ -801,6 +832,21 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     // 2. HERO / PLAYER PHYSICS & MATURITY BOOST FLIGHT TIMERS
     const p = playerRef.current;
+
+    // Wing flapping angles calculations (for Profit Bird flapping animations)
+    if (vehicleActiveRef.current === 'bird') {
+      if (isThrustingRef.current) {
+        birdWingAngleRef.current += 0.25 * birdWingFlapDirRef.current;
+        if (Math.abs(birdWingAngleRef.current) > 0.6) {
+          birdWingFlapDirRef.current *= -1;
+        }
+      } else {
+        birdWingAngleRef.current += 0.05 * birdWingFlapDirRef.current;
+        if (Math.abs(birdWingAngleRef.current) > 0.2) {
+          birdWingFlapDirRef.current *= -1;
+        }
+      }
+    }
 
     if (boostActiveRef.current) {
       boostTimerRef.current--;
@@ -826,15 +872,15 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       addThrustParticles(p.x, p.y, 3);
       if (Math.random() < 0.25) playSFX('thrust');
     } else {
-      // Smooth deceleration back to slow speed after power-up boost ends!
+      // Smooth deceleration back to slow speed after power-up boost ends or vehicle crashed!
       if (gameSpeedRef.current > speedBeforeBoostRef.current) {
         gameSpeedRef.current -= 0.08; // smoothly decelerate speed back down
         if (gameSpeedRef.current < speedBeforeBoostRef.current) {
           gameSpeedRef.current = speedBeforeBoostRef.current;
         }
       } else {
-        // Normal, incredibly slow, manageable speed increment (from 0.0003 to 0.0001)
-        gameSpeedRef.current += 0.0001;
+        // Normal, incredibly slow, manageable speed increment (from 0.0001 to 0.00005)
+        gameSpeedRef.current += 0.00005;
       }
 
       // Standard player flight controls
@@ -848,7 +894,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         if (p.vy > p.maxFallSpeed) p.vy = p.maxFallSpeed;
       }
 
-      // Update position
+      // Update Y Position
       p.y += p.vy;
     }
 
@@ -899,46 +945,114 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     }
     const rotationRad = (rotationDeg * Math.PI) / 180;
 
-    // Draw Hero Sprite
-    ctx.save();
-    ctx.translate(p.x + p.width / 2, p.y + p.height / 2 + runBob);
-    ctx.rotate(rotationRad);
+    // DRAW CYBORG BANANA HERO OR PROFIT BIRD SPRITE
+    if (vehicleActiveRef.current === 'bird') {
+      // ─── Draw Profit Bird Custom High-Tech Vector! ──────────────────────────
+      ctx.save();
+      ctx.translate(p.x + p.width / 2, p.y + p.height / 2 + runBob);
+      ctx.rotate(rotationRad);
 
-    const heroImg = imagesCache.current.hero;
-    
-    if (p.invincibleTimer === 0 || Math.floor(p.invincibleTimer / 4) % 2 === 0) {
-      if (heroImg) {
-        ctx.drawImage(heroImg as any, -p.width / 2, -p.height / 2, p.width, p.height);
-      } else {
-        ctx.fillStyle = '#eab308';
+      // Flashing if invincible
+      if (p.invincibleTimer === 0 || Math.floor(p.invincibleTimer / 4) % 2 === 0) {
+        // Red Mechanical Bird Body
+        ctx.fillStyle = '#ef4444';
+        ctx.strokeStyle = '#991b1b';
+        ctx.lineWidth = 1.8;
+        
         ctx.beginPath();
-        ctx.arc(0, 0, p.width/2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#3b82f6';
-        ctx.fillRect(5, -9, 12, 8);
+        ctx.arc(-2, 0, 16, 0, Math.PI*2);
+        ctx.fill(); ctx.stroke();
+        
+        // Robotic gold visor/beak
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.moveTo(-10, -4);
+        ctx.lineTo(-24, 2);
+        ctx.lineTo(-10, 6);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        
+        // Silver pilot dome/windshield
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath();
+        ctx.arc(-4, -6, 8, Math.PI, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        
+        // Tiny banana pilot inside windshield!
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(-6, -9, 4, 4);
+        
+        // Red Tail feathers
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(12, -2);
+        ctx.lineTo(24, -12);
+        ctx.lineTo(20, 2);
+        ctx.lineTo(24, 12);
+        ctx.lineTo(12, 6);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        
+        // Flapping Gold Wings (rotated relative to wings flapping direction)
+        ctx.save();
+        ctx.translate(2, 0);
+        ctx.rotate(birdWingAngleRef.current);
+        
+        ctx.fillStyle = '#fbbf24';
+        ctx.strokeStyle = '#b45309';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-4, -20);
+        ctx.lineTo(8, -22);
+        ctx.lineTo(14, -8);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
       }
-    }
 
-    if (p.shield) {
-      ctx.beginPath();
-      ctx.arc(0, 0, p.width * 0.72, 0, Math.PI * 2);
-      ctx.strokeStyle = '#06b6d4';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = '#06b6d4';
-      ctx.shadowBlur = 12;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+      ctx.restore();
+    } else {
+      // ─── Draw Standard Cyborg Banana Hero ───────────────────────────────────
+      ctx.save();
+      ctx.translate(p.x + p.width / 2, p.y + p.height / 2 + runBob);
+      ctx.rotate(rotationRad);
+
+      const heroImg = imagesCache.current.hero;
+      
+      if (p.invincibleTimer === 0 || Math.floor(p.invincibleTimer / 4) % 2 === 0) {
+        if (heroImg) {
+          ctx.drawImage(heroImg as any, -p.width / 2, -p.height / 2, p.width, p.height);
+        } else {
+          ctx.fillStyle = '#eab308';
+          ctx.beginPath();
+          ctx.arc(0, 0, p.width/2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#3b82f6';
+          ctx.fillRect(5, -9, 12, 8);
+        }
+      }
+
+      if (p.shield) {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.width * 0.72, 0, Math.PI * 2);
+        ctx.strokeStyle = '#06b6d4';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#06b6d4';
+        ctx.shadowBlur = 12;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+      ctx.restore();
     }
-    ctx.restore();
 
     // 3. COLLIDABLES / COLLECTIBLES (Gains)
     collectiblesRef.current.forEach(c => {
       // Pull items in with magnetism when Maturity Speed Boost is active!
-      if (boostActiveRef.current && c.type !== 'boost' && !c.collected) {
+      if (boostActiveRef.current && c.type !== 'boost' && c.type !== 'bird' && !c.collected) {
         const dx = (p.x + p.width/2) - (c.x + c.w/2);
         const dy = (p.y + p.height/2) - (c.y + c.h/2);
         const dist = Math.hypot(dx, dy);
-        if (dist < 220) { // 220px coin magnet radius
+        if (dist < 220) {
           const pullForce = (220 - dist) * 0.08;
           c.x += (dx / dist) * pullForce;
           c.y += (dy / dist) * pullForce;
@@ -963,9 +1077,26 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           setHasShield(true);
           playSFX('shield');
           addHitParticles(c.x + c.w/2, c.y + c.h/2, '#06b6d4', 15);
+        } else if (c.type === 'bird') {
+          // Gained Profit Bird vehicle!
+          vehicleActiveRef.current = 'bird';
+          setVehicleActive('bird');
+          playSFX('shield');
+          addHitParticles(c.x + c.w/2, c.y + c.h/2, '#ef4444', 25);
+          
+          const textId = nextEntityIdRef.current++;
+          floatingTextsRef.current.push({
+            id: textId,
+            x: p.x,
+            y: p.y - 20,
+            text: 'PROFIT BIRD COLLECTED!',
+            color: '#f87171',
+            alpha: 1.0,
+            timer: 55,
+          });
         } else if (c.type === 'boost') {
           // Gained Maturity Speed Boost!
-          speedBeforeBoostRef.current = Math.min(1.8, gameSpeedRef.current); // capture current accumulated speed
+          speedBeforeBoostRef.current = Math.min(1.4, gameSpeedRef.current); // capture current accumulated speed
           boostActiveRef.current = true;
           boostTimerRef.current = boostMaxDuration;
           setBoostActive(true);
@@ -1027,7 +1158,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             ctx.fill();
           }
         } else if (c.type === 'boost') {
-          // Draw premium golden lightning lightning boost orb
+          // Draw premium golden lightning boost orb
           ctx.save();
           ctx.shadowBlur = 12;
           ctx.shadowColor = '#eab308';
@@ -1050,6 +1181,43 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           ctx.lineTo(c.x + c.w/2 + 2, c.y + c.h/2 - 2);
           ctx.closePath();
           ctx.fill();
+          ctx.restore();
+        } else if (c.type === 'bird') {
+          // Draw glowing red Profit Bird vehicle token!
+          ctx.save();
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = '#ef4444';
+          ctx.fillStyle = '#f87171';
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.8;
+          
+          ctx.beginPath();
+          ctx.arc(c.x + c.w/2, c.y + c.h/2, c.w/2, 0, Math.PI*2);
+          ctx.fill();
+          ctx.stroke();
+          
+          ctx.fillStyle = '#7f1d1d';
+          ctx.beginPath();
+          ctx.arc(c.x + c.w/2 - 2, c.y + c.h/2, 5, 0, Math.PI*2);
+          ctx.fill();
+          
+          // Beak
+          ctx.beginPath();
+          ctx.moveTo(c.x + c.w/2 - 7, c.y + c.h/2 - 1);
+          ctx.lineTo(c.x + c.w/2 - 11, c.y + c.h/2 + 2);
+          ctx.lineTo(c.x + c.w/2 - 7, c.y + c.h/2 + 3);
+          ctx.closePath();
+          ctx.fillStyle = '#facc15';
+          ctx.fill();
+          
+          // Wing
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(c.x + c.w/2 - 1, c.y + c.h/2 - 1);
+          ctx.lineTo(c.x + c.w/2 + 5, c.y + c.h/2 - 6);
+          ctx.lineTo(c.x + c.w/2 + 3, c.y + c.h/2 + 2);
+          ctx.stroke();
           ctx.restore();
         } else {
           if (itemImg) {
@@ -1155,6 +1323,30 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         o.active = false;
         statsRef.current.badHit++;
         screenShakeRef.current = 15;
+
+        // Profit Bird vehicle absorbs the crash! Explode spectacularly.
+        if (vehicleActiveRef.current === 'bird') {
+          vehicleActiveRef.current = null;
+          setVehicleActive(null);
+          p.invincibleTimer = 55; // invulnerable flash duration
+          speedBeforeBoostRef.current = 1.0; // reset decelerate speed anchor
+          
+          playSFX('bad');
+          addHitParticles(p.x + p.width/2, p.y + p.height/2, '#ef4444', 20); // red burst sparks
+          addHitParticles(p.x + p.width/2, p.y + p.height/2, '#fbbf24', 15); // gold metal wing sparks
+          
+          const textId = nextEntityIdRef.current++;
+          floatingTextsRef.current.push({
+            id: textId,
+            x: p.x,
+            y: p.y - 20,
+            text: 'VEHICLE DESTROYED!',
+            color: '#fca5a5',
+            alpha: 1.0,
+            timer: 50,
+          });
+          return;
+        }
 
         const chosenRisk = o.itemType || 'hospitalization';
         const def = ITEM_DEFS[chosenRisk];
@@ -1373,7 +1565,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     obstaclesRef.current = obstaclesRef.current.filter(o => o.active && o.x > -100);
 
-    // 4.5 DRAW SCARED HAZARD EMPLOYEES/SCIENTISTS
+    // 4.5 DRAW INTERACTIVE SCARED HAZARD EMPLOYEES/SCIENTISTS
     scientistsRef.current.forEach(s => {
       s.x += s.vx;
       s.x -= gameSpeedRef.current;
@@ -1528,12 +1720,31 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         }
       }
 
-      const pct = (pt.maxLife - pt.life) / pt.maxLife;
-      ctx.fillStyle = pt.color;
-      ctx.globalAlpha = Math.max(0, Math.min(1, pct));
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, Math.max(0, pt.size * pct), 0, Math.PI * 2);
-      ctx.fill();
+      if (pt.size === 6 && pt.color.includes('34')) {
+        // ─── Render Rotating Emerald paper money bills trailing behind Profit Bird! ───
+        const pct = (pt.maxLife - pt.life) / pt.maxLife;
+        ctx.save();
+        ctx.translate(pt.x, pt.y);
+        ctx.rotate(pt.life * 0.15); // float rotate
+        ctx.fillStyle = pt.color;
+        ctx.globalAlpha = Math.max(0, Math.min(1, pct));
+        ctx.strokeStyle = '#15803d';
+        ctx.lineWidth = 0.5;
+        ctx.fillRect(-6, -3, 12, 6);
+        ctx.strokeRect(-6, -3, 12, 6);
+        
+        // white center mark
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-2, -1, 4, 2);
+        ctx.restore();
+      } else {
+        const pct = (pt.maxLife - pt.life) / pt.maxLife;
+        ctx.fillStyle = pt.color;
+        ctx.globalAlpha = Math.max(0, Math.min(1, pct));
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, Math.max(0, pt.size * pct), 0, Math.PI * 2);
+        ctx.fill();
+      }
     });
     ctx.globalAlpha = 1.0;
     particlesRef.current = particlesRef.current.filter(pt => pt.life < pt.maxLife);
@@ -1651,24 +1862,37 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         <canvas ref={canvasRef} className="block w-full h-full" />
       </div>
 
-      {/* TOP-LEFT OVERLAY: Gold Currency Capsule (Jetpack Joyride Stash Style) */}
-      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-4 pointer-events-none flex flex-col gap-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
-        <div className="flex items-center gap-2 bg-gradient-to-r from-amber-600/90 to-yellow-500/90 pl-1.5 pr-3.5 py-1.5 rounded-full border-2 border-yellow-300 shadow-[0_4px_12px_rgba(234,179,8,0.45)]">
-          {/* Spinning gold coin wrapper */}
-          <div className="flex h-[1.8rem] w-[1.8rem] items-center justify-center rounded-full bg-yellow-400 text-[1.15rem] font-black text-amber-950 shadow-[0_0_8px_#ffffff] border border-amber-300 animate-[spin_3s_linear_infinite]">
-            ₹
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[0.52rem] font-black tracking-widest text-amber-100 uppercase leading-none mb-0.5">PORTFOLIO</span>
-            <span className="text-[1.1rem] font-black tracking-tight text-white font-mono leading-none">
-              {portfolio.toLocaleString('en-IN')}
-            </span>
-          </div>
+      {/* TOP-LEFT STACKED OVERLAY: Distance & Coins (Exactly like Jetpack Joyride Screenshots) */}
+      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] left-4 pointer-events-none flex flex-col gap-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+        {/* Distance Meter (Top Line) */}
+        <div 
+          className="text-[2.6rem] font-black italic tracking-tighter text-white select-none font-sans leading-none"
+          style={{
+            WebkitTextStroke: '2px #000000',
+            textShadow: '3px 3px 0px #000000',
+          }}
+        >
+          {distance}<span className="text-[1.35rem] font-extrabold not-italic text-yellow-400 ml-1">M</span>
         </div>
 
+        {/* Coin Counter (Bottom Line, stacked below distance) */}
+        <div 
+          className="flex items-center gap-2 text-[1.8rem] font-black italic tracking-tighter text-yellow-400 select-none font-sans leading-none"
+          style={{
+            WebkitTextStroke: '1.5px #000000',
+            textShadow: '2.5px 2.5px 0px #000000',
+          }}
+        >
+          {portfolio.toLocaleString('en-IN')}
+          {/* Spinning gold Rupee coin */}
+          <div className="flex h-[1.6rem] w-[1.6rem] items-center justify-center rounded-full bg-yellow-400 text-[1rem] font-black text-amber-950 shadow-[0_0_8px_#ffffff] border border-amber-300 animate-[spin_3s_linear_infinite] not-italic ml-0.5 drop-shadow-md">
+            ₹
+          </div>
+        </div>
+        
         {/* Shield Inventory Badge */}
         {hasShield && (
-          <div className="flex h-7 items-center justify-center rounded-full bg-cyan-500 px-3 border-2 border-cyan-300 text-[0.58rem] font-black text-white uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.6)] animate-pulse w-fit">
+          <div className="flex h-6 items-center justify-center rounded-full bg-cyan-500 px-2.5 border border-cyan-300 text-[0.55rem] font-black text-white uppercase tracking-widest shadow-[0_0_8px_rgba(6,182,212,0.6)] animate-pulse w-fit mt-0.5 leading-none">
             🛡 SHIELD ACTIVE
           </div>
         )}
@@ -1690,7 +1914,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         </div>
       </div>
 
-      {/* Maturity Speed Boost Active bar HUD Indicator */}
+      {/* Maturity Speed Boost Active HUD Progress bar */}
       {boostActive && (
         <div className="absolute top-[max(3rem,calc(env(safe-area-inset-top)+2rem))] left-1/2 -translate-x-1/2 pointer-events-none w-[34vw] max-w-[12rem] flex flex-col items-center drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] animate-pulse">
           <div className="flex justify-between w-full text-[0.48rem] font-black text-yellow-300 uppercase tracking-widest mb-0.5">
@@ -1708,19 +1932,8 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         </div>
       )}
 
-      {/* TOP-RIGHT OVERLAY: Retro Arcade Large Distance Meter (Jetpack Joyride Style) */}
-      <div 
-        className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 pointer-events-none text-[2.6rem] font-black italic tracking-tighter text-white select-none font-sans drop-shadow-[0_4px_6px_rgba(0,0,0,0.95)]"
-        style={{
-          WebkitTextStroke: '2px #000000',
-          textShadow: '3px 3px 0px #000000',
-        }}
-      >
-        {distance}<span className="text-[1.35rem] font-extrabold not-italic text-yellow-400 ml-1">M</span>
-      </div>
-
-      {/* BOTTOM-RIGHT CAPSULE: Digital Time & Sound Controls */}
-      <div className="absolute bottom-16 right-4 flex items-center gap-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+      {/* TOP-RIGHT OVERLAY: Digital Time & Sound Controls */}
+      <div className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 flex items-center gap-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
         {/* Digital Time capsule */}
         <div 
           className="flex h-8 items-center gap-1.5 bg-black/65 px-3 rounded-full border border-white/20 backdrop-blur-xs font-mono"
