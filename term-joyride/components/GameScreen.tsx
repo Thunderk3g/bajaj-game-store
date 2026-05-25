@@ -142,7 +142,7 @@ interface Obstacle {
 
 interface Collectible {
   id: number;
-  type: ItemType | 'shield';
+  type: ItemType | 'shield' | 'boost'; // Normal icons, Shield, or Maturity Boost
   x: number;
   y: number;
   w: number;
@@ -303,6 +303,10 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const [gains, setGains] = useState(0);
   const [losses, setLosses] = useState(0);
 
+  // Maturity Speed Boost powerup tracking state
+  const [boostActive, setBoostActive] = useState(false);
+  const [boostTimeLeft, setBoostTimeLeft] = useState(0);
+
   // Gameplay configuration refs
   const gameplayActiveRef = useRef(false);
   const timeLeftRef = useRef(GAME_SECS);
@@ -315,6 +319,12 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   // Screen shake amount
   const screenShakeRef = useRef(0);
 
+  // Maturity Speed Boost powerup refs
+  const boostActiveRef = useRef(false);
+  const boostTimerRef = useRef(0);
+  const speedBeforeBoostRef = useRef(1.4);
+  const boostMaxDuration = 180; // 3 seconds at 60 FPS
+
   // Physics stats tracking
   const statsRef = useRef({
     coinsCollected: 0,
@@ -324,17 +334,17 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     losses: 0,
   });
 
-  // Player physics (Tuned to be floatier and more controllable)
+  // Player physics (Tuned to be extremely floaty, responsive and fully controllable)
   const playerRef = useRef({
     x: 75,
     y: 200,
     vy: 0,
     width: 48,
     height: 48,
-    gravity: 0.22,      // Floatier gravity (from 0.26)
-    thrust: -0.58,       // Floatier thrust (from -0.65)
-    maxFallSpeed: 5.0,   // Controlled fall speed (from 5.5)
-    maxRiseSpeed: -4.0,  // Controlled rise speed (from -4.5)
+    gravity: 0.22,      // Floatier gravity
+    thrust: -0.58,       // Floatier thrust
+    maxFallSpeed: 5.0,   // Controlled fall speed
+    maxRiseSpeed: -4.0,  // Controlled rise speed
     shield: false,
     invincibleTimer: 0,
   });
@@ -348,8 +358,8 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const floatingTextsRef = useRef<FloatingText[]>([]);
   const scientistsRef = useRef<Scientist[]>([]);
 
-  // Spawning logic parameters
-  const gameSpeedRef = useRef(2.0); // Slower starting speed (from 2.8)
+  // Spawning logic parameters (Significantly slowed down base values to address user feedback)
+  const gameSpeedRef = useRef(1.4); // Slower starting speed (from 2.0 to 1.4)
   const spawnTimerRef = useRef(0);
   const nextEntityIdRef = useRef(0);
 
@@ -415,15 +425,10 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     if (!next) playSFX('btn');
   }
 
-  function handleStart() {
-    playSFX('btn');
-    setStarted(true);
-  }
-
   // ─── Particle Thruster Exhaust System ───────────────────────────────────────
   function addThrustParticles(x: number, y: number, count = 3) {
     for (let i = 0; i < count; i++) {
-      const angle = Math.PI / 2 + (Math.random() - 0.5) * 0.4; // Aim downwards with slight spread
+      const angle = Math.PI / 2 + (Math.random() - 0.5) * 0.4;
       const speed = 2 + Math.random() * 4;
       const size = 3 + Math.random() * 6;
       particlesRef.current.push({
@@ -433,7 +438,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         vy: Math.sin(angle) * speed,
         life: 0,
         maxLife: 20 + Math.random() * 20,
-        color: Math.random() > 0.4 ? 'rgba(242, 101, 34, 0.95)' : 'rgba(253, 224, 71, 0.95)', // Orange and golden sparks
+        color: Math.random() > 0.4 ? 'rgba(242, 101, 34, 0.95)' : 'rgba(253, 224, 71, 0.95)',
         size,
       });
     }
@@ -444,25 +449,25 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         x: x - 8,
         y: y + 30,
         vx: -gameSpeedRef.current + (Math.random() - 0.5) * 1.5,
-        vy: 7 + Math.random() * 4, // falling fast downwards
+        vy: 7 + Math.random() * 4,
         life: 0,
         maxLife: 50,
-        color: 'rgba(234, 179, 8, 0.95)', // gold bullet pellet
+        color: 'rgba(234, 179, 8, 0.95)',
         size: 3,
       });
     }
 
-    // Spawn high-fidelity white-grey jetpack nozzle smoke cloud!
+    // Spawn white-grey jetpack smoke nozzle puffs
     if (Math.random() < 0.4) {
       particlesRef.current.push({
         x: x - 8,
         y: y + 25,
         vx: -gameSpeedRef.current * 0.8 - Math.random() * 1.5,
-        vy: 1 + Math.random() * 2, // gently drifting downwards
+        vy: 1 + Math.random() * 2,
         life: 0,
         maxLife: 30 + Math.random() * 20,
-        color: 'rgba(226, 232, 240, 0.42)', // very soft white-grey
-        size: 8 + Math.random() * 6, // larger smoke cloud
+        color: 'rgba(226, 232, 240, 0.42)',
+        size: 8 + Math.random() * 6,
       });
     }
   }
@@ -484,6 +489,11 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     }
   }
 
+  function handleStart() {
+    playSFX('btn');
+    setStarted(true);
+  }
+
   // ─── Coin Formation Spawner (Jetpack Joyride Patterns) ─────────────────────
   function spawnCoinFormation(activeType: ItemType, canvasWidth: number, canvasHeight: number) {
     const patternChoice = Math.random();
@@ -491,7 +501,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     
     if (patternChoice < 0.28) {
       // 1. SINE WAVE
-      const count = 6 + Math.floor(Math.random() * 5); // 6-10 coins
+      const count = 6 + Math.floor(Math.random() * 5);
       for (let i = 0; i < count; i++) {
         collectiblesRef.current.push({
           id: nextEntityIdRef.current++,
@@ -504,7 +514,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         });
       }
     } else if (patternChoice < 0.52) {
-      // 2. CIRCLE RING (8 coins around a center)
+      // 2. CIRCLE RING
       const centerX = canvasWidth + 80;
       const centerY = startY + 60;
       const radius = 50;
@@ -521,7 +531,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         });
       }
     } else if (patternChoice < 0.76) {
-      // 3. DIAMOND (8 coins)
+      // 3. DIAMOND
       const centerX = canvasWidth + 80;
       const centerY = startY + 60;
       const offsets = [
@@ -540,7 +550,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         });
       });
     } else {
-      // 4. PARALLEL LANES (2 lines of 5 coins)
+      // 4. PARALLEL LANES
       const count = 5;
       for (let i = 0; i < count; i++) {
         collectiblesRef.current.push({
@@ -568,22 +578,33 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   // ─── Spawning Generator ───────────────────────────────────────────────────
   function spawnEntities(canvasWidth: number, canvasHeight: number) {
     spawnTimerRef.current++;
-    if (spawnTimerRef.current < 65) return; // Wait intervals
+    if (spawnTimerRef.current < 100) return; // Expanded spacing (from 65 to 100 frames) to slow down speed density
     spawnTimerRef.current = 0;
 
     const randomChoice = Math.random();
 
-    if (randomChoice < 0.45) {
+    if (randomChoice < 0.42) {
       // Spawn structured coin curves (deposits, savings, salary, retirement)
-      const coinTypes: (ItemType | 'shield')[] = ['deposits', 'savings', 'salary', 'retirement'];
+      const coinTypes: (ItemType | 'shield' | 'boost')[] = ['deposits', 'savings', 'salary', 'retirement'];
       const activeType = coinTypes[Math.floor(Math.random() * coinTypes.length)] as ItemType;
       
       spawnCoinFormation(activeType, canvasWidth, canvasHeight);
-    } else if (randomChoice < 0.54) {
+    } else if (randomChoice < 0.49) {
       // Spawn premium Life Shield power-up!
       collectiblesRef.current.push({
         id: nextEntityIdRef.current++,
         type: 'shield',
+        x: canvasWidth,
+        y: 120 + Math.random() * (canvasHeight - 240),
+        w: 32,
+        h: 32,
+        collected: false,
+      });
+    } else if (randomChoice < 0.56) {
+      // Spawn new premium glowing golden Maturity Speed Boost orb!
+      collectiblesRef.current.push({
+        id: nextEntityIdRef.current++,
+        type: 'boost',
         x: canvasWidth,
         y: 120 + Math.random() * (canvasHeight - 240),
         w: 32,
@@ -624,22 +645,22 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         orientation,
       });
     } else {
-      // Spawn red homing warning alert rocket missile!
+      // Spawn red homing warning alert rocket missile (tuned launch speed down)
       obstaclesRef.current.push({
         id: nextEntityIdRef.current++,
         type: 'missile',
-        x: canvasWidth + 200, // Offscreen starting lane
-        y: playerRef.current.y, // Lock onto player Y initially
+        x: canvasWidth + 200,
+        y: playerRef.current.y, // tracking height
         w: 42,
         h: 24,
         active: true,
-        warningTime: 110, // Slower warning time (from 85) for reaction
-        speed: 5.5, // Slower missile speed (from 8.5)
+        warningTime: 110,
+        speed: 3.5, // Slowed down rocket flight speed (from 5.5 to 3.5)
         itemType: Math.random() > 0.5 ? 'cancer' : 'accident',
       });
     }
 
-    // Spawn scared scientists/employees running on the ground
+    // Spawn ground scientists
     if (Math.random() < 0.35 && scientistsRef.current.length < 4) {
       scientistsRef.current.push({
         id: nextEntityIdRef.current++,
@@ -770,29 +791,66 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     // Floor and Ceiling bounds
     ctx.fillStyle = '#0f172a';
-    ctx.fillRect(0, 0, w, 32); // Ceiling
-    ctx.fillRect(0, h - 45, w, 45); // Floor
+    ctx.fillRect(0, 0, w, 32);
+    ctx.fillRect(0, h - 45, w, 45);
 
     ctx.fillStyle = '#f26522';
-    ctx.fillRect(0, 30, w, 2); // Ceiling line
+    ctx.fillRect(0, 30, w, 2);
     ctx.fillStyle = '#003da6';
-    ctx.fillRect(0, h - 45, w, 4); // Floor line
+    ctx.fillRect(0, h - 45, w, 4);
 
-    // 2. HERO / PLAYER PHYSICS
+    // 2. HERO / PLAYER PHYSICS & MATURITY BOOST FLIGHT TIMERS
     const p = playerRef.current;
 
-    if (isThrustingRef.current) {
-      p.vy += p.thrust;
-      if (p.vy < p.maxRiseSpeed) p.vy = p.maxRiseSpeed;
-      addThrustParticles(p.x, p.y, 2);
-      if (Math.random() < 0.2) playSFX('thrust');
-    } else {
-      p.vy += p.gravity;
-      if (p.vy > p.maxFallSpeed) p.vy = p.maxFallSpeed;
-    }
+    if (boostActiveRef.current) {
+      boostTimerRef.current--;
+      setBoostTimeLeft(boostTimerRef.current);
+      
+      if (boostTimerRef.current <= 0) {
+        boostActiveRef.current = false;
+        setBoostActive(false);
+      }
 
-    // Update position
-    p.y += p.vy;
+      // Invincible speed boost lock
+      gameSpeedRef.current = 5.5;
+
+      // Hover cinematic center of the screen
+      const targetY = h / 2 - p.height / 2;
+      p.y += (targetY - p.y) * 0.12;
+      p.vy = 0;
+
+      // Invulnerable flashing frames buffer
+      p.invincibleTimer = Math.max(p.invincibleTimer, 10);
+
+      // Gold thruster particles
+      addThrustParticles(p.x, p.y, 3);
+      if (Math.random() < 0.25) playSFX('thrust');
+    } else {
+      // Smooth deceleration back to slow speed after power-up boost ends!
+      if (gameSpeedRef.current > speedBeforeBoostRef.current) {
+        gameSpeedRef.current -= 0.08; // smoothly decelerate speed back down
+        if (gameSpeedRef.current < speedBeforeBoostRef.current) {
+          gameSpeedRef.current = speedBeforeBoostRef.current;
+        }
+      } else {
+        // Normal, incredibly slow, manageable speed increment (from 0.0003 to 0.0001)
+        gameSpeedRef.current += 0.0001;
+      }
+
+      // Standard player flight controls
+      if (isThrustingRef.current) {
+        p.vy += p.thrust;
+        if (p.vy < p.maxRiseSpeed) p.vy = p.maxRiseSpeed;
+        addThrustParticles(p.x, p.y, 2);
+        if (Math.random() < 0.2) playSFX('thrust');
+      } else {
+        p.vy += p.gravity;
+        if (p.vy > p.maxFallSpeed) p.vy = p.maxFallSpeed;
+      }
+
+      // Update position
+      p.y += p.vy;
+    }
 
     // Ceiling & Floor collisions
     if (p.y < 34) {
@@ -812,7 +870,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     if (p.invincibleTimer > 0) p.invincibleTimer--;
 
     // Ground running particles
-    const groundRunning = p.y >= floorLimit;
+    const groundRunning = p.y >= floorLimit && !boostActiveRef.current;
     let runBob = 0;
     if (groundRunning) {
       runBob = Math.sin(distanceRef.current * 0.4) * 2;
@@ -875,6 +933,18 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     // 3. COLLIDABLES / COLLECTIBLES (Gains)
     collectiblesRef.current.forEach(c => {
+      // Pull items in with magnetism when Maturity Speed Boost is active!
+      if (boostActiveRef.current && c.type !== 'boost' && !c.collected) {
+        const dx = (p.x + p.width/2) - (c.x + c.w/2);
+        const dy = (p.y + p.height/2) - (c.y + c.h/2);
+        const dist = Math.hypot(dx, dy);
+        if (dist < 220) { // 220px coin magnet radius
+          const pullForce = (220 - dist) * 0.08;
+          c.x += (dx / dist) * pullForce;
+          c.y += (dy / dist) * pullForce;
+        }
+      }
+
       c.x -= gameSpeedRef.current;
 
       const buffer = 4;
@@ -893,6 +963,25 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           setHasShield(true);
           playSFX('shield');
           addHitParticles(c.x + c.w/2, c.y + c.h/2, '#06b6d4', 15);
+        } else if (c.type === 'boost') {
+          // Gained Maturity Speed Boost!
+          speedBeforeBoostRef.current = Math.min(1.8, gameSpeedRef.current); // capture current accumulated speed
+          boostActiveRef.current = true;
+          boostTimerRef.current = boostMaxDuration;
+          setBoostActive(true);
+          playSFX('shield');
+          addHitParticles(c.x + c.w/2, c.y + c.h/2, '#eab308', 25);
+          
+          const textId = nextEntityIdRef.current++;
+          floatingTextsRef.current.push({
+            id: textId,
+            x: p.x,
+            y: p.y - 20,
+            text: 'MATURITY BOOST ACTIVE!',
+            color: '#facc15',
+            alpha: 1.0,
+            timer: 55,
+          });
         } else {
           const def = ITEM_DEFS[c.type as ItemType];
           portfolioRef.current += def.value;
@@ -937,6 +1026,31 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             ctx.arc(c.x + c.w/2, c.y + c.h/2, c.w/2, 0, Math.PI*2);
             ctx.fill();
           }
+        } else if (c.type === 'boost') {
+          // Draw premium golden lightning lightning boost orb
+          ctx.save();
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = '#eab308';
+          ctx.fillStyle = '#facc15';
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.8;
+          
+          ctx.beginPath();
+          ctx.arc(c.x + c.w/2, c.y + c.h/2, c.w/2, 0, Math.PI*2);
+          ctx.fill();
+          ctx.stroke();
+          
+          ctx.fillStyle = '#78350f';
+          ctx.beginPath();
+          ctx.moveTo(c.x + c.w/2 + 2, c.y + 6);
+          ctx.lineTo(c.x + 8, c.y + c.h/2 + 2);
+          ctx.lineTo(c.x + c.w/2 - 2, c.y + c.h/2 + 2);
+          ctx.lineTo(c.x + c.w/2 - 2, c.y + c.h - 6);
+          ctx.lineTo(c.x + c.w - 8, c.y + c.h/2 - 2);
+          ctx.lineTo(c.x + c.w/2 + 2, c.y + c.h/2 - 2);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
         } else {
           if (itemImg) {
             ctx.save();
@@ -963,16 +1077,15 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         if (o.warningTime > 0) {
           o.warningTime--;
           
-          // Homing Lock-on Phase: follows player Y coordinates smoothly
+          // Homing Lock-on Phase: follows Y altitude
           const dy = (p.y + p.height/2 - o.h/2) - o.y;
-          o.y += dy * 0.07; // smooth homing pull!
+          o.y += dy * 0.07;
 
-          // Alert Beep Synth
+          // Siren warnings
           if (o.warningTime % 18 === 0 && !isAudioMutedRef.current) {
             playSFX('siren');
           }
 
-          // Pulsating warning tracking laser
           ctx.save();
           ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
           ctx.lineWidth = 1.5 + Math.sin(o.warningTime * 0.3) * 0.8;
@@ -983,7 +1096,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           ctx.stroke();
           ctx.restore();
 
-          // Exclamation Warning flashing card on the screen edge
           if (Math.floor(o.warningTime / 5) % 2 === 0) {
             ctx.save();
             ctx.fillStyle = '#ef4444';
@@ -1004,14 +1116,14 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             ctx.fillText('!', w - 24, o.y + o.h/2);
             ctx.restore();
           }
-          return; // Don't slide in yet!
+          return;
         }
         o.x -= (gameSpeedRef.current + o.speed);
       } else {
         o.x -= gameSpeedRef.current;
       }
 
-      // High-precision segment collision check for zappers, box collision for missiles
+      // Bounding Segment Collisions
       let isColliding = false;
       const buffer = 8;
       
@@ -1029,7 +1141,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         }
         
         const dist = distanceToSegment(p.x + p.width/2, p.y + p.height/2, x1, y1, x2, y2);
-        isColliding = dist < 22; // 22px precision hit boundary
+        isColliding = dist < 22;
       } else {
         isColliding = (
           p.x + buffer < o.x + o.w &&
@@ -1042,7 +1154,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       if (isColliding && o.active && p.invincibleTimer === 0) {
         o.active = false;
         statsRef.current.badHit++;
-        screenShakeRef.current = 15; // Trigger Screen Shake!
+        screenShakeRef.current = 15;
 
         const chosenRisk = o.itemType || 'hospitalization';
         const def = ITEM_DEFS[chosenRisk];
@@ -1130,7 +1242,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             ctx.beginPath(); ctx.arc(x2, y2, 8, 0, Math.PI*2); ctx.fill(); ctx.stroke();
           }
           
-          // Dual-Layer Electric Neon lightning bolt!
+          // Dual-Layer Neon lightning
           ctx.strokeStyle = '#facc15';
           ctx.lineWidth = 4.5 + Math.random() * 2.0;
           ctx.beginPath();
@@ -1151,13 +1263,11 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           }
           ctx.stroke();
           
-          // Inner bright white electrical lightning core
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 1.5;
           ctx.stroke();
           ctx.restore();
 
-          // Spawning neon sparks at terminals
           if (Math.random() < 0.18) {
             particlesRef.current.push({
               x: x1 + (Math.random() - 0.5) * 6,
@@ -1181,7 +1291,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             });
           }
 
-          // Render Risk Badge in the center of the zapper line
           if (riskImg) {
             const cx = (x1 + x2) / 2;
             const cy = (y1 + y2) / 2;
@@ -1219,7 +1328,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           ctx.fill();
           ctx.stroke();
           
-          // Fire exhaust sparks
           const fireY = o.y + o.h/2;
           const fireX = o.x + o.w;
           const gradient = ctx.createLinearGradient(fireX, fireY, fireX + 15, fireY);
@@ -1247,7 +1355,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           }
           ctx.restore();
           
-          // Spawn Billowing Smoke particles from missile
           if (o.warningTime === 0 && distanceRef.current % 2 === 0) {
             particlesRef.current.push({
               x: o.x + o.w - 5,
@@ -1266,7 +1373,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
     obstaclesRef.current = obstaclesRef.current.filter(o => o.active && o.x > -100);
 
-    // 4.5 DRAW INTERACTIVE SCARED EMPLOYEES/SCIENTISTS RUNNING & COWERING
+    // 4.5 DRAW SCARED HAZARD EMPLOYEES/SCIENTISTS
     scientistsRef.current.forEach(s => {
       s.x += s.vx;
       s.x -= gameSpeedRef.current;
@@ -1278,13 +1385,11 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         s.panic = true;
         s.panicTimer = 60;
         
-        // Trigger scientist comic text bubbles!
         if (!s.bubbleText && Math.random() < 0.08) {
           const quotes = ['Aaaah!', 'Watch out!', 'Save me!', 'Cyborg Banana!', 'Look Up!', 'Help!', 'Run!'];
           s.bubbleText = quotes[Math.floor(Math.random() * quotes.length)];
           s.bubbleTimer = 65;
           
-          // With 25% chance, panicked scientist cowers on the floor!
           if (Math.random() < 0.25) {
             s.cowering = true;
           }
@@ -1292,9 +1397,9 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       }
       
       if (s.cowering) {
-        s.vx = -0.5; // crawl slowly
+        s.vx = -0.5;
       } else if (s.panic) {
-        s.vx = -3.2 - Math.random() * 0.8; // run away fast!
+        s.vx = -3.2 - Math.random() * 0.8;
       } else {
         s.vx = -1.2;
       }
@@ -1304,13 +1409,11 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       const legBob = s.cowering ? 0 : Math.sin(s.walkFrame) * 2.2;
       const sy = s.y + legBob;
       
-      // Draw white scientist hazmat suit
       ctx.fillStyle = '#ffffff';
       ctx.strokeStyle = '#003da6';
       ctx.lineWidth = 1;
       
       if (s.cowering) {
-        // Cowering pose (huddled down)
         ctx.beginPath();
         ctx.arc(s.x + s.width/2, sy + 18, 5, 0, Math.PI*2);
         ctx.fill(); ctx.stroke();
@@ -1322,38 +1425,31 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         ctx.fillRect(s.x + s.width/2 - 6, sy + 22, 12, 6);
         ctx.strokeRect(s.x + s.width/2 - 6, sy + 22, 12, 6);
       } else {
-        // Head / helmet
         ctx.beginPath();
         ctx.arc(s.x + s.width/2, sy + 6, 5, 0, Math.PI*2);
         ctx.fill(); ctx.stroke();
         
-        // visor
         ctx.fillStyle = '#38bdf8';
         ctx.fillRect(s.x + s.width/2 - 2, sy + 3, 5, 3);
         
-        // Body
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(s.x + s.width/2 - 4, sy + 10, 8, 12);
         ctx.strokeRect(s.x + s.width/2 - 4, sy + 10, 8, 12);
         
-        // Legs
         ctx.fillRect(s.x + s.width/2 - 4, sy + 22, 3, 6 + legBob);
         ctx.fillRect(s.x + s.width/2 + 1, sy + 22, 3, 6 - legBob);
       }
       
-      // Arms (Waving in panic if panicked, cowering if cowered)
       ctx.strokeStyle = '#1e293b';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       
       if (s.cowering) {
-        // Cowering arms shielding the head
         ctx.moveTo(s.x + s.width/2 - 5, sy + 22);
         ctx.lineTo(s.x + s.width/2 - 2, sy + 14);
         ctx.moveTo(s.x + s.width/2 + 5, sy + 22);
         ctx.lineTo(s.x + s.width/2 + 2, sy + 14);
       } else if (s.panic) {
-        // Arm waving in panic!
         const armWave = Math.sin(distanceRef.current * 0.6) * 4;
         ctx.moveTo(s.x + s.width/2 - 4, sy + 12);
         ctx.lineTo(s.x + s.width/2 - 9, sy + 2 + armWave);
@@ -1369,7 +1465,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       ctx.stroke();
       ctx.restore();
 
-      // Render Comic Speech Bubbles
       if (s.bubbleText && s.bubbleTimer && s.bubbleTimer > 0) {
         s.bubbleTimer--;
         ctx.save();
@@ -1386,7 +1481,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         ctx.fill();
         ctx.stroke();
         
-        // arrow pointing down
         ctx.beginPath();
         ctx.moveTo(s.x + s.width/2 - 3, by + 12);
         ctx.lineTo(s.x + s.width/2, by + 15);
@@ -1468,16 +1562,13 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       setDistance(Math.floor(distanceRef.current / 10));
     }
 
-    // Smoothly and slowly increase background speed over time
-    gameSpeedRef.current += 0.0003;
-
     spawnEntities(w, h);
 
     if (gameplayActiveRef.current) {
       requestAnimationFrame(runGameFrame);
     }
     
-    ctx.restore(); // Restore screen shake ctx states
+    ctx.restore();
   }, [hasShield, muted]);
 
   // Handle Touch/Mouse Click thrust triggers
@@ -1598,6 +1689,24 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           />
         </div>
       </div>
+
+      {/* Maturity Speed Boost Active bar HUD Indicator */}
+      {boostActive && (
+        <div className="absolute top-[max(3rem,calc(env(safe-area-inset-top)+2rem))] left-1/2 -translate-x-1/2 pointer-events-none w-[34vw] max-w-[12rem] flex flex-col items-center drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] animate-pulse">
+          <div className="flex justify-between w-full text-[0.48rem] font-black text-yellow-300 uppercase tracking-widest mb-0.5">
+            <span>⚡ MATURITY BOOSTING</span>
+            <span className="font-mono">{Math.ceil(boostTimeLeft / 60)}S</span>
+          </div>
+          <div className="w-full h-1.5 bg-slate-950/90 rounded-full overflow-hidden border border-yellow-400 p-[1px] shadow-[0_0_8px_rgba(234,179,8,0.35)]">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-amber-400 shadow-[0_0_6px_#facc15] transition-all duration-75"
+              style={{
+                width: `${(boostTimeLeft / boostMaxDuration) * 100}%`,
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* TOP-RIGHT OVERLAY: Retro Arcade Large Distance Meter (Jetpack Joyride Style) */}
       <div 
