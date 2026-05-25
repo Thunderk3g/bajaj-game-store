@@ -64,7 +64,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
       const rawUrl = buildShareUrl() || window.location.href;
       const shareUrl = await shortenUrl(rawUrl) || rawUrl;
       const shareText = `Hi,
-I just played Fortune Slicer and loved it. My score is ${finalScore}/100.
+I just played Fortune Slicer and loved it. My score is ${Math.max(0, diff).toLocaleString('en-IN')}.
 What's yours? Play now: ${shareUrl}
 
 ${playerName}`;
@@ -237,7 +237,7 @@ ${playerName}`;
                     {diff >= 0 ? '+' : ''}{Math.abs(diff).toLocaleString('en-IN')}
                   </span>
                   <span className="text-[10px] font-bold" style={{ color: 'rgba(255,255,255,0.9)' }}>net score</span>
-                  
+
                 </div>
               </div>
             </div>
