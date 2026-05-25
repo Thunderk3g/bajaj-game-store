@@ -1783,7 +1783,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   }, [hasShield, muted]);
 
   // Handle Touch/Mouse Click thrust triggers
-  const triggerThrustStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+  const triggerThrustStartMouse = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     if (!started || !gameplayActiveRef.current) return;
     isThrustingRef.current = true;
@@ -1792,6 +1792,30 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const triggerThrustEnd = useCallback(() => {
     isThrustingRef.current = false;
   }, []);
+
+  // Dynamically attach Touch Handlers with { passive: false } to support preventDefault safely
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault(); // prevent native scroll/zoom
+      if (!started || !gameplayActiveRef.current) return;
+      isThrustingRef.current = true;
+    };
+
+    const handleTouchEnd = () => {
+      isThrustingRef.current = false;
+    };
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: false });
+    container.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [started]);
 
   // Setup/TearDown Game loops & canvas sizes
   useEffect(() => {
@@ -1852,9 +1876,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       <div
         ref={containerRef}
         className="absolute inset-0 select-none cursor-pointer"
-        onTouchStart={triggerThrustStart}
-        onTouchEnd={triggerThrustEnd}
-        onMouseDown={triggerThrustStart}
+        onMouseDown={triggerThrustStartMouse}
         onMouseUp={triggerThrustEnd}
         onMouseLeave={triggerThrustEnd}
         style={{ touchAction: 'none' }}
