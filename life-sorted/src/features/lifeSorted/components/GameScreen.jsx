@@ -69,15 +69,15 @@ const GameScreen = ({
             </div>
 
             {/* Reference Panel */}
-            <div className="mt-16 sh:mt-11 w-full flex justify-center">
+            <div className="mt-[7.5rem] sh:mt-[4.5rem] w-full flex justify-center">
                 <ReferencePanel activeCategories={activeCategories} />
             </div>
 
             {/* ─── Game Board ─── */}
-            <div className="relative w-full flex flex-col items-center gap-4 sh:gap-1 sm:gap-12 mt-6 sh:mt-2 sm:mt-12 mb-2 sm:mb-8 animate-fade-in px-2">
+            <div className="relative w-full flex flex-col items-center gap-2 sh:gap-1 sm:gap-12 mt-3 sh:mt-1 sm:mt-12 mb-2 sm:mb-8 animate-fade-in px-2">
                 {/* Active Tubes (Row 1) */}
-                <div className="w-full max-w-5xl overflow-hidden px-1">
-                    <div className="flex flex-nowrap justify-center gap-x-4 sm:gap-x-8 gap-y-4 sm:gap-y-12 shrink-0 relative z-10 py-1 sm:py-4">
+                <div className="w-full max-w-5xl overflow-visible px-1">
+                    <div className="flex flex-nowrap justify-center gap-x-2 sm:gap-x-8 gap-y-4 sm:gap-y-12 shrink-0 relative z-10 py-1 sm:py-4">
                         {tubes.slice(0, 5).map((segments, index) => {
                             const catKey = categoryMapping[index];
                             const config = CATEGORY_CONFIG[catKey];
@@ -108,7 +108,7 @@ const GameScreen = ({
                 </div>
 
                 {/* Empty Tubes (Row 2) */}
-                <div className="flex justify-center gap-x-4 sm:gap-x-8">
+                <div className="flex justify-center gap-x-2 sm:gap-x-8">
                     {tubes.slice(5, 7).map((segments, index) => {
                         const tubeIndex = index + 5;
                         return (

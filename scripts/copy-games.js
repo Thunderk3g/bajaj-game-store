@@ -147,6 +147,11 @@ const games = [
     source: path.join(ROOT_DIR, "future-climb", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "future-climb"),
   },
+  {
+    name: "fortune-slice",
+    source: path.join(ROOT_DIR, "fortune-slice", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "fortune-slice"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -448,6 +453,15 @@ const manifest = {
     displayName: "Future Climb",
     popular: true,
     gameId: "GAME_025",
+    assets: [],
+  },
+  "fortune-slice": {
+    remoteEntry: "assets/games/fortune-slice/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Fortune Slice",
+    popular: true,
+    gameId: "GAME_026",
     assets: [],
   },
 };

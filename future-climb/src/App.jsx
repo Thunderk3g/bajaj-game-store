@@ -12,7 +12,18 @@ const App = () => {
   const { status, toast } = useGameStore();
 
   return (
-    <div className="relative w-full h-screen-safe bg-[#0B1221] overflow-hidden">
+    <div className="w-full h-screen-safe bg-[#0B1221] overflow-hidden flex items-center justify-center">
+      {/* Max-width constraint: on desktop shows as a centered mobile-format portrait game */}
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          maxWidth: '480px',
+          overflow: 'hidden',
+          background: '#0B1221',
+        }}
+      >
       <AnimatePresence mode="wait">
         {status === GAME_STATUS.START && (
           <motion.div
@@ -113,6 +124,7 @@ const App = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 };

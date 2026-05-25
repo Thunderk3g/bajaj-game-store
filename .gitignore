@@ -42,3 +42,6 @@ Thumbs.db
 !start-dev.bat
 !start-dev.sh
 !test-build.bat
+
+# IDE
+.antigravitycli

@@ -10,7 +10,7 @@ const Segment = React.forwardRef(({
         <motion.div
             ref={ref}
             layout
-            className={`relative w-full flex-shrink-0 flex items-center justify-center
+            className={`relative w-full flex-shrink-0
                 ${isBottom ? 'rounded-b-[2rem]' : 'rounded-none'}
             `}
             style={{
@@ -18,11 +18,7 @@ const Segment = React.forwardRef(({
                 height: `${heightPct}%`,
                 marginBottom: '-1px'
             }}
-        >
-            <span className="relative z-10 text-sm sm:text-lg select-none flex items-center justify-center">
-                {element.emoji}
-            </span>
-        </motion.div>
+        />
     );
 });
 

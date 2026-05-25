@@ -57,7 +57,7 @@ const Tube = ({
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onClick={() => onClick(index)}
             className={`
-                relative w-[3.8rem] h-[12.5rem] sh:w-[2.8rem] sh:h-[9rem] sm:w-[4.5rem] sm:h-[14rem] flex flex-col-reverse
+                relative w-[4.2rem] h-[14.5rem] sh:w-[3.6rem] sh:h-[11.5rem] sm:w-[5.5rem] sm:h-[18rem] flex flex-col-reverse
                 glass-tube cursor-pointer transition-colors duration-300
                 ${isSelected ? 'ring-2 ring-gold shadow-[0_0_30px_rgba(245,200,66,0.6)] z-50' : 'border border-white/10 z-0'}
                 ${isValidTarget ? 'ring-2 ring-teal-400/50 animate-pulse-border shadow-[0_0_15px_rgba(45,212,191,0.3)] z-40' : 'z-0'}

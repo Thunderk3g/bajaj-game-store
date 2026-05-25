@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "gameId": "fortune_slice",
+    "gameName": "Fortune Slice",
+    "version": "1.0.0",
+    "product": "TULIP",
+    "port": 8004
+  },
+  "gameplay": {
+    "sessionCapSeconds": 60,
+    "maxRounds": null,
+    "difficultyRampEnabled": true,
+    "difficultyRampIntervalSeconds": 15,
+    "gridSize": 9,
+    "spawnIntervalMs": 1400,
+    "moleVisibleMs": 2200,
+    "minSpawnIntervalMs": 750,
+    "minMoleVisibleMs": 1500
+  },
+  "scoring": {
+    "maxScore": 100,
+    "passingScore": 50,
+    "targetPortfolio": 10000,
+    "moleValues": {
+      "investment": 2500,
+      "deposits": 2000,
+      "salary": 800,
+      "retirement": 1500,
+      "rental": 500,
+      "hospitalization": -1500,
+      "death": -3000,
+      "disability": -2500,
+      "cancer": -2500,
+      "heart": -1500
+    },
+    "moleWeights": {
+      "investment": 14,
+      "deposits": 12,
+      "salary": 12,
+      "retirement": 10,
+      "rental": 10,
+      "hospitalization": 4,
+      "death": 10,
+      "disability": 14,
+      "cancer": 10,
+      "heart": 10
+    }
+  },
+  "audio": {
+    "musicEnabledByDefault": true,
+    "sfxEnabledByDefault": true
+  },
+  "copy": {
+    "introTitle": "Balance Blade",
+    "introImage": "",
+    "introHowToPlay": [
+      {
+        "icon": "tap",
+        "text": "Slice flying benefit tokens to grow your portfolio."
+      },
+      {
+        "icon": "avoid",
+        "text": "Avoid red risk tokens — they slash your balance!"
+      },
+      {
+        "icon": "bonus",
+        "text": "Catch the rare golden Loyalty Bonus for a massive boost."
+      }
+    ],
+    "scoringTagline": "You accidently hit some risks in this game that impacted your score, but this was just a game! In real life, you can avoid financial risks with right mix of protection and investment.",
+    "scoringCtaLine": "To invest in Duel Benefit Plan. Connect with our relationship manager now!",
+    "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
+  },
+  "contact": {
+    "companyName": "Bajaj Life Insurance",
+    "callNowNumber": "02261241800",
+    "bookSlotTimeSlots": [
+      "9:00 AM - 10:00 AM",
+      "10:00 AM - 11:00 AM",
+      "11:00 AM - 12:00 PM",
+      "12:00 PM - 1:00 PM",
+      "1:00 PM - 2:00 PM",
+      "2:00 PM - 3:00 PM",
+      "3:00 PM - 4:00 PM",
+      "4:00 PM - 5:00 PM",
+      "5:00 PM - 6:00 PM",
+      "6:00 PM - 7:00 PM",
+      "7:00 PM - 8:00 PM",
+      "8:00 PM - 9:00 PM"
+    ],
+    "privacyPolicyUrl": "",
+    "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, {COMPANY} ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
+    "tcText": "I hereby authorize {COMPANY} to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
+  },
+  "ui": {
+    "primaryColor": "#003DA6",
+    "accentColor": "#F26522",
+    "successColor": "#28A745",
+    "fontFamily": "Plus Jakarta Sans",
+    "scoringBgImage": ""
+  }
+}

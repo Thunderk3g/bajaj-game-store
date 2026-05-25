@@ -161,7 +161,9 @@ const LifeSortedPage = () => {
     }, [engine.isWon, gamePhase, engine.levelLoaded, currentLevelIndex]);
 
     const activeCategories = useMemo(() => {
-        return [...new Set(engine.tubes.flat().map(s => s.category))];
+        const order = ['growth', 'safety', 'resp', 'risk', 'asset'];
+        const categories = [...new Set(engine.tubes.flat().map(s => s.category))];
+        return categories.sort((a, b) => order.indexOf(a) - order.indexOf(b));
     }, [engine.tubes]);
 
     const handleRetry = useCallback(() => {

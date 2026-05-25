@@ -116,12 +116,24 @@ const GamePage = () => {
     }, []);
 
     return (
-        <div className="relative w-full h-full overflow-hidden bg-slate-900">
-            {/* Phaser Canvas Container */}
-            <div ref={gameContainer} className="w-full h-full" />
+        <div className="relative w-full h-full overflow-hidden bg-[#0B1221] flex items-center justify-center">
+            {/* On desktop: constrain to mobile width and center; on mobile: fill full screen */}
+            <div
+                style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '100%',
+                    maxWidth: '480px',
+                    margin: '0 auto',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Phaser Canvas Container */}
+                <div ref={gameContainer} style={{ width: '100%', height: '100%' }} />
 
-            {/* HUD Overlay */}
-            <HUD />
+                {/* HUD Overlay */}
+                <HUD />
+            </div>
         </div>
     );
 };
