@@ -152,6 +152,11 @@ const games = [
     source: path.join(ROOT_DIR, "fortune-slice", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "fortune-slice"),
   },
+  {
+    name: "term-joyride",
+    source: path.join(ROOT_DIR, "term-joyride", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "term-joyride"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -462,6 +467,15 @@ const manifest = {
     displayName: "Fortune Slice",
     popular: true,
     gameId: "GAME_026",
+    assets: [],
+  },
+  "term-joyride": {
+    remoteEntry: "assets/games/term-joyride/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Term Joyride",
+    popular: true,
+    gameId: "GAME_030",
     assets: [],
   },
 };

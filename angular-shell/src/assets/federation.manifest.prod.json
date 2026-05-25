@@ -233,5 +233,32 @@
     "popular": true,
     "gameId": "GAME_024",
     "assets": []
+  },
+  "future-climb": {
+    "remoteEntry": "assets/games/future-climb/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Future Climb",
+    "popular": true,
+    "gameId": "GAME_025",
+    "assets": []
+  },
+  "fortune-slice": {
+    "remoteEntry": "assets/games/fortune-slice/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Fortune Slice",
+    "popular": true,
+    "gameId": "GAME_026",
+    "assets": []
+  },
+  "term-joyride": {
+    "remoteEntry": "assets/games/term-joyride/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Term Joyride",
+    "popular": true,
+    "gameId": "GAME_030",
+    "assets": []
   }
 }

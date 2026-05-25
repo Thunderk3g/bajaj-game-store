@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "gameId": "term_joyride",
+    "gameName": "Term Joyride",
+    "version": "1.0.0",
+    "product": "TULIP",
+    "port": 3012
+  },
+  "gameplay": {
+    "sessionCapSeconds": 45,
+    "maxRounds": null,
+    "difficultyRampEnabled": true,
+    "difficultyRampIntervalSeconds": 15,
+    "gridSize": 9,
+    "spawnIntervalMs": 1400,
+    "moleVisibleMs": 2200,
+    "minSpawnIntervalMs": 750,
+    "minMoleVisibleMs": 1500
+  },
+  "scoring": {
+    "maxScore": 100,
+    "passingScore": 50,
+    "targetPortfolio": 25000,
+    "moleValues": {
+      "deposits": 1500,
+      "savings": 1000,
+      "salary": 800,
+      "retirement": 2000,
+      "hospitalization": -1500,
+      "disability": -2000,
+      "cancer": -3000,
+      "accident": -2500
+    },
+    "moleWeights": {
+      "deposits": 14,
+      "savings": 14,
+      "salary": 12,
+      "retirement": 10,
+      "hospitalization": 4,
+      "disability": 4,
+      "cancer": 3,
+      "accident": 3
+    }
+  },
+  "audio": {
+    "musicEnabledByDefault": true,
+    "sfxEnabledByDefault": true
+  },
+  "copy": {
+    "introTitle": "Term Joyride",
+    "introImage": "",
+    "introHowToPlay": [
+      {
+        "icon": "tap",
+        "text": "Tap & hold anywhere on screen to ignite jetpack and fly upwards. Release to fall."
+      },
+      {
+        "icon": "avoid",
+        "text": "Dodge incoming electric zappers and missiles representing life & financial risks."
+      },
+      {
+        "icon": "bonus",
+        "text": "Collect golden growth coins and hexagonal Life Shields to secure your score."
+      }
+    ],
+    "scoringTagline": "You hit some risks in this flight that impacted your score, but this was just a game! In real life, you can avoid financial risks with the right mix of protection and investment.",
+    "scoringCtaLine": "To invest in Dual Benefit Plans (Term + ULIP), connect with our relationship manager now!",
+    "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
+  },
+  "contact": {
+    "companyName": "Bajaj Life Insurance",
+    "callNowNumber": "02261241800",
+    "bookSlotTimeSlots": [
+      "9:00 AM - 10:00 AM",
+      "10:00 AM - 11:00 AM",
+      "11:00 AM - 12:00 PM",
+      "12:00 PM - 1:00 PM",
+      "1:00 PM - 2:00 PM",
+      "2:00 PM - 3:00 PM",
+      "3:00 PM - 4:00 PM",
+      "4:00 PM - 5:00 PM",
+      "5:00 PM - 6:00 PM",
+      "6:00 PM - 7:00 PM",
+      "7:00 PM - 8:00 PM",
+      "8:00 PM - 9:00 PM"
+    ],
+    "privacyPolicyUrl": "",
+    "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, {COMPANY} ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
+    "tcText": "I hereby authorize {COMPANY} to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
+  },
+  "ui": {
+    "primaryColor": "#003DA6",
+    "accentColor": "#F26522",
+    "successColor": "#28A745",
+    "fontFamily": "Plus Jakarta Sans",
+    "scoringBgImage": ""
+  }
+}
