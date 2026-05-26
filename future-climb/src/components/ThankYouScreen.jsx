@@ -57,10 +57,6 @@ const ThankYouScreen = () => {
                     PLAY AGAIN
                     <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </button>
-                
-                <p className="text-[10px] text-gray-600 font-black tracking-widest uppercase">
-                    Bajaj Allianz Life Insurance
-                </p>
             </motion.div>
         </div>
     );
