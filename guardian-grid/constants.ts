@@ -76,7 +76,7 @@ export function applyConfig(c: Record<string, any>): void {
   GREEN = c.ui.successColor;
 
   INTRO_TITLE = c.copy.introTitle;
-  INTRO_IMAGE = c.copy.introImage || INTRO_IMAGE;
+  INTRO_IMAGE = c.copy.introImage && !c.copy.introImage.startsWith('src/assets/') ? c.copy.introImage : INTRO_IMAGE;
 
   GAME_SECS = c.gameplay.sessionCapSeconds;
   GRID_SIZE = c.gameplay.gridSize;
@@ -87,7 +87,7 @@ export function applyConfig(c: Record<string, any>): void {
   TIME_BONUS_PER_SECOND = c.scoring.timeBonusPerSecond;
   CELL_SCORE = c.scoring.cellScore;
 
-  SCORING_BG_IMAGE = c.ui.scoringBgImage ?? '';
+  SCORING_BG_IMAGE = c.ui.scoringBgImage && !c.ui.scoringBgImage.startsWith('src/assets/') ? c.ui.scoringBgImage : INTRO_IMAGE;
 
   COMPANY_NAME = c.contact.companyName || COMPANY_NAME;
   CALL_NOW_NUMBER = c.contact.callNowNumber;
