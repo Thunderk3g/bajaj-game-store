@@ -1,0 +1,47 @@
+﻿{
+  "meta": {
+    "gameId": "guardian-strike",
+    "gameName": "Guardian Strike",
+    "version": "1.0.0",
+    "product": "Term Life Insurance",
+    "port": 8012
+  },
+  "gameplay": {
+    "totalWaves": 3,
+    "targetPortfolio": 9000
+  },
+  "ui": {
+    "primaryColor": "#0A1628",
+    "accentColor": "#FFD700",
+    "successColor": "#00CFFF",
+    "scoringBgImage": ""
+  },
+  "copy": {
+    "introTitle": "Guardian Strike",
+    "introImage": "",
+    "scoringTagline": "Low cost, high coverage — pure protection for the people you love.",
+    "scoringCtaLine": "Talk to our advisor about the right Term plan for your family!",
+    "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
+  },
+  "contact": {
+    "companyName": "Bajaj Life Insurance",
+    "callNowNumber": "02261241800",
+    "bookSlotTimeSlots": [
+      "9:00 AM - 10:00 AM",
+      "10:00 AM - 11:00 AM",
+      "11:00 AM - 12:00 PM",
+      "12:00 PM - 1:00 PM",
+      "1:00 PM - 2:00 PM",
+      "2:00 PM - 3:00 PM",
+      "3:00 PM - 4:00 PM",
+      "4:00 PM - 5:00 PM",
+      "5:00 PM - 6:00 PM",
+      "6:00 PM - 7:00 PM",
+      "7:00 PM - 8:00 PM",
+      "8:00 PM - 9:00 PM"
+    ],
+    "privacyPolicyUrl": "",
+    "disclaimer": "Insurance is the subject matter of solicitation. {COMPANY} is only the name of the company and does not in any way indicate quality of the contract, its future prospects or returns. Please read the offer document carefully before concluding a sale.",
+    "tcText": "I hereby authorize Bajaj Life Insurance to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
+  }
+}

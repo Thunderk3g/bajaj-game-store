@@ -152,6 +152,31 @@ const games = [
     source: path.join(ROOT_DIR, "fortune-slice", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "fortune-slice"),
   },
+  {
+    name: "legacy-sweep",
+    source: path.join(ROOT_DIR, "legacy-sweep", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "legacy-sweep"),
+  },
+  {
+    name: "future-sprint",
+    source: path.join(ROOT_DIR, "future-sprint", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "future-sprint"),
+  },
+  {
+    name: "guardian-grid",
+    source: path.join(ROOT_DIR, "guardian-grid", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "guardian-grid"),
+  },
+  {
+    name: "guardian-strike",
+    source: path.join(ROOT_DIR, "guardian-strike", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "guardian-strike"),
+  },
+  {
+    name: "jumbled-quest",
+    source: path.join(ROOT_DIR, "jumbled-quest", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "jumbled-quest"),
+  },
 ];
 
 // Helper to robustly delete directories (fixes Windows ENOTEMPTY/EPERM issues)
@@ -462,6 +487,51 @@ const manifest = {
     displayName: "Fortune Slice",
     popular: true,
     gameId: "GAME_026",
+    assets: [],
+  },
+  "legacy-sweep": {
+    remoteEntry: "assets/games/legacy-sweep/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Legacy Sweep",
+    popular: true,
+    gameId: "GAME_027",
+    assets: [],
+  },
+  "future-sprint": {
+    remoteEntry: "assets/games/future-sprint/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Future Sprint",
+    popular: true,
+    gameId: "GAME_028",
+    assets: [],
+  },
+  "guardian-grid": {
+    remoteEntry: "assets/games/guardian-grid/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Guardian Grid",
+    popular: true,
+    gameId: "GAME_029",
+    assets: [],
+  },
+  "guardian-strike": {
+    remoteEntry: "assets/games/guardian-strike/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Guardian Strike",
+    popular: true,
+    gameId: "GAME_030",
+    assets: [],
+  },
+  "jumbled-quest": {
+    remoteEntry: "assets/games/jumbled-quest/index.js",
+    exposedModule: "./GameEntry",
+    type: "react",
+    displayName: "Jumbled Quest",
+    popular: true,
+    gameId: "GAME_031",
     assets: [],
   },
 };
