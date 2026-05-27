@@ -1,7 +1,27 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GameResult } from '../types';
 import imgCoinSrc   from '../src/assets/coin_savings.png';
 import imgShieldSrc from '../src/assets/powerup_shield.png';
+
+import imgChildF1Src from '../src/assets/child_runner_f1.png';
+import imgChildF2Src from '../src/assets/child_runner_f2.png';
+import imgChildF3Src from '../src/assets/child_runner_f3.png';
+import imgChildF4Src from '../src/assets/child_runner_f4.png';
+import imgChildF5Src from '../src/assets/child_runner_f5.png';
+import imgChildF6Src from '../src/assets/child_runner_f6.png';
+import imgChildF7Src from '../src/assets/child_runner_f7.png';
+import imgChildF8Src from '../src/assets/child_runner_f8.png';
+
+const runnerFrames = [
+  imgChildF1Src,
+  imgChildF2Src,
+  imgChildF3Src,
+  imgChildF4Src,
+  imgChildF5Src,
+  imgChildF6Src,
+  imgChildF7Src,
+  imgChildF8Src,
+];
 import {
   BLUE,
   CALL_NOW_NUMBER,
@@ -24,39 +44,37 @@ interface Props {
   onPlayAgain: () => void;
 }
 
-function arcPath(cx: number, cy: number, r: number, startDeg: number, endDeg: number): string {
-  const toRad = (d: number) => (d - 90) * (Math.PI / 180);
-  const x1 = cx + r * Math.cos(toRad(startDeg));
-  const y1 = cy + r * Math.sin(toRad(startDeg));
-  const x2 = cx + r * Math.cos(toRad(endDeg));
-  const y2 = cy + r * Math.sin(toRad(endDeg));
-  const large = endDeg - startDeg > 180 ? 1 : 0;
-  return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`;
-}
+// Removed unused arcPath helper
 
 const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPlayAgain }) => {
   const [showBook, setShowBook] = useState(false);
   const [booked, setBooked] = useState(false);
+  const [frameIdx, setFrameIdx] = useState(1);
+  const [currentProgress, setCurrentProgress] = useState(0);
 
   const { portfolio, gains, losses, distance, coinsCollected, obstaclesDodged, timeSeconds, livesRemaining, shieldsUsed } = result;
+  const targetPct = Math.min(100, Math.round((distance / TARGET_DISTANCE) * 100));
+
+  useEffect(() => {
+    // Start sliding after mounting
+    const slideTimer = setTimeout(() => {
+      setCurrentProgress(targetPct);
+    }, 150);
+    return () => clearTimeout(slideTimer);
+  }, [targetPct]);
+
+  useEffect(() => {
+    // Character keeps running indefinitely to look good
+    const timer = setInterval(() => {
+      setFrameIdx(f => (f % 8) + 1);
+    }, 90);
+    return () => clearInterval(timer);
+  }, []);
   const finalScore = Math.min(100, Math.max(0, Math.round((portfolio / TARGET_PORTFOLIO) * 100)));
   const msg = SCORE_MESSAGES.find(m => finalScore >= m.minScore) ?? SCORE_MESSAGES[SCORE_MESSAGES.length - 1];
   const hasBg = !!SCORING_BG_IMAGE;
 
-  const totalPts = gains + losses || 1;
-  const gainPct  = Math.round((gains / totalPts) * 100);
-  const drainPct = 100 - gainPct;
-
-  const GAP = 4;
-  const gainsDeg  = (gainPct  / 100) * 360 - GAP;
-  const drainsDeg = (drainPct / 100) * 360 - GAP;
-  const cx = 50; const cy = 50; const r = 42; const stroke = 9;
-  const innerR = r - stroke / 2;
-  const gainsEnd    = gainsDeg;
-  const drainsStart = gainsEnd + GAP;
-  const drainsEnd   = drainsStart + drainsDeg;
-
-  const scoreColor  = finalScore >= 70 ? '#22C55E' : finalScore >= 40 ? '#F97316' : '#EF4444';
+  // Removed unused score dial geometry and colors
   const distPct     = Math.min(100, Math.round((distance / TARGET_DISTANCE) * 100));
   const mins        = Math.floor(timeSeconds / 60);
   const secs        = timeSeconds % 60;
@@ -117,7 +135,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
 
         {/* Header */}
         <div className="px-6 pb-4 text-center"
-          style={{ paddingTop:'max(1.75rem, env(safe-area-inset-top))', background:'linear-gradient(135deg,#003DA6,#172554)' }}>
+          style={{ paddingTop:'max(1.75rem, env(safe-area-inset-top))' }}>
           <h2 className="text-2xl font-extrabold text-white">
             Hi {playerName}!
           </h2>
@@ -132,68 +150,98 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             Your Sprint Results
           </p>
 
-          {/* 3-widget row: Savings | Dial | Lives */}
-          <div className="flex items-center gap-2 mb-3">
-
-            {/* Savings Secured */}
-            <div className="flex-1 flex flex-col items-center rounded-2xl px-2 py-3 gap-1"
-              style={{ background:'rgba(7,7,7,0.1)', border:'1px solid rgba(76,221,130,0.97)' }}>
-              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight"
-                style={{ color:'rgba(76,221,130,0.97)' }}>Savings{'\n'}Secured</span>
-              <span className="text-xl font-extrabold leading-none" style={{ color:'rgba(76,221,130,0.97)' }}>
-                {coinsCollected}
+          {/* Prominent Distance Display */}
+          <div className="flex flex-col items-center justify-center my-4">
+            <span className="text-xs font-semibold tracking-wider uppercase animate-pulse" style={{ color: 'rgba(200, 210, 240, 0.7)' }}>
+              Distance Covered
+            </span>
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-5xl font-black tracking-tight text-yellow-300" style={{ filter: 'drop-shadow(0 2px 10px rgba(253,224,71,0.45))' }}>
+                {distance}m
               </span>
-              <img src={imgCoinSrc} alt="coin" className="w-6 h-6 object-contain" />
-            </div>
-
-            {/* Score dial */}
-            <div className="flex flex-col items-center">
-              <div style={{ position:'relative', width:100, height:100 }}>
-                <svg viewBox="0 0 100 100" width={100} height={100}>
-                  <circle cx={cx} cy={cy} r={innerR} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={stroke} />
-                  {gainsDeg > 0 && (
-                    <path d={arcPath(cx,cy,innerR,0,gainsEnd)} fill="none" stroke="rgb(74,228,130)" strokeWidth={stroke} strokeLinecap="round" />
-                  )}
-                  {drainsDeg > 0 && (
-                    <path d={arcPath(cx,cy,innerR,drainsStart,drainsEnd)} fill="none" stroke="#EF4444" strokeWidth={stroke} strokeLinecap="round" />
-                  )}
-                </svg>
-                <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:2 }}>
-                  <span className="text-[1.5rem] font-extrabold leading-none" style={{ color: scoreColor }}>
-                    {finalScore}
-                  </span>
-                  <span className="text-[0.55rem] font-bold uppercase tracking-wide" style={{ color:'rgba(255,255,255,0.6)' }}>
-                    / 100
-                  </span>
-                  <span className="text-[0.52rem] font-bold" style={{ color:'rgba(255,255,255,0.9)' }}>score</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Lives Remaining */}
-            <div className="flex-1 flex flex-col items-center rounded-2xl px-2 py-3 gap-1"
-              style={{ background:'rgba(7,7,7,0.1)', border:'1px solid rgba(255,52,1,0.7)' }}>
-              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight"
-                style={{ color:'rgb(255,100,80)' }}>Lives{'\n'}Remaining</span>
-              <span className="text-xl font-extrabold leading-none" style={{ color:'rgb(255,100,80)' }}>
-                {livesRemaining}
+              <span className="text-sm font-semibold" style={{ color: 'rgba(200, 210, 240, 0.4)' }}>
+                / {TARGET_DISTANCE}m
               </span>
-              <img src={imgShieldSrc} alt="shield" className="w-6 h-6 object-contain" style={{filter:'drop-shadow(0 0 4px rgba(255,100,80,0.6))'}} />
             </div>
           </div>
 
-          {/* Distance bar */}
-          <div className="mb-3">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-[0.65rem] font-bold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                Distance Run
-              </span>
-              <span className="text-[0.65rem] font-extrabold" style={{ color: 'white' }}>
-                {distance}m / {TARGET_DISTANCE}m
-              </span>
+          {/* Premium Interactive Animated Runner Track Arena */}
+          <div className="relative flex items-center h-28 my-4 overflow-hidden rounded-2xl shadow-inner"
+            style={{ background: 'linear-gradient(to bottom, rgba(15,23,42,0.85), rgba(30,41,59,0.95))' }}>
+            
+            {/* Embedded Inline CSS for Bobbing, Track Scrolling, and Floating animations */}
+            <style>{`
+              @keyframes trackScroll {
+                0% { background-position-x: 0px; }
+                100% { background-position-x: -30px; }
+              }
+              @keyframes charBob {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-4px); }
+              }
+              @keyframes floatGentle {
+                0%, 100% { transform: translate(-50%, 0px); }
+                50% { transform: translate(-50%, -3px); }
+              }
+            `}</style>
+
+            {/* Glowing neon aura behind starting area */}
+            <div className="absolute w-32 h-32 rounded-full bg-blue-500/10 blur-2xl left-[10%] bottom-0 pointer-events-none" />
+
+            {/* Horizontal progress track line (grey backdrop) */}
+            <div className="absolute left-[10%] right-[10%] bottom-[32px] h-2 bg-white/10 rounded-full" />
+            
+            {/* Horizontal active highlight path (dynamic color gradient filled behind runner) */}
+            <div className="absolute left-[10%] bottom-[32px] h-2 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
+              style={{
+                width: `${currentProgress * 0.8}%`, // Since track spans 80% of width (from 10% to 90%)
+                transition: 'width 2s cubic-bezier(0.25, 1, 0.25, 1)'
+              }}
+            />
+
+            {/* Start Line Marker Flag */}
+            <div className="absolute left-[10%] bottom-[44px] flex flex-col items-center">
+              <span className="text-[9px] font-bold text-white/55">Start</span>
+              <div className="w-[1px] h-3 bg-white/20 mt-1" />
             </div>
-            <div className="h-2 rounded-full" style={{ background:'rgba(255,255,255,0.15)' }}>
-              <div className="h-2 rounded-full transition-all" style={{ width:`${distPct}%`, background:'linear-gradient(90deg,#34D399,#059669)' }} />
+
+            {/* Finish/Goal Marker Flag */}
+            <div className="absolute right-[10%] bottom-[44px] flex flex-col items-center">
+              <span className="text-[9px] font-black text-emerald-400 flex items-center gap-0.5">
+                🏁 {TARGET_DISTANCE}m
+              </span>
+              <div className="w-[1px] h-3 bg-emerald-500/30 mt-1" />
+            </div>
+
+            {/* Runner Container sliding horizontally along track */}
+            <div className="absolute bottom-[36px]"
+              style={{
+                left: `calc(10% + ${currentProgress * 0.8}%)`,
+                transform: 'translateX(-50%)',
+                transition: 'left 2s cubic-bezier(0.25, 1, 0.25, 1)',
+                zIndex: 10,
+              }}
+            >
+              {/* Floating Distance Badge directly above runner (lowered and floating gently to prevent clipping) */}
+              <div className="absolute left-1/2 bg-yellow-400 text-slate-950 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-lg flex items-center justify-center whitespace-nowrap"
+                style={{
+                  bottom: '38px',
+                  transform: 'translateX(-50%)',
+                  animation: 'floatGentle 2s ease-in-out infinite',
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                }}>
+                🏃‍♂️ {distance}m
+              </div>
+
+              <img
+                src={runnerFrames[frameIdx - 1]}
+                alt="Running character"
+                className="w-11 h-13 object-contain"
+                style={{
+                  animation: 'charBob 0.4s ease-in-out infinite',
+                  filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))'
+                }}
+              />
             </div>
           </div>
 
@@ -231,7 +279,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
         {/* Action buttons */}
         <div className="space-y-3 px-4 py-4">
           <button className="btn-press w-full rounded-xl py-3.5 text-sm font-bold text-white" style={{ background:'#25D366' }} onClick={handleShare}>
-            📤 Share
+            Share
           </button>
           <p className="text-sm font-semibold leading-relaxed text-center" style={{ color: 'rgba(255,255,255,0.85)' }}>
             {SCORING_CTA_LINE}
@@ -240,18 +288,18 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             <a href={`tel:${CALL_NOW_NUMBER}`}
               className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
               style={{ background: ORANGE }}>
-              📞 Call now
+              Call now
             </a>
             <button onClick={() => setShowBook(true)}
               className="btn-press w-full rounded-xl py-3 text-sm font-extrabold text-white"
               style={{ background:'#0D9488' }}>
-              📅 Book a Slot
+              Book a Slot
             </button>
           </div>
           <button onClick={onPlayAgain}
             className="btn-press w-full rounded-xl py-3.5 text-sm font-bold"
             style={{ color:'white', border:'2px solid rgba(255,255,255,0.35)', background:'rgba(255,255,255,0.1)' }}>
-            ▶ Play Again
+            Play Again
           </button>
         </div>
 

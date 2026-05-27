@@ -128,9 +128,9 @@ const games = [
     destination: path.join(SHELL_GAMES_DIR, "shield-marble-vita"),
   },
   {
-    name: "ulip-picture-puzzle",
-    source: path.join(ROOT_DIR, "ulip-picture-puzzle", "dist"),
-    destination: path.join(SHELL_GAMES_DIR, "ulip-picture-puzzle"),
+    name: "jumbled-quest",
+    source: path.join(ROOT_DIR, "jumbled-quest", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "jumbled-quest"),
   },
   {
     name: "ulip-wealth-whacker",
@@ -138,9 +138,9 @@ const games = [
     destination: path.join(SHELL_GAMES_DIR, "ulip-wealth-whacker"),
   },
   {
-    name: "whole-life-galaga",
-    source: path.join(ROOT_DIR, "whole-life-galaga", "dist"),
-    destination: path.join(SHELL_GAMES_DIR, "whole-life-galaga"),
+    name: "guardian-strike",
+    source: path.join(ROOT_DIR, "guardian-strike", "dist"),
+    destination: path.join(SHELL_GAMES_DIR, "guardian-strike"),
   },
   {
     name: "future-climb",
@@ -166,16 +166,6 @@ const games = [
     name: "guardian-grid",
     source: path.join(ROOT_DIR, "guardian-grid", "dist"),
     destination: path.join(SHELL_GAMES_DIR, "guardian-grid"),
-  },
-  {
-    name: "guardian-strike",
-    source: path.join(ROOT_DIR, "guardian-strike", "dist"),
-    destination: path.join(SHELL_GAMES_DIR, "guardian-strike"),
-  },
-  {
-    name: "jumbled-quest",
-    source: path.join(ROOT_DIR, "jumbled-quest", "dist"),
-    destination: path.join(SHELL_GAMES_DIR, "jumbled-quest"),
   },
 ];
 
@@ -444,11 +434,11 @@ const manifest = {
     gameId: "GAME_021",
     assets: [],
   },
-  "ulip-picture-puzzle": {
-    remoteEntry: "assets/games/ulip-picture-puzzle/index.js",
+  "jumbled-quest": {
+    remoteEntry: "assets/games/jumbled-quest/index.js",
     exposedModule: "./GameEntry",
     type: "react",
-    displayName: "ULIP Picture Puzzle",
+    displayName: "Jumbled Quest",
     popular: true,
     gameId: "GAME_022",
     assets: [],
@@ -462,11 +452,11 @@ const manifest = {
     gameId: "GAME_023",
     assets: [],
   },
-  "whole-life-galaga": {
-    remoteEntry: "assets/games/whole-life-galaga/index.js",
+  "guardian-strike": {
+    remoteEntry: "assets/games/guardian-strike/index.js",
     exposedModule: "./GameEntry",
     type: "react",
-    displayName: "Whole Life Galaga",
+    displayName: "Guardian Strike",
     popular: true,
     gameId: "GAME_024",
     assets: [],
@@ -514,24 +504,6 @@ const manifest = {
     displayName: "Guardian Grid",
     popular: true,
     gameId: "GAME_029",
-    assets: [],
-  },
-  "guardian-strike": {
-    remoteEntry: "assets/games/guardian-strike/index.js",
-    exposedModule: "./GameEntry",
-    type: "react",
-    displayName: "Guardian Strike",
-    popular: true,
-    gameId: "GAME_030",
-    assets: [],
-  },
-  "jumbled-quest": {
-    remoteEntry: "assets/games/jumbled-quest/index.js",
-    exposedModule: "./GameEntry",
-    type: "react",
-    displayName: "Jumbled Quest",
-    popular: true,
-    gameId: "GAME_031",
     assets: [],
   },
 };
