@@ -36,7 +36,7 @@ const IntroScreen: React.FC<Props> = ({ onPlay }) => (
           boxShadow: '0 0.6rem 2.4rem rgba(249,115,22,0.65), inset 0 0.15rem 0 rgba(255,255,255,0.3)',
         }}
       >
-        ▶ Start Sprint
+        Start
       </button>
     </div>
   </div>

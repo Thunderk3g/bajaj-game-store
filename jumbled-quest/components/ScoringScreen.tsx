@@ -25,13 +25,22 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const [showBook, setShowBook] = useState(false);
   const [booked, setBooked] = useState(false);
 
-  const totalScore    = result.portfolio;
+  const totalScore = result.portfolio;
   const puzzlesSolved = result.goodWhacks;
-  const totalSwaps    = result.molesSeen;
+  const totalSwaps = result.molesSeen;
 
-  const finalScore = Math.min(100, Math.max(0, Math.round((totalScore / TARGET_PORTFOLIO) * 100)));
+  const finalScore = totalScore;
   const msg = SCORE_MESSAGES.find(m => finalScore >= m.minScore) ?? SCORE_MESSAGES[SCORE_MESSAGES.length - 1];
   const hasBg = !!SCORING_BG_IMAGE;
+
+  let scoringText = '';
+  if (finalScore <= 30) {
+    scoringText = "Oops! You could not solve the puzzle. But this was just a game.";
+  } else if (finalScore > 30 && finalScore <= 60) {
+    scoringText = "Well Played! But you can do better.";
+  } else {
+    scoringText = "Awesome! You have aced the puzzle.";
+  }
 
   const scoreColor = finalScore >= 70 ? '#22C55E' : finalScore >= 40 ? '#F97316' : '#EF4444';
 
@@ -123,13 +132,6 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             ? { background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', borderRadius: 16 }
             : { background: 'white', borderRadius: 16 }}
         >
-          <p
-            className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-center"
-            style={{ color: hasBg ? 'rgba(230, 210, 210, 1)' : '#9ca3af' }}
-          >
-            Scoring
-          </p>
-
           {/* Score badge */}
           <div className="flex flex-col items-center mb-4 gap-1.5">
             <span
@@ -139,13 +141,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
               YOUR SCORE
             </span>
             <span className="text-5xl font-extrabold leading-none" style={{ color: scoreColor }}>
-              {totalScore.toLocaleString('en-IN')}
-            </span>
-            <span
-              className="text-xs font-extrabold mt-1 px-4 py-1 rounded-full"
-              style={{ background: scoreColor + '28', color: scoreColor, border: `1.5px solid ${scoreColor}55` }}
-            >
-              {msg.title}
+              {totalScore}%
             </span>
           </div>
 
@@ -156,7 +152,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
               style={{ background: 'rgba(74,222,128,0.10)', border: '1px solid rgba(74,222,128,0.45)' }}
             >
               <span className="text-2xl font-extrabold leading-none" style={{ color: '#4ADE80' }}>
-                {puzzlesSolved}
+                {puzzlesSolved}/3
               </span>
               <span className="text-[10px] font-bold uppercase tracking-wide text-center leading-tight" style={{ color: 'rgba(74,222,128,0.9)' }}>
                 Puzzles{'\n'}Solved
@@ -186,7 +182,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             className="text-sm font-bold leading-relaxed text-center"
             style={{ color: hasBg ? 'rgba(255,255,255,0.9)' : '#1f2937' }}
           >
-            {SCORING_TAGLINE}
+            {scoringText}
           </p>
         </div>
 
@@ -202,10 +198,10 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             style={{ background: '#25D366' }}
             onClick={handleShare}
           >
-            📤 Share
+            Share
           </button>
-          <p className="text-sm font-semibold leading-relaxed text-center" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
-            {SCORING_CTA_LINE}
+          <p className="text-xs font-semibold leading-relaxed text-center max-w-[280px] mx-auto" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
+            To solve your real life financial puzzles, connect with our relationship manager now!
           </p>
           <div
             className="rounded-2xl p-4"
@@ -216,14 +212,14 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
               className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
               style={{ background: ORANGE }}
             >
-              📞 Call now
+              Call now
             </a>
             <button
               onClick={() => setShowBook(true)}
               className="btn-press w-full rounded-xl py-3 text-sm font-extrabold text-white"
               style={{ background: '#0D9488' }}
             >
-              📅 Book a Slot
+              Book a Slot
             </button>
           </div>
 
@@ -234,7 +230,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
               ? { color: 'white', border: '2px solid rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.12)' }
               : { color: BLUE, border: `2px solid ${BLUE}`, background: 'white' }}
           >
-            ▶ Play Again
+            Play Again
           </button>
         </div>
 

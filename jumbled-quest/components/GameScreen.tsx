@@ -37,7 +37,7 @@ function startMusic() {
     bgmEl.volume = 0.55;
   }
   bgmEl.currentTime = 0;
-  bgmEl.play().catch(() => {});
+  bgmEl.play().catch(() => { });
 }
 
 function stopMusic() {
@@ -112,9 +112,10 @@ interface TileProps {
   selected: boolean;
   correct: boolean;
   onClick: () => void;
+  className?: string;
 }
 
-const Tile: React.FC<TileProps> = ({ pieceId, size, image, selected, correct, onClick }) => {
+const Tile: React.FC<TileProps> = ({ pieceId, size, image, selected, correct, onClick, className }) => {
   const col = pieceId % GRID;
   const row = Math.floor(pieceId / GRID);
   // For a 3×3 grid: col/row 0→0%, 1→50%, 2→100%
@@ -125,6 +126,7 @@ const Tile: React.FC<TileProps> = ({ pieceId, size, image, selected, correct, on
     <button
       type="button"
       onClick={onClick}
+      className={className}
       aria-label={`Tile ${pieceId}`}
       style={{
         width: size,
@@ -136,8 +138,8 @@ const Tile: React.FC<TileProps> = ({ pieceId, size, image, selected, correct, on
         border: selected
           ? '3px solid #FBBF24'
           : correct
-          ? '2px solid #4ADE80'
-          : '2px solid rgba(255,255,255,0.18)',
+            ? '2px solid #4ADE80'
+            : '2px solid rgba(255,255,255,0.18)',
         borderRadius: '0.25rem',
         cursor: 'pointer',
         outline: 'none',
@@ -146,8 +148,8 @@ const Tile: React.FC<TileProps> = ({ pieceId, size, image, selected, correct, on
         boxShadow: selected
           ? '0 0 0 3px rgba(251,191,36,0.45)'
           : correct
-          ? '0 0 8px rgba(74,222,128,0.5)'
-          : '0 1px 4px rgba(0,0,0,0.5)',
+            ? '0 0 8px rgba(74,222,128,0.5)'
+            : '0 1px 4px rgba(0,0,0,0.5)',
         padding: 0,
       }}
     />
@@ -175,9 +177,11 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const [solved, setSolved] = useState(false);
   const [solveFlash, setSolveFlash] = useState(false);
   const [puzzlesSolved, setPuzzlesSolved] = useState(0);
+  const [swappingPair, setSwappingPair] = useState<{ idxA: number; idxB: number } | null>(null);
 
   const scoreRef = useRef(0);
   const swapsRef = useRef(0);
+  const totalSwapsRef = useRef(0);
   const puzzlesSolvedRef = useRef(0);
   const timeLeftRef = useRef(GAME_SECS);
   const activeRef = useRef(false);
@@ -185,14 +189,26 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
   const isSolved = useCallback((t: number[]) => t.every((v, i) => v === i), []);
 
+  const getPercentageScore = useCallback((tilesArray: number[], solvedCount: number, isCurrentSolved: boolean) => {
+    const correctTilesCount = isCurrentSolved ? 0 : tilesArray.filter((pieceId, idx) => pieceId === idx).length;
+    const rawPercent = ((solvedCount + (correctTilesCount / TOTAL_TILES)) / 3) * 100;
+    return Math.min(100, Math.round(rawPercent));
+  }, []);
+
   const loadNewPuzzle = useCallback(() => {
     const next = pickRandomPuzzle(currentImageRef.current);
     currentImageRef.current = next;
     setCurrentImage(next);
-    setTiles(shuffleTiles(TOTAL_TILES));
+    
+    const newTiles = shuffleTiles(TOTAL_TILES);
+    setTiles(newTiles);
     setSelected(null);
     setSolved(false);
-  }, []);
+
+    const newScore = getPercentageScore(newTiles, puzzlesSolvedRef.current, false);
+    scoreRef.current = newScore;
+    setScore(newScore);
+  }, [getPercentageScore]);
 
   useEffect(() => {
     if (!started) return;
@@ -207,15 +223,14 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         activeRef.current = false;
         stopMusic();
         playSFX('gameover');
-        const rawScore = Math.min(100, Math.max(0, Math.round((scoreRef.current / (5 * 500)) * 100)));
         onGameEnd({
           portfolio: scoreRef.current,
-          molesSeen: swapsRef.current,
-          molesWhacked: swapsRef.current,
+          molesSeen: totalSwapsRef.current,
+          molesWhacked: totalSwapsRef.current,
           goodWhacks: puzzlesSolvedRef.current,
           badWhacks: 0,
           timeSeconds: GAME_SECS,
-          rawScore,
+          rawScore: scoreRef.current,
           gains: scoreRef.current,
           losses: 0,
         });
@@ -228,6 +243,12 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       stopMusic();
     };
   }, [started, onGameEnd]);
+
+  useEffect(() => {
+    const initialScore = getPercentageScore(tiles, puzzlesSolvedRef.current, false);
+    scoreRef.current = initialScore;
+    setScore(initialScore);
+  }, [getPercentageScore, tiles]);
 
   function handleTileClick(gridIdx: number) {
     if (!started || !activeRef.current || solved) return;
@@ -242,21 +263,28 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         return;
       }
       // Swap the two tiles
+      setSwappingPair({ idxA: selected, idxB: gridIdx });
       const next = [...tiles];
       [next[selected], next[gridIdx]] = [next[gridIdx], next[selected]];
       setTiles(next);
       setSelected(null);
       swapsRef.current++;
       setSwaps(swapsRef.current);
+      totalSwapsRef.current++;
       playSFX('swap');
 
+      setTimeout(() => {
+        setSwappingPair(null);
+      }, 300);
+
       if (isSolved(next)) {
-        // Bonus: 500 base minus 10 per swap, minimum 100
-        const bonus = Math.max(100, 500 - swapsRef.current * 10);
-        scoreRef.current += bonus;
-        setScore(scoreRef.current);
         puzzlesSolvedRef.current++;
         setPuzzlesSolved(puzzlesSolvedRef.current);
+        
+        const newScore = getPercentageScore(next, puzzlesSolvedRef.current, true);
+        scoreRef.current = newScore;
+        setScore(newScore);
+
         setSolved(true);
         setSolveFlash(true);
         playSFX('solve');
@@ -266,6 +294,10 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           setSolveFlash(false);
           loadNewPuzzle();
         }, 1800);
+      } else {
+        const newScore = getPercentageScore(next, puzzlesSolvedRef.current, false);
+        scoreRef.current = newScore;
+        setScore(newScore);
       }
     }
   }
@@ -288,10 +320,47 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const TILE_SIZE = 90;
   const GAP = 4;
 
+  // Swapping offset calculations for main grid sliding transitions
+  let translateAStyle = '';
+  if (swappingPair) {
+    const { idxA, idxB } = swappingPair;
+    const colA = idxA % GRID;
+    const rowA = Math.floor(idxA / GRID);
+    const colB = idxB % GRID;
+    const rowB = Math.floor(idxB / GRID);
+
+    const deltaX = (colB - colA) * (TILE_SIZE + GAP);
+    const deltaY = (rowB - rowA) * (TILE_SIZE + GAP);
+
+    translateAStyle = `
+      @keyframes main-slide-to-A {
+        from { transform: translate(${deltaX}px, ${deltaY}px); }
+        to { transform: translate(0, 0); }
+      }
+      @keyframes main-slide-to-B {
+        from { transform: translate(${-deltaX}px, ${-deltaY}px); }
+        to { transform: translate(0, 0); }
+      }
+      .main-animate-slide-A {
+        animation: main-slide-to-A 0.28s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        z-index: 10;
+        position: relative;
+      }
+      .main-animate-slide-B {
+        animation: main-slide-to-B 0.28s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        z-index: 10;
+        position: relative;
+      }
+    `;
+  }
+
   return (
     <div
       className="relative flex h-full min-h-0 flex-col"
-      style={{ background: 'linear-gradient(170deg, #001230 0%, #002060 55%, #001a30 100%)' }}
+      style={{
+        background: 'linear-gradient(170deg, #001230 0%, #002060 55%, #001a30 100%)',
+        paddingBottom: 'max(2vh, calc(env(safe-area-inset-bottom) + 0.5rem))'
+      }}
     >
       {/* Header */}
       <div
@@ -300,10 +369,11 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       >
         <button
           onClick={handleMuteToggle}
-          className="btn-press flex h-[2.7rem] min-w-[4.1rem] flex-shrink-0 items-center justify-center rounded-full px-[0.6rem] text-[0.72rem] font-extrabold uppercase text-white"
+          className="btn-press flex h-[2.6rem] w-[2.6rem] flex-shrink-0 items-center justify-center rounded-full text-[1.1rem]"
           style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+          title={muted ? 'Unmute Sound' : 'Mute Sound'}
         >
-          {muted ? 'Muted' : 'Sound'}
+          {muted ? '🔇' : '🔊'}
         </button>
 
         <div className="text-center">
@@ -320,10 +390,23 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           <div className="text-[0.58rem] font-bold uppercase tracking-[0.12em] text-blue-300">Time Left</div>
         </div>
 
-        <div className="flex flex-col items-end gap-[0.1rem]">
-          <span className="text-[0.72rem] font-extrabold tabular-nums" style={{ color: GREEN }}>{score} pts</span>
-          <span className="text-[0.55rem] font-semibold text-blue-300">{puzzlesSolved} solved</span>
+        <div className="flex flex-col items-end gap-[0.15rem]">
+          <span className="text-[0.95rem] font-extrabold tabular-nums" style={{ color: GREEN }}>{score}%</span>
+          <span className="text-[0.75rem] font-bold text-blue-300">{puzzlesSolved}/3 solved</span>
         </div>
+      </div>
+
+      {/* Swaps Info Bar (Moved to Top, Made Bigger, Centered & Stacked) */}
+      <div className="mx-[6vw] my-[0.8vh] flex-shrink-0 flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl px-[1.2rem] py-[0.7rem] shadow-sm">
+        <span className="text-[0.7rem] font-bold text-blue-300 uppercase tracking-widest leading-none">
+          Swaps
+        </span>
+        <span className="text-white text-[1.65rem] font-black my-[0.3vh] leading-none tabular-nums">
+          {swaps}
+        </span>
+        <span className="text-[0.75rem] font-bold text-white tracking-wide mt-[0.4vh]">
+          Fewer swaps = more points
+        </span>
       </div>
 
       {/* Puzzle grid */}
@@ -342,6 +425,29 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           </div>
         )}
 
+        {/* Target Reference Image above the unshuffled puzzle grid */}
+        <div className="mb-[4vh] flex flex-col items-center">
+          <p className="mb-[0.6vh] text-[0.55rem] font-bold uppercase tracking-[0.1em] text-blue-300">
+            Reference Image
+          </p>
+          <button
+            onClick={() => setFullscreen(true)}
+            className="btn-press relative overflow-hidden rounded-lg border-2 border-white/20 hover:border-white/50 transition-all shadow-lg"
+            style={{ width: 110, height: 110 }}
+            title="Tap to enlarge target image"
+          >
+            <img src={currentImage} alt="Target puzzle" className="w-full h-full object-cover" />
+            <div className="absolute bottom-0 right-0 bg-black/60 text-[0.52rem] text-white px-[4px] py-[2px] rounded-tl-sm font-bold">
+              🔍
+            </div>
+          </button>
+          <p className="mt-[0.5vh] text-[0.55rem] font-bold uppercase tracking-[0.08em] text-blue-300/70">
+            Click to enlarge
+          </p>
+        </div>
+
+        {swappingPair && <style>{translateAStyle}</style>}
+
         <div
           style={{
             display: 'grid',
@@ -350,17 +456,28 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             gap: GAP,
           }}
         >
-          {tiles.map((pieceId, gridIdx) => (
-            <Tile
-              key={gridIdx}
-              pieceId={pieceId}
-              size={TILE_SIZE}
-              image={currentImage}
-              selected={selected === gridIdx}
-              correct={pieceId === gridIdx}
-              onClick={() => handleTileClick(gridIdx)}
-            />
-          ))}
+          {tiles.map((pieceId, gridIdx) => {
+            const slideClass = swappingPair
+              ? (gridIdx === swappingPair.idxA
+                ? 'main-animate-slide-A'
+                : gridIdx === swappingPair.idxB
+                  ? 'main-animate-slide-B'
+                  : '')
+              : '';
+
+            return (
+              <Tile
+                key={gridIdx}
+                pieceId={pieceId}
+                size={TILE_SIZE}
+                image={currentImage}
+                selected={selected === gridIdx}
+                correct={pieceId === gridIdx}
+                className={slideClass}
+                onClick={() => handleTileClick(gridIdx)}
+              />
+            );
+          })}
         </div>
 
         <p className="mt-[0.7vh] text-[0.6rem] text-white/45 text-center">
@@ -368,51 +485,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             ? '✦ Now tap another tile to swap'
             : 'Tap a tile to select, then tap another to swap'}
         </p>
-      </div>
-
-      {/* Swaps bar */}
-      <div className="mx-[4vw] mb-[0.4vh] flex-shrink-0 flex justify-between items-center">
-        <span className="text-[0.62rem] font-bold text-blue-300 uppercase tracking-wide">Swaps: {swaps}</span>
-        <span className="text-[0.58rem] text-white/40">Fewer swaps = more points</span>
-      </div>
-
-      {/* Thumbnail + info panel */}
-      <div
-        className="flex-shrink-0 px-[4vw]"
-        style={{ paddingBottom: 'max(2vh, calc(env(safe-area-inset-bottom) + 0.5rem))' }}
-      >
-        <div
-          className="rounded-[0.9rem] border border-white/10 px-[0.7rem] py-[0.5rem] flex items-center gap-[0.75rem]"
-          style={{ background: 'rgba(255,255,255,0.05)' }}
-        >
-          {/* Thumbnail */}
-          <div className="flex-shrink-0">
-            <p className="mb-[0.3rem] text-[0.52rem] font-extrabold uppercase tracking-[0.08em] text-blue-300">
-              Target — tap to enlarge
-            </p>
-            <button
-              onClick={() => setFullscreen(true)}
-              className="btn-press relative overflow-hidden rounded-lg border-2 border-white/30 hover:border-white/70 transition-colors"
-              style={{ width: 68, height: 68 }}
-              title="View full image"
-            >
-              <img src={currentImage} alt="Target puzzle" className="w-full h-full object-cover" />
-              <div className="absolute bottom-0 right-0 bg-black/60 text-[0.52rem] text-white px-[3px] py-[1px] rounded-tl-sm">
-                🔍
-              </div>
-            </button>
-          </div>
-
-          {/* Instructions */}
-          <div className="flex-1 min-w-0">
-            <p className="text-[0.56rem] text-white/60 leading-snug">
-              Rearrange the 9 tiles to recreate this picture. Select a tile, then select another to swap them.
-            </p>
-            <p className="mt-[0.4rem] text-[0.58rem] font-bold" style={{ color: GREEN }}>
-              Score: {score} pts &nbsp;·&nbsp; {puzzlesSolved} solved
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Fullscreen modal */}

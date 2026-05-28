@@ -169,6 +169,8 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const [shake, setShake] = useState(false);
   const [started, setStarted] = useState(false);
   const [feedback, setFeedback] = useState('Fill each row, column, and shield box once.');
+  const [completedLevelNum, setCompletedLevelNum] = useState<number | null>(null);
+  const completedLevelNumRef = useRef<number | null>(null);
 
   const boardRef = useRef(board);
   const levelRef = useRef(0);
@@ -189,6 +191,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     activeRef.current = true;
 
     const timer = setInterval(() => {
+      if (completedLevelNumRef.current !== null) return;
       timeLeftRef.current -= 1;
       setTimeLeft(timeLeftRef.current);
       if (timeLeftRef.current <= 0) {
@@ -241,15 +244,13 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     });
   }
 
-  function advanceLevel() {
+  function advanceLevelAfterPopup() {
     const currentLevel = LEVELS[levelRef.current] ?? LEVELS[LEVELS.length - 1];
     statsRef.current.puzzlesSolved++;
     addScore(currentLevel.score);
-    playSFX('complete');
-    setFeedback(`${currentLevel.name} secured. Protection stays simple: pay premium, keep cover active.`);
 
     if (levelRef.current >= LEVELS.length - 1) {
-      setTimeout(() => finishGame(true), 650);
+      finishGame(true);
       return;
     }
 
@@ -259,6 +260,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     const nextBoard = buildPuzzle(nextLevel, LEVELS[nextLevel]?.clues ?? 5);
     syncBoard(nextBoard);
     setSelected(nextBoard.flat().findIndex(value => value === null));
+    setFeedback('Fill each row, column, and shield box once.');
   }
 
   function isSolved(nextBoard: CellValue[][]) {
@@ -266,10 +268,12 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   }
 
   function handleCellTap(index: number) {
+    if (completedLevelNumRef.current !== null) return;
     setSelected(index);
   }
 
   function handleNumberTap(value: number) {
+    if (completedLevelNumRef.current !== null) return;
     if (!started || !activeRef.current) return;
     const row = Math.floor(selected / GRID_SIZE);
     const col = selected % GRID_SIZE;
@@ -305,11 +309,19 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     if (nextEmpty >= 0) setSelected(nextEmpty);
 
     if (isSolved(next)) {
-      setTimeout(advanceLevel, 420);
+      setCompletedLevelNum(levelIndex + 1);
+      completedLevelNumRef.current = levelIndex + 1;
+      playSFX('complete');
+      setTimeout(() => {
+        setCompletedLevelNum(null);
+        completedLevelNumRef.current = null;
+        advanceLevelAfterPopup();
+      }, 2000);
     }
   }
 
   function handleHint() {
+    if (completedLevelNumRef.current !== null) return;
     if (!started || !activeRef.current) return;
     if (statsRef.current.hintsUsed >= MAX_HINTS) {
       setFeedback('No hints left. Trust the pattern.');
@@ -334,11 +346,19 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     playSFX('hint');
 
     if (isSolved(next)) {
-      setTimeout(advanceLevel, 420);
+      setCompletedLevelNum(levelIndex + 1);
+      completedLevelNumRef.current = levelIndex + 1;
+      playSFX('complete');
+      setTimeout(() => {
+        setCompletedLevelNum(null);
+        completedLevelNumRef.current = null;
+        advanceLevelAfterPopup();
+      }, 2000);
     }
   }
 
   function handleClear() {
+    if (completedLevelNumRef.current !== null) return;
     if (!started || !activeRef.current || givens[selected]) return;
     const row = Math.floor(selected / GRID_SIZE);
     const col = selected % GRID_SIZE;
@@ -350,6 +370,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   }
 
   function handleRestart() {
+    if (completedLevelNumRef.current !== null) return;
     stopMusic();
     playSFX('btn');
     const initial = buildPuzzle(0, LEVELS[0]?.clues ?? 8);
@@ -423,13 +444,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           <div className="text-[0.56rem] font-bold uppercase tracking-[0.14em] text-cyan-200">Cover Clock</div>
         </div>
 
-        <button
-          onClick={handleRestart}
-          className="btn-press flex h-[2.55rem] min-w-[4rem] items-center justify-center rounded-full px-[0.6rem] text-[0.68rem] font-extrabold uppercase text-white"
-          style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(251,191,36,0.28)' }}
-        >
-          Reset
-        </button>
+        <div className="w-[4rem]" />
       </div>
 
       <div className="mx-[4vw] flex-shrink-0 rounded-[0.9rem] border border-cyan-200/15 bg-white/8 px-[0.45rem] py-[0.25rem] backdrop-blur">
@@ -517,22 +532,32 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       </div>
 
       <div
-        className="grid flex-shrink-0 grid-cols-3 gap-[0.4rem] px-[4vw] pt-[0.2rem] text-center"
         style={{ paddingBottom: 'max(2vh, calc(env(safe-area-inset-bottom) + 0.5rem))' }}
-      >
-        <div className="rounded-[0.75rem] bg-white/8 p-[0.3rem]">
-          <p className="text-[0.5rem] font-extrabold uppercase tracking-[0.08em] text-cyan-200">Accuracy</p>
-          <p className="text-[0.78rem] font-extrabold text-white">{accuracy}%</p>
+      />
+
+      {completedLevelNum !== null && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 px-[6vw] backdrop-blur-sm">
+          <div className="pop flex flex-col items-center rounded-3xl border border-cyan-200/20 bg-cyan-950/95 p-[2rem] text-center shadow-[0_1.5rem_4rem_rgba(0,0,0,0.6)] max-w-[85%]">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 shadow-[0_0_1.5rem_rgba(16,185,129,0.3)] animate-pulse">
+              <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+
+            <span className="text-[0.65rem] font-extrabold uppercase tracking-[0.25em] text-emerald-400">SUCCESS</span>
+
+            <h2 className="mt-2 text-2xl font-black tracking-tight text-white uppercase">
+              Level {completedLevelNum} Completed
+            </h2>
+
+            <p className="mt-3 max-w-[15rem] text-xs font-semibold leading-relaxed text-cyan-200/70">
+              {completedLevelNum === LEVELS.length
+                ? "Excellent! You have secured the ultimate protection shield."
+                : "Great job! Get ready for the next level..."}
+            </p>
+          </div>
         </div>
-        <div className="rounded-[0.75rem] bg-white/8 p-[0.3rem]">
-          <p className="text-[0.5rem] font-extrabold uppercase tracking-[0.08em] text-rose-200">Mistakes</p>
-          <p className="text-[0.78rem] font-extrabold text-white">{mistakes}</p>
-        </div>
-        <div className="rounded-[0.75rem] bg-white/8 p-[0.3rem]">
-          <p className="text-[0.5rem] font-extrabold uppercase tracking-[0.08em] text-amber-200">Hints</p>
-          <p className="text-[0.78rem] font-extrabold text-white">{hintsUsed}/{MAX_HINTS}</p>
-        </div>
-      </div>
+      )}
 
       {!started && <HowToPlayPopup onStart={handleStart} />}
     </div>

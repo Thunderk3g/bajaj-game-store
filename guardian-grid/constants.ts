@@ -29,9 +29,9 @@ export let COMPLETE_BONUS = 400;
 export let TIME_BONUS_PER_SECOND = 4;
 export let CELL_SCORE = 35;
 export let LEVELS: SudokuLevel[] = [
-  { name: '10-Year Cover', clues: 8, score: 300, hintPenalty: 60, mistakePenalty: 45 },
-  { name: '20-Year Cover', clues: 6, score: 450, hintPenalty: 80, mistakePenalty: 65 },
-  { name: '30-Year Cover', clues: 5, score: 650, hintPenalty: 100, mistakePenalty: 85 },
+  { name: 'Level 1', clues: 8, score: 300, hintPenalty: 60, mistakePenalty: 45 },
+  { name: 'Level 2', clues: 6, score: 450, hintPenalty: 80, mistakePenalty: 65 },
+  { name: 'Level 3', clues: 5, score: 650, hintPenalty: 100, mistakePenalty: 85 },
 ];
 
 export let SCORE_MESSAGES: ScoreMessage[] = [

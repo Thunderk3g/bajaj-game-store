@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GameResult } from '../types';
-import imgCoinSrc   from '../src/assets/coin_savings.png';
-import imgShieldSrc from '../src/assets/powerup_shield.png';
+import imgCoinSrc from '../src/assets/coin_savings.png';
 
 import imgChildF1Src from '../src/assets/child_runner_f1.png';
 import imgChildF2Src from '../src/assets/child_runner_f2.png';
@@ -75,16 +74,25 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const hasBg = !!SCORING_BG_IMAGE;
 
   // Removed unused score dial geometry and colors
-  const distPct     = Math.min(100, Math.round((distance / TARGET_DISTANCE) * 100));
-  const mins        = Math.floor(timeSeconds / 60);
-  const secs        = timeSeconds % 60;
-  const timeStr     = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+  const distPct = Math.min(100, Math.round((distance / TARGET_DISTANCE) * 100));
+  const mins = Math.floor(timeSeconds / 60);
+  const secs = timeSeconds % 60;
+  const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+
+  let feedbackText = '';
+  if (distPct < 30) {
+    feedbackText = "You missed your milestone but you can do better!";
+  } else if (distPct < 60) {
+    feedbackText = "Decent Progress! You are close to your Milestone!";
+  } else {
+    feedbackText = "Wow! you have excelled in this game. Now repeat the same in real life";
+  }
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
         title: 'Future Sprint Score',
-        text: `I ran ${distance}m and scored ${finalScore}/100 in Future Sprint! Can you beat me?`,
+        text: `I completed ${distPct}% of the sprint and scored ${finalScore}/100 in Future Sprint! Can you beat me?`,
       });
     }
   };
@@ -118,12 +126,12 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
     >
       {hasBg && (
         <>
-          <div aria-hidden style={{ position:'fixed', inset:0, backgroundImage:`url(${SCORING_BG_IMAGE})`, backgroundSize:'cover', backgroundPosition:'center', filter:'blur(14px)', transform:'scale(1.1)', zIndex:0, pointerEvents:'none' }} />
-          <div aria-hidden style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', zIndex:1, pointerEvents:'none' }} />
+          <div aria-hidden style={{ position: 'fixed', inset: 0, backgroundImage: `url(${SCORING_BG_IMAGE})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(14px)', transform: 'scale(1.1)', zIndex: 0, pointerEvents: 'none' }} />
+          <div aria-hidden style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 1, pointerEvents: 'none' }} />
         </>
       )}
 
-      <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', flex:1 }}>
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', flex: 1 }}>
         {showBook && (
           <BookSlotModal
             name={playerName}
@@ -135,7 +143,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
 
         {/* Header */}
         <div className="px-6 pb-4 text-center"
-          style={{ paddingTop:'max(1.75rem, env(safe-area-inset-top))' }}>
+          style={{ paddingTop: 'max(1.75rem, env(safe-area-inset-top))' }}>
           <h2 className="text-2xl font-extrabold text-white">
             Hi {playerName}!
           </h2>
@@ -143,24 +151,16 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
 
         {/* Score Card Section */}
         <div className="mx-4 px-4 pt-4 pb-5"
-          style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16 }}>
-
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-center"
-            style={{ color: 'rgba(200,210,240,0.8)' }}>
-            Your Sprint Results
-          </p>
+          style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16 }}>
 
           {/* Prominent Distance Display */}
           <div className="flex flex-col items-center justify-center my-4">
-            <span className="text-xs font-semibold tracking-wider uppercase animate-pulse" style={{ color: 'rgba(200, 210, 240, 0.7)' }}>
-              Distance Covered
+            <span className="text-xs font-bold tracking-widest uppercase text-cyan-400">
+              Your Score
             </span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-5xl font-black tracking-tight text-yellow-300" style={{ filter: 'drop-shadow(0 2px 10px rgba(253,224,71,0.45))' }}>
-                {distance}m
-              </span>
-              <span className="text-sm font-semibold" style={{ color: 'rgba(200, 210, 240, 0.4)' }}>
-                / {TARGET_DISTANCE}m
+              <span className="text-5xl font-black tracking-tight text-yellow-300" style={{ filter: 'drop-shadow(0 2px 12px rgba(253,224,71,0.65))' }}>
+                {distPct}%
               </span>
             </div>
           </div>
@@ -168,7 +168,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
           {/* Premium Interactive Animated Runner Track Arena */}
           <div className="relative flex items-center h-28 my-4 overflow-hidden rounded-2xl shadow-inner"
             style={{ background: 'linear-gradient(to bottom, rgba(15,23,42,0.85), rgba(30,41,59,0.95))' }}>
-            
+
             {/* Embedded Inline CSS for Bobbing, Track Scrolling, and Floating animations */}
             <style>{`
               @keyframes trackScroll {
@@ -190,7 +190,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
 
             {/* Horizontal progress track line (grey backdrop) */}
             <div className="absolute left-[10%] right-[10%] bottom-[32px] h-2 bg-white/10 rounded-full" />
-            
+
             {/* Horizontal active highlight path (dynamic color gradient filled behind runner) */}
             <div className="absolute left-[10%] bottom-[32px] h-2 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
               style={{
@@ -230,7 +230,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
                   animation: 'floatGentle 2s ease-in-out infinite',
                   filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
                 }}>
-                🏃‍♂️ {distance}m
+                {distance}m
               </div>
 
               <img
@@ -246,39 +246,31 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="grid grid-cols-2 gap-4 mb-4 justify-items-center">
             {[
-              { label:'Obstacles\nDodged', value: obstaclesDodged, icon:<span className="text-base mb-0.5">🏃</span>, color:'#34D399' },
-              { label:'Time\nSurvived',    value: timeStr,         icon:<span className="text-base mb-0.5">⏱</span>,  color:'#60A5FA' },
-              { label:'Shields\nUsed',     value: shieldsUsed,     icon:<img src={imgShieldSrc} alt="shield" className="w-6 h-6 object-contain mb-0.5" />, color:'#A78BFA' },
+              { label: 'Obstacles\nDodged', value: obstaclesDodged, color: '#34D399' },
+              { label: 'Time\nSurvived', value: timeStr, color: '#60A5FA' },
             ].map(s => (
-              <div key={s.label} className="flex flex-col items-center rounded-xl py-2 px-1"
-                style={{ background:'rgba(0,0,0,0.15)', border:`1px solid ${s.color}33` }}>
-                {s.icon}
-                <span className="text-sm font-extrabold leading-none" style={{ color: s.color }}>{s.value}</span>
-                <span className="text-[0.52rem] text-center leading-tight mt-0.5"
-                  style={{ color:'rgba(255,255,255,0.55)', whiteSpace:'pre-line' }}>{s.label}</span>
+              <div key={s.label} className="flex flex-col items-center justify-center rounded-full aspect-square w-24 h-24"
+                style={{ background: 'rgba(0,0,0,0.25)', border: `2.5px solid ${s.color}dd`, boxShadow: `0 0 12px ${s.color}44` }}>
+                <span className="text-xl font-black leading-tight" style={{ color: s.color }}>{s.value}</span>
+                <span className="text-[0.6rem] font-extrabold text-center uppercase tracking-wide leading-tight mt-1"
+                  style={{ color: 'rgba(255,255,255,0.78)', whiteSpace: 'pre-line' }}>{s.label}</span>
               </div>
             ))}
           </div>
 
-          {/* Score message */}
-          <div className="rounded-xl px-3 py-2.5 mb-3" style={{ background:'rgba(0,0,0,0.2)', border:'1px solid rgba(255,255,255,0.1)' }}>
-            <p className="text-[0.7rem] font-extrabold text-yellow-300 mb-0.5">{msg.title}</p>
-            <p className="text-[0.65rem] leading-relaxed" style={{ color:'rgba(255,255,255,0.8)' }}>{msg.body}</p>
-          </div>
-
           <p className="text-sm font-bold leading-relaxed text-center"
             style={{ color: 'rgba(255,255,255,0.9)' }}>
-            {SCORING_TAGLINE}
+            {feedbackText}
           </p>
         </div>
 
-        <div style={{ flex:1 }} />
+        <div style={{ flex: 1 }} />
 
         {/* Action buttons */}
         <div className="space-y-3 px-4 py-4">
-          <button className="btn-press w-full rounded-xl py-3.5 text-sm font-bold text-white" style={{ background:'#25D366' }} onClick={handleShare}>
+          <button className="btn-press w-full rounded-xl py-3.5 text-sm font-bold text-white" style={{ background: '#25D366' }} onClick={handleShare}>
             Share
           </button>
           <p className="text-sm font-semibold leading-relaxed text-center" style={{ color: 'rgba(255,255,255,0.85)' }}>
@@ -292,21 +284,21 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             </a>
             <button onClick={() => setShowBook(true)}
               className="btn-press w-full rounded-xl py-3 text-sm font-extrabold text-white"
-              style={{ background:'#0D9488' }}>
+              style={{ background: '#0D9488' }}>
               Book a Slot
             </button>
           </div>
           <button onClick={onPlayAgain}
             className="btn-press w-full rounded-xl py-3.5 text-sm font-bold"
-            style={{ color:'white', border:'2px solid rgba(255,255,255,0.35)', background:'rgba(255,255,255,0.1)' }}>
+            style={{ color: 'white', border: '2px solid rgba(255,255,255,0.35)', background: 'rgba(255,255,255,0.1)' }}>
             Play Again
           </button>
         </div>
 
-        <div style={{ flex:1 }} />
+        <div style={{ flex: 1 }} />
 
         <p className="px-4 text-[9px] leading-relaxed"
-          style={{ color: 'rgba(255,255,255,0.4)', paddingBottom:'max(2rem, env(safe-area-inset-bottom))' }}>
+          style={{ color: 'rgba(255,255,255,0.4)', paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}>
           DISCLAIMER: {DISCLAIMER}
         </p>
       </div>
