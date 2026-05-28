@@ -7,7 +7,7 @@
     "port": 8004
   },
   "gameplay": {
-    "sessionCapSeconds": 60,
+    "sessionCapSeconds": 120,
     "maxRounds": null,
     "difficultyRampEnabled": false,
     "gridSize": 9

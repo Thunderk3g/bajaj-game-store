@@ -36,7 +36,7 @@ export let HOW_TO_PLAY_ITEMS: HowToPlayItem[] = [
   { icon: 'tap', text: 'Solve as many puzzles as you can before time runs out. Fewer swaps = more points!' },
 ];
 
-export let GAME_SECS = 60;
+export let GAME_SECS = 120;
 export let GRID_SIZE = 9;
 export let TARGET_PORTFOLIO = 2000; // For puzzle game: 4 puzzles * 500 points each
 

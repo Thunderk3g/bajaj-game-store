@@ -1,5 +1,5 @@
 import React from 'react';
-import { ORANGE } from '../constants';
+import { ORANGE, GAME_SECS } from '../constants';
 import demoImg from '../src/assets/puzzle-1.png';
 
 interface Props {
@@ -58,7 +58,7 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => {
         <div className="mb-[0.9rem] flex items-center justify-between gap-[1rem]">
           <h2 className="text-[1.25rem] font-extrabold text-white">How to Play</h2>
           <div className="rounded-full bg-white/10 px-[0.7rem] py-[0.35rem] text-[0.7rem] font-extrabold uppercase tracking-[0.08em] text-blue-100">
-            60 sec
+            {GAME_SECS % 60 === 0 ? `${GAME_SECS / 60} min` : `${GAME_SECS} sec`}
           </div>
         </div>
 

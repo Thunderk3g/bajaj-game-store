@@ -102,6 +102,15 @@ function pickRandomPuzzle(exclude?: string): string {
   return available[Math.floor(Math.random() * available.length)];
 }
 
+function getSessionPuzzles(): string[] {
+  const arr = [...PUZZLE_IMAGES];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, 3);
+}
+
 // ---------------------------------------------------------------------------
 // Tile component — renders a cropped slice of the image via background-position
 // ---------------------------------------------------------------------------
@@ -164,7 +173,8 @@ interface Props {
 }
 
 const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
-  const [currentImage, setCurrentImage] = useState<string>(() => pickRandomPuzzle());
+  const [sessionPuzzles] = useState<string[]>(() => getSessionPuzzles());
+  const [currentImage, setCurrentImage] = useState<string>(sessionPuzzles[0]);
   // tiles[gridPosition] = pieceId (which image slice goes here)
   const [tiles, setTiles] = useState<number[]>(() => shuffleTiles(TOTAL_TILES));
   const [selected, setSelected] = useState<number | null>(null);
@@ -185,7 +195,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const puzzlesSolvedRef = useRef(0);
   const timeLeftRef = useRef(GAME_SECS);
   const activeRef = useRef(false);
-  const currentImageRef = useRef(currentImage);
+  const currentImageRef = useRef(sessionPuzzles[0]);
 
   const isSolved = useCallback((t: number[]) => t.every((v, i) => v === i), []);
 
@@ -196,9 +206,12 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   }, []);
 
   const loadNewPuzzle = useCallback(() => {
-    const next = pickRandomPuzzle(currentImageRef.current);
-    currentImageRef.current = next;
-    setCurrentImage(next);
+    const nextIdx = puzzlesSolvedRef.current;
+    if (nextIdx < 3) {
+      const next = sessionPuzzles[nextIdx];
+      currentImageRef.current = next;
+      setCurrentImage(next);
+    }
     
     const newTiles = shuffleTiles(TOTAL_TILES);
     setTiles(newTiles);
@@ -208,7 +221,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     const newScore = getPercentageScore(newTiles, puzzlesSolvedRef.current, false);
     scoreRef.current = newScore;
     setScore(newScore);
-  }, [getPercentageScore]);
+  }, [getPercentageScore, sessionPuzzles]);
 
   useEffect(() => {
     if (!started) return;
@@ -292,7 +305,24 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         setSwaps(0);
         setTimeout(() => {
           setSolveFlash(false);
-          loadNewPuzzle();
+          if (puzzlesSolvedRef.current === 3) {
+            activeRef.current = false;
+            stopMusic();
+            playSFX('gameover');
+            onGameEnd({
+              portfolio: scoreRef.current,
+              molesSeen: totalSwapsRef.current,
+              molesWhacked: totalSwapsRef.current,
+              goodWhacks: puzzlesSolvedRef.current,
+              badWhacks: 0,
+              timeSeconds: GAME_SECS - timeLeftRef.current,
+              rawScore: scoreRef.current,
+              gains: scoreRef.current,
+              losses: 0,
+            });
+          } else {
+            loadNewPuzzle();
+          }
         }, 1800);
       } else {
         const newScore = getPercentageScore(next, puzzlesSolvedRef.current, false);
