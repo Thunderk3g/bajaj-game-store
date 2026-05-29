@@ -501,6 +501,9 @@ importers:
 
   future-sprint:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -508,6 +511,9 @@ importers:
         specifier: ^19.2.4
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/node':
         specifier: ^22.14.0
         version: 22.19.11
@@ -529,6 +535,9 @@ importers:
 
   guardian-grid:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -536,6 +545,9 @@ importers:
         specifier: ^19.2.4
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/node':
         specifier: ^22.14.0
         version: 22.19.11
@@ -557,6 +569,9 @@ importers:
 
   guardian-strike:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -564,6 +579,9 @@ importers:
         specifier: ^19.2.4
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/node':
         specifier: ^22.14.0
         version: 22.19.11
@@ -613,6 +631,9 @@ importers:
 
   jumbled-quest:
     dependencies:
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -620,6 +641,9 @@ importers:
         specifier: ^19.2.4
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/node':
         specifier: ^22.14.0
         version: 22.19.11

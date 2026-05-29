@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 import { GameResult } from '../types';
 import imgCoinSrc from '../src/assets/coin_savings.png';
 
@@ -51,6 +53,8 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const [frameIdx, setFrameIdx] = useState(1);
   const [currentProgress, setCurrentProgress] = useState(0);
 
+  const empPhone = sessionStorage.getItem('gamification_emp_mobile');
+
   const { portfolio, gains, losses, distance, coinsCollected, obstaclesDodged, timeSeconds, livesRemaining, shieldsUsed } = result;
   const targetPct = Math.min(100, Math.round((distance / TARGET_DISTANCE) * 100));
 
@@ -88,12 +92,27 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
     feedbackText = "Wow! you have excelled in this game. Now repeat the same in real life";
   }
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Future Sprint Score',
-        text: `I completed ${distPct}% of the sprint and scored ${finalScore}/100 in Future Sprint! Can you beat me?`,
-      });
+  const handleShare = async () => {
+    try {
+      const rawUrl = buildShareUrl() || window.location.href;
+      const shareUrl = await shortenUrl(rawUrl) || rawUrl;
+      const shareText = `Hi,
+I just played Future Sprint and loved it. My score is ${distPct}%.
+Can you beat me? Play now: ${shareUrl}
+
+${playerName}`;
+
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Future Sprint Score',
+          text: shareText,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+        alert('Share text copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('[Share] Error:', err);
     }
   };
 
@@ -138,6 +157,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             mobile={playerMobile}
             onClose={() => setShowBook(false)}
             onBook={() => { setBooked(true); setShowBook(false); }}
+            result={result}
           />
         )}
 
@@ -277,11 +297,13 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             {SCORING_CTA_LINE}
           </p>
           <div className="rounded-2xl p-4" style={{ background: 'rgba(30,58,138,0.75)' }}>
-            <a href={`tel:${CALL_NOW_NUMBER}`}
-              className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
-              style={{ background: ORANGE }}>
-              Call now
-            </a>
+            {empPhone && (
+              <a href={`tel:${empPhone}`}
+                className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
+                style={{ background: ORANGE }}>
+                Call now
+              </a>
+            )}
             <button onClick={() => setShowBook(true)}
               className="btn-press w-full rounded-xl py-3 text-sm font-extrabold text-white"
               style={{ background: '#0D9488' }}>

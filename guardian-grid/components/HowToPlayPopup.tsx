@@ -62,6 +62,10 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => {
           </div>
         </div>
 
+        <p className="mb-[1.2rem] text-center text-[0.95rem] font-semibold text-cyan-200/90">
+          Solve this picture Sudoku under 2 minutes
+        </p>
+
         <button
           onClick={onStart}
           className="btn-press min-h-[3.2rem] w-full rounded-full text-[1rem] font-extrabold uppercase tracking-[0.08em] text-white"

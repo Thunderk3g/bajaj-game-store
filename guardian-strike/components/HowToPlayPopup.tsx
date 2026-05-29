@@ -47,7 +47,7 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => (
           transform: 'translateX(-50%)',
         }}>
           <img src={imgPlayerSrc} alt="player" className="h-full w-full object-contain" />
-          
+
           {/* Laser beam */}
           <div className="absolute" style={{
             left: 'calc(50% - 1.5px)',
@@ -141,16 +141,17 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => (
         `}</style>
       </div>
 
-      <p className="mb-[1.15rem] text-center text-[0.78rem] font-bold leading-relaxed text-cyan-200" style={{ textShadow: '0 0 8px rgba(0,223,255,0.4)' }}>
-        Kill the Enemies and Capture the Shields<br />Survive for 3 levels
-      </p>
+      <div className="mb-[1.15rem] text-center leading-relaxed text-cyan-200" style={{ textShadow: '0 0 8px rgba(0,223,255,0.4)' }}>
+        <p className="text-[0.9rem] font-bold whitespace-nowrap">Defeat the Enemies and Capture the Shields</p>
+        <p className="text-[0.78rem] font-medium text-cyan-300/80 mt-0.5">Survive for 3 levels</p>
+      </div>
 
       <button
         onClick={onStart}
         className="btn-press min-h-[3.2rem] w-full rounded-full text-[1rem] font-extrabold uppercase tracking-[0.08em] text-white"
         style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 0.45rem 1.6rem rgba(255,200,0,0.45)' }}
       >
-        Launch Mission
+        Start
       </button>
     </div>
   </div>

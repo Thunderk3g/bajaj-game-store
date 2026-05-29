@@ -788,12 +788,12 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
 
   // ── Touch / Mouse ───────────────────────────────────────────────────────
   const onTouchStart = useCallback((e: React.TouchEvent) => {
-    e.preventDefault(); isDragging.current = true;
+    isDragging.current = true;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     targetX.current = e.touches[0].clientX - rect.left;
   }, []);
   const onTouchMove = useCallback((e: React.TouchEvent) => {
-    e.preventDefault(); if (!isDragging.current) return;
+    if (!isDragging.current) return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     targetX.current = e.touches[0].clientX - rect.left;
   }, []);

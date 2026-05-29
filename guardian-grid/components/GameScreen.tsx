@@ -460,7 +460,6 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           >
             {mm}:{ss}
           </div>
-          <div className="text-[0.56rem] font-bold uppercase tracking-[0.14em] text-cyan-200">Cover Clock</div>
         </div>
 
         <div className="w-[4rem]" />
@@ -489,8 +488,8 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
             const isSelected = selected === index;
             const sameValue = selectedValue !== null && value === selectedValue;
             const isGiven = givens[index];
-            const thickRight = (col + 1) % BOX_SIZE === 0 && col !== GRID_SIZE - 1;
-            const thickBottom = (row + 1) % BOX_SIZE === 0 && row !== GRID_SIZE - 1;
+            const thickRight = col !== GRID_SIZE - 1;
+            const thickBottom = row !== GRID_SIZE - 1;
 
             return (
               <button
@@ -499,8 +498,8 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
                 onClick={() => handleCellTap(index)}
                 className={`btn-press sudoku-cell relative aspect-square text-center font-extrabold transition-all ${wrongCell === index ? 'game-wrong-cell' : ''}`}
                 style={{
-                  borderRight: thickRight ? '0.28rem solid rgba(207,250,254,0.75)' : '2px solid rgba(207,250,254,0.28)',
-                  borderBottom: thickBottom ? '0.28rem solid rgba(207,250,254,0.75)' : '2px solid rgba(207,250,254,0.28)',
+                  borderRight: thickRight ? '0.28rem solid rgba(207,250,254,0.75)' : undefined,
+                  borderBottom: thickBottom ? '0.28rem solid rgba(207,250,254,0.75)' : undefined,
                   background: isSelected
                     ? 'linear-gradient(145deg, rgba(251,191,36,0.96), rgba(245,158,11,0.92))'
                     : isGiven
@@ -519,7 +518,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
                     src={SYMBOLS[value - 1]?.icon}
                     alt=""
                     draggable={false}
-                    className="mx-auto h-[72%] w-[72%] object-contain drop-shadow-[0_0.3rem_0.55rem_rgba(0,0,0,0.4)]"
+                    className={`mx-auto h-[72%] w-[72%] object-contain drop-shadow-[0_0.3rem_0.55rem_rgba(0,0,0,0.4)] ${value === 3 ? 'scale-[1.28]' : ''}`}
                   />
                 ) : ''}
 
@@ -529,9 +528,9 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         </div>
       </div>
 
-      <div className="mx-[4vw] flex-shrink-0 rounded-[0.85rem] border border-white/10 bg-black/25 px-[0.5rem] py-[0.3rem]">
-        <p className="min-h-[1.7rem] text-center text-[0.7rem] font-bold leading-snug text-cyan-50">{feedback}</p>
-        <div className="mt-[0.2rem] grid grid-cols-4 gap-[0.35rem]">
+      <div className="mx-[4vw] flex-shrink-0 rounded-[0.85rem] border border-white/10 bg-black/25 px-[0.75rem] py-[0.5rem]">
+        <p className="min-h-[1.7rem] text-center text-[0.75rem] font-bold leading-snug text-cyan-50">{feedback}</p>
+        <div className="mt-[0.3rem] grid grid-cols-4 gap-[0.5rem]">
           {SYMBOLS.map(symbol => (
             <button
               key={symbol.value}
@@ -539,10 +538,15 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
               onClick={() => handleNumberTap(symbol.value)}
               aria-label={`Place ${symbol.label}`}
               title={symbol.label}
-              className="btn-press flex h-[3rem] items-center justify-center rounded-[0.75rem] p-[0.25rem]"
-              style={{ background: 'linear-gradient(180deg, #f8fafc, #bae6fd)', boxShadow: 'inset 0 0.1rem 0 rgba(255,255,255,0.9)' }}
+              className="btn-press flex h-[4.2rem] items-center justify-center rounded-[0.85rem] p-[0.4rem]"
+              style={{ background: 'linear-gradient(180deg, #f8fafc, #bae6fd)', boxShadow: 'inset 0 0.15rem 0 rgba(255,255,255,0.9)' }}
             >
-              <img src={symbol.icon} alt="" draggable={false} className="h-full w-full object-contain" />
+              <img
+                src={symbol.icon}
+                alt=""
+                draggable={false}
+                className={`h-full w-full object-contain ${symbol.value === 3 ? 'scale-[1.28]' : ''}`}
+              />
             </button>
           ))}
         </div>

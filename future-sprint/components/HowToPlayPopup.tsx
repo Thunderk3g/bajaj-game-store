@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import imgChildF1Src from '../src/assets/child_runner_f1.png';
 import imgChildF2Src from '../src/assets/child_runner_f2.png';
 import imgChildF3Src from '../src/assets/child_runner_f3.png';
@@ -12,8 +12,45 @@ import imgCoinSrc from '../src/assets/coin_savings.png';
 
 interface Props { onStart: () => void }
 
-const HowToPlayPopup: React.FC<Props> = ({ onStart }) => (
-  <div className="absolute inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,10,30,0.82)', backdropFilter: 'blur(3px)' }}>
+const HowToPlayPopup: React.FC<Props> = ({ onStart }) => {
+  const [activeImg, setActiveImg] = useState(imgChildF1Src);
+
+  useEffect(() => {
+    let start = performance.now();
+    let frameId: number;
+
+    const tick = (now: number) => {
+      const elapsed = (now - start) % 4000;
+      const pct = elapsed / 4000;
+
+      let isJumping = false;
+      if (pct >= 0.20 && pct < 0.35) {
+        isJumping = true;
+      } else if (pct >= 0.50 && pct < 0.65) {
+        isJumping = true;
+      }
+
+      if (isJumping) {
+        setActiveImg(imgChildF1Src);
+      } else {
+        // Cycle 8 running frames at ~12fps (83ms per frame)
+        const frameIdx = Math.floor(elapsed / 83) % 8;
+        const frames = [
+          imgChildF1Src, imgChildF2Src, imgChildF3Src, imgChildF4Src,
+          imgChildF5Src, imgChildF6Src, imgChildF7Src, imgChildF8Src
+        ];
+        setActiveImg(frames[frameIdx]);
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,10,30,0.82)', backdropFilter: 'blur(3px)' }}>
     <div className="w-full max-w-sm mx-3 rounded-3xl flex flex-col overflow-hidden" style={{ background: 'linear-gradient(160deg,#0f172a,#1e3a8a)', border: '1px solid rgba(255,255,255,0.15)', maxHeight: 'calc(100vh - 2rem)' }}>
       <div className="overflow-y-auto px-4 py-6 flex flex-col items-center">
 
@@ -118,48 +155,6 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => (
               68% { opacity: 0; transform: translateY(-38px) scale(1); }
               100% { opacity: 0; }
             }
-
-            @keyframes tutorial-legs {
-              /* Phase 1: 0% to 20% running */
-              0%, 2.5% { background-image: url(${imgChildF1Src}); }
-              2.51%, 5% { background-image: url(${imgChildF2Src}); }
-              5.01%, 7.5% { background-image: url(${imgChildF3Src}); }
-              7.51%, 10% { background-image: url(${imgChildF4Src}); }
-              10.01%, 12.5% { background-image: url(${imgChildF5Src}); }
-              12.51%, 15% { background-image: url(${imgChildF6Src}); }
-              15.01%, 17.5% { background-image: url(${imgChildF7Src}); }
-              17.51%, 20% { background-image: url(${imgChildF8Src}); }
-
-              /* Phase 2: 20% to 35% JUMP (frozen on Frame 1) */
-              20.01%, 35% { background-image: url(${imgChildF1Src}); }
-
-              /* Phase 3: 35% to 50% running */
-              35.01%, 37.5% { background-image: url(${imgChildF1Src}); }
-              37.51%, 40% { background-image: url(${imgChildF2Src}); }
-              40.01%, 42.5% { background-image: url(${imgChildF3Src}); }
-              42.51%, 45% { background-image: url(${imgChildF4Src}); }
-              45.01%, 47.5% { background-image: url(${imgChildF5Src}); }
-              47.51%, 50% { background-image: url(${imgChildF6Src}); }
-
-              /* Phase 4: 50% to 65% JUMP (frozen on Frame 1) */
-              50.01%, 65% { background-image: url(${imgChildF1Src}); }
-
-              /* Phase 5: 65% to 100% running */
-              65.01%, 67.5% { background-image: url(${imgChildF1Src}); }
-              67.51%, 70% { background-image: url(${imgChildF2Src}); }
-              70.01%, 72.5% { background-image: url(${imgChildF3Src}); }
-              72.51%, 75% { background-image: url(${imgChildF4Src}); }
-              75.01%, 77.5% { background-image: url(${imgChildF5Src}); }
-              77.51%, 80% { background-image: url(${imgChildF6Src}); }
-              80.01%, 82.5% { background-image: url(${imgChildF7Src}); }
-              82.51%, 85% { background-image: url(${imgChildF8Src}); }
-              85.01%, 87.5% { background-image: url(${imgChildF1Src}); }
-              87.51%, 90% { background-image: url(${imgChildF2Src}); }
-              90.01%, 92.5% { background-image: url(${imgChildF3Src}); }
-              92.51%, 95% { background-image: url(${imgChildF4Src}); }
-              95.01%, 97.5% { background-image: url(${imgChildF5Src}); }
-              97.51%, 100% { background-image: url(${imgChildF6Src}); }
-            }
           ` }} />
 
           {/* Animated scene */}
@@ -172,7 +167,8 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => (
             <div
               className="absolute bottom-5 left-10 h-10 w-[34px] bg-contain bg-no-repeat bg-center"
               style={{
-                animation: 'tutorial-runner 4s linear infinite, tutorial-legs 4s steps(1) infinite',
+                animation: 'tutorial-runner 4s linear infinite',
+                backgroundImage: `url(${activeImg})`,
                 filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
               }}
               aria-label="child runner" />
@@ -248,6 +244,7 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default HowToPlayPopup;

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 import { GameResult } from '../types';
 import {
   BLUE,
@@ -36,6 +38,8 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const [showBook, setShowBook] = useState(false);
   const [booked, setBooked] = useState(false);
 
+  const empPhone = sessionStorage.getItem('gamification_emp_mobile');
+
   const { portfolio, gains, losses } = result;
   const enemiesKilled = result.molesWhacked;
   const totalEnemies = TOTAL_WAVES * 15;
@@ -61,21 +65,36 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
 
   let dynamicTagline = '';
   if (finalScore <= 30) {
-    dynamicTagline = "Oops! Your defenses fell against the threats. Secure your shields and try again!";
+    dynamicTagline = "Oops! You could not protect yourself from threats. Try again!";
   } else if (finalScore <= 60) {
-    dynamicTagline = "Well Played! Your shields held off some threats, but you can do better.";
+    dynamicTagline = "Well Played! You managed to protect yourself from some threats, but you can do better.";
   } else {
-    dynamicTagline = "Awesome! You kept your shield strong and defended the ship beautifully.";
+    dynamicTagline = "Awesome! You defended your ship well!";
   }
 
-  const dynamicCtaLine = "To build an impenetrable shield for your family's real-life protection, connect with our relationship manager now!";
+  const dynamicCtaLine = "To build  a strong shield for your family's protection in real-life, connect with our relationship manager now!";
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Wealth Whacker Score',
-        text: `I scored ${finalScore}/100 in Wealth Whacker! Can you beat me?`,
-      });
+  const handleShare = async () => {
+    try {
+      const rawUrl = buildShareUrl() || window.location.href;
+      const shareUrl = await shortenUrl(rawUrl) || rawUrl;
+      const shareText = `Hi,
+I just played Guardian Strike and loved it. My score is ${finalScore}%.
+Can you beat me? Play now: ${shareUrl}
+
+${playerName}`;
+
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Guardian Strike Score',
+          text: shareText,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+        alert('Share text copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('[Share] Error:', err);
     }
   };
 
@@ -132,6 +151,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             mobile={playerMobile}
             onClose={() => setShowBook(false)}
             onBook={() => { setBooked(true); setShowBook(false); }}
+            result={result}
           />
         )}
 
@@ -233,13 +253,15 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             className="rounded-2xl p-4"
             style={{ background: hasBg ? 'rgba(30,58,138,0.75)' : '#1e3a8a' }}
           >
-            <a
-              href={`tel:${CALL_NOW_NUMBER}`}
-              className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
-              style={{ background: ORANGE }}
-            >
-              Call now
-            </a>
+            {empPhone && (
+              <a
+                href={`tel:${empPhone}`}
+                className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
+                style={{ background: ORANGE }}
+              >
+                📞 Call now
+              </a>
+            )}
             <button
               onClick={() => setShowBook(true)}
               className="btn-press w-full rounded-xl py-3 text-sm font-extrabold text-white"

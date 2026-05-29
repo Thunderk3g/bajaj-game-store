@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { buildShareUrl } from '../utils/crypto';
+import { shortenUrl } from '../utils/shortener';
 import { GameResult } from '../types';
 import {
   BLUE,
@@ -21,6 +23,8 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const [showBook, setShowBook] = useState(false);
   const [booked, setBooked] = useState(false);
 
+  const empPhone = sessionStorage.getItem('gamification_emp_mobile');
+
   const finalScore = result.rawScore;
   const hasBg = !!SCORING_BG_IMAGE;
 
@@ -28,21 +32,36 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
 
   let dynamicTagline = '';
   if (finalScore <= 30) {
-    dynamicTagline = "Oops! Some shield slots remained empty. Let's practice locking your protection goals!";
+    dynamicTagline = "It's okay you could not solve picture sudoku. Try Again!";
   } else if (finalScore <= 60) {
-    dynamicTagline = "Well Played! You placed several protection blocks, but you can build a more secure grid.";
+    dynamicTagline = "Good Going! You're close, Try Again!";
   } else {
-    dynamicTagline = "Awesome! You successfully locked your life goals and built a robust protection grid.";
+    dynamicTagline = "Awesome! You've nailed it, keep up the great work!";
   }
 
-  const dynamicCtaLine = "To completely secure your family's real-life financial protection, connect with our relationship manager now!";
+  const dynamicCtaLine = "Just like every puzzle needs a strategy, every life goal needs a plan. Connect with our relationship manager now!";
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Guardian Grid Score',
-        text: `I scored ${finalScore}/100 in Guardian Grid! Can you solve the protection grid?`,
-      });
+  const handleShare = async () => {
+    try {
+      const rawUrl = buildShareUrl() || window.location.href;
+      const shareUrl = await shortenUrl(rawUrl) || rawUrl;
+      const shareText = `Hi,
+I just played Guardian Grid and loved it. My score is ${finalScore}%.
+Can you beat me? Play now: ${shareUrl}
+
+${playerName}`;
+
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Guardian Grid Score',
+          text: shareText,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+        alert('Share text copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('[Share] Error:', err);
     }
   };
 
@@ -99,6 +118,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             mobile={playerMobile}
             onClose={() => setShowBook(false)}
             onBook={() => { setBooked(true); setShowBook(false); }}
+            result={result}
           />
         )}
 
@@ -194,13 +214,15 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             className="rounded-2xl p-4"
             style={{ background: hasBg ? 'rgba(30,58,138,0.75)' : '#1e3a8a' }}
           >
-            <a
-              href={`tel:${CALL_NOW_NUMBER}`}
-              className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
-              style={{ background: ORANGE }}
-            >
-              Call now
-            </a>
+            {empPhone && (
+              <a
+                href={`tel:${empPhone}`}
+                className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
+                style={{ background: ORANGE }}
+              >
+                📞 Call now
+              </a>
+            )}
             <button
               onClick={() => setShowBook(true)}
               className="btn-press w-full rounded-xl py-3 text-sm font-extrabold text-white"
