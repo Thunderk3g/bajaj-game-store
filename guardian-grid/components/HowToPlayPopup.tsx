@@ -1,5 +1,5 @@
 import React from 'react';
-import { GAME_SECS, MAX_HINTS, ORANGE } from '../constants';
+import { GAME_SECS, ORANGE } from '../constants';
 import { termDuration, lowPremium, familyPayout, pureCover } from '../src/assets';
 
 interface Props {
@@ -8,12 +8,6 @@ interface Props {
 
 const HowToPlayPopup: React.FC<Props> = ({ onStart }) => {
   const displayTime = `${Math.floor(GAME_SECS / 60)}:${String(GAME_SECS % 60).padStart(2, '0')}`;
-  const legends = [
-    { title: 'Clue Cells', body: 'Fixed tiles start the shield. They cannot be changed.', tone: '#22d3ee' },
-    { title: 'Icon Tiles', body: 'Place each icon once per row, column, and shield box.', tone: '#f59e0b' },
-    { title: 'Hints', body: `Use up to ${MAX_HINTS} hints. Hints help, but reduce score.`, tone: '#34d399' },
-    { title: 'Mistakes', body: 'Wrong choices shake the grid and reduce your protection score.', tone: '#fb7185' },
-  ];
   const iconTiles = [termDuration, lowPremium, familyPayout, pureCover];
 
   return (
@@ -27,30 +21,45 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => {
         </div>
 
         {/* Tutorial Animation Section*/}
-        <div className="relative mb-[1rem] h-[9.4rem] overflow-hidden rounded-[1rem] bg-[radial-gradient(circle_at_50%_0%,rgba(45,212,191,0.28),rgba(8,13,26,0.98)_62%)]">
+        <div className="relative mb-[1.2rem] h-[14.2rem] overflow-hidden rounded-[1rem] bg-[radial-gradient(circle_at_50%_0%,rgba(45,212,191,0.28),rgba(8,13,26,0.98)_62%)]">
           <div className="tutorial-grid">
-            {[0, null, 2, null, null, 3, null, 1, 1, null, 3, null, null, 2, null, 0].map((cell, index) => (
-              <span key={index} className={cell !== null ? 'tutorial-fixed' : 'tutorial-empty'}>
-                {cell !== null ? <img src={iconTiles[cell]} alt="" draggable={false} /> : ''}
-              </span>
-            ))}
+            {[0, null, 2, null, 2, 3, null, 1, 1, null, 3, 2, null, 2, 1, 0].map((cell, index) => {
+              let customClass = cell !== null ? 'tutorial-fixed' : 'tutorial-empty';
+              if (index === 9) {
+                customClass += ' tutorial-wrong-cell';
+              } else if (index === 8) {
+                customClass += ' tutorial-existing-dup';
+              } else if (index === 1) {
+                customClass += ' tutorial-correct-cell';
+              }
+              return (
+                <span key={index} className={customClass}>
+                  {cell !== null ? <img src={iconTiles[cell]} alt="" draggable={false} /> : ''}
+                </span>
+              );
+            })}
           </div>
           <div className="tutorial-tile">
             <img src={lowPremium} alt="" draggable={false} />
           </div>
-          <div className="tutorial-check">Shield locked</div>
-        </div>
+          <div className="tutorial-selection"></div>
+          <div className="tutorial-hand"></div>
+          <div className="tutorial-check"></div>
 
-        {/* Game Legends Section */}
-        <div className="mb-[1rem] grid grid-cols-2 gap-[0.55rem] rounded-[1rem] border border-white/10 bg-white/6 p-[0.75rem]">
-          {legends.map(item => (
-            <div key={item.title} className="rounded-[0.8rem] bg-black/20 p-[0.55rem]">
-              <p className="text-[0.64rem] font-extrabold uppercase tracking-[0.08em]" style={{ color: item.tone }}>
-                {item.title}
-              </p>
-              <p className="mt-[0.2rem] text-[0.68rem] font-semibold leading-snug text-white/85">{item.body}</p>
+          {/* 4 Bottom Icon boxes matching the actual game input panel */}
+          <div className="absolute inset-x-0 bottom-3 px-[1.25rem]">
+            <div className="grid grid-cols-4 gap-[0.35rem]">
+              {iconTiles.map((icon, idx) => (
+                <div
+                  key={idx}
+                  className={`flex h-[2.5rem] items-center justify-center rounded-[0.7rem] p-[0.2rem] border ${idx === 1 ? 'tutorial-icon-box-active' : 'border-white/10'}`}
+                  style={{ background: 'linear-gradient(180deg, #f8fafc, #bae6fd)', boxShadow: 'inset 0 0.1rem 0 rgba(255,255,255,0.9)' }}
+                >
+                  <img src={icon} alt="" draggable={false} className="h-full w-full object-contain" />
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
         <button

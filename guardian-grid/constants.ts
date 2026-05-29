@@ -21,7 +21,7 @@ export let GREEN = '#28A745';
 export let INTRO_TITLE = 'Guardian Grid';
 export let INTRO_IMAGE = introImage;
 
-export let GAME_SECS = 150;
+export let GAME_SECS = 120;
 export let GRID_SIZE = 4;
 export let BOX_SIZE = 2;
 export let MAX_HINTS = 3;

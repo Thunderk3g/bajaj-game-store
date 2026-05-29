@@ -11,6 +11,7 @@ import {
   SCORING_TAGLINE,
   TARGET_PORTFOLIO,
   THANK_YOU_BODY,
+  TOTAL_WAVES,
 } from '../constants';
 import BookSlotModal from './BookSlotModal';
 
@@ -36,7 +37,9 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const [booked, setBooked] = useState(false);
 
   const { portfolio, gains, losses } = result;
-  const finalScore = Math.min(100, Math.max(0, Math.round((portfolio / TARGET_PORTFOLIO) * 100)));
+  const enemiesKilled = result.molesWhacked;
+  const totalEnemies = TOTAL_WAVES * 15;
+  const finalScore = Math.min(100, Math.max(0, Math.round((enemiesKilled / totalEnemies) * 100)));
   const msg = SCORE_MESSAGES.find(m => finalScore >= m.minScore) ?? SCORE_MESSAGES[SCORE_MESSAGES.length - 1];
   const hasBg = !!SCORING_BG_IMAGE;
 
@@ -55,6 +58,17 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
   const drainsEnd = drainsStart + drainsDeg;
 
   const scoreColor = finalScore >= 70 ? '#22C55E' : finalScore >= 40 ? '#F97316' : '#EF4444';
+
+  let dynamicTagline = '';
+  if (finalScore <= 30) {
+    dynamicTagline = "Oops! Your defenses fell against the threats. Secure your shields and try again!";
+  } else if (finalScore <= 60) {
+    dynamicTagline = "Well Played! Your shields held off some threats, but you can do better.";
+  } else {
+    dynamicTagline = "Awesome! You kept your shield strong and defended the ship beautifully.";
+  }
+
+  const dynamicCtaLine = "To build an impenetrable shield for your family's real-life protection, connect with our relationship manager now!";
 
   const handleShare = () => {
     if (navigator.share) {
@@ -148,96 +162,45 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-center"
             style={{ color: hasBg ? 'rgba(200, 230, 255, 0.9)' : '#9ca3af' }}
           >
-            Mission Report
+            Your Score
           </p>
 
-          {/* 3-widget row: Protection | Dial | Damage */}
-          <div className="flex items-center gap-2 mb-4">
-
-            {/* Protection Points */}
+          {/* Glowing central circular score badge */}
+          <div className="flex flex-col items-center justify-center my-5">
             <div
-              className="flex-1 flex flex-col items-center rounded-2xl px-2 py-3 gap-1"
-              style={{ background: 'rgba(0, 30, 60, 0.3)', border: '1px solid rgba(0, 200, 255, 0.8)' }}
+              className="rounded-full flex flex-col items-center justify-center shadow-xl border-4"
+              style={{
+                width: 124,
+                height: 124,
+                background: hasBg ? 'rgba(0, 30, 60, 0.45)' : '#F3F4F6',
+                borderColor: scoreColor,
+                boxShadow: `0 0 15px ${scoreColor}`,
+              }}
             >
-              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight" style={{ color: 'rgba(0, 220, 255, 0.95)' }}>
-                Threats{'\n'}Neutralised
-              </span>
-              <span className="text-lg font-extrabold leading-none" style={{ color: 'rgba(0, 220, 255, 0.95)' }}>
-                +{gains.toLocaleString()}
-              </span>
-              <span className="text-[10px] font-bold" style={{ color: 'rgba(0, 220, 255, 0.8)' }}>
-                {gainPct}%
-              </span>
-            </div>
-
-            {/* Center dial */}
-            <div className="flex flex-col items-center">
-              <div style={{ position: 'relative', width: 100, height: 100 }}>
-                <svg viewBox="0 0 100 100" width={100} height={100}>
-                  <circle cx={cx} cy={cy} r={innerR} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={stroke} />
-                  {gainsDeg > 0 && (
-                    <path
-                      d={arcPath(cx, cy, innerR, 0, gainsEnd)}
-                      fill="none" stroke="rgb(0, 210, 255)" strokeWidth={stroke} strokeLinecap="round"
-                    />
-                  )}
-                  {drainsDeg > 0 && (
-                    <path
-                      d={arcPath(cx, cy, innerR, drainsStart, drainsEnd)}
-                      fill="none" stroke="#EF4444" strokeWidth={stroke} strokeLinecap="round"
-                    />
-                  )}
-                </svg>
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', gap: 1,
-                }}>
-                  <span
-                    className="text-[11px] font-extrabold leading-none"
-                    style={{ color: scoreColor }}
-                  >
-                    {finalScore}
-                  </span>
-                  <span className="text-[9px] font-bold" style={{ color: 'rgba(255,255,255,0.75)' }}>/ 100</span>
-                  <span className="text-[8px] font-bold" style={{ color: 'rgba(255,255,255,0.5)' }}>score</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Damage Taken */}
-            <div
-              className="flex-1 flex flex-col items-center rounded-2xl px-2 py-3 gap-1"
-              style={{ background: 'rgba(60, 0, 0, 0.3)', border: '1px solid rgb(220, 50, 30)' }}
-            >
-              <span className="text-[9px] font-extrabold uppercase tracking-wide text-center leading-tight" style={{ color: 'rgb(255, 80, 50)' }}>
-                Damage{'\n'}Taken
-              </span>
-              <span className="text-lg font-extrabold leading-none" style={{ color: 'rgb(255, 80, 50)' }}>
-                -{losses.toLocaleString()}
-              </span>
-              <span className="text-[10px] font-bold" style={{ color: 'rgb(255, 80, 50)' }}>
-                {drainPct}%
+              <span className="text-4xl font-extrabold leading-none" style={{ color: hasBg ? 'white' : '#1F2937' }}>
+                {finalScore}%
               </span>
             </div>
           </div>
-
-          {/* Stats row */}
-          <div className="flex gap-2 mb-3">
-            <div className="flex-1 rounded-xl p-2 text-center" style={{ background: 'rgba(0,0,0,0.2)' }}>
-              <div className="text-[0.65rem] font-bold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.5)' }}>Enemies Down</div>
-              <div className="text-[1rem] font-extrabold text-white">{result.molesWhacked}</div>
-              <div className="text-[0.6rem]" style={{ color: 'rgba(255,255,255,0.4)' }}>of {result.molesSeen}</div>
+          {/* Clean 3-column stats row for gameplay metrics */}
+          <div className="flex gap-2.5 mb-4">
+            <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: 'rgba(0,0,0,0.22)' }}>
+              <div className="text-[0.62rem] font-bold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.5)' }}>Enemies Down</div>
+              <div className="text-[1.05rem] font-extrabold text-white">
+                {enemiesKilled} <span className="text-[0.75rem] text-white/40">/ {totalEnemies}</span>
+              </div>
             </div>
-            <div className="flex-1 rounded-xl p-2 text-center" style={{ background: 'rgba(0,0,0,0.2)' }}>
-              <div className="text-[0.65rem] font-bold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.5)' }}>Lives Left</div>
-              <div className="text-[1rem] font-extrabold text-white">{3 - result.badWhacks}</div>
-              <div className="text-[0.6rem]" style={{ color: 'rgba(255,255,255,0.4)' }}>of 3</div>
+            <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: 'rgba(0,0,0,0.22)' }}>
+              <div className="text-[0.62rem] font-bold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.5)' }}>Lives Left</div>
+              <div className="text-[1.05rem] font-extrabold text-white">
+                {3 - result.badWhacks} <span className="text-[0.75rem] text-white/40">/ 3</span>
+              </div>
             </div>
-            <div className="flex-1 rounded-xl p-2 text-center" style={{ background: 'rgba(0,0,0,0.2)' }}>
-              <div className="text-[0.65rem] font-bold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.5)' }}>Time</div>
-              <div className="text-[1rem] font-extrabold text-white">{result.timeSeconds}s</div>
-              <div className="text-[0.6rem]" style={{ color: 'rgba(255,255,255,0.4)' }}>played</div>
+            <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: 'rgba(0,0,0,0.22)' }}>
+              <div className="text-[0.62rem] font-bold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.5)' }}>Time Taken</div>
+              <div className="text-[1.05rem] font-extrabold text-white">
+                {result.timeSeconds}s
+              </div>
             </div>
           </div>
 
@@ -245,7 +208,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             className="text-sm font-bold leading-relaxed text-center"
             style={{ color: hasBg ? 'rgba(200,230,255,0.9)' : '#1f2937' }}
           >
-            {SCORING_TAGLINE}
+            {dynamicTagline}
           </p>
         </div>
 
@@ -261,10 +224,10 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
             style={{ background: '#25D366' }}
             onClick={handleShare}
           >
-            📤 Share
+            Share
           </button>
           <p className="text-sm font-semibold leading-relaxed text-center" style={{ color: hasBg ? 'rgba(255,255,255,0.85)' : '#1e3a8a' }}>
-            {SCORING_CTA_LINE}
+            {dynamicCtaLine}
           </p>
           <div
             className="rounded-2xl p-4"
@@ -275,14 +238,14 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
               className="btn-press mb-3 flex w-full items-center justify-center rounded-xl py-3 text-sm font-bold text-white"
               style={{ background: ORANGE }}
             >
-              📞 Call now
+              Call now
             </a>
             <button
               onClick={() => setShowBook(true)}
               className="btn-press w-full rounded-xl py-3 text-sm font-extrabold text-white"
               style={{ background: '#0D9488' }}
             >
-              📅 Book a Slot
+              Book a Slot
             </button>
           </div>
 
@@ -293,7 +256,7 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
               ? { color: 'white', border: '2px solid rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.12)' }
               : { color: BLUE, border: `2px solid ${BLUE}`, background: 'white' }}
           >
-            ▶ Play Again
+            Play Again
           </button>
         </div>
 

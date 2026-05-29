@@ -1,4 +1,4 @@
-﻿{
+{
   "meta": {
     "gameId": "guardian-strike",
     "gameName": "Guardian Strike",
@@ -41,7 +41,7 @@
       "8:00 PM - 9:00 PM"
     ],
     "privacyPolicyUrl": "",
-    "disclaimer": "Insurance is the subject matter of solicitation. {COMPANY} is only the name of the company and does not in any way indicate quality of the contract, its future prospects or returns. Please read the offer document carefully before concluding a sale.",
+    "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, {COMPANY} ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
     "tcText": "I hereby authorize Bajaj Life Insurance to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
   }
 }

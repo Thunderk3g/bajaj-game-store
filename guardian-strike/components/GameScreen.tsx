@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { GameResult } from '../types';
 import HowToPlayPopup from './HowToPlayPopup';
 import imgPlayerSrc    from '../src/assets/player_ship.png';
@@ -254,11 +254,25 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     ctx.save();
     ctx.translate(p.x, p.y);
     if (p.shield > 0) {
+      // Translucent glowing shield dome around the ship
+      const shieldGrd = ctx.createRadialGradient(0, 0, 18, 0, 0, 34);
+      const alpha = 0.45 + 0.2 * Math.sin(ts / 80);
+      shieldGrd.addColorStop(0, 'rgba(0, 223, 255, 0)');
+      shieldGrd.addColorStop(0.85, `rgba(0, 223, 255, ${alpha * 0.4})`);
+      shieldGrd.addColorStop(1, `rgba(255, 255, 255, ${alpha})`);
+
       ctx.beginPath();
-      ctx.arc(0, 0, 30, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(0,220,255,${0.5 + 0.4 * Math.sin(ts / 100)})`;
-      ctx.lineWidth = 3;
+      ctx.arc(0, 0, 34, 0, Math.PI * 2);
+      ctx.fillStyle = shieldGrd;
+      ctx.fill();
+
+      // Glowing outer border
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#00DFFF';
       ctx.stroke();
+      ctx.shadowBlur = 0; // reset shadow
     }
     const img = spritesRef.current['player'];
     if (img && img.complete && img.naturalWidth > 0) {
@@ -593,20 +607,61 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         }
 
         // Power-ups
-        const shieldImg = spritesRef.current['shield'];
         for (const pu of powerUpsRef.current) {
-          const rot = (ts / 600) % (Math.PI * 2);
-          ctx.save(); ctx.translate(pu.x, pu.y); ctx.rotate(rot);
-          if (shieldImg && shieldImg.complete && shieldImg.naturalWidth > 0) {
-            ctx.drawImage(shieldImg, -14, -14, 28, 28);
-          } else {
-            const pg = ctx.createRadialGradient(0, 0, 1, 0, 0, 12);
-            pg.addColorStop(0, '#FFEE00'); pg.addColorStop(0.6, '#FFD700'); pg.addColorStop(1, 'rgba(255,200,0,0)');
-            ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2);
-            ctx.fillStyle = pg; ctx.fill();
-            ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#FFF';
-            ctx.fillText('🛡', 0, 4);
-          }
+          ctx.save();
+          ctx.translate(pu.x, pu.y);
+          
+          // Outer glowing pulse animation
+          const pulse = 1 + 0.12 * Math.sin(ts / 120);
+          ctx.scale(pulse, pulse);
+
+          // Glowing energy halo
+          const glowGrd = ctx.createRadialGradient(0, 0, 2, 0, 0, 16);
+          glowGrd.addColorStop(0, 'rgba(0, 223, 255, 0.85)');
+          glowGrd.addColorStop(0.5, 'rgba(0, 150, 255, 0.3)');
+          glowGrd.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.beginPath();
+          ctx.arc(0, 0, 16, 0, Math.PI * 2);
+          ctx.fillStyle = glowGrd;
+          ctx.fill();
+
+          // Draw the high-quality shield crest path
+          ctx.beginPath();
+          // Top curved edge
+          ctx.moveTo(-10, -9);
+          ctx.quadraticCurveTo(0, -13, 10, -9);
+          // Right edge curving down to pointed bottom
+          ctx.quadraticCurveTo(11, 2, 0, 13);
+          // Left edge curving back up to top left
+          ctx.quadraticCurveTo(-11, 2, -10, -9);
+          ctx.closePath();
+
+          // Metallic shield filling gradient
+          const metalGrd = ctx.createLinearGradient(-10, -9, 10, 13);
+          metalGrd.addColorStop(0, '#00DFFF');
+          metalGrd.addColorStop(0.5, '#003DA6');
+          metalGrd.addColorStop(1, '#001F60');
+          ctx.fillStyle = metalGrd;
+          ctx.fill();
+
+          // Outer glowing border
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 1.5;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = '#00DFFF';
+          ctx.stroke();
+          ctx.shadowBlur = 0; // reset shadow
+
+          // Inner emblem - protective white cross
+          ctx.beginPath();
+          ctx.moveTo(0, -5);
+          ctx.lineTo(0, 5);
+          ctx.moveTo(-4, 0);
+          ctx.lineTo(4, 0);
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+
           ctx.restore();
         }
 
@@ -632,16 +687,16 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
         // Player
         drawPlayer(ctx, playerRef.current, ts);
 
-        // Wave transition overlay
+        // Level transition overlay
         if (gst === 'transition') {
           ctx.fillStyle = 'rgba(0,0,0,0.52)'; ctx.fillRect(0, 0, W, H);
           ctx.textAlign = 'center';
           ctx.font = `bold ${Math.min(30, W * 0.085)}px sans-serif`;
           ctx.fillStyle = '#00DFFF';
-          ctx.fillText(`WAVE ${waveIdxRef.current + 1} CLEARED!`, W / 2, H / 2 - 18);
+          ctx.fillText(`LEVEL ${waveIdxRef.current + 1} CLEARED!`, W / 2, H / 2 - 18);
           ctx.font = `bold ${Math.min(18, W * 0.05)}px sans-serif`;
           ctx.fillStyle = '#FFD700';
-          ctx.fillText(`Wave ${waveIdxRef.current + 2} approaching...`, W / 2, H / 2 + 18);
+          ctx.fillText(`Level ${waveIdxRef.current + 2} approaching...`, W / 2, H / 2 + 18);
         }
       }
 
@@ -772,11 +827,11 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
           style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))', paddingBottom: '0.4rem' }}>
           <div className="flex items-center gap-1">
             {[0, 1, 2].map(i => (
-              <span key={i} className="text-[1.1rem]" style={{ opacity: i < hud.lives ? 1 : 0.2 }}>🛡️</span>
+              <span key={i} className="text-[1.1rem]" style={{ opacity: i < hud.lives ? 1 : 0.2 }}>❤️</span>
             ))}
           </div>
           <div className="rounded-full bg-black/55 px-3 py-[0.2rem] text-center backdrop-blur">
-            <span className="text-[0.6rem] font-bold uppercase tracking-wider" style={{ color: '#00CFFF' }}>Wave </span>
+            <span className="text-[0.6rem] font-bold uppercase tracking-wider" style={{ color: '#00CFFF' }}>Level  </span>
             <span className="text-[0.9rem] font-extrabold text-white">{hud.wave}</span>
             <span className="text-[0.6rem] font-bold" style={{ color: '#00CFFF' }}>/3</span>
           </div>

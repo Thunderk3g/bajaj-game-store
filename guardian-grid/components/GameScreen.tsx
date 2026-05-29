@@ -139,10 +139,10 @@ const CLUE_ORDERS = [
 ];
 
 const SYMBOLS = [
-  { value: 1, label: 'Term duration', icon: termDuration, fact: 'Fixed term: protection for chosen years.' },
-  { value: 2, label: 'Low premium', icon: lowPremium, fact: 'Low premium can still create high cover.' },
-  { value: 3, label: 'Family payout', icon: familyPayout, fact: 'Family receives sum assured if life risk occurs during term.' },
-  { value: 4, label: 'Pure cover', icon: pureCover, fact: 'Pure protection: no payout if you outlive the policy term.' },
+  { value: 1, label: 'Retirement', icon: termDuration, fact: 'Secure a peaceful, financially free retirement.' },
+  { value: 2, label: 'Dream House', icon: lowPremium, fact: 'Plan early to build the home of your dreams.' },
+  { value: 3, label: "Child's Education", icon: familyPayout, fact: "Ensure seamless milestones for your child's learning journey." },
+  { value: 4, label: 'World Tour', icon: pureCover, fact: 'Achieve your travel dreams and see the world.' },
 ];
 
 function buildPuzzle(levelIndex: number, clues: number): CellValue[][] {
@@ -170,6 +170,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
   const [started, setStarted] = useState(false);
   const [feedback, setFeedback] = useState('Fill each row, column, and shield box once.');
   const [completedLevelNum, setCompletedLevelNum] = useState<number | null>(null);
+  const [wrongCell, setWrongCell] = useState<number | null>(null);
   const completedLevelNumRef = useRef<number | null>(null);
 
   const boardRef = useRef(board);
@@ -229,18 +230,34 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
     const maxScore = LEVELS.reduce((sum, item) => sum + item.score, 0) + maxCellScore + COMPLETE_BONUS + GAME_SECS * TIME_BONUS_PER_SECOND;
     const accuracy = stats.entries === 0 ? 100 : Math.round((stats.correctEntries / stats.entries) * 100);
 
+    const totalPuzzlesCount = LEVELS.reduce((sum, item) => sum + (GRID_SIZE * GRID_SIZE - item.clues), 0);
+    
+    // Number of correct non-given cells placed
+    let correctCellsPlaced = 0;
+    // 1. All empty cells in previously completed levels
+    for (let i = 0; i < levelRef.current; i++) {
+      correctCellsPlaced += (GRID_SIZE * GRID_SIZE - (LEVELS[i]?.clues ?? 5));
+    }
+    // 2. Non-given cells filled in the current level
+    const currentGivens = flatten(buildPuzzle(levelRef.current, LEVELS[levelRef.current]?.clues ?? 5)).map(value => value !== null);
+    const currentFilled = boardRef.current.flat().filter((val, idx) => val !== null && !currentGivens[idx]).length;
+    correctCellsPlaced += currentFilled;
+
+    // The percentage of correctly placed boxes
+    const pctScore = totalPuzzlesCount === 0 ? 100 : Math.round((correctCellsPlaced / totalPuzzlesCount) * 100);
+
     onGameEnd({
       score: finalScore,
       maxScore,
       puzzlesSolved: stats.puzzlesSolved,
       totalPuzzles: LEVELS.length,
       mistakes: stats.mistakes,
-      hintsUsed: stats.hintsUsed,
+      hintsUsed: stats.entries,
       accuracy,
       timeSeconds: GAME_SECS,
       timeRemaining: timeLeftRef.current,
       levelReached: Math.min(levelRef.current + 1, LEVELS.length),
-      rawScore: Math.min(100, Math.max(0, Math.round((finalScore / maxScore) * 100))),
+      rawScore: pctScore,
     });
   }
 
@@ -289,6 +306,8 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       statsRef.current.mistakes++;
       setMistakes(statsRef.current.mistakes);
       addScore(-(level?.mistakePenalty ?? 50));
+      setWrongCell(selected);
+      setTimeout(() => setWrongCell(null), 800);
       setShake(true);
       setTimeout(() => setShake(false), 360);
       setFeedback('That number breaks a row, column, or shield box.');
@@ -424,10 +443,10 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       >
         <button
           onClick={handleMuteToggle}
-          className="btn-press flex h-[2.55rem] min-w-[4rem] items-center justify-center rounded-full px-[0.6rem] text-[0.68rem] font-extrabold uppercase text-white"
+          className="btn-press flex h-[2.55rem] w-[2.55rem] items-center justify-center rounded-full text-lg text-white"
           style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(125,211,252,0.25)' }}
         >
-          {muted ? 'Muted' : 'Sound'}
+          {muted ? '🔇' : '🔊'}
         </button>
 
         <div className="text-center">
@@ -450,8 +469,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       <div className="mx-[4vw] flex-shrink-0 rounded-[0.9rem] border border-cyan-200/15 bg-white/8 px-[0.45rem] py-[0.25rem] backdrop-blur">
         <div className="flex items-center justify-between gap-[0.5rem]">
           <div>
-            <p className="text-[0.5rem] font-extrabold uppercase tracking-[0.12em] text-cyan-200">Level {levelIndex + 1}/{LEVELS.length}</p>
-            <h2 className="text-[0.72rem] font-extrabold text-white">{level?.name}</h2>
+            <h2 className="text-[0.95rem] font-extrabold text-white">Level {levelIndex + 1}/{LEVELS.length}</h2>
           </div>
           <div className="text-right">
             <p className="text-[0.5rem] font-extrabold uppercase tracking-[0.1em] text-amber-200">Score</p>
@@ -464,7 +482,7 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
       </div>
 
       <div className="flex flex-1 min-h-0 items-center justify-center px-[4vw] py-[1.2vh]">
-        <div className={`grid w-full max-w-[22rem] grid-cols-4 overflow-hidden rounded-[1.25rem] border-[0.22rem] border-cyan-100/35 bg-cyan-100/20 shadow-[0_1rem_3rem_rgba(0,0,0,0.45)] ${shake ? 'shake' : ''}`}>
+        <div className={`grid w-full max-w-[22rem] grid-cols-4 overflow-hidden rounded-[1.25rem] border-[0.35rem] border-cyan-100/35 bg-cyan-100/20 shadow-[0_1rem_3rem_rgba(0,0,0,0.45)] ${shake ? 'shake' : ''}`}>
           {board.flat().map((value, index) => {
             const row = Math.floor(index / GRID_SIZE);
             const col = index % GRID_SIZE;
@@ -479,14 +497,14 @@ const GameScreen: React.FC<Props> = ({ onGameEnd }) => {
                 key={index}
                 type="button"
                 onClick={() => handleCellTap(index)}
-                className="btn-press sudoku-cell relative aspect-square text-center font-extrabold transition-all"
+                className={`btn-press sudoku-cell relative aspect-square text-center font-extrabold transition-all ${wrongCell === index ? 'game-wrong-cell' : ''}`}
                 style={{
-                  borderRight: thickRight ? '0.18rem solid rgba(207,250,254,0.65)' : '1px solid rgba(207,250,254,0.18)',
-                  borderBottom: thickBottom ? '0.18rem solid rgba(207,250,254,0.65)' : '1px solid rgba(207,250,254,0.18)',
+                  borderRight: thickRight ? '0.28rem solid rgba(207,250,254,0.75)' : '2px solid rgba(207,250,254,0.28)',
+                  borderBottom: thickBottom ? '0.28rem solid rgba(207,250,254,0.75)' : '2px solid rgba(207,250,254,0.28)',
                   background: isSelected
                     ? 'linear-gradient(145deg, rgba(251,191,36,0.96), rgba(245,158,11,0.92))'
                     : isGiven
-                      ? 'linear-gradient(145deg, rgba(20,184,166,0.95), rgba(14,116,144,0.9))'
+                      ? 'rgba(3,7,18,0.85)'
                       : sameValue
                         ? 'rgba(125,211,252,0.3)'
                         : 'rgba(3,7,18,0.62)',

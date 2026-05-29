@@ -1,11 +1,9 @@
-﻿import React from 'react';
+import React from 'react';
 import { ORANGE } from '../constants';
-import imgPlayerSrc   from '../src/assets/player_ship.png';
+import imgPlayerSrc from '../src/assets/player_ship.png';
 import imgAccidentSrc from '../src/assets/enemy_accident.png';
-import imgIllnessSrc  from '../src/assets/enemy_illness.png';
-import imgDebtSrc     from '../src/assets/enemy_debt.png';
-import imgBossSrc     from '../src/assets/enemy_boss.png';
-import imgShieldSrc   from '../src/assets/powerup_shield.png';
+import imgIllnessSrc from '../src/assets/enemy_illness.png';
+import imgDebtSrc from '../src/assets/enemy_debt.png';
 
 interface Props { onStart: () => void }
 
@@ -13,24 +11,27 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => (
   <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/80 px-[4vw] py-[3vh]">
     <div className="max-h-full w-full max-w-[26rem] overflow-y-auto rounded-[1.5rem] border border-white/15 bg-[#060F22]/95 p-[1.1rem] shadow-2xl backdrop-blur">
 
-      <div className="mb-[0.85rem] flex items-center justify-between">
+      <div className="mb-[0.85rem]">
         <h2 className="text-[1.2rem] font-extrabold text-white">How to Play</h2>
-        <div className="rounded-full bg-cyan-900/60 px-[0.7rem] py-[0.3rem] text-[0.68rem] font-extrabold uppercase tracking-[0.08em] text-cyan-300">
-          3 Waves
-        </div>
       </div>
 
       {/* Tutorial Animation Section */}
       <div className="relative mb-[1rem] h-[9rem] overflow-hidden rounded-[1rem] bg-[linear-gradient(180deg,#040C1E,#060F22)]">
         {/* Stars */}
-        {[12,35,58,80,22,65,45,75,5,92].map((x,i) => (
+        {[12, 35, 58, 80, 22, 65, 45, 75, 5, 92].map((x, i) => (
           <div key={i} className="absolute rounded-full bg-white"
             style={{ left: `${x}%`, top: `${(i * 19) % 80}%`, width: 2, height: 2, opacity: 0.5 }} />
         ))}
         {/* Enemy row */}
         <div className="absolute top-[1rem] left-0 right-0 flex justify-center gap-3">
           {[imgAccidentSrc, imgIllnessSrc, imgDebtSrc, imgIllnessSrc, imgAccidentSrc].map((src, i) => (
-            <img key={i} src={src} alt="enemy" className="h-6 w-6 object-contain" />
+            <img
+              key={i}
+              src={src}
+              alt="enemy"
+              className="h-6 w-6 object-contain"
+              style={i === 2 ? { animation: 'tut-enemy-destroy 1.5s ease-out infinite' } : {}}
+            />
           ))}
         </div>
         {/* Diving enemy */}
@@ -38,71 +39,111 @@ const HowToPlayPopup: React.FC<Props> = ({ onStart }) => (
           left: '62%', top: '42%', width: 20, height: 20,
           animation: 'tut-dive 2s ease-in-out infinite',
         }} />
-        {/* Player ship */}
-        <div className="absolute bottom-[0.9rem] left-1/2 -translate-x-1/2" style={{ animation: 'tut-move 2s ease-in-out infinite' }}>
-          <img src={imgPlayerSrc} alt="player" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+        {/* Player ship container with aligned laser and hit explosion */}
+        <div className="absolute bottom-[0.9rem]" style={{
+          width: 28,
+          height: 28,
+          animation: 'tut-move 3s ease-in-out infinite',
+          transform: 'translateX(-50%)',
+        }}>
+          <img src={imgPlayerSrc} alt="player" className="h-full w-full object-contain" />
+          
+          {/* Laser beam */}
+          <div className="absolute" style={{
+            left: 'calc(50% - 1.5px)',
+            width: 3,
+            borderRadius: 1.5,
+            background: '#00DFFF',
+            boxShadow: '0 0 8px #00DFFF, 0 0 15px rgba(0,223,255,0.8)',
+            animation: 'tut-laser 1.5s linear infinite',
+          }} />
+
+          {/* Hit explosion */}
+          <div className="absolute" style={{
+            left: '50%',
+            bottom: '105px',
+            width: 30,
+            height: 30,
+            transform: 'translateX(-50%) scale(0)',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,200,0,0.8) 50%, rgba(255,68,68,0) 70%)',
+            boxShadow: '0 0 12px #FFCC00, 0 0 25px #FF4444',
+            animation: 'tut-hit 1.5s ease-out infinite',
+          }} />
         </div>
-        {/* Laser */}
-        <div className="absolute" style={{
-          left: 'calc(50% - 1px)', bottom: '3.2rem', width: 2, height: 18,
-          background: '#00DFFF', boxShadow: '0 0 6px #00DFFF',
-          animation: 'tut-laser 2s ease-in-out infinite',
-        }} />
-        {/* Hit flash */}
-        <div className="absolute top-[1.4rem]" style={{
-          left: '60%', width: 22, height: 8, borderRadius: 4,
-          background: 'rgba(255,220,0,0.8)',
-          animation: 'tut-hit 2s ease-in-out infinite',
-        }} />
 
         <style>{`
           @keyframes tut-dive { 0%,100%{top:42%} 50%{top:62%} }
-          @keyframes tut-move { 0%,100%{transform:translateX(-60%)} 50%{transform:translateX(-40%)} }
-          @keyframes tut-laser { 0%,100%{opacity:0} 40%,60%{opacity:1} }
-          @keyframes tut-hit   { 0%,100%{opacity:0} 50%{opacity:1} }
+          @keyframes tut-move {
+            0%, 100% { left: 45%; }
+            50% { left: 55%; }
+          }
+          @keyframes tut-laser {
+            0% {
+              bottom: 28px;
+              height: 0px;
+              opacity: 0;
+            }
+            10% {
+              bottom: 28px;
+              height: 20px;
+              opacity: 1;
+            }
+            45% {
+              bottom: 100px;
+              height: 20px;
+              opacity: 1;
+            }
+            50%, 100% {
+              bottom: 110px;
+              height: 0px;
+              opacity: 0;
+            }
+          }
+          @keyframes tut-hit {
+            0%, 40% {
+              transform: translateX(-50%) scale(0);
+              opacity: 0;
+            }
+            45% {
+              transform: translateX(-50%) scale(0.2);
+              opacity: 1;
+            }
+            60% {
+              transform: translateX(-50%) scale(1.2);
+              opacity: 0.8;
+            }
+            70%, 100% {
+              transform: translateX(-50%) scale(1.5);
+              opacity: 0;
+            }
+          }
+          @keyframes tut-enemy-destroy {
+            0%, 40% {
+              opacity: 1;
+              transform: scale(1);
+              filter: none;
+            }
+            45% {
+              opacity: 0.8;
+              transform: scale(1.2) rotate(6deg);
+              filter: brightness(2) saturate(1.5);
+            }
+            50%, 80% {
+              opacity: 0;
+              transform: scale(0);
+            }
+            90%, 100% {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
         `}</style>
       </div>
 
-      {/* Game Legends Section */}
-      <div className="mb-[1rem] rounded-[1rem] border border-white/10 bg-white/5 p-[0.75rem]">
-        <p className="mb-[0.55rem] text-[0.62rem] font-extrabold uppercase tracking-[0.1em] text-cyan-300">
-          Threat Types
-        </p>
-        <div className="grid grid-cols-2 gap-[0.4rem]">
-          {[
-            { src: imgAccidentSrc, label: 'Accident', hp: '1 HP · 100 pts', desc: 'Fast, low durability',     color: '#FF4444' },
-            { src: imgIllnessSrc,  label: 'Illness',  hp: '2 HP · 200 pts', desc: 'Fires more often',         color: '#33DD44' },
-            { src: imgDebtSrc,     label: 'Debt',     hp: '2 HP · 250 pts', desc: 'Dives aggressively',       color: '#AA33FF' },
-            { src: imgBossSrc,     label: 'Death',    hp: '8 HP · 1000 pts', desc: 'Boss — high firepower',   color: '#FF1111' },
-          ].map(t => (
-            <div key={t.label} className="flex items-center gap-[0.45rem] rounded-[0.65rem] bg-black/25 p-[0.4rem]">
-              <img src={t.src} alt={t.label} className="h-7 w-7 flex-shrink-0 rounded-md object-contain" />
-              <div className="min-w-0">
-                <p className="truncate text-[0.7rem] font-extrabold text-white leading-tight">{t.label}</p>
-                <p className="text-[0.58rem] font-semibold leading-tight" style={{ color: t.color }}>{t.hp}</p>
-                <p className="truncate text-[0.55rem] text-white/55 leading-tight">{t.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-[0.55rem] flex gap-[0.4rem]">
-          <div className="flex flex-1 items-center gap-[0.45rem] rounded-[0.65rem] bg-black/25 p-[0.4rem]">
-            <img src={imgShieldSrc} alt="shield" className="h-7 w-7 flex-shrink-0 rounded-full object-contain" style={{ background: '#FFD700' }} />
-            <div>
-              <p className="text-[0.7rem] font-extrabold text-yellow-300 leading-tight">Shield Power-up</p>
-              <p className="text-[0.58rem] text-white/55 leading-tight">4s invincibility + 200 pts</p>
-            </div>
-          </div>
-          <div className="flex flex-1 items-center gap-[0.45rem] rounded-[0.65rem] bg-black/25 p-[0.4rem]">
-            <img src={imgPlayerSrc} alt="player" className="h-7 w-7 flex-shrink-0 rounded-full object-contain bg-cyan-900" />
-            <div>
-              <p className="text-[0.7rem] font-extrabold text-cyan-300 leading-tight">Guardian Lives</p>
-              <p className="text-[0.58rem] text-white/55 leading-tight">3 lives to protect family</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <p className="mb-[1.15rem] text-center text-[0.78rem] font-bold leading-relaxed text-cyan-200" style={{ textShadow: '0 0 8px rgba(0,223,255,0.4)' }}>
+        Kill the Enemies and Capture the Shields<br />Survive for 3 levels
+      </p>
 
       <button
         onClick={onStart}
