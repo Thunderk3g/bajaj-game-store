@@ -7,7 +7,6 @@ import { routes } from './app.routes';
 import { FederationService } from './core/services/federation.service';
 import { AssetPrefetchService } from './core/services/asset-prefetch.service';
 import { AssetLoadingLogger } from './core/services/asset-loading.logger';
-import { environment } from '../environments/environment';
 
 /**
  * Initialize federation manifest on app startup
@@ -84,8 +83,11 @@ export const appConfig: ApplicationConfig = {
       registrationStrategy: 'registerWhenStable:30000',
     }),
     {
+      // Vercel root deploy: the shell and its game assets are served from "/",
+      // not "/gamification/". FederationService builds game iframe URLs as
+      // `${APP_BASE_HREF}assets/games/...`, so this must be "/" or games 404.
       provide: APP_BASE_HREF,
-      useValue: environment.envName === 'dev' ? '/' : '/gamification/',
+      useValue: '/',
     },
     {
       provide: APP_INITIALIZER,
