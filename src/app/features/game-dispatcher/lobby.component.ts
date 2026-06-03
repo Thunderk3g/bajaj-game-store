@@ -145,7 +145,9 @@ type LobbyGame = GameManifestEntry & { gameId: string };
                 class="feature-img"
                 [src]="getThumbnail(featured.gameId)"
                 [alt]="featured.displayName"
-                loading="lazy"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
               />
               <div class="feature-stage-overlay"></div>
               <span class="chip chip-feat feature-chip">★ FEATURED</span>
@@ -216,7 +218,8 @@ type LobbyGame = GameManifestEntry & { gameId: string };
                   class="tile-img"
                   [src]="getThumbnail(game.gameId)"
                   [alt]="game.displayName"
-                  loading="lazy"
+                  loading="eager"
+                  decoding="async"
                 />
                 <span class="tile-fallback-mark" *ngIf="!hasThumbnail(game.gameId)">
                   {{ initial(game.displayName) }}
