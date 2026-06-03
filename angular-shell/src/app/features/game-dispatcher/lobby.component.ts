@@ -874,6 +874,13 @@ export class LobbyComponent implements OnInit {
     'shield-marble-vita': 'assets/games/shield-marble-vita/assets/shield-marble-hero-zSiC_W6s.webp',
     'ulip-picture-puzzle': 'assets/games/ulip-picture-puzzle/ulip-puzzle-art.png',
     'ulip-wealth-whacker': 'assets/games/ulip-wealth-whacker/assets/intro-mole-rush.png',
+    'jumbled-quest': 'assets/games/jumbled-quest/assets/introImage-8FZ3x3tT.png',
+    'guardian-strike': 'assets/games/guardian-strike/assets/introImage-CgHv6Uz3.png',
+    'future-climb': 'assets/games/future-climb/assets/ui/Thumbnail Future Climb.png',
+    'fortune-slice': 'assets/games/fortune-slice/introImage.png',
+    'legacy-sweep': 'assets/games/legacy-sweep/assets/introImage-zeDQii8W.png',
+    'future-sprint': 'assets/games/future-sprint/assets/introImage-z1Wgjpim.png',
+    'guardian-grid': 'assets/games/guardian-grid/assets/introImage-DXssUUZF.jpg',
   };
 
   // Gradient presets for games without a thumbnail (Bajaj blue / cyan family).
