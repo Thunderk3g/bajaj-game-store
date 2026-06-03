@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -52,131 +52,11 @@ type LobbyGame = GameManifestEntry & { gameId: string };
 
     <!-- Normal lobby view -->
     <div class="stage" *ngIf="!dispatching">
-      <!-- ── Slim arcade nav ── -->
-      <div class="nav-wrap">
-        <nav class="nav">
-          <div class="brand">
-            <div class="brand-text">
-              <div class="brand-name">Bajaj Life</div>
-              <div class="brand-sub">ARCADE</div>
-            </div>
-          </div>
-
-          <div class="nav-links">
-            <span class="nav-link active" (click)="scrollToLibrary()">Arcade</span>
-            <span class="nav-link" (click)="scrollToLibrary()">Categories</span>
-            <span class="nav-link" (click)="scrollToLibrary()">How to play</span>
-          </div>
-
-          <div class="nav-profile">
-            <div class="avatar">G</div>
-            <div class="nav-name">
-              <div class="nav-name-top">Guest</div>
-              <div class="nav-name-bot">Player</div>
-            </div>
-          </div>
-        </nav>
-      </div>
-
       <div class="lobby-content">
-        <!-- ── Hero ── -->
-        <section class="hero">
-          <div class="float-orb float-orb1">
-            <span class="orb orb-orange">
-              <svg width="22" height="22" viewBox="0 0 24 24"><path d="M13 2 4 13h6l-1 9 9-12h-6l1-8z" fill="#fff"/></svg>
-            </span>
-          </div>
-          <div class="float-orb float-orb2">
-            <span class="orb orb-blue">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="#fff"/></svg>
-            </span>
-          </div>
-          <div class="float-orb float-orb3">
-            <span class="orb orb-cyan">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.1 14c.2-1 .8-1.8 1.5-2.5A6 6 0 1 0 7.4 11.5c.7.7 1.3 1.5 1.5 2.5"/></svg>
-            </span>
-          </div>
-
-          <div class="hero-copy">
-            <div class="hero-badge">
-              <span class="badge-dot"></span>
-              <span>BAJAJ LIFE · GAME ARCADE</span>
-            </div>
-            <h1 class="hero-title">
-              Play. Learn.<br />
-              <span class="hero-accent">Plan smarter.</span>
-            </h1>
-            <p class="hero-sub">
-              Sharpen your money skills with quick, interactive games built
-              around real financial decisions — from your first goal to a
-              confident retirement.
-            </p>
-            <div class="hero-cta">
-              <button class="btn btn-primary btn-lg" (click)="scrollToLibrary()">
-                Browse games
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-              </button>
-            </div>
-            <div class="hero-stats">
-              <div class="stat">
-                <div class="stat-val">{{ games.length }}</div>
-                <div class="stat-label">Games</div>
-              </div>
-              <div class="stat">
-                <div class="stat-val">{{ popularCount }}</div>
-                <div class="stat-label">Popular</div>
-              </div>
-              <div class="stat">
-                <div class="stat-val">100%</div>
-                <div class="stat-label">Free to play</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Featured spotlight -->
-          <div class="hero-feature" *ngIf="featured" (click)="playGame(featured.gameId)">
-            <div
-              class="feature-stage"
-              [class.no-img]="!hasThumbnail(featured.gameId)"
-              [style.background]="!hasThumbnail(featured.gameId) ? fallbackGradient(featured.gameId) : null"
-            >
-              <img
-                *ngIf="hasThumbnail(featured.gameId)"
-                class="feature-img"
-                [src]="getThumbnail(featured.gameId)"
-                [alt]="featured.displayName"
-                loading="lazy"
-              />
-              <div class="feature-stage-overlay"></div>
-              <span class="chip chip-feat feature-chip">★ FEATURED</span>
-            </div>
-            <div class="feature-body">
-              <h3 class="feature-title">{{ featured.displayName }}</h3>
-              <p class="feature-desc">
-                Jump straight into one of our most-played games and start learning by doing.
-              </p>
-              <div class="feature-meta">
-                <span class="chip chip-glass">{{ featured.type | titlecase }}</span>
-                <span class="chip chip-glass" *ngIf="featured.popular">Popular</span>
-              </div>
-              <button class="btn btn-primary feature-btn">
-                Play now
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
         <!-- ── Game library ── -->
         <section id="library" class="library">
           <div class="section-head">
-            <div>
-              <div class="kicker">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#FF8A2B"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>
-                EXPLORE THE LIBRARY
-              </div>
-              <h2 class="section-title">Game Library</h2>
-            </div>
+            <h2 class="section-title">Game Library</h2>
             <div class="library-tools">
               <div class="search">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7C879F" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
@@ -229,11 +109,10 @@ type LobbyGame = GameManifestEntry & { gameId: string };
               </div>
               <div class="tile-body">
                 <h3 class="tile-title">{{ game.displayName }}</h3>
-                <p class="tile-type">{{ game.type | titlecase }} Game</p>
-                <div class="tile-foot">
-                  <button class="btn btn-primary btn-sm">
+                <div class="tile-action">
+                  <button class="play-btn">
                     Play
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                    <svg class="play-svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                   </button>
                 </div>
               </div>
@@ -246,21 +125,6 @@ type LobbyGame = GameManifestEntry & { gameId: string };
             <p>Try a different search or filter.</p>
           </div>
         </section>
-
-        <!-- ── Footer ── -->
-        <footer class="footer">
-          <div class="footer-inner">
-            <div class="footer-brand">
-              <span>© 2026 Bajaj Life Insurance Co. Ltd. · The Game Arcade is for learning &amp; engagement only and is not financial advice.</span>
-            </div>
-            <div class="footer-links">
-              <span>Privacy</span>
-              <span>Terms</span>
-              <span (click)="scrollToLibrary()">How to play</span>
-              <span>Support</span>
-            </div>
-          </div>
-        </footer>
       </div>
     </div>
   `,
@@ -430,7 +294,17 @@ type LobbyGame = GameManifestEntry & { gameId: string };
         gap: 18px;
       }
       .brand { display: flex; align-items: center; gap: 12px; }
-      .brand-name { font-size: 17px; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; line-height: 1; }
+      .brand-logo-accent {
+        color: var(--blue);
+      }
+      .brand-name {
+        font-family: var(--display);
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
       .brand-sub { font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.22em; margin-top: 4px; }
       .nav-links {
         display: flex;
@@ -492,9 +366,9 @@ type LobbyGame = GameManifestEntry & { gameId: string };
         align-items: center;
       }
       .float-orb { position: absolute; z-index: 1; animation: floaty 7s ease-in-out infinite; }
-      .float-orb1 { left: 47%; top: 24px; }
-      .float-orb2 { right: 26px; top: -10px; animation-duration: 9s; animation-delay: -2s; }
-      .float-orb3 { right: 42%; bottom: -16px; animation-duration: 8s; animation-delay: -4s; }
+      .float-orb1 { left: 47%; top: 60px; }
+      .float-orb2 { right: 26px; top: 75px; }
+      .float-orb3 { left: 35%; bottom: 40px; animation-duration: 8s; animation-delay: -4s; }
       @keyframes floaty {
         0%, 100% { transform: translateY(0) rotate(-3deg); }
         50% { transform: translateY(-16px) rotate(3deg); }
@@ -652,8 +526,71 @@ type LobbyGame = GameManifestEntry & { gameId: string };
       .feature-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
       .feature-btn { width: 100%; }
 
+      /* ── Carousel Controls & Animations ── */
+      .hero-feature-wrapper {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .carousel-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: -6px;
+        padding: 0 8px;
+      }
+      .carousel-arrow {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--card-border);
+        color: var(--body);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        outline: none;
+        transition: background 0.2s, color 0.2s, transform 0.2s;
+      }
+      .carousel-arrow:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--ink);
+        transform: scale(1.05);
+      }
+      .carousel-arrow:active {
+        transform: scale(0.95);
+      }
+      .carousel-dots {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .carousel-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        transition: background 0.2s, width 0.2s;
+      }
+      .carousel-dot.active {
+        background: var(--blue);
+        width: 20px;
+        border-radius: 4px;
+      }
+      @keyframes carousel-fade {
+        from { opacity: 0.6; transform: scale(0.995); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .feature-animate {
+        animation: carousel-fade 0.35s ease-out;
+      }
+
       /* ── Section head ── */
-      .library { max-width: 1240px; margin: 60px auto 0; }
+      .library { max-width: 1240px; margin: 24px auto 0; }
       .section-head {
         display: flex;
         align-items: flex-end;
@@ -766,14 +703,72 @@ type LobbyGame = GameManifestEntry & { gameId: string };
       .tile-thumb-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, rgba(5, 7, 14, 0) 45%, rgba(5, 7, 14, 0.55));
+        background: linear-gradient(180deg, rgba(5, 7, 14, 0) 50%, rgba(5, 7, 14, 0.65));
         pointer-events: none;
+        transition: background 0.24s;
+      }
+      .tile:hover .tile-thumb-overlay {
+        background: linear-gradient(180deg, rgba(5, 7, 14, 0.15) 30%, rgba(5, 7, 14, 0.78));
       }
       .tile-badge { position: absolute; top: 10px; right: 10px; transform: scale(0.92); transform-origin: top right; }
-      .tile-body { padding: 13px 14px 14px; display: flex; flex-direction: column; flex: 1; }
-      .tile-title { font-family: var(--display); font-size: 14.5px; font-weight: 700; color: var(--ink); margin: 0 0 3px; letter-spacing: -0.01em; line-height: 1.2; }
-      .tile-type { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; font-weight: 600; margin: 0 0 12px; }
-      .tile-foot { margin-top: auto; display: flex; align-items: center; justify-content: flex-end; }
+      .tile-body {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        background: #0d1527;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        min-height: 104px;
+        box-sizing: border-box;
+      }
+      .tile-title {
+        font-family: var(--display);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0 0 12px;
+        letter-spacing: -0.01em;
+        line-height: 1.35;
+        transition: color 0.2s;
+      }
+      .tile:hover .tile-title {
+        color: var(--blue);
+      }
+      .tile-action {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      .play-btn {
+        background: linear-gradient(135deg, var(--blue), var(--brand-blue));
+        color: #fff;
+        font-family: var(--font);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 7px 15px;
+        border-radius: 99px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        outline: none;
+        transition: transform 0.2s, background 0.2s, box-shadow 0.2s, border-color 0.2s;
+        box-shadow: 0 4px 12px rgba(61, 116, 240, 0.25);
+      }
+      .tile:hover .play-btn {
+        background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+        transform: scale(1.04);
+        box-shadow: 0 6px 16px rgba(255, 138, 43, 0.35);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      .play-svg {
+        transition: transform 0.2s;
+      }
+      .tile:hover .play-btn .play-svg {
+        transform: translateX(1px) scale(1.05);
+      }
 
       /* ── Empty ── */
       .empty-state { text-align: center; padding: 80px 24px; }
@@ -812,7 +807,15 @@ type LobbyGame = GameManifestEntry & { gameId: string };
       }
       @media (max-width: 560px) {
         .games-grid { grid-template-columns: repeat(2, 1fr); }
-        .feature-stage { width: 150px; }
+        .hero-feature {
+          flex-direction: column;
+        }
+        .feature-stage {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          border-right: none;
+          border-bottom: 1px solid var(--card-border);
+        }
         .feature-body { padding: 18px; }
         .hero-title { font-size: 38px; }
         .section-head { align-items: flex-start; }
@@ -828,12 +831,17 @@ type LobbyGame = GameManifestEntry & { gameId: string };
     `,
   ],
 })
-export class LobbyComponent implements OnInit {
+export class LobbyComponent implements OnInit, OnDestroy {
   games: LobbyGame[] = [];
   visibleGames: LobbyGame[] = [];
   featured: LobbyGame | null = null;
   dispatching = false;
   dispatchError: string | null = null;
+
+  featuredGames: LobbyGame[] = [];
+  currentFeaturedIndex = 0;
+  triggerAnimate = true;
+  private carouselInterval: any;
 
   filters = ['All', 'Popular'];
   filter = 'All';
@@ -927,15 +935,12 @@ export class LobbyComponent implements OnInit {
     this.dispatching = true;
     this.dispatchError = null;
 
-    console.log('[Lobby] Token detected, starting dispatch flow');
-
     // Small timeout to let the spinner render
     setTimeout(async () => {
       const gameId = await this.securityService.authenticateWithToken(token);
 
       if (!gameId) {
         this.dispatchError = 'Invalid or expired token. Redirecting...';
-        console.error('[Lobby] Token authentication failed');
 
         // Redirect to lobby clean view after 2.5s
         setTimeout(() => {
@@ -953,7 +958,6 @@ export class LobbyComponent implements OnInit {
         ? this.federationService.resolveApiGameId(routeGameId)
         : this.federationService.resolveApiGameId(gameId);
 
-      console.log(`[Lobby] Token valid, dispatching to game: ${resolvedGameId}`);
       this.securityService.secureNavigateToGame(resolvedGameId);
     }, 300);
   }
@@ -964,13 +968,75 @@ export class LobbyComponent implements OnInit {
       ...game,
       gameId: game.gameId,
     }));
-    // Featured spotlight: prefer a popular game that has a real thumbnail.
-    this.featured =
-      this.games.find((g) => g.popular && this.hasThumbnail(g.gameId)) ||
-      this.games.find((g) => this.hasThumbnail(g.gameId)) ||
-      this.games[0] ||
-      null;
+
+    // Populate featuredGames with 5 random games that have valid thumbnails
+    const eligibleGames = this.games.filter(g => this.hasThumbnail(g.gameId));
+    const shuffled = [...eligibleGames].sort(() => 0.5 - Math.random());
+    this.featuredGames = shuffled.slice(0, 5);
+
+    if (this.featuredGames.length === 0 && this.games.length > 0) {
+      this.featuredGames = [this.games[0]];
+    }
+
+    this.currentFeaturedIndex = 0;
+    this.featured = this.featuredGames[this.currentFeaturedIndex] || null;
+    this.startCarousel();
+
     this.applyFilters();
+  }
+
+  startCarousel() {
+    this.stopCarousel();
+    if (this.featuredGames.length > 1) {
+      this.carouselInterval = setInterval(() => {
+        this.nextFeatured();
+      }, 5000);
+    }
+  }
+
+  stopCarousel() {
+    if (this.carouselInterval) {
+      clearInterval(this.carouselInterval);
+      this.carouselInterval = null;
+    }
+  }
+
+  nextFeatured() {
+    if (this.featuredGames.length > 0) {
+      this.triggerAnimate = false;
+      this.currentFeaturedIndex = (this.currentFeaturedIndex + 1) % this.featuredGames.length;
+      this.featured = this.featuredGames[this.currentFeaturedIndex];
+      setTimeout(() => {
+        this.triggerAnimate = true;
+      }, 10);
+    }
+  }
+
+  prevFeatured() {
+    if (this.featuredGames.length > 0) {
+      this.triggerAnimate = false;
+      this.currentFeaturedIndex = (this.currentFeaturedIndex - 1 + this.featuredGames.length) % this.featuredGames.length;
+      this.featured = this.featuredGames[this.currentFeaturedIndex];
+      setTimeout(() => {
+        this.triggerAnimate = true;
+      }, 10);
+    }
+  }
+
+  selectFeatured(index: number) {
+    if (index >= 0 && index < this.featuredGames.length) {
+      this.triggerAnimate = false;
+      this.currentFeaturedIndex = index;
+      this.featured = this.featuredGames[index];
+      setTimeout(() => {
+        this.triggerAnimate = true;
+      }, 10);
+      this.startCarousel(); // reset timer
+    }
+  }
+
+  ngOnDestroy() {
+    this.stopCarousel();
   }
 
   get popularCount(): number {
@@ -1045,8 +1111,6 @@ export class LobbyComponent implements OnInit {
     const url = this.federationService.getGameUrl(gameId);
     if (url) {
       window.location.href = url;
-    } else {
-      console.error(`[Lobby] No URL found for game: ${gameId}`);
     }
   }
 }
