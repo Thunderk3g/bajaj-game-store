@@ -79,16 +79,31 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
       const rawUrl = buildShareUrl() || window.location.href;
       const shareUrl = await shortenUrl(rawUrl) || rawUrl;
       const shareText = `Hi,
-I just played Guardian Strike and loved it. My score is ${finalScore}%.
-Can you beat me? Play now: ${shareUrl}
-
+I just reminisced playing this game from 2000s and scored ${finalScore}%. Check your score now! ${shareUrl}
 ${playerName}`;
 
+      const shareData: any = {
+        title: 'Guardian Strike Score',
+        text: shareText,
+      };
+
+      // Try to include thumbnail
+      if (SCORING_BG_IMAGE) {
+        try {
+          const imgUrl = new URL(SCORING_BG_IMAGE, import.meta.url).href;
+          const res = await fetch(imgUrl);
+          const blob = await res.blob();
+          const file = new File([blob], 'guardian-strike-thumbnail.png', { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+          }
+        } catch (e) {
+          console.warn('[Share] Failed to fetch thumbnail', e);
+        }
+      }
+
       if (navigator.share) {
-        await navigator.share({
-          title: 'Guardian Strike Score',
-          text: shareText,
-        });
+        await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(shareText);
         alert('Share text copied to clipboard!');

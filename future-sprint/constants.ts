@@ -47,7 +47,7 @@ export function applyConfig(c: Record<string, any>): void {
     BLUE = c.ui.primaryColor || BLUE;
     ORANGE = c.ui.accentColor || ORANGE;
     GREEN = c.ui.successColor || GREEN;
-    if (c.ui.scoringBgImage) SCORING_BG_IMAGE = c.ui.scoringBgImage;
+    SCORING_BG_IMAGE = c.ui.scoringBgImage || INTRO_IMAGE;
   }
   if (c.copy) {
     INTRO_TITLE = c.copy.introTitle || INTRO_TITLE;

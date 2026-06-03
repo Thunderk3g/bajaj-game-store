@@ -97,16 +97,32 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
       const rawUrl = buildShareUrl() || window.location.href;
       const shareUrl = await shortenUrl(rawUrl) || rawUrl;
       const shareText = `Hi,
-I just played Future Sprint and loved it. My score is ${distPct}%.
-Can you beat me? Play now: ${shareUrl}
-
+I survived this game and scored ${distPct}%. Try to dodge all the hurdles in the path and check your score. Play now: ${shareUrl}
+Regards,
 ${playerName}`;
 
+      const shareData: any = {
+        title: 'Future Sprint Score',
+        text: shareText,
+      };
+
+      // Try to include thumbnail
+      if (SCORING_BG_IMAGE) {
+        try {
+          const imgUrl = new URL(SCORING_BG_IMAGE, import.meta.url).href;
+          const res = await fetch(imgUrl);
+          const blob = await res.blob();
+          const file = new File([blob], 'future-sprint-thumbnail.png', { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+          }
+        } catch (e) {
+          console.warn('[Share] Failed to fetch thumbnail', e);
+        }
+      }
+
       if (navigator.share) {
-        await navigator.share({
-          title: 'Future Sprint Score',
-          text: shareText,
-        });
+        await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(shareText);
         alert('Share text copied to clipboard!');

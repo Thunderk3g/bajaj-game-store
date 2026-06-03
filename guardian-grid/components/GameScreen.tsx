@@ -139,7 +139,7 @@ const CLUE_ORDERS = [
 ];
 
 const SYMBOLS = [
-  { value: 1, label: 'Retirement', icon: termDuration, fact: 'Secure a peaceful, financially free retirement.' },
+  { value: 1, label: 'Dream Car', icon: termDuration, fact: 'Secure your dream car with early financial planning.' },
   { value: 2, label: 'Dream House', icon: lowPremium, fact: 'Plan early to build the home of your dreams.' },
   { value: 3, label: "Child's Education", icon: familyPayout, fact: "Ensure seamless milestones for your child's learning journey." },
   { value: 4, label: 'World Tour', icon: pureCover, fact: 'Achieve your travel dreams and see the world.' },

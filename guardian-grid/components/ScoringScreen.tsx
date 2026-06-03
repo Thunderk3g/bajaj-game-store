@@ -46,16 +46,32 @@ const ScoringScreen: React.FC<Props> = ({ result, playerName, playerMobile, onPl
       const rawUrl = buildShareUrl() || window.location.href;
       const shareUrl = await shortenUrl(rawUrl) || rawUrl;
       const shareText = `Hi,
-I just played Guardian Grid and loved it. My score is ${finalScore}%.
-Can you beat me? Play now: ${shareUrl}
-
+I just solved this Picture Sudoku under 2 mins and scored ${finalScore}%. Play and check your memory score now: ${shareUrl}
+Regards,
 ${playerName}`;
 
+      const shareData: any = {
+        title: 'Guardian Grid Score',
+        text: shareText,
+      };
+
+      // Try to include thumbnail
+      if (SCORING_BG_IMAGE) {
+        try {
+          const imgUrl = new URL(SCORING_BG_IMAGE, import.meta.url).href;
+          const res = await fetch(imgUrl);
+          const blob = await res.blob();
+          const file = new File([blob], 'guardian-grid-thumbnail.png', { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+          }
+        } catch (e) {
+          console.warn('[Share] Failed to fetch thumbnail', e);
+        }
+      }
+
       if (navigator.share) {
-        await navigator.share({
-          title: 'Guardian Grid Score',
-          text: shareText,
-        });
+        await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(shareText);
         alert('Share text copied to clipboard!');

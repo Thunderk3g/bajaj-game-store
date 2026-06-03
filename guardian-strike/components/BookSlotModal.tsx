@@ -22,6 +22,27 @@ function parseSlotStartHour(slot: string): number {
   return h;
 }
 
+function formatSlotRange(slot: string): string {
+  if (!slot) return slot;
+  if (slot.includes('-') || slot.toLowerCase().includes('to')) return slot;
+  const match = slot.match(/^(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return slot;
+  let h = parseInt(match[1], 10);
+  const m = match[2];
+  const ampm = match[3].toUpperCase();
+  
+  let nextH = h + 1;
+  let nextAmpm = ampm;
+  
+  if (nextH === 12) {
+    nextAmpm = ampm === 'AM' ? 'PM' : 'AM';
+  } else if (nextH > 12) {
+    nextH = 1;
+  }
+  
+  return `${slot} - ${nextH}:${m} ${nextAmpm}`;
+}
+
 function localDateStr(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -166,7 +187,10 @@ const BookSlotModal: React.FC<Props> = ({ name, mobile, onClose, onBook, result 
                 style={{ border: `2px solid ${errors.time ? '#EF4444' : '#E2E8F0'}` }}
               >
                 <option value="">Select Slot</option>
-                {availableSlots.map(s => <option key={s} value={s}>{s}</option>)}
+                {availableSlots.map(s => {
+                  const formatted = formatSlotRange(s);
+                  return <option key={s} value={formatted}>{formatted}</option>;
+                })}
               </select>
             )}
             {errors.time && <p className="text-red-500 text-xs mt-0.5">{errors.time}</p>}
