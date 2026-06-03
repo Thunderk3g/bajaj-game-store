@@ -813,17 +813,52 @@ type LobbyGame = GameManifestEntry & { gameId: string };
       @media (max-width: 720px) {
         .nav-links, .nav-name { display: none; }
       }
+
+      /* ── Mobile view (≤560px): compact banner, 3-up grid, decluttered ── */
       @media (max-width: 560px) {
-        .games-grid { grid-template-columns: repeat(2, 1fr); }
-        .feature-stage { width: 150px; }
-        .feature-body { padding: 18px; }
-        .hero-title { font-size: 38px; }
-        .section-head { align-items: flex-start; }
+        .nav-wrap { padding: 12px 14px 0; }
+        .lobby-content { padding: 0 14px 48px; }
+
+        /* Compact + cleaner banner */
+        .hero { padding: 20px 0 4px; gap: 0; }
+        .hero-badge { margin-bottom: 14px; padding: 6px 12px; font-size: 11.5px; }
+        .hero-title { font-size: 30px; }
+        .hero-sub { font-size: 14.5px; line-height: 1.5; margin: 12px 0 18px; max-width: none; }
+        .hero-cta { gap: 10px; }
+        .btn-lg { font-size: 15px; padding: 13px 22px; }
+
+        /* Strip decorative clutter on mobile */
+        .hero-stats { display: none; }
+        .hero-feature { display: none; }      /* remove GAME HIGHLIGHT */
+        .kicker svg { display: none; }
+        .kicker { margin-bottom: 8px; }
+        .btn svg { display: none; }            /* arrows in Browse/Play buttons */
+        /* NOTE: .search svg (magnifier) intentionally kept — functional, not decoration */
+
+        /* Section head */
+        .section-head { align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+        .section-title { font-size: 24px; }
+        .library { margin-top: 36px; }
         .library-tools { width: 100%; }
         .search { flex: 1; }
         .search input { width: 100%; }
+
+        /* 3-up dense game grid */
+        .games-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .tile { border-radius: 14px; }
+        .tile-body { padding: 8px 9px 10px; }
+        .tile-title {
+          font-size: 12px;
+          line-height: 1.25;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .tile-type { display: none; }          /* type sub-label */
+        .tile-badge { display: none; }          /* POPULAR badge */
+        .tile-foot { display: none; }           /* per-tile Play button — tile stays tappable */
       }
-      @media (max-width: 380px) { .games-grid { grid-template-columns: 1fr; } }
       @media (prefers-reduced-motion: reduce) {
         .ar-blob, .particle, .float-orb { animation: none; }
         .tile { animation: none; }
