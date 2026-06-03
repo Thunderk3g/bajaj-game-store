@@ -1,6 +1,0 @@
-/* App-level layout — no padding or max-width here;
-   each screen manages its own constraints */
-#root {
-  margin: 0 auto;
-  text-align: center;
-}

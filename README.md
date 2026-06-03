@@ -1,386 +1,238 @@
-# README - Monolithic Master Micro-Frontend Shell
+# Angular Shell - Master Micro-Frontend Dispatcher
 
-## 🎯 What Changed?
+A dynamic Angular Shell that loads and manages React micro-frontend games at runtime using Module Federation.
 
-Your project is now a **monolithic pnpm workspace** - everything builds and serves from a single command!
+## 🎯 Features
 
-**Before:**
-
-- Start 4 separate servers (Angular Shell + 3 games)
-- Deploy 4 separate bundles
-- Complex CORS configuration
-
-**Now:**
-
-- ✅ Single `pnpm dev` command starts everything
-- ✅ Single `pnpm build` creates one deployable bundle
-- ✅ All games served from Angular Shell assets
-- ✅ No CORS issues (same origin)
-
----
+- **Dynamic Module Federation**: Load games at runtime without rebuilding the Shell
+- **JWT Authentication**: Secure game access with token-based authentication
+- **Asset Prefetching**: Intelligent preloading of popular game assets
+- **React Integration**: Seamlessly mount React 18+ games in Angular
+- **Error Resilience**: Retry logic with exponential backoff for failed remote modules
+- **Memory Management**: Proper React lifecycle management to prevent leaks
+- **Service Worker**: Offline-first caching strategy
 
 ## 🚀 Quick Start
 
 ### Development
 
-```bash
-# Install dependencies for all workspace projects
-pnpm install
-
-# Start everything (Shell + all games)
-pnpm dev
-```
-
-Access at: **http://localhost:4200**
-
-Or use the convenience script:
+1. **Install dependencies:**
 
 ```bash
-start-dev.bat    # Windows
+npm install
 ```
+
+2. **Start the Shell:**
+
+```bash
+ng serve
+```
+
+3. **Start games** (in separate terminals):
+
+```bash
+# Game 1 - Scramble Words (port 5001)
+cd ../Scramble-Words && pnpm dev
+
+# Game 2 - Life Goals (port 5002)
+cd ../life-goals && pnpm dev
+
+# Game 3 - Quiz Game (port 5003)
+cd ../quiz-game && pnpm dev
+```
+
+4. **Access:**
+
+- Lobby: http://localhost:4200
+- Direct game: http://localhost:4200/play/life-goals
 
 ### Production Build
 
 ```bash
-# Build everything into single bundle
-pnpm build
+ng build --configuration production
+
+# Copy production manifest
+cp src/assets/federation.manifest.prod.json dist/angular-shell/browser/assets/federation.manifest.json
 ```
-
-Output: `angular-shell/dist/angular-shell/browser/`
-
----
 
 ## 📁 Project Structure
 
 ```
-app-store/                           # pnpm workspace root
-├── package.json                     # Workspace scripts
-├── pnpm-workspace.yaml             # Workspace configuration
-├── scripts/
-│   └── copy-games.js               # Copies games to Shell assets
-│
-├── angular-shell/                  # Angular Shell (Host)
-│   ├── src/assets/games/           # Built games copied here
-│   │   ├── scramble-words/
-│   │   ├── life-goals/
-│   │   └── quiz-game/
-│   └── src/assets/federation.manifest.json
-│
-├── Scramble-Words/                 # React Game 1
-├── life-goals/                         # React Game 2 (life-goals)
-└── quiz-game/                      # React Game 3
+src/
+├── app/
+│   ├── core/
+│   │   ├── services/
+│   │   │   ├── security.service.ts        # JWT handling
+│   │   │   ├── federation.service.ts      # Module loader
+│   │   │   └── asset-prefetch.service.ts  # SW integration
+│   │   └── guards/
+│   │       └── auth.guard.ts
+│   ├── shared/
+│   │   └── components/
+│   │       ├── game-wrapper/              # React bridge
+│   │       └── error-fallback/
+│   ├── features/
+│   │   └── game-dispatcher/
+│   │       ├── auth.component.ts          # JWT extractor
+│   │       └── lobby.component.ts
+│   └── app.routes.ts
+├── assets/
+│   └── federation.manifest.json           # Game registry
+└── environments/
+    ├── environment.ts                     # Production config
+    └── environment.development.ts         # Dev config
 ```
 
----
+## 🎮 Available Games
 
-## 🛠 Available Commands
+| Game ID          | Display Name       | Entry Point | Assets       |
+| ---------------- | ------------------ | ----------- | ------------ |
+| `scramble-words` | Scramble Words     | Port 5001   | Minimal      |
+| `life-goals`     | Life Goals Preparedness | Port 5002   | 9 MP4 videos |
+| `quiz-game`      | Quiz Challenge     | Port 5003   | 3 images     |
 
-### Root Level (Workspace)
+## 🔐 JWT Authentication
 
-| Command            | Description                       |
-| ------------------ | --------------------------------- |
-| `pnpm install`     | Install all dependencies          |
-| `pnpm dev`         | Start development (Shell + games) |
-| `pnpm build`       | Build everything                  |
-| `pnpm build:games` | Build only games + copy to Shell  |
-| `pnpm build:shell` | Build only Angular Shell          |
-| `pnpm serve`       | Serve built Shell                 |
-| `pnpm clean`       | Clean all builds and dependencies |
-
-### Individual Projects
-
-```bash
-# Work on specific project
-pnpm --filter angular-shell dev:serve
-pnpm --filter scramble-words build
-pnpm --filter life-goals test
-```
-
----
-
-## 🏗 How Monolithic Build Works
-
-### Build Process
-
-```mermaid
-graph LR
-    A[pnpm build] --> B[Build Scramble Words]
-    A --> C[Build Life Goals]
-    A --> D[Build Quiz Game]
-    B --> E[copy-games.js]
-    C --> E
-    D --> E
-    E --> F[Copy to angular-shell/src/assets/games/]
-    F --> G[Update federation.manifest.json]
-    G --> H[Build Angular Shell]
-    H --> I[Single deployable bundle]
-```
-
-1. **pnpm build:games**
-   - Builds all 3 React games
-   - Runs `copy-games.js` script
-   - Copies builds to `angular-shell/src/assets/games/`
-   - Updates manifest to use `/assets/games/*` paths
-
-2. **pnpm build:shell**
-   - Builds Angular Shell
-   - Includes all game bundles in assets
-   - Creates single `dist/` folder
-
-3. **Result**
-   - One folder to deploy
-   - All games accessible from `/assets/games/`
-   - No separate game servers needed
-
-### Federation Manifest
-
-**Development manifest** (auto-updated by `copy-games.js`):
+### Token Structure
 
 ```json
 {
-  "scramble-words": {
-    "remoteEntry": "/assets/games/scramble-words/index.js"
+  "gameId": "life-goals",
+  "exp": 1739456123
+}
+```
+
+### Usage
+
+```
+https://balicuat.bajajlifeinsurance.com/gamification/shell/auth?token=<JWT>
+```
+
+The Shell will:
+
+1. Extract and validate the JWT
+2. Navigate to `/play/:gameId`
+3. Remove the token from URL (security)
+
+## 📦 Module Federation
+
+Games are loaded dynamically from the manifest:
+
+```json
+{
+  "life-goals": {
+    "remoteEntry": "https://cdn.example.com/life-goals/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "popular": true,
+    "assets": ["..."]
   }
 }
 ```
 
-All paths are relative to the Angular Shell - no external URLs!
+## 🛠 Configuration
 
----
+### Development (localhost)
 
-## 🚢 Deployment
+Uses `environment.development.ts`:
 
-### Option 1: Docker
+- Games run on ports 5001-5003
+- Manifest: `/assets/federation.manifest.json`
 
-```bash
-docker build -t microfrontend-shell .
-docker run -p 80:80 microfrontend-shell
-```
+### Production (Bajaj CDN)
 
-### Option 2: Static Hosting
+Uses `environment.ts`:
 
-```bash
-pnpm build
-cd angular-shell/dist/angular-shell/browser
-# Upload this folder to your hosting
-```
+- Base URL: `balicuat.bajajlifeinsurance.com/gamification`
+- Games deployed to subfolders: `/scramble-words/`, `/life-goals/`, `/quiz-game/`
 
-### Option 3: Nginx
+## 📊 Asset Management
 
-```bash
-pnpm build
-cp -r angular-shell/dist/angular-shell/browser/* /var/www/html/
-# Use the included nginx.conf
-```
+### Prefetching Strategy
 
----
+- Popular games (flagged in manifest) are prefetched on app initialization
+- Service Worker caches game bundles for 24 hours
+- Heavy assets (MP4s) are cached separately
 
-## 📊 Workspace Configuration
+### Cache Configuration
 
-### pnpm-workspace.yaml
+See `ngsw-config.json` for Service Worker settings.
 
-```yaml
-packages:
-  - "angular-shell"
-  - "Scramble-Words"
-  - "life-goals"
-  - "quiz-game"
-```
-
-### Package Names
-
-- `angular-shell` - Angular Shell
-- `scramble-words` - Game 1
-- `life-goals` - Game 2
-- `quiz-game` - Game 3
-
----
-
-## 🔧 Development Workflow
-
-### Typical Development Session
+## 🧪 Testing
 
 ```bash
-# 1. Install dependencies (first time only)
-pnpm install
+# Unit tests
+ng test
 
-# 2. Start development
-pnpm dev
+# E2E tests
+ng e2e
 
-# 3. Make changes to any project
-# - Changes hot-reload automatically
-# - Games load from localhost dev servers
-# - Shell serves on port 4200
-
-# 4. Build for production
-pnpm build
-
-# 5. Test production build locally
-pnpm serve:prod
+# Build and serve production
+ng build --configuration production
+ng serve --configuration production
 ```
 
-### Working on a Single Game
+## 📝 Adding New Games
 
-```bash
-# Just work on Life Goals
-cd life-goals
-pnpm dev
+1. Build your React game
+2. Deploy to CDN: `/gamification/your-game/`
+3. Update `federation.manifest.json`:
 
-# In another terminal, run Shell
-cd angular-shell
-pnpm dev:serve
+```json
+{
+  "your-game": {
+    "remoteEntry": "https://cdn.example.com/your-game/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Your Game",
+    "popular": false,
+    "assets": []
+  }
+}
 ```
 
----
+4. **No Shell rebuild needed!**
 
-## 🎮 Testing
+## 🚨 Troubleshooting
 
-### Local Testing
+### Game won't load
 
-```bash
-# Start everything
-pnpm dev
+- Check browser console for errors
+- Verify game URL in manifest is accessible
+- Ensure CORS is enabled on game server
 
-# Visit
-# - http://localhost:4200 (Lobby)
-# - http://localhost:4200/play/life-goals
-# - http://localhost:4200/play/scramble-words
-# - http://localhost:4200/play/quiz-game
-```
+### Memory leaks
 
-### Production Build Testing
+- React components are unmounted in `ngOnDestroy`
+- Check Chrome DevTools → Memory for detached nodes
 
-```bash
-# Build
-pnpm build
+### Assets not caching
 
-# Serve production build
-cd angular-shell
-pnpm serve:prod
-
-# Visit http://localhost:4200
-```
-
----
-
-## 📦 What Gets Built
-
-### Production Output
-
-```
-angular-shell/dist/angular-shell/browser/
-├── index.html
-├── main.*.js
-├── polyfills.*.js
-├── assets/
-│   ├── federation.manifest.json
-│   └── games/
-│       ├── scramble-words/
-│       │   ├── index.html
-│       │   ├── index.js
-│       │   └── assets/
-│       ├── life-goals/
-│       │   ├── index.html
-│       │   ├── index.js
-│       │   └── assets/
-│       │       └── videos/ (9 MP4s)
-│       └── quiz-game/
-│           ├── index.html
-│           ├── index.js
-│           └── assets/
-```
-
-**Total size**: ~50-100MB (includes all videos)
-
----
-
-## ✨ Benefits
-
-### Development
-
-- ✅ Single command to start everything
-- ✅ Automatic hot-reload for all projects
-- ✅ No CORS configuration needed
-- ✅ Shared dependencies via workspace
-
-### Production
-
-- ✅ One folder to deploy
-- ✅ All assets from same origin
-- ✅ Simplified CDN configuration
-- ✅ Better caching strategy
-
-### Maintenance
-
-- ✅ Unified dependency management
-- ✅ Single version control
-- ✅ Consistent build process
-- ✅ Easy to add new games
-
----
-
-## 🆕 Adding New Games
-
-1. Create game in workspace root:
-
-```bash
-cd app-store
-pnpm create vite new-game --template react
-```
-
-2. Add to `pnpm-workspace.yaml`:
-
-```yaml
-packages:
-  - "new-game"
-```
-
-3. Build will automatically include it!
-
----
-
-## 🔍 Troubleshooting
-
-### "Module not found" errors
-
-```bash
-pnpm install
-```
-
-### Games not showing in Shell
-
-```bash
-pnpm build:games
-```
-
-### Build fails
-
-```bash
-pnpm clean
-pnpm install
-pnpm build
-```
-
-### Port already in use
-
-- Kill process on port 4200
-- Or change port in `angular-shell/package.json`
-
----
+- Verify Service Worker is registered (DevTools → Application)
+- Check `ngsw-config.json` matches your asset URLs
 
 ## 📚 Documentation
 
-- [QUICKSTART.md](QUICKSTART.md) - Quick reference
-- [DEPLOYMENT.md](DEPLOYMENT.md) - Detailed deployment guide
-- [Walkthrough](brain/.../walkthrough.md) - Architecture details
+- [Deployment Guide](../DEPLOYMENT.md) - Full deployment instructions
+- [Implementation Plan](../.gemini/antigravity/brain/*/implementation_plan.md) - Architecture details
 
----
+## 🏗 Tech Stack
 
-## 🎉 You're Ready!
+- **Angular 18** (Standalone Components)
+- **TypeScript 5**
+- **Module Federation** (Dynamic loading)
+- **React 19** (Games)
+- **Service Worker** (Caching)
+- **jwt-decode** (Authentication)
 
-```bash
-pnpm install
-pnpm dev
-```
+## 🤝 Contributing
 
-Visit **http://localhost:4200** and enjoy your monolithic micro-frontend shell!
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test locally
+5. Submit a pull request
+
+## 📄 License
+
+Proprietary - Bajaj Life Insurance

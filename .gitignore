@@ -1,47 +1,42 @@
-# Ignore dependencies globally
-node_modules/
-dist/
-build/
-.cache/
-.tmp/
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-# Ignore environment & OS junk
-.env
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+
+# System files
 .DS_Store
 Thumbs.db
-
-# Allow project folders (but they inherit global ignores)
-!angular-shell/
-!quiz-game/
-!Scramble-Words/
-!Tile-Flipping-game/
-!life-goals/
-!retirement-readiness-journey/
-!financial-match-arena/
-!financial-tetris/
-!life-milestone-race/
-!life-shield-bomber/
-!retirement-sudoku/
-!scripts/
-
-# Explicitly ensure node_modules inside projects are ignored
-**/node_modules/
-**/dist/
-**/build/
-
-# Whitelist project files
-!Dockerfile
-!pnpm-workspace.yaml
-!package.json
-!pnpm-lock.yaml
-!nginx.conf
-!README.md
-!DEPLOYMENT.md
-!QUICKSTART.md
-!LICENSE
-!start-dev.bat
-!start-dev.sh
-!test-build.bat
-
-# IDE
-.antigravitycli
