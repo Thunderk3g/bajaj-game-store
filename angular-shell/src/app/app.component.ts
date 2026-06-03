@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AssetLoadingLogger } from './core/services/asset-loading.logger';
 
 @Component({
   selector: 'app-root',
@@ -11,52 +10,27 @@ import { AssetLoadingLogger } from './core/services/asset-loading.logger';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'angular-shell';
-  private reportInterval: any;
 
-  constructor(private assetLogger: AssetLoadingLogger) { }
+  constructor() { }
 
   ngOnInit(): void {
+    const madeByBox = 
+      '┌────────────────────────────────────────────────────────┐\n' +
+      '│                        MADE BY                         │\n' +
+      '├────────────────────────────────────────────────────────┤\n' +
+      '│  - Diwakar Adhikari Chetri                             │\n' +
+      '│  - Abhishek Gurjar                                     │\n' +
+      '│  - Yashraj Lawate                                      │\n' +
+      '│  - Utkarsh Das                                         │\n' +
+      '│  - Tanish Jagtap                                       │\n' +
+      '└────────────────────────────────────────────────────────┘';
+    console.log(`%c${madeByBox}`, 'color: #00ffcc; font-family: monospace; font-weight: bold; background: #05070e;');
 
     console.log('🎮 UAT Deployed Gamification  -> 28th May 2026 , 13:20 PM');
     console.log('🎮 PROD Deployed Gamification  -> 25th May 2026 , 17:00 PM');
-
-    console.log('[AppComponent] Application initialized');
-
-    // Log initial asset status after a short delay to allow assets to load
-    setTimeout(() => {
-      console.log('[AppComponent] Initial asset summary:');
-      this.assetLogger.printReport();
-    }, 2000);
-
-    // Set up periodic reporting (every 10 seconds while app is running)
-    this.reportInterval = setInterval(() => {
-      const summary = this.assetLogger.getSummary();
-      const failed = this.assetLogger.getFailedAssets();
-
-      if (failed.length > 0) {
-        console.warn('[AppComponent] Failed assets detected:', failed);
-      } else {
-        console.log(
-          '[AppComponent] ✅ All assets loaded successfully. Total: ' +
-          summary.total,
-        );
-      }
-    }, 10000);
-
-    // Log when new assets are added/loaded
-    window.addEventListener('load', () => {
-      console.log('[AppComponent] Window load event fired');
-      setTimeout(() => {
-        this.assetLogger.printReport();
-      }, 500);
-    });
   }
 
   ngOnDestroy(): void {
-    if (this.reportInterval) {
-      clearInterval(this.reportInterval);
-    }
-    console.log('[AppComponent] Component destroyed. Final asset report:');
-    this.assetLogger.printReport();
   }
 }
+
