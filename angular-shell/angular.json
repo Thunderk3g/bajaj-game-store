@@ -41,7 +41,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/gamification/",
+              "baseHref": "/",
               "budgets": [
                 {
                   "type": "initial",
