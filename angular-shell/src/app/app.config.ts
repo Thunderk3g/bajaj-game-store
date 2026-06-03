@@ -49,7 +49,6 @@ export const appConfig: ApplicationConfig = {
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
-      useValue: undefined,
       deps: [FederationService, AssetPrefetchService],
       multi: true,
     },
