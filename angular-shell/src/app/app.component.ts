@@ -16,8 +16,19 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private assetLogger: AssetLoadingLogger) { }
 
   ngOnInit(): void {
+    const madeByBox = 
+      '┌────────────────────────────────────────────────────────┐\n' +
+      '│                        MADE BY                         │\n' +
+      '├────────────────────────────────────────────────────────┤\n' +
+      '│  - Diwakar Adhikari Chetri                             │\n' +
+      '│  - Abhishek Gurjar                                     │\n' +
+      '│  - Yashraj Lawate                                      │\n' +
+      '│  - Utkarsh Das                                         │\n' +
+      '│  - Tanish Jagtap                                       │\n' +
+      '└────────────────────────────────────────────────────────┘';
+    console.log(`%c${madeByBox}`, 'color: #00ffcc; font-family: monospace; font-weight: bold; background: #05070e;');
 
-    console.log('🎮 UAT Deployed Gamification  -> 28th May 2026 , 13:20 PM');
+    console.log('🎮 UAT Deployed Gamification  -> 03rd June 2026 , 11:56 AM');
     console.log('🎮 PROD Deployed Gamification  -> 25th May 2026 , 17:00 PM');
 
     console.log('[AppComponent] Application initialized');
@@ -58,5 +69,17 @@ export class AppComponent implements OnInit, OnDestroy {
     }
     console.log('[AppComponent] Component destroyed. Final asset report:');
     this.assetLogger.printReport();
+
+    const madeByBox = 
+      '┌────────────────────────────────────────────────────────┐\n' +
+      '│                        MADE BY                         │\n' +
+      '├────────────────────────────────────────────────────────┤\n' +
+      '│  - Diwakar Adhikari Chetri                             │\n' +
+      '│  - Abhishek Gurjar                                     │\n' +
+      '│  - Yashraj Lawate                                      │\n' +
+      '│  - Utkarsh Das                                         │\n' +
+      '│  - Tanish Jagtap                                       │\n' +
+      '└────────────────────────────────────────────────────────┘';
+    console.log(`%c${madeByBox}`, 'color: #00ffcc; font-family: monospace; font-weight: bold; background: #05070e;');
   }
 }

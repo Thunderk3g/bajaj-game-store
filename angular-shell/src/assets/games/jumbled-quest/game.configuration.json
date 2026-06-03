@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "gameId": "retirement-puzzle-game",
+    "gameName": "Picture Puzzle Match",
+    "version": "1.0.0",
+    "product": "Retirement Planning",
+    "port": 8004
+  },
+  "gameplay": {
+    "sessionCapSeconds": 120,
+    "maxRounds": null,
+    "difficultyRampEnabled": false,
+    "gridSize": 9
+  },
+  "scoring": {
+    "maxScore": 2000,
+    "passingScore": 1000,
+    "basePointsPerMatch": 100
+  },
+  "audio": {
+    "musicEnabledByDefault": true,
+    "sfxEnabledByDefault": true
+  },
+  "copy": {
+    "introTitle": "Picture Puzzle",
+    "introImage": "",
+    "introHowToPlay": [
+      {
+        "icon": "tap",
+        "text": "Match puzzle parts to the target images"
+      }
+    ],
+    "scoringTagline": "Great matching skills! You're a puzzle master.",
+    "scoringCtaLine": "Connect with our relationship manager now!",
+    "thankYouBody": "Thank you for sharing your details. Our Relationship Manager will reach out to you shortly."
+  },
+  "contact": {
+    "companyName": "Bajaj Life Insurance",
+    "callNowNumber": "02261241800",
+    "bookSlotTimeSlots": [
+      "9:00 AM - 10:00 AM",
+      "10:00 AM - 11:00 AM",
+      "11:00 AM - 12:00 PM",
+      "12:00 PM - 1:00 PM",
+      "1:00 PM - 2:00 PM",
+      "2:00 PM - 3:00 PM",
+      "3:00 PM - 4:00 PM",
+      "4:00 PM - 5:00 PM",
+      "5:00 PM - 6:00 PM",
+      "6:00 PM - 7:00 PM",
+      "7:00 PM - 8:00 PM",
+      "8:00 PM - 9:00 PM"
+    ],
+    "privacyPolicyUrl": "",
+    "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, {COMPANY} ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
+    "tcText": "I hereby authorize {COMPANY} to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
+  },
+  "ui": {
+    "primaryColor": "#003DA6",
+    "accentColor": "#F26522",
+    "successColor": "#28A745",
+    "fontFamily": "Plus Jakarta Sans",
+    "scoringBgImage": ""
+  }
+}

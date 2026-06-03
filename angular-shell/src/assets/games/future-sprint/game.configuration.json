@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "gameId": "child-plans-future-sprint",
+    "gameName": "Future Sprint",
+    "version": "1.0.0",
+    "product": "Child Plans",
+    "port": 3009
+  },
+  "gameplay": {
+    "targetDistance": 2000,
+    "initialSpeed": 220,
+    "maxSpeed": 430,
+    "speedRampSecs": 45,
+    "lives": 3
+  },
+  "scoring": {
+    "targetPortfolio": 100,
+    "coinBonus": 200,
+    "lifePenalty": 400
+  },
+  "copy": {
+    "introTitle": "Future Sprint",
+    "scoringTagline": "Secure your child's milestones — education, marriage, and beyond.",
+    "scoringCtaLine": "To achieve your Life Goals and to invest wisely in real life, Connect with our relationship manager now!",
+    "thankYouBody": "Our Relationship Manager will reach out to you shortly."
+  },
+  "contact": {
+    "companyName": "Bajaj Life Insurance",
+    "callNowNumber": "02261241800",
+    "bookSlotTimeSlots": [
+      "9:00 AM",
+      "10:00 AM",
+      "11:00 AM",
+      "12:00 PM",
+      "1:00 PM",
+      "2:00 PM",
+      "3:00 PM",
+      "4:00 PM",
+      "5:00 PM",
+      "6:00 PM",
+      "7:00 PM",
+      "8:00 PM",
+      "9:00 PM"
+    ],
+    "privacyPolicyUrl": "",
+    "disclaimer": "THE RESULTS SHOWN IN THIS GAME ARE INDICATIVE AND BASED SOLELY ON THE INFORMATION PROVIDED BY THE PARTICIPANT. THEY ARE INTENDED FOR ENGAGEMENT AND AWARENESS PURPOSES ONLY AND DO NOT CONSTITUTE FINANCIAL ADVICE OR A RECOMMENDATION TO PURCHASE ANY LIFE INSURANCE PRODUCT. PARTICIPANTS SHOULD SEEK INDEPENDENT PROFESSIONAL ADVICE BEFORE MAKING ANY FINANCIAL OR INSURANCE DECISIONS. WHILE DUE CARE HAS BEEN TAKEN IN DESIGNING THE GAME, BAJAJ LIFE INSURANCE LTD. ASSUMES NO LIABILITY FOR ITS OUTCOMES.",
+    "tcText": "I hereby authorize Bajaj Life Insurance to call me on the contact number made available by me on the website with a specific request to call back. I further declare that, irrespective of my contact number being registered on National Customer Preference Register (NCPR) or on National Do Not Call Registry (NDNC), any call made, SMS or WhatsApp sent in response to my request shall not be construed as an Unsolicited Commercial Communication even though the contact number may be registered on DNC."
+  },
+  "ui": {
+    "primaryColor": "#1B4FD8",
+    "accentColor": "#F97316",
+    "successColor": "#22C55E",
+    "scoringBgImage": ""
+  }
+}
