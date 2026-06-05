@@ -64,10 +64,6 @@ export class GamificationStoreService {
       authenticatedAt: Date.now(),
     };
     this.stateSubject.next(state);
-    console.log('[GamificationStore] State set:', {
-      salesPersonId: salesPerson.id,
-      gameId: gameDetails.id,
-    });
   }
 
   /** Get current snapshot (non-reactive) */
@@ -144,6 +140,5 @@ export class GamificationStoreService {
   /** Clear the store (logout / session end) */
   clearState(): void {
     this.stateSubject.next(null);
-    console.log('[GamificationStore] State cleared');
   }
 }

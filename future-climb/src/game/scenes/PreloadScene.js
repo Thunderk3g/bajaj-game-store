@@ -39,37 +39,89 @@ export default class PreloadScene extends Phaser.Scene {
     createCoinTexture() {
         const graphics = this.make.graphics({ x: 0, y: 0, add: false });
         
-        // 1. Golden Outer Glow
-        graphics.fillStyle(0xFFD700, 0.2);
+        // 1. Golden/Silver Outer Glow
+        graphics.fillStyle(0xFACC15, 0.15); // soft gold glow
         graphics.fillCircle(32, 32, 30);
         
-        // 2. Beveled Dark Rim
-        graphics.fillStyle(0xB8860B, 1);
-        graphics.fillCircle(32, 32, 24);
+        // 2. Silver Outer Ring (Bimetallic Outer Ring - Steel/Silver color)
+        graphics.fillStyle(0x9CA3AF, 1); // bevel shadow (gray-400)
+        graphics.fillCircle(32, 32, 29);
         
-        // 3. Shiny Gold Inner Face
-        graphics.fillStyle(0xFFD700, 1);
+        graphics.fillStyle(0xE5E7EB, 1); // metallic face (gray-200)
+        graphics.fillCircle(32, 32, 28);
+        
+        graphics.fillStyle(0xF9FAFB, 1); // bright shine edge (gray-50)
+        graphics.fillCircle(32, 32, 26);
+        
+        graphics.fillStyle(0x9CA3AF, 1); // inner rim bevel (gray-400)
+        graphics.fillCircle(32, 32, 22);
+        
+        // 3. Gold Inner Disc (Bimetallic Center - Gold/Brass color)
+        graphics.fillStyle(0xB8860B, 1); // dark gold bevel (dark goldenrod)
         graphics.fillCircle(32, 32, 20);
         
-        // 4. Shiny Gloss Highlight (semi-circle on top)
-        graphics.fillStyle(0xFFFFFF, 0.35);
+        graphics.fillStyle(0xFAC81A, 1); // gold core face
+        graphics.fillCircle(32, 32, 18);
+        
+        graphics.fillStyle(0xFDE047, 1); // inner gold shine core
+        graphics.fillCircle(32, 32, 16);
+        
+        // 4. Subtle Radial Notches on the Silver Ring (gives realistic minted look)
+        graphics.lineStyle(1.5, 0x4B5563, 0.45); // subtle gray ridges
+        for (let i = 0; i < 12; i++) {
+            const angle = (i * Math.PI) / 6;
+            graphics.beginPath();
+            graphics.moveTo(32 + Math.cos(angle) * 22.5, 32 + Math.sin(angle) * 22.5);
+            graphics.lineTo(32 + Math.cos(angle) * 25.5, 32 + Math.sin(angle) * 25.5);
+            graphics.strokePath();
+        }
+        
+        // 5. Glossy Highlight Reflection (glassy top sheen)
+        graphics.fillStyle(0xFFFFFF, 0.22);
         graphics.beginPath();
-        graphics.arc(32, 32, 20, Math.PI, 0, false);
+        graphics.arc(32, 32, 28, Math.PI * 0.9, Math.PI * 1.9, false);
         graphics.lineTo(32, 32);
         graphics.closePath();
         graphics.fillPath();
         
-        // 5. ₹ Symbol in center
-        graphics.lineStyle(3, 0xB8860B, 1);
-        graphics.beginPath();
-        // Top horizontal bars
-        graphics.moveTo(24, 23); graphics.lineTo(40, 23);
-        graphics.moveTo(24, 29); graphics.lineTo(38, 29);
-        // Vertical stem
-        graphics.moveTo(29, 23); graphics.lineTo(29, 43);
-        // Diagonal slash
-        graphics.moveTo(38, 29); graphics.lineTo(24, 43);
-        graphics.strokePath();
+        // 6. High-Fidelity ₹ Symbol (centered & engraved with 3D shadow)
+        const drawRupee = (g, ox, oy, color, thickness) => {
+            g.lineStyle(thickness, color, 1);
+            
+            // Top horizontal bar
+            g.beginPath();
+            g.moveTo(32 + ox - 7, 32 + oy - 8);
+            g.lineTo(32 + ox + 7, 32 + oy - 8);
+            g.strokePath();
+            
+            // Second horizontal bar
+            g.beginPath();
+            g.moveTo(32 + ox - 7, 32 + oy - 3);
+            g.lineTo(32 + ox + 3, 32 + oy - 3);
+            g.strokePath();
+            
+            // Vertical stem
+            g.beginPath();
+            g.moveTo(32 + ox - 3, 32 + oy - 8);
+            g.lineTo(32 + ox - 3, 32 + oy + 3);
+            g.strokePath();
+            
+            // Curved loop (R-like ra curve)
+            g.beginPath();
+            g.arc(32 + ox - 3, 32 + oy - 3, 5, -Math.PI / 2, Math.PI / 2, false);
+            g.strokePath();
+            
+            // Diagonal leg
+            g.beginPath();
+            g.moveTo(32 + ox - 3, 32 + oy + 3);
+            g.lineTo(32 + ox + 5, 32 + oy + 11);
+            g.strokePath();
+        };
+        
+        // Outer dark brown shadow to make it pop and look engraved
+        drawRupee(graphics, 0.75, 0.75, 0x78350F, 2.5);
+        // Minted gold foreground
+        drawRupee(graphics, 0, 0, 0xD97706, 2);
         
         graphics.generateTexture('coin', 64, 64);
     }

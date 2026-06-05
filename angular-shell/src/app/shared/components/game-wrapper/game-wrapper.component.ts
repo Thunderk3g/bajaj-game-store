@@ -307,7 +307,6 @@ export class GameWrapperComponent implements OnInit, OnDestroy {
     }
 
     this.gameUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    console.log(`[GameWrapper] Loading game "${this.gameId}" from: ${url}`);
   }
 
   onIframeLoad() {
@@ -316,7 +315,6 @@ export class GameWrapperComponent implements OnInit, OnDestroy {
         this.ngZone.run(() => {
           this.loading = false;
           this.cdr.detectChanges();
-          console.log(`[GameWrapper] Game "${this.gameId}" loaded`);
         });
       });
     });
@@ -332,6 +330,5 @@ export class GameWrapperComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log(`[GameWrapper] Game "${this.gameId}" unloaded`);
   }
 }

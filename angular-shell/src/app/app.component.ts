@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AssetLoadingLogger } from './core/services/asset-loading.logger';
 
 @Component({
   selector: 'app-root',
@@ -11,12 +10,15 @@ import { AssetLoadingLogger } from './core/services/asset-loading.logger';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'angular-shell';
-  private reportInterval: any;
 
-  constructor(private assetLogger: AssetLoadingLogger) { }
+  constructor() { }
 
   ngOnInit(): void {
+
     const madeByBox = 
+
+    const madeByBox =
+
       '┌────────────────────────────────────────────────────────┐\n' +
       '│                        MADE BY                         │\n' +
       '├────────────────────────────────────────────────────────┤\n' +
@@ -26,6 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
       '│  - Utkarsh Das                                         │\n' +
       '│  - Tanish Jagtap                                       │\n' +
       '└────────────────────────────────────────────────────────┘';
+
     console.log(`%c${madeByBox}`, 'color: #00ffcc; font-family: monospace; font-weight: bold; background: #05070e;');
 
     console.log('🎮 UAT Deployed Gamification  -> 03rd June 2026 , 11:56 AM');
@@ -81,5 +84,25 @@ export class AppComponent implements OnInit, OnDestroy {
       '│  - Tanish Jagtap                                       │\n' +
       '└────────────────────────────────────────────────────────┘';
     console.log(`%c${madeByBox}`, 'color: #00ffcc; font-family: monospace; font-weight: bold; background: #05070e;');
+    console.log(
+      `%c${madeByBox}`,
+      'font-family: monospace; font-weight: bold; background: linear-gradient(135deg, #ff007f, #7f00ff, #00f0ff, #ff8a00); color: #ffffff; padding: 4px; border-radius: 4px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);'
+    );
+
+    const deploymentBox =
+      '┌────────────────────────────────────────────────────────┐\n' +
+      '│                   DEPLOYMENT STATUS                    │\n' +
+      '├────────────────────────────────────────────────────────┤\n' +
+      '│  UAT  -> 03rd June 2026 , 16:53 PM                     │\n' +
+      '│  PROD -> 03rd June 2026 , 17:00 PM                     │\n' +
+      '└────────────────────────────────────────────────────────┘';
+    console.log(
+      `%c${deploymentBox}`,
+      'font-family: monospace; font-weight: bold; color: #ffffff; background: #000000; padding: 4px; border-radius: 4px;'
+    );
+  }
+
+  ngOnDestroy(): void {
   }
 }
+

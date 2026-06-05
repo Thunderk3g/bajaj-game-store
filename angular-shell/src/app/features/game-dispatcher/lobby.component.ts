@@ -96,7 +96,7 @@ type LobbyGame = GameManifestEntry & { gameId: string };
                   class="tile-img"
                   [src]="getThumbnail(game.gameId)"
                   [alt]="game.displayName"
-                  loading="lazy"
+                  [loading]="i < 12 ? 'eager' : 'lazy'"
                 />
                 <span class="tile-fallback-mark" *ngIf="!hasThumbnail(game.gameId)">
                   {{ initial(game.displayName) }}
@@ -935,15 +935,12 @@ export class LobbyComponent implements OnInit, OnDestroy {
     this.dispatching = true;
     this.dispatchError = null;
 
-    console.log('[Lobby] Token detected, starting dispatch flow');
-
     // Small timeout to let the spinner render
     setTimeout(async () => {
       const gameId = await this.securityService.authenticateWithToken(token);
 
       if (!gameId) {
         this.dispatchError = 'Invalid or expired token. Redirecting...';
-        console.error('[Lobby] Token authentication failed');
 
         // Redirect to lobby clean view after 2.5s
         setTimeout(() => {
@@ -961,7 +958,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
         ? this.federationService.resolveApiGameId(routeGameId)
         : this.federationService.resolveApiGameId(gameId);
 
-      console.log(`[Lobby] Token valid, dispatching to game: ${resolvedGameId}`);
       this.securityService.secureNavigateToGame(resolvedGameId);
     }, 300);
   }
@@ -1115,8 +1111,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
     const url = this.federationService.getGameUrl(gameId);
     if (url) {
       window.location.href = url;
-    } else {
-      console.error(`[Lobby] No URL found for game: ${gameId}`);
     }
   }
 }

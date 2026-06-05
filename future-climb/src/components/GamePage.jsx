@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
 import { useGameStore, GAME_STATUS } from '../store/useGameStore';
-import { Shield, Coins as CoinsIcon, Navigation, Trophy } from 'lucide-react';
+import { Shield, IndianRupee as RupeeIcon, Navigation, Trophy } from 'lucide-react';
 import MainScene from '../game/scenes/MainScene';
 import PreloadScene from '../game/scenes/PreloadScene';
 
@@ -43,7 +43,7 @@ const HUD = () => {
             {/* Right: Wealth / Coins */}
             <div className="p-2 px-4 flex items-center gap-3 rounded-xl" style={{ border: '1px solid #facc15', boxShadow: '0 0 15px rgba(250, 204, 21, 0.3)', background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)' }}>
                 <div className="bg-yellow-500/20 p-1.5 rounded-full border border-yellow-500/50 shadow-[0_0_10px_rgba(250,204,21,0.5)]">
-                    <CoinsIcon size={18} className="text-yellow-400" />
+                    <RupeeIcon size={18} className="text-yellow-400" />
                 </div>
                 <div className="flex flex-col">
                     <span className="text-[9px] font-black text-yellow-500/80 leading-none tracking-widest mb-1">WEALTH</span>

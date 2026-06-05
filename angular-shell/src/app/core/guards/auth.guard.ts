@@ -21,13 +21,9 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot,
   ): boolean {
     if (this.store.hasValidState()) {
-      console.log('[AuthGuard] Access granted — valid session exists');
       return true;
     }
 
-    console.warn(
-      '[AuthGuard] Access denied — no valid session, redirecting to /session-expired',
-    );
     this.router.navigate(['/session-expired'], { replaceUrl: true });
     return false;
   }
