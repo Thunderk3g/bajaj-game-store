@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore, GAME_STATUS } from '../store/useGameStore';
-import { Trophy, Fuel, Coins as CoinsIcon, Navigation } from 'lucide-react';
+import { Trophy, Fuel, IndianRupee as RupeeIcon, Navigation } from 'lucide-react';
 
 const GameOverScreen = () => {
     const { score, distance, coins, shield, setStatus } = useGameStore();
@@ -47,7 +47,7 @@ const GameOverScreen = () => {
                     </div>
                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
                         <div className="flex items-center gap-2 mb-1 text-secondary">
-                            <CoinsIcon size={14} />
+                            <RupeeIcon size={14} />
                             <span className="text-[10px] font-black uppercase">Wealth</span>
                         </div>
                         <p className="text-2xl font-black text-secondary">{coins}</p>

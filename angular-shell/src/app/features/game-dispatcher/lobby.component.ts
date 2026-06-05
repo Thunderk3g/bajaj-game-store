@@ -96,7 +96,7 @@ type LobbyGame = GameManifestEntry & { gameId: string };
                   class="tile-img"
                   [src]="getThumbnail(game.gameId)"
                   [alt]="game.displayName"
-                  loading="lazy"
+                  [loading]="i < 12 ? 'eager' : 'lazy'"
                 />
                 <span class="tile-fallback-mark" *ngIf="!hasThumbnail(game.gameId)">
                   {{ initial(game.displayName) }}

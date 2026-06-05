@@ -662,15 +662,18 @@ export default class MainScene extends Phaser.Scene {
         this.tutorialGroup = this.add.container(0, 0).setScrollFactor(0).setDepth(100);
 
         // 1. Instruction Banner
-        const bannerBg = this.add.rectangle(width / 2, height / 3, 340, 60, 0x0f172a, 0.85)
+        const bannerWidth = Math.min(width - 20, 420);
+        const bannerHeight = width <= 380 ? 95 : 75;
+        const bannerBg = this.add.rectangle(width / 2, height / 3, bannerWidth, bannerHeight, 0x0f172a, 0.85)
             .setStrokeStyle(2, 0x00f2fe, 1);
-        const bannerText = this.add.text(width / 2, height / 3, "HOLD GAS [RIGHT] TO CLIMB\nHOLD BRAKE [LEFT] TO STEER / SLOW", {
-            fontSize: '13px',
+
+        const extraText = this.add.text(width / 2, height / 3, "Reach 1000 meters without Falling and Capture all the Shields and Coin.", {
+            fontSize: '16px',
             fontFamily: 'Montserrat, Arial, sans-serif',
             fontStyle: 'bold',
             fill: '#ffffff',
             align: 'center',
-            lineSpacing: 4
+            wordWrap: { width: bannerWidth - 30 }
         }).setOrigin(0.5);
         
         // 2. Gas Pedal Tutorial Hand & Pulse
@@ -678,18 +681,44 @@ export default class MainScene extends Phaser.Scene {
         const gasY = height - 90;
         
         const gasPulse = this.add.circle(gasX, gasY, 20, 0xff007f, 0.4);
-        const gasHand = this.add.text(gasX + 15, gasY + 40, '👆', { fontSize: '42px' }).setOrigin(0.5);
+        const gasHand = this.add.text(gasX + 15, gasY + 40, '👆', {
+            fontSize: '42px',
+            padding: { left: 10, right: 10, top: 10, bottom: 10 }
+        }).setOrigin(0.5);
         gasHand.setAngle(-45);
+
+        const gasLabelText = this.add.text(gasX, gasY - 95, "HOLD GAS\nTO CLIMB", {
+            fontSize: '11px',
+            fontFamily: 'Montserrat, Arial, sans-serif',
+            fontStyle: 'bold',
+            fill: '#ff007f', // Pink theme
+            align: 'center',
+            stroke: '#000000',
+            strokeThickness: 3
+        }).setOrigin(0.5);
 
         // 3. Brake Pedal Tutorial Hand & Pulse
         const brakeX = pedalInset;
         const brakeY = height - 90;
         
         const brakePulse = this.add.circle(brakeX, brakeY, 20, 0x00f2fe, 0.4);
-        const brakeHand = this.add.text(brakeX - 15, brakeY + 40, '👆', { fontSize: '42px' }).setOrigin(0.5);
+        const brakeHand = this.add.text(brakeX - 15, brakeY + 40, '👆', {
+            fontSize: '42px',
+            padding: { left: 10, right: 10, top: 10, bottom: 10 }
+        }).setOrigin(0.5);
         brakeHand.setAngle(45);
 
-        this.tutorialGroup.add([bannerBg, bannerText, gasPulse, gasHand, brakePulse, brakeHand]);
+        const brakeLabelText = this.add.text(brakeX, brakeY - 95, "HOLD BRAKE\nTO STEER/SLOW", {
+            fontSize: '11px',
+            fontFamily: 'Montserrat, Arial, sans-serif',
+            fontStyle: 'bold',
+            fill: '#00f2fe', // Cyan theme
+            align: 'center',
+            stroke: '#000000',
+            strokeThickness: 3
+        }).setOrigin(0.5);
+
+        this.tutorialGroup.add([bannerBg, extraText, gasPulse, gasHand, gasLabelText, brakePulse, brakeHand, brakeLabelText]);
 
         // Animations:
         // Gas Pulse (expanding ripple)
@@ -841,8 +870,13 @@ export default class MainScene extends Phaser.Scene {
         this.bgBack.tilePositionX = this.cameras.main.scrollX * 0.05;
         this.bgMid.tilePositionX = this.cameras.main.scrollX * 0.1;
 
-        // Distance & Health Drain
-        const distance = Math.max(0, Math.floor((this.vehicle.x - 100) / 50));
+        // Distance & Health Drain (calculated 3.2x faster)
+        const distance = Math.max(0, Math.floor(((this.vehicle.x - 100) / 50) * 3.2));
+        if (distance >= 1000) {
+            this.store.setDistance(1000);
+            this.gameOver("Climb Completed!");
+            return;
+        }
         this.store.setDistance(distance);
 
         // Spawn UFO again when player completes 100m — financial tip
@@ -870,11 +904,12 @@ export default class MainScene extends Phaser.Scene {
         this.lastX = this.vehicle.x;
 
         if (useGameStore.getState().shield <= 0) {
-            this.gameOver("Out of Health!");
+            this.gameOver("Out of Fuel!");
+            return;
         }
 
-        // Flip check (Game Over if vehicle touches ground upside down)
-        if (Math.abs(this.vehicle.angle) > 120 && this.isChassisTouchingGround()) {
+        // Flip check (Game Over if vehicle touches ground upside down - threshold increased to 150 degrees to avoid false positives on steep slopes)
+        if (Math.abs(this.vehicle.angle) > 150 && this.isChassisTouchingGround()) {
             this.gameOver("Vehicle Flipped!");
         }
 

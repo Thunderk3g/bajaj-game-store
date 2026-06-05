@@ -181,7 +181,7 @@ const LeadForm = memo(function LeadForm({ title, subtitle }) {
             </button>
 
             <p className="text-sudoku-muted text-[0.7rem] text-center">
-                By submitting, you agree to be contacted by Bajaj Allianz Life.
+                By submitting, you agree to be contacted by Bajaj Life.
             </p>
         </form>
     );

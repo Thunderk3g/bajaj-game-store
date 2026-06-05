@@ -39,13 +39,11 @@ export class SecurityService {
 
       const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
       if (!decryptedText) {
-        console.error('[SecurityService] Decryption resulted in empty string');
         return null;
       }
 
       return JSON.parse(decryptedText);
     } catch (e) {
-      console.error('[SecurityService] Decryption failed', e);
       return null;
     }
   }
@@ -63,12 +61,9 @@ export class SecurityService {
       this.payload = this.decryptAES(token, AES_KEY_B64);
 
       if (!this.payload) {
-        console.error('[SecurityService] Payload decryption failed or empty');
         this.clearAuthentication();
         return null;
       }
-
-      console.log('[SecurityService] Payload decrypted:', this.payload);
 
       // ── Extract required claims ──
       // Based on real payload: { game_id, emp_id, emp_name, emp_mobile, location, zone }
@@ -76,13 +71,11 @@ export class SecurityService {
       const gameIdApi = this.payload.game_id;
 
       if (!empId) {
-        console.error('[SecurityService] Missing "emp_id" in decrypted payload');
         this.clearAuthentication();
         return null;
       }
 
       if (!gameIdApi) {
-        console.error('[SecurityService] Missing "game_id" in decrypted payload');
         this.clearAuthentication();
         return null;
       }
@@ -92,7 +85,6 @@ export class SecurityService {
       const manifest = this.federationService.getGameManifest(internalGameId);
 
       if (!manifest) {
-        console.error(`[SecurityService] No manifest found for resolved game ID: ${internalGameId}`);
         this.clearAuthentication();
         return null;
       }
@@ -118,7 +110,6 @@ export class SecurityService {
 
       return internalGameId;
     } catch (error) {
-      console.error('[SecurityService] Authentication failed:', error);
       this.clearAuthentication();
       return null;
     }
@@ -133,7 +124,6 @@ export class SecurityService {
     if (url) {
       window.location.href = url;
     } else {
-      console.error(`[SecurityService] No URL found for game: ${gameId}`);
       this.router.navigate(['/play', gameId], {
         replaceUrl: true,
       });

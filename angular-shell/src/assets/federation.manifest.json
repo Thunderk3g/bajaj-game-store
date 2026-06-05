@@ -207,11 +207,11 @@
     "gameId": "GAME_021",
     "assets": []
   },
-  "ulip-picture-puzzle": {
-    "remoteEntry": "assets/games/ulip-picture-puzzle/index.js",
+  "jumbled-quest": {
+    "remoteEntry": "assets/games/jumbled-quest/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
-    "displayName": "ULIP Picture Puzzle",
+    "displayName": "Jumbled Quest",
     "popular": true,
     "gameId": "GAME_022",
     "assets": []
@@ -225,13 +225,58 @@
     "gameId": "GAME_023",
     "assets": []
   },
-  "whole-life-galaga": {
-    "remoteEntry": "assets/games/whole-life-galaga/index.js",
+  "guardian-strike": {
+    "remoteEntry": "assets/games/guardian-strike/index.js",
     "exposedModule": "./GameEntry",
     "type": "react",
-    "displayName": "Whole Life Galaga",
+    "displayName": "Guardian Strike",
     "popular": true,
     "gameId": "GAME_024",
+    "assets": []
+  },
+  "future-climb": {
+    "remoteEntry": "assets/games/future-climb/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Future Climb",
+    "popular": true,
+    "gameId": "GAME_025",
+    "assets": []
+  },
+  "fortune-slice": {
+    "remoteEntry": "assets/games/fortune-slice/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Fortune Slice",
+    "popular": true,
+    "gameId": "GAME_026",
+    "assets": []
+  },
+  "legacy-sweep": {
+    "remoteEntry": "assets/games/legacy-sweep/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Legacy Sweep",
+    "popular": true,
+    "gameId": "GAME_027",
+    "assets": []
+  },
+  "future-sprint": {
+    "remoteEntry": "assets/games/future-sprint/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Future Sprint",
+    "popular": true,
+    "gameId": "GAME_028",
+    "assets": []
+  },
+  "guardian-grid": {
+    "remoteEntry": "assets/games/guardian-grid/index.js",
+    "exposedModule": "./GameEntry",
+    "type": "react",
+    "displayName": "Guardian Grid",
+    "popular": true,
+    "gameId": "GAME_029",
     "assets": []
   }
 }

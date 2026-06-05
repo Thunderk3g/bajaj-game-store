@@ -56,7 +56,7 @@ export default class PickupManager {
 
             if (type === 'coin') {
                 state.setCoins(state.coins + 50);
-                state.showToast('+₹50 Wealth Added! 💰', 2000);
+                state.showToast('+₹50 Wealth Added! 🪙', 2000);
 
             } else if (type === 'shield') {
                 // Insurance Shield — restores protection cover
