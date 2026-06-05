@@ -913,6 +913,16 @@ export class LobbyComponent implements OnInit, OnDestroy {
       const token = params['token'];
       const routeGameId = this.route.snapshot.params['gameId'];
 
+      console.log('[TokenDecrypter] Lobby received URL params —', {
+        routeGameId,
+        rawUrl: window.location.href,
+        tokenLength: token?.length ?? 0,
+        // Spaces here mean '+' was corrupted somewhere between the link and Angular.
+        tokenHasSpace: / /.test(token || ''),
+        tokenHasPlus: /\+/.test(token || ''),
+        tokenPreview: token ? `${token.slice(0, 12)}…${token.slice(-12)}` : null,
+      });
+
       if (token) {
         this.handleTokenDispatch(token, routeGameId);
         return;

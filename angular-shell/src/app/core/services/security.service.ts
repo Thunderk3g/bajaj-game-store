@@ -27,9 +27,36 @@ export class SecurityService {
   ) { }
 
   /**
+   * Normalize a token that may have been corrupted in transit.
+   *
+   * Base64 uses '+' and '/'. When a URL is redirected (e.g. from marketing
+   * assist), an intermediate hop can decode '%2B' -> '+', and a downstream
+   * URL parser then turns '+' into a space. Base64 never contains spaces, so
+   * any space we see was almost certainly a '+'. Restore it.
+   */
+  private normalizeToken(rawToken: string): string {
+    if (!rawToken) return rawToken;
+    const normalized = rawToken.replace(/ /g, '+');
+    if (normalized !== rawToken) {
+      const spacesFixed = (rawToken.match(/ /g) || []).length;
+      console.warn(
+        `[TokenDecrypter] ⚠ Token contained ${spacesFixed} space(s) — restored to '+'. ` +
+        `This usually means the URL was redirected and '+' was corrupted to space. ` +
+        `THIS IS THE LIKELY CAUSE of the "expired token" error on prod.`,
+      );
+    }
+    return normalized;
+  }
+
+  /**
    * Decrypt AES-256 ECB payload using CryptoJS.
    */
   private decryptAES(encryptedB64: string, keyB64: string): any {
+    console.log(
+      `[TokenDecrypter] decryptAES() input — length=${encryptedB64?.length ?? 0}, ` +
+      `hasSpace=${/ /.test(encryptedB64 || '')}, hasPlus=${/\+/.test(encryptedB64 || '')}, ` +
+      `hasPercent=${/%/.test(encryptedB64 || '')}`,
+    );
     try {
       const key = CryptoJS.enc.Base64.parse(keyB64);
       const decrypted = CryptoJS.AES.decrypt(encryptedB64, key, {
@@ -38,12 +65,25 @@ export class SecurityService {
       });
 
       const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+      console.log(
+        `[TokenDecrypter] decryptAES() decrypted text length=${decryptedText?.length ?? 0}`,
+      );
       if (!decryptedText) {
+        console.error(
+          '[TokenDecrypter] ❌ Decryption produced EMPTY text — token is malformed/corrupted ' +
+          'or was encrypted with a different key than this environment expects.',
+        );
         return null;
       }
 
-      return JSON.parse(decryptedText);
+      const parsed = JSON.parse(decryptedText);
+      console.log('[TokenDecrypter] ✅ Decrypted payload:', parsed);
+      return parsed;
     } catch (e) {
+      console.error(
+        '[TokenDecrypter] ❌ decryptAES() threw — JSON parse failed or invalid ciphertext:',
+        e,
+      );
       return null;
     }
   }
@@ -54,13 +94,22 @@ export class SecurityService {
    * @returns      gameId if valid, null if invalid/expired
    */
   async authenticateWithToken(token: string): Promise<string | null> {
+    console.log(
+      `[TokenDecrypter] authenticateWithToken() called — raw token length=${token?.length ?? 0}`,
+    );
     try {
-      this.token = token;
+      // Repair '+' → space corruption that can happen during URL redirects.
+      const normalizedToken = this.normalizeToken(token);
+      this.token = normalizedToken;
 
       // Real AES decryption
-      this.payload = this.decryptAES(token, AES_KEY_B64);
+      this.payload = this.decryptAES(normalizedToken, AES_KEY_B64);
 
       if (!this.payload) {
+        console.error(
+          '[TokenDecrypter] ❌ AUTH FAILED at: decryption (payload is null). ' +
+          'Reported to user as "expired token".',
+        );
         this.clearAuthentication();
         return null;
       }
@@ -69,13 +118,18 @@ export class SecurityService {
       // Based on real payload: { game_id, emp_id, emp_name, emp_mobile, location, zone }
       const empId = this.payload.emp_id;
       const gameIdApi = this.payload.game_id;
+      console.log(
+        `[TokenDecrypter] Extracted claims — emp_id=${empId}, game_id=${gameIdApi}`,
+      );
 
       if (!empId) {
+        console.error('[TokenDecrypter] ❌ AUTH FAILED at: missing emp_id in payload.');
         this.clearAuthentication();
         return null;
       }
 
       if (!gameIdApi) {
+        console.error('[TokenDecrypter] ❌ AUTH FAILED at: missing game_id in payload.');
         this.clearAuthentication();
         return null;
       }
@@ -83,8 +137,16 @@ export class SecurityService {
       // Resolve the internal game ID (e.g., GAME_001 -> life-goals)
       const internalGameId = this.federationService.resolveApiGameId(gameIdApi);
       const manifest = this.federationService.getGameManifest(internalGameId);
+      console.log(
+        `[TokenDecrypter] Game resolution — api game_id=${gameIdApi} → internalGameId=${internalGameId}, ` +
+        `manifestFound=${!!manifest}`,
+      );
 
       if (!manifest) {
+        console.error(
+          `[TokenDecrypter] ❌ AUTH FAILED at: game "${gameIdApi}" (internal "${internalGameId}") ` +
+          `not found in federation manifest. Is this game registered/deployed in this environment?`,
+        );
         this.clearAuthentication();
         return null;
       }
@@ -106,10 +168,14 @@ export class SecurityService {
       };
 
       // ── Push to centralized store ──
-      this.store.setState(salesPerson, gameDetails, token);
+      this.store.setState(salesPerson, gameDetails, normalizedToken);
 
+      console.log(
+        `[TokenDecrypter] ✅ AUTH SUCCESS — resolved game "${internalGameId}" for emp_id=${empId}.`,
+      );
       return internalGameId;
     } catch (error) {
+      console.error('[TokenDecrypter] ❌ AUTH FAILED — unexpected error:', error);
       this.clearAuthentication();
       return null;
     }

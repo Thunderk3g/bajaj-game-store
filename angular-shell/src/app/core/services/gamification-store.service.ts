@@ -63,6 +63,14 @@ export class GamificationStoreService {
       rawToken,
       authenticatedAt: Date.now(),
     };
+    console.log('[DataStore] setState() — storing session:', {
+      salesPersonId: salesPerson?.id,
+      salesPersonName: salesPerson?.name,
+      gameId: gameDetails?.id,
+      gameUrl: gameDetails?.url,
+      rawTokenLength: rawToken?.length ?? 0,
+      authenticatedAt: state.authenticatedAt,
+    });
     this.stateSubject.next(state);
   }
 
@@ -74,12 +82,19 @@ export class GamificationStoreService {
   /** Check if valid data exists in the store */
   hasValidState(): boolean {
     const state = this.getSnapshot();
-    return !!(
+    const valid = !!(
       state &&
       state.salesPerson?.id &&
       state.gameDetails?.id &&
       state.gameDetails?.url
     );
+    console.log('[DataStore] hasValidState() →', valid, {
+      hasState: !!state,
+      hasSalesPersonId: !!state?.salesPerson?.id,
+      hasGameId: !!state?.gameDetails?.id,
+      hasGameUrl: !!state?.gameDetails?.url,
+    });
+    return valid;
   }
 
   /** Get the sales person ID */
@@ -139,6 +154,7 @@ export class GamificationStoreService {
 
   /** Clear the store (logout / session end) */
   clearState(): void {
+    console.warn('[DataStore] clearState() — session cleared (logout or auth failure).');
     this.stateSubject.next(null);
   }
 }
