@@ -203,6 +203,23 @@ function getBuildScript(env) {
     return `build:${env}`;
 }
 
+/**
+ * Resolve the build script to run for a specific game, falling back to the
+ * plain "build" script when the env-specific one isn't defined in that game's
+ * package.json. Newer games may only ship a single "build" script.
+ */
+function resolveGameBuildScript(gameDir, preferredScript) {
+    if (preferredScript === "build") return "build";
+
+    const pkgPath = path.join(gameDir, "package.json");
+    try {
+        const scripts = JSON.parse(fs.readFileSync(pkgPath, "utf-8")).scripts || {};
+        if (scripts[preferredScript]) return preferredScript;
+    } catch { /* fall through to default */ }
+
+    return "build";
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -278,10 +295,14 @@ function main() {
         const gameStart = Date.now();
         const index = `[${built + failed + 1}/${toBuild.length}]`;
 
-        console.log(`${index} Building ${game.name}...`);
+        const gameBuildScript = resolveGameBuildScript(game.dir, buildScript);
+        const fallbackNote = gameBuildScript !== buildScript
+            ? ` (no "${buildScript}", using "${gameBuildScript}")`
+            : "";
+        console.log(`${index} Building ${game.name}...${fallbackNote}`);
 
         try {
-            execSync(`pnpm run ${buildScript}`, {
+            execSync(`pnpm run ${gameBuildScript}`, {
                 cwd: game.dir,
                 stdio: "inherit",
             });
