@@ -1,4 +1,4 @@
-import introImage from './introImage.jpg';
+import introImage from './introImage.webp';
 import termDuration from './guardian-icons/dream-car.png';
 import lowPremium from './guardian-icons/Dream-House.png';
 import familyPayout from './guardian-icons/Child-Education.png';

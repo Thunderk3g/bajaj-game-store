@@ -26,7 +26,7 @@ export let ORANGE = '#F26522';
 export let GREEN = '#28A745';
 
 export let INTRO_TITLE = 'Score Rush';
-export let INTRO_IMAGE = 'assets/intro-mole-rush-1.png';
+export let INTRO_IMAGE = 'assets/intro-mole-rush-1.webp';
 export let INTRO_TITLE_IMAGE = 'assets/score_rush_title.png';
 export let HOW_TO_PLAY_ITEMS: HowToPlayItem[] = [
   { icon: 'tap', text: 'Tap good moles to grow your virtual portfolio before the clock runs out.' },

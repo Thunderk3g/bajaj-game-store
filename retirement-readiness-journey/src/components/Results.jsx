@@ -7,7 +7,7 @@ import { Share2, Phone, Calendar, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { READINESS_BANDS } from '../constants/journeySteps';
 import BookingModal from './BookingModal';
 
-const gameThumbnail = './assets/Intro.png';
+const gameThumbnail = './assets/Intro.webp';
 
 const Results = ({ score, onReset, userInfo }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,7 +48,7 @@ const Results = ({ score, onReset, userInfo }) => {
                 try {
                     const res = await fetch(gameThumbnail);
                     const blob = await res.blob();
-                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    const file = new File([blob], 'game-thumbnail.webp', { type: blob.type });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         sharePayload.files = [file];
                     }

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { buildShareUrl } from '../utils/crypto';
 import { shortenUrl } from '../utils/shortener';
 
-const gameThumbnail = './assets/Quiz-bg.png';
+const gameThumbnail = './assets/Quiz-bg.webp';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RotateCcw, Phone, Calendar, Clock, X, CheckCircle2, ChevronDown, Share2, ShieldCheck, Medal, Star, AlertCircle } from "lucide-react";
 import ScoreCard from './ScoreCard';
@@ -62,7 +62,7 @@ const ResultsScreen = ({ score, total, onRestart }) => {
                 try {
                     const res = await fetch(gameThumbnail);
                     const blob = await res.blob();
-                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    const file = new File([blob], 'game-thumbnail.webp', { type: blob.type });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         sharePayload.files = [file];
                     }

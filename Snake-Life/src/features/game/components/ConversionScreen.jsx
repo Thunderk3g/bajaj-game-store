@@ -6,7 +6,7 @@ import { Share2, PhoneCall, Calendar, Trophy, RotateCcw, Star, Medal, AlertCircl
 import ScoreCard from './ScoreCard';
 import Modal from './Modal';
 import ThankYouScreen from './ThankYouScreen';
-import bgImage from '../../../assets/Snake-Life TN.png';
+import bgImage from '../../../assets/Snake-Life TN.webp';
 
 const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }) => {
     const empPhone = sessionStorage.getItem('gamification_emp_mobile');
@@ -60,7 +60,7 @@ const ConversionScreen = ({ score, total = 20, leadData, onRestart, onBookSlot }
                 try {
                     const res = await fetch(bgImage);
                     const blob = await res.blob();
-                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    const file = new File([blob], 'game-thumbnail.webp', { type: blob.type });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         sharePayload.files = [file];
                     }

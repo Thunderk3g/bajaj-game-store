@@ -11,7 +11,7 @@ import Speedometer from './ScoreRing.jsx';
 import Confetti from './Confetti.jsx';
 import TermsModal from './TermsModal.jsx';
 import { TILE_META, BUCKET_MAX } from '../config/gameConfig.js';
-import gameThumbnail from '../../assets/image/secure-thumbnail.png';
+import gameThumbnail from '../../assets/image/secure-thumbnail.webp';
 
 const BUCKET_ORDER = ['GREEN', 'BLUE', 'YELLOW', 'RED'];
 
@@ -123,7 +123,7 @@ const ResultScreen = ({
                 try {
                     const res = await fetch(gameThumbnail);
                     const blob = await res.blob();
-                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    const file = new File([blob], 'game-thumbnail.webp', { type: blob.type });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         sharePayload.files = [file];
                     }

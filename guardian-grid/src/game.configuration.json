@@ -50,7 +50,7 @@
   },
   "copy": {
     "introTitle": "Guardian Grid",
-    "introImage": "src/assets/introImage.jpg",
+    "introImage": "src/assets/introImage.webp",
     "introHowToPlay": [
       {
         "icon": "tap",
@@ -87,6 +87,6 @@
     "accentColor": "#F59E0B",
     "successColor": "#22C55E",
     "fontFamily": "Plus Jakarta Sans",
-    "scoringBgImage": "src/assets/introImage.jpg"
+    "scoringBgImage": "src/assets/introImage.webp"
   }
 }

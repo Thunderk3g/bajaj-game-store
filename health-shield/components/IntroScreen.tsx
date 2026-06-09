@@ -14,7 +14,7 @@ const IntroScreen: React.FC<Props> = ({ onPlay }) => (
     <div className="relative flex h-full min-h-0 w-full max-w-md flex-col justify-end overflow-hidden px-4">
       <div className="pointer-events-none absolute inset-x-0 top-0 bottom-0 overflow-hidden rounded-none">
         <img
-          src={new URL('intro_page.png', import.meta.url).href}
+          src={new URL('intro_page.webp', import.meta.url).href}
           alt="Pulse Breaker intro"
           className="h-full w-full object-cover object-top"
           style={{

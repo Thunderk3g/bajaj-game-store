@@ -10,7 +10,7 @@ import { buildShareUrl } from '../utils/crypto';
 import { shortenUrl } from '../utils/shortener';
 import * as Dialog from '@radix-ui/react-dialog';
 
-const gameThumbnail = './assets/images/life_thumbnail.png';
+const gameThumbnail = './assets/images/life_thumbnail.webp';
 
 const TermsModal = () => (
     <Dialog.Root>

@@ -1,5 +1,5 @@
 import React from 'react';
-import lsBg from '../../assets/ls-bg.png';
+import lsBg from '../../assets/ls-bg.webp';
 
 const GameLayout = ({ children, headerRight, footer, showTitle = true, showHeader = true, variant = 'default', mainClassName = '' }) => {
     const renderBackground = () => {

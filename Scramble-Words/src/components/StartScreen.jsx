@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import bgImg from "../assets/front-page/NewSartScreen.png";
+import bgImg from "../assets/front-page/NewSartScreen.webp";
 
 export default function StartScreen({ onStart }) {
     const handleStartClick = () => {

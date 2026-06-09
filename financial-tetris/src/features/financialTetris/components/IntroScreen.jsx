@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import welcomeBg from '/assets/welcome_bg.png';
+import welcomeBg from '/assets/welcome_bg.webp';
 
 const IntroScreen = ({ onStart }) => {
     return (

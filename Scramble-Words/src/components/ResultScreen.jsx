@@ -7,7 +7,7 @@ import ScoreShield from "./common/ScoreShield";
 import BookingModal from "./BookingModal";
 import Confetti from "./common/Confetti";
 import { useGameState } from "../hooks/useGameState";
-import gameThumbnail from "../assets/front-page/NewSartScreen.png";
+import gameThumbnail from "../assets/front-page/NewSartScreen.webp";
 
 export default function ResultScreen({ score, onRestart, onThankYou, firstName }) {
     const { lastSubmittedPhone } = useGameState();

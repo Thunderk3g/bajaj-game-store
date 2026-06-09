@@ -1,7 +1,7 @@
 import { MoleType as ItemType } from './types';
 
 // ** Asset Import Section **
-import imgIntro from './src/assets/introImage.png';
+import imgIntro from './src/assets/introImage.webp';
 
 export interface ItemDef {
   icon: string;

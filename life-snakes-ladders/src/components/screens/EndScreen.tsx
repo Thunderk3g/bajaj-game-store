@@ -4,7 +4,7 @@ import { shortenUrl } from '../../utils/shortener';
 import { Trophy, Shield, AlertTriangle, Share2, X } from 'lucide-react';
 import LeadModal from '../modals/LeadModal';
 
-const gameThumbnail = './assets/s&l intro-bg.png';
+const gameThumbnail = './assets/s&l intro-bg.webp';
 interface EndScreenProps {
     hasShield: boolean;
     playerName?: string;

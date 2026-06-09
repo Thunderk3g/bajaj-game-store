@@ -7,7 +7,7 @@ import ScoreCard from './ScoreCard';
 import Modal from '../../../components/ui/Modal';
 import ThankYouScreen from './ThankYouScreen';
 
-const gameThumbnail = './assets/welcome_bg.png';
+const gameThumbnail = './assets/welcome_bg.webp';
 
 const ConversionScreen = ({ score, total = 2000, leadData, onRestart, onBookSlot }) => {
     const today = new Date().toISOString().split("T")[0];

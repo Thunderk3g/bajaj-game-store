@@ -14,7 +14,7 @@ const Intro = ({ onStart }) => {
         <div
             className="flex-1 flex flex-col items-center justify-end text-center animate-in fade-in duration-700 w-full"
             style={{
-                backgroundImage: `url('./assets/Intro.png')`,
+                backgroundImage: `url('./assets/Intro.webp')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat'

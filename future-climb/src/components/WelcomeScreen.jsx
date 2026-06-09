@@ -12,7 +12,7 @@ const WelcomeScreen = () => {
             <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none pb-24">
                 <div className="relative w-full h-full flex items-center justify-center">
                     <img
-                        src="./assets/ui/Thumbnail Future Climb.png"
+                        src="./assets/ui/Thumbnail Future Climb.webp"
                         alt="Future Climb Background"
                         className="w-full h-full object-contain"
                     />

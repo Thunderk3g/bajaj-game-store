@@ -9,7 +9,7 @@ import { submitScore } from '../../services/api';
 import Button from '../ui/Button';
 import LeadModal from '../modals/LeadModal';
 import styles from './ScoreScreen.module.css';
-import gameThumbnail from '../../assets/tile-bg.png';
+import gameThumbnail from '../../assets/tile-bg.webp';
 
 const CIRCUMFERENCE = 380;
 

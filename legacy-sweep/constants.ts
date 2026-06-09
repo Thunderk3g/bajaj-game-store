@@ -1,6 +1,6 @@
-﻿import { BenefitType } from './types';
+import { BenefitType } from './types';
 
-import imgIntro from './src/assets/introImage.png';
+import imgIntro from './src/assets/introImage.webp';
 import imgFamilyShield   from './src/assets/family_shield.png';
 import imgSavingsVault   from './src/assets/savings_vault.png';
 import imgRetirementFund from './src/assets/retirement_fund.png';

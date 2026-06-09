@@ -7,7 +7,7 @@ import Modal from './Modal';
 import { updateLeadNew } from '../../../services/api';
 import { getArchetypeDetails } from '../utils/archetypeResolver';
 import ScoreRing from '../../../components/ui/ScoreRing';
-import gameThumbnail from '../../../assets/ls-bg.png';
+import gameThumbnail from '../../../assets/ls-bg.webp';
 
 const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
     const archetype = getArchetypeDetails(results.archetype);
@@ -60,7 +60,7 @@ const FinalScreen = ({ results, onRetry, leadData, onBookingSuccess }) => {
                 try {
                     const res = await fetch(gameThumbnail);
                     const blob = await res.blob();
-                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    const file = new File([blob], 'game-thumbnail.webp', { type: blob.type });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         sharePayload.files = [file];
                     }

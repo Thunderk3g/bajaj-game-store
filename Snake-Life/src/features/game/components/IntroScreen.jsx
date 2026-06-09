@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Loader2 } from 'lucide-react';
 import Modal from './Modal';
 import { submitToLMS } from '../../../services/api';
-import bgImage from '../../../assets/Snake-Life TN.png';
+import bgImage from '../../../assets/Snake-Life TN.webp';
 
 const IntroScreen = ({ onStart }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);

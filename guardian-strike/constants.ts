@@ -1,4 +1,4 @@
-﻿import imgIntro from './src/assets/introImage.png';
+import imgIntro from './src/assets/introImage.webp';
 
 export interface ScoreMessage {
   minScore: number;

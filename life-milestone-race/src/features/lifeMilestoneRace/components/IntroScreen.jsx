@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import Button from '../../../components/ui/Button';
-import bgImage from '../../../assets/image/Life-Milestone-Race.png';
+import bgImage from '../../../assets/image/Life-Milestone-Race.webp';
 
 const containerVariants = {
     hidden: { opacity: 0 },

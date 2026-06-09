@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { buildShareUrl } from '../utils/crypto';
 import { shortenUrl } from '../utils/shortener';
 import { useNavigate } from 'react-router-dom';
-import gameThumbnail from '../assets/images/Cover-Image.png';
+import gameThumbnail from '../assets/images/Cover-Image.webp';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, X, Calendar, Star, Phone, Check, Loader2 } from 'lucide-react';
 import { useGame } from '../features/game/context/GameContext.jsx';
@@ -461,7 +461,7 @@ const ResultPage = memo(function ResultPage() {
                 try {
                     const res = await fetch(gameThumbnail);
                     const blob = await res.blob();
-                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    const file = new File([blob], 'game-thumbnail.webp', { type: blob.type });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         sharePayload.files = [file];
                     }

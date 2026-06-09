@@ -23,7 +23,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
             >
                 {/* Full-screen background image */}
                 <img
-                    src="./assets/s&l intro-bg.png"
+                    src="./assets/s&l intro-bg.webp"
                     alt="Life Snakes & Ladders — Are You Protected?"
                     draggable={false}
                     style={{

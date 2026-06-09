@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, X, Check, Loader2 } from 'lucide-react';
 import { useGame } from '../context/GameContext.jsx';
-import landingBg from '../../../assets/Life Leap Start Page.png';
+import landingBg from '../../../assets/Life Leap Start Page.webp';
 import { submitToLMS } from '../../../utils/api.js';
 
 const containerVariants = {

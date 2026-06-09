@@ -5,7 +5,7 @@ import { Share2, Phone, CalendarClock } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
-import gameThumbnail from '../../../assets/image/Life-Milestone-Race.png';
+import gameThumbnail from '../../../assets/image/Life-Milestone-Race.webp';
 
 const containerVariants = {
     hidden: { opacity: 0 },

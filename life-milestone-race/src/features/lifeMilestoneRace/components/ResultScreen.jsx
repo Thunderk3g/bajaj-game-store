@@ -7,7 +7,7 @@ import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
 import Speedometer from './Speedometer';
 import { submitToLMS, updateLeadNew } from '../../../utils/api';
-import gameThumbnail from '../../../assets/image/Life-Milestone-Race.png';
+import gameThumbnail from '../../../assets/image/Life-Milestone-Race.webp';
 
 const ResultScreen = ({
     score,

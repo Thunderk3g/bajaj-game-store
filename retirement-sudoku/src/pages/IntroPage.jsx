@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../features/game/context/GameContext.jsx';
-import coverImage from '../assets/images/Cover-Image.png';
+import coverImage from '../assets/images/Cover-Image.webp';
 
 /**
  * Full-screen cover intro page.

@@ -11,7 +11,7 @@ import InsuranceCards from '../components/InsuranceCards.jsx';
 import { submitToLMS, updateLeadNew } from '../../../utils/api.js';
 import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
-import gameThumbnail from '../../../assets/Life Leap Start Page.png';
+import gameThumbnail from '../../../assets/Life Leap Start Page.webp';
 
 function getZone(pct) {
     return ZONES.find((z) => pct < z.maxPct) || ZONES[ZONES.length - 1];

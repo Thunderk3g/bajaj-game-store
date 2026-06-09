@@ -1,6 +1,6 @@
 import { ItemType } from './types';
 
-import imgIntro from './src/assets/introImage.png';
+import imgIntro from './src/assets/introImage.webp';
 import imgInvestment from './src/assets/Investment.png';
 import imgSavings from './src/assets/Savings.png';
 import imgRetirement from './src/assets/Retirement.png';

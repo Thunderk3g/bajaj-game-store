@@ -9,7 +9,7 @@ import { Phone, Calendar, Share2, RotateCcw, X, ChevronDown, Shield, Heart, Cloc
 import Confetti from './Confetti.jsx';
 import { buildShareUrl } from '../../../utils/crypto';
 import { shortenUrl } from '../../../utils/shortener';
-import gameThumbnail from '../assets/images/Shield-Man.png';
+import gameThumbnail from '../assets/images/Shield-Man.webp';
 import TermsModal from './TermsModal';
 
 const ResultScreen = memo(function ResultScreen({

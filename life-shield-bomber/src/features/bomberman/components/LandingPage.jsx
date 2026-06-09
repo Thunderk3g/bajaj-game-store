@@ -5,7 +5,7 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
-import shieldManImg from '../assets/images/Shield-Man.png';
+import shieldManImg from '../assets/images/Shield-Man.webp';
 
 const LandingPage = memo(function LandingPage({ onStart }) {
     return (

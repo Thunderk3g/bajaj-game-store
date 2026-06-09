@@ -52,7 +52,7 @@
   },
   "copy": {
     "introTitle": "Score Rush",
-    "introImage": "/assets/intro-mole-rush-1.png",
+    "introImage": "/assets/intro-mole-rush-1.webp",
     "introHowToPlay": [
       {
         "icon": "tap",
@@ -89,6 +89,6 @@
     "accentColor": "#F26522",
     "successColor": "#28A745",
     "fontFamily": "Plus Jakarta Sans",
-    "scoringBgImage": "/assets/intro-mole-rush-1.png"
+    "scoringBgImage": "/assets/intro-mole-rush-1.webp"
   }
 }

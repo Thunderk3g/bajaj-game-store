@@ -5,7 +5,7 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
-import secureThumbnail from '../../assets/image/secure-thumbnail.png';
+import secureThumbnail from '../../assets/image/secure-thumbnail.webp';
 
 const LandingPage = memo(function LandingPage({ onStart }) {
     return (

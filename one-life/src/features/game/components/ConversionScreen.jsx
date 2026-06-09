@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Phone, Calendar, X, RefreshCw } from 'lucide-react';
 import Modal from './Modal';
 import ThankYouScreen from './ThankYouScreen';
-import gameThumbnail from '../assets/images/TN_Expect_The_Unexpected-thumbnail.png';
+import gameThumbnail from '../assets/images/TN_Expect_The_Unexpected-thumbnail.webp';
 
 import TermsModal from './TermsModal';
 import { ShieldCheck } from 'lucide-react';
@@ -57,7 +57,7 @@ const ConversionScreen = ({ score, leadData, onBookSlot, onRestart }) => {
                 try {
                     const res = await fetch(gameThumbnail);
                     const blob = await res.blob();
-                    const file = new File([blob], 'game-thumbnail.png', { type: blob.type });
+                    const file = new File([blob], 'game-thumbnail.webp', { type: blob.type });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         sharePayload.files = [file];
                     }

@@ -96,7 +96,7 @@ type LobbyGame = GameManifestEntry & { gameId: string };
                   class="tile-img"
                   [src]="getThumbnail(game.gameId)"
                   [alt]="game.displayName"
-                  [loading]="i < 12 ? 'eager' : 'lazy'"
+                  loading="eager"
                 />
                 <span class="tile-fallback-mark" *ngIf="!hasThumbnail(game.gameId)">
                   {{ initial(game.displayName) }}
@@ -823,7 +823,13 @@ type LobbyGame = GameManifestEntry & { gameId: string };
         .search { flex: 1; }
         .search input { width: 100%; }
       }
-      @media (max-width: 380px) { .games-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 480px) {
+        .lobby-content { padding: 0 16px 40px; }
+        .games-grid { gap: 12px; }
+        .tile-body { padding: 12px; min-height: 96px; }
+        .tile-title { font-size: 13px; margin-bottom: 8px; }
+        .play-btn { padding: 6px 12px; font-size: 12px; }
+      }
       @media (prefers-reduced-motion: reduce) {
         .ar-blob, .particle, .float-orb { animation: none; }
         .tile { animation: none; }
@@ -861,34 +867,34 @@ export class LobbyComponent implements OnInit, OnDestroy {
   // Verified to exist under src/assets/games. Games omitted here fall back
   // to a generated gradient tile with the game's initial.
   private thumbnails: Record<string, string> = {
-    'scramble-words': 'assets/games/scramble-words/assets/NewSartScreen-TzgqQz12.png',
-    'life-goals': 'assets/games/life-goals/assets/images/life_thumbnail.png',
-    'quiz-game': 'assets/games/quiz-game/assets/Quiz-bg.png',
-    'life-milestone-race': 'assets/games/life-milestone-race/assets/Life-Milestone-Race-BcAYZSic.png',
-    'retirement-readiness-journey': 'assets/games/retirement-readiness-journey/assets/Intro.png',
-    'secure-saga': 'assets/games/secure-saga/assets/secure-thumbnail-BSwajrC7.png',
-    'retirement-sudoku': 'assets/games/retirement-sudoku/assets/Cover-Image-xp2SmHEX.png',
-    'financial-tetris': 'assets/games/financial-tetris/assets/welcome_bg.png',
-    'life-shield-bomber': 'assets/games/life-shield-bomber/assets/Shield-Man-BGibnM4H.png',
-    'tile-flipping-game': 'assets/games/tile-flipping-game/assets/tile-bg.png',
-    'Snake-Life': 'assets/games/Snake-Life/Snake-Life TN.png',
-    'life-flight': 'assets/games/life-flight/assets/Life Leap Start Page-BOvKOyng.png',
-    'life-snakes-ladders': 'assets/games/life-snakes-ladders/assets/s&l intro-bg.png',
-    'one-life': 'assets/games/one-life/TN_Expect_The_Unexpected-thumbnail.png',
-    'life-sorted': 'assets/games/life-sorted/ls-bg.png',
-    'health-shield': 'assets/games/health-shield/assets/intro-mole-rush.png',
+    'scramble-words': 'assets/games/scramble-words/assets/NewSartScreen-CCMhJWUO.webp',
+    'life-goals': 'assets/games/life-goals/assets/images/life_thumbnail.webp',
+    'quiz-game': 'assets/games/quiz-game/assets/Quiz-bg.webp',
+    'life-milestone-race': 'assets/games/life-milestone-race/assets/Life-Milestone-Race-Bbqf4h-d.webp',
+    'retirement-readiness-journey': 'assets/games/retirement-readiness-journey/assets/Intro.webp',
+    'secure-saga': 'assets/games/secure-saga/assets/secure-thumbnail-EjpKaxOY.webp',
+    'retirement-sudoku': 'assets/games/retirement-sudoku/assets/Cover-Image-BYSHtiOK.webp',
+    'financial-tetris': 'assets/games/financial-tetris/assets/welcome_bg.webp',
+    'life-shield-bomber': 'assets/games/life-shield-bomber/assets/Shield-Man-Dn6xiDcL.webp',
+    'tile-flipping-game': 'assets/games/tile-flipping-game/assets/tile-bg.webp',
+    'Snake-Life': 'assets/games/Snake-Life/Snake-Life TN.webp',
+    'life-flight': 'assets/games/life-flight/assets/Life Leap Start Page-CgeKe5PZ.webp',
+    'life-snakes-ladders': 'assets/games/life-snakes-ladders/assets/s&l intro-bg.webp',
+    'one-life': 'assets/games/one-life/TN_Expect_The_Unexpected-thumbnail.webp',
+    'life-sorted': 'assets/games/life-sorted/ls-bg.webp',
+    'health-shield': 'assets/games/health-shield/intro_page.webp',
     'cover-word-rescue': 'assets/games/cover-word-rescue/assets/cover-word-hero-BkRnV1qG.webp',
     'debt-defender': 'assets/games/debt-defender/assets/intro_screen-DHD2Ab_n.png',
     'shield-marble-vita': 'assets/games/shield-marble-vita/assets/shield-marble-hero-zSiC_W6s.webp',
     'ulip-picture-puzzle': 'assets/games/ulip-picture-puzzle/ulip-puzzle-art.png',
-    'ulip-wealth-whacker': 'assets/games/ulip-wealth-whacker/assets/intro-mole-rush.png',
-    'jumbled-quest': 'assets/games/jumbled-quest/assets/introImage-8FZ3x3tT.png',
-    'guardian-strike': 'assets/games/guardian-strike/assets/introImage-CgHv6Uz3.png',
-    'future-climb': 'assets/games/future-climb/assets/ui/Thumbnail Future Climb.png',
-    'fortune-slice': 'assets/games/fortune-slice/introImage.png',
-    'legacy-sweep': 'assets/games/legacy-sweep/assets/introImage-zeDQii8W.png',
-    'future-sprint': 'assets/games/future-sprint/assets/introImage-z1Wgjpim.png',
-    'guardian-grid': 'assets/games/guardian-grid/assets/introImage-DXssUUZF.jpg',
+    'ulip-wealth-whacker': 'assets/games/ulip-wealth-whacker/assets/intro-mole-rush-1.webp',
+    'jumbled-quest': 'assets/games/jumbled-quest/assets/introImage-DrFy-jCL.webp',
+    'guardian-strike': 'assets/games/guardian-strike/assets/introImage-D9MQ70cZ.webp',
+    'future-climb': 'assets/games/future-climb/assets/ui/Thumbnail Future Climb.webp',
+    'fortune-slice': 'assets/games/fortune-slice/introImage.webp',
+    'legacy-sweep': 'assets/games/legacy-sweep/assets/introImage-C_zIToMz.webp',
+    'future-sprint': 'assets/games/future-sprint/assets/introImage-B6j3q9cX.webp',
+    'guardian-grid': 'assets/games/guardian-grid/assets/introImage-DZRUTrKp.webp',
   };
 
   // Gradient presets for games without a thumbnail (Bajaj blue / cyan family).
