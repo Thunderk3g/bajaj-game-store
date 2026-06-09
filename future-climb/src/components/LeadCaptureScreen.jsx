@@ -65,20 +65,26 @@ const LeadCaptureScreen = () => {
             <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                className="bg-white rounded-[32px] p-8 w-full max-w-[340px] shadow-2xl relative border-[5px] border-primary"
+                className="p-8 w-full max-w-[340px] relative border rounded-[32px]"
+                style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(16px)',
+                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                }}
             >
                 <div className="text-center mb-8">
-                    <h2 className="text-2xl font-black text-dark leading-tight tracking-tight mb-2 uppercase">
+                    <h2 className="text-2xl font-black text-white leading-tight tracking-tight mb-2 uppercase">
                         Enter Details
                     </h2>
-                    <p className="text-gray-400 font-bold text-sm leading-tight">
+                    <p className="text-slate-400 font-bold text-sm leading-tight">
                         To see your personalized results
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="space-y-1.5 text-left">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
                             Your Name
                         </label>
                         <input
@@ -86,13 +92,13 @@ const LeadCaptureScreen = () => {
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value.replace(/[^a-zA-Z\s]/g, '') })}
                             placeholder="Full Name"
-                            className={`w-full bg-gray-50 border-4 rounded-xl px-5 py-4 text-gray-800 placeholder:text-gray-300 font-bold focus:outline-none transition-all ${errors.name ? 'border-red-500' : 'border-slate-100 focus:border-primary'}`}
+                            className={`w-full bg-white/5 border rounded-2xl px-5 py-4 text-white placeholder:text-white/20 font-bold focus:outline-none transition-all ${errors.name ? 'border-red-500' : 'border-white/10 focus:border-cyan-400 focus:bg-white/10'}`}
                         />
                         {errors.name && <p className="text-red-500 text-[10px] font-black ml-1 uppercase">{errors.name}</p>}
                     </div>
 
                     <div className="space-y-1.5 text-left">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
                             Mobile Number
                         </label>
                         <input
@@ -101,7 +107,7 @@ const LeadCaptureScreen = () => {
                             value={formData.mobile}
                             onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, '') })}
                             placeholder="9876543210"
-                            className={`w-full bg-gray-50 border-4 rounded-xl px-5 py-4 text-gray-800 placeholder:text-gray-300 font-bold focus:outline-none transition-all ${errors.mobile ? 'border-red-500' : 'border-slate-100 focus:border-primary'}`}
+                            className={`w-full bg-white/5 border rounded-2xl px-5 py-4 text-white placeholder:text-white/20 font-bold focus:outline-none transition-all ${errors.mobile ? 'border-red-500' : 'border-white/10 focus:border-cyan-400 focus:bg-white/10'}`}
                         />
                         {errors.mobile && <p className="text-red-500 text-[10px] font-black ml-1 uppercase">{errors.mobile}</p>}
                     </div>
@@ -109,19 +115,19 @@ const LeadCaptureScreen = () => {
                     <div className="flex items-start gap-3 py-1 text-left">
                         <div
                             onClick={() => setIsTermsAccepted(!isTermsAccepted)}
-                            className={`mt-0.5 shrink-0 w-6 h-6 border-2 flex items-center justify-center rounded-md cursor-pointer transition-all ${isTermsAccepted ? 'bg-primary border-primary' : `bg-white ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-slate-300'}`}`}
+                            className={`mt-0.5 shrink-0 w-6 h-6 border flex items-center justify-center rounded-md cursor-pointer transition-all ${isTermsAccepted ? 'bg-[#FF8C00] border-[#FF8C00]' : `bg-white/5 ${errors.terms ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'border-white/20'}`}`}
                         >
                             {isTermsAccepted && <span className="text-white font-black text-xs">✓</span>}
                         </div>
-                        <p className="text-[11px] font-bold text-gray-500 leading-snug">
-                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-primary underline font-black cursor-pointer">T&C and Privacy Policy</span>
+                        <p className="text-[11px] font-bold text-slate-400 leading-snug">
+                            I agree and consent to the <span onClick={() => setIsTermsModalOpen(true)} className="text-cyan-400 underline font-black cursor-pointer">T&C and Privacy Policy</span>
                         </p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-primary text-white font-black text-lg py-4 rounded-2xl shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 tracking-widest uppercase mt-4"
+                        className="w-full bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black text-lg py-4 rounded-2xl shadow-[0_0_15px_rgba(255,140,0,0.35)] hover:shadow-[0_0_20px_rgba(255,140,0,0.5)] active:scale-95 transition-all disabled:opacity-50 tracking-widest uppercase mt-4 border border-white/10"
                     >
                         {isSubmitting ? 'LOADING...' : 'See Results!'}
                     </button>

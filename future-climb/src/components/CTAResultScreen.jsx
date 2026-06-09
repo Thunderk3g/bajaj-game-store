@@ -83,6 +83,7 @@ const CTAResultScreen = () => {
     });
 
     const [animatedDistance, setAnimatedDistance] = useState(0);
+    const [dateError, setDateError] = useState('');
 
     useEffect(() => {
         let startTime = null;
@@ -306,42 +307,49 @@ const CTAResultScreen = () => {
                 >
                     <button
                         onClick={handleShare}
-                        className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-2 px-10 shadow-[0_3px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-sm border-2 border-white/20 uppercase tracking-[0.2em] rounded-sm"
+                        className="bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-3 px-12 rounded-2xl shadow-[0_0_20px_rgba(255,140,0,0.35)] hover:shadow-[0_0_25px_rgba(255,140,0,0.5)] active:scale-95 transition-all flex items-center justify-center gap-3 text-sm border border-white/10 uppercase tracking-[0.2em]"
                     >
                         SHARE
                     </button>
                 </motion.div>
 
-                {/* CTA Box (White Card) */}
+                {/* CTA Box (Translucent Premium Card) */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.7 }}
-                    className="w-full bg-white rounded-sm p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-white/50 mb-6 mx-2"
+                    className="w-full max-w-sm rounded-[32px] p-6 mb-6 flex flex-col items-center border"
+                    style={{
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                        backdropFilter: 'blur(16px)',
+                        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                    }}
                 >
-                    <p className="text-slate-600 text-sm font-bold text-center mb-6 leading-tight">
+                    <p className="text-gray-300 text-sm font-bold text-center mb-6 leading-relaxed">
                         To systematically plan for your future climb and secure your future, connect with our relationship manager now
                     </p>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 w-full">
                         {empPhone && (
                             <>
                                 <a href={`tel:${empPhone}`} className="block w-full">
-                                    <button className="w-full bg-[#0066B2] hover:bg-[#004C85] text-white font-black py-3.5 shadow-[0_4px_0_#00335C] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest border-2 border-white/20">
+                                    <button className="w-full bg-gradient-to-r from-[#0066B2] to-[#004C85] hover:from-[#005594] hover:to-[#003C69] text-white font-black py-3.5 rounded-2xl shadow-[0_0_15px_rgba(0,102,178,0.35)] hover:shadow-[0_0_20px_rgba(0,102,178,0.5)] active:scale-95 transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest border border-white/10">
                                         <Phone className="w-4 h-4" /> CALL NOW
                                     </button>
                                 </a>
 
-                                <div className="relative py-1 flex items-center justify-center">
-                                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
-                                    <span className="relative px-4 bg-white text-slate-300 font-black text-[10px] tracking-widest uppercase">Or</span>
+                                <div className="flex items-center my-4 w-full px-2">
+                                    <div className="flex-grow border-t border-white/10"></div>
+                                    <span className="mx-4 text-white/45 font-black text-[10px] tracking-widest uppercase">Or</span>
+                                    <div className="flex-grow border-t border-white/10"></div>
                                 </div>
                             </>
                         )}
 
                         <button
                             onClick={() => setShowBooking(true)}
-                            className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-3.5 shadow-[0_4px_0_#993D00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest border-2 border-white/20"
+                            className="w-full bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-3.5 rounded-2xl shadow-[0_0_15px_rgba(255,140,0,0.35)] hover:shadow-[0_0_20px_rgba(255,140,0,0.5)] active:scale-95 transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest border border-white/10"
                         >
                             <Calendar className="w-4 h-4" /> BOOK A CONVENIENT SLOT
                         </button>
@@ -378,16 +386,22 @@ const CTAResultScreen = () => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white p-8 w-full max-w-sm shadow-2xl relative border-4 border-white/50"
+                            className="p-8 w-full max-w-sm relative border rounded-[32px]"
+                            style={{
+                                background: 'rgba(10, 18, 36, 0.95)',
+                                borderColor: 'rgba(255, 255, 255, 0.08)',
+                                backdropFilter: 'blur(24px)',
+                                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.5)'
+                            }}
                         >
                             <button
                                 onClick={() => setShowBooking(false)}
-                                className="absolute right-4 top-4 text-slate-300 hover:text-slate-500 transition-colors bg-slate-100 p-1"
+                                className="absolute right-4 top-4 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-full transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
 
-                            <h2 className="text-[#0066B2] font-black text-center mb-8 text-sm uppercase tracking-widest pt-2">Secure Your Future</h2>
+                            <h2 className="text-cyan-400 font-extrabold text-center mb-8 text-base uppercase tracking-widest pt-2">Secure Your Future</h2>
 
                             <form className="space-y-6" onSubmit={async (e) => {
                                 e.preventDefault();
@@ -421,7 +435,7 @@ const CTAResultScreen = () => {
                                             type="text"
                                             value={bookingData.name}
                                             onChange={e => setBookingData(p => ({ ...p, name: e.target.value }))}
-                                            className="w-full bg-slate-50 h-12 border-2 border-slate-100 text-slate-800 text-xs font-bold px-4 focus:border-[#0066B2] focus:outline-none"
+                                            className="w-full bg-white/5 h-12 border border-white/10 rounded-xl text-white text-xs font-bold px-4 focus:border-cyan-400 focus:bg-white/10 focus:outline-none transition-all"
                                             required
                                         />
                                     </div>
@@ -435,7 +449,7 @@ const CTAResultScreen = () => {
                                             maxLength={10}
                                             value={bookingData.phone}
                                             onChange={e => setBookingData(p => ({ ...p, phone: e.target.value.replace(/\D/g, '') }))}
-                                            className="w-full bg-slate-50 h-12 border-2 border-slate-100 text-slate-800 text-xs font-bold px-4 focus:border-[#0066B2] focus:outline-none"
+                                            className="w-full bg-white/5 h-12 border border-white/10 rounded-xl text-white text-xs font-bold px-4 focus:border-cyan-400 focus:bg-white/10 focus:outline-none transition-all"
                                             required
                                         />
                                     </div>
@@ -450,13 +464,51 @@ const CTAResultScreen = () => {
                                             max={maxDate}
                                             value={bookingData.date}
                                             onChange={e => {
-                                                const newDate = e.target.value;
-                                                // Reset time when date changes to prevent invalid old time selection
-                                                setBookingData(p => ({ ...p, date: newDate, time: '' }));
+                                                const selectedStr = e.target.value;
+                                                if (!selectedStr) {
+                                                    setBookingData(p => ({ ...p, date: '', time: '' }));
+                                                    setDateError('');
+                                                    return;
+                                                }
+
+                                                const [year, month, day] = selectedStr.split('-').map(Number);
+                                                const selectedDate = new Date(year, month - 1, day);
+                                                selectedDate.setHours(0, 0, 0, 0);
+
+                                                const todayMidnight = new Date();
+                                                todayMidnight.setHours(0, 0, 0, 0);
+
+                                                const maxDateLimit = new Date(todayMidnight);
+                                                maxDateLimit.setDate(todayMidnight.getDate() + 30);
+
+                                                let correctedDateStr = selectedStr;
+                                                let errorMsg = '';
+
+                                                if (selectedDate < todayMidnight) {
+                                                    const yyyy = todayMidnight.getFullYear();
+                                                    const mm = String(todayMidnight.getMonth() + 1).padStart(2, '0');
+                                                    const dd = String(todayMidnight.getDate()).padStart(2, '0');
+                                                    correctedDateStr = `${yyyy}-${mm}-${dd}`;
+                                                    errorMsg = "Past dates are not allowed. Corrected to today's date.";
+                                                } else if (selectedDate > maxDateLimit) {
+                                                    const yyyy = maxDateLimit.getFullYear();
+                                                    const mm = String(maxDateLimit.getMonth() + 1).padStart(2, '0');
+                                                    const dd = String(maxDateLimit.getDate()).padStart(2, '0');
+                                                    correctedDateStr = `${yyyy}-${mm}-${dd}`;
+                                                    errorMsg = "Dates beyond 30 days are not allowed. Corrected to max limit.";
+                                                }
+
+                                                setBookingData(p => ({ ...p, date: correctedDateStr, time: '' }));
+                                                setDateError(errorMsg);
                                             }}
-                                            className="w-full bg-slate-50 h-12 border-2 border-slate-100 text-slate-800 text-xs font-bold px-4 focus:border-[#0066B2] focus:outline-none"
+                                            className="w-full bg-white/5 h-12 border border-white/10 rounded-xl text-white text-xs font-bold px-4 focus:border-cyan-400 focus:bg-white/10 focus:outline-none transition-all [color-scheme:dark]"
                                             required
                                         />
+                                        {dateError && (
+                                            <p className="text-[#FF8C00] text-[10px] font-bold mt-1 uppercase tracking-wider ml-1">
+                                                ⚠️ {dateError}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -466,26 +518,26 @@ const CTAResultScreen = () => {
                                         <select
                                             value={bookingData.time}
                                             onChange={e => setBookingData(p => ({ ...p, time: e.target.value }))}
-                                            className="w-full bg-slate-50 h-12 border-2 border-slate-100 text-slate-800 text-xs font-bold px-4 appearance-none focus:border-[#0066B2] focus:outline-none"
+                                            className="w-full bg-white/5 h-12 border border-white/10 rounded-xl text-white text-xs font-bold px-4 appearance-none focus:border-cyan-400 focus:bg-white/10 focus:outline-none transition-all"
                                             required
                                         >
-                                            <option value="">Select a time</option>
+                                            <option value="" className="bg-[#0B1221] text-white">Select a time</option>
                                             {availableSlots.length > 0 ? (
                                                 availableSlots.map(slot => (
-                                                    <option key={slot} value={slot}>{slot}</option>
+                                                    <option key={slot} value={slot} className="bg-[#0B1221] text-white">{slot}</option>
                                                 ))
                                             ) : (
-                                                <option value="" disabled>No slots available today</option>
+                                                <option value="" disabled className="bg-[#0B1221] text-white/50">No slots available today</option>
                                             )}
                                         </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
                                     </div>
                                 </div>
 
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full bg-[#FF8C00] hover:bg-[#FF7000] text-white font-black py-4 shadow-[0_6px_0_#993D00] active:translate-y-1 active:shadow-none transition-all uppercase tracking-widest text-sm border-2 border-white/20"
+                                    className="w-full bg-gradient-to-r from-[#FF8C00] to-[#FF7000] hover:from-[#FF7000] hover:to-[#E65C00] text-white font-black py-4 rounded-2xl shadow-[0_0_15px_rgba(255,140,0,0.35)] hover:shadow-[0_0_20px_rgba(255,140,0,0.5)] active:scale-95 transition-all uppercase tracking-widest text-sm border border-white/10"
                                 >
                                     {isSubmitting ? 'CONFIRMING...' : 'CONFIRM BOOKING'}
                                 </button>

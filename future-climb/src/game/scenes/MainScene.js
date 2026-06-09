@@ -430,8 +430,11 @@ export default class MainScene extends Phaser.Scene {
 
         // Keyboard
         this.cursors = this.input.keyboard.createCursorKeys();
-        this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-        this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A, false);
+        this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D, false);
+        
+        // Clear captures globally so letters and spacebar can be typed in HTML input forms
+        this.input.keyboard.clearCaptures();
 
         // Visual UI Controls
         this.createUIControls();
@@ -467,7 +470,7 @@ export default class MainScene extends Phaser.Scene {
         // Flat scene-level Zone for bulletproof click detection on the mute button
         const muteZone = this.add.zone(width - 50, 130, 60, 60)
             .setOrigin(0.5)
-            .setInteractive()
+            .setInteractive(new Phaser.Geom.Rectangle(0, 0, 60, 60), Phaser.Geom.Rectangle.Contains)
             .setScrollFactor(0)
             .setDepth(101);
         
@@ -635,12 +638,12 @@ export default class MainScene extends Phaser.Scene {
         // ================================================================
         const brakeZone = this.add.zone(pedalInset, height - 90, 100, 140)
             .setOrigin(0.5)
-            .setInteractive()
+            .setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 140), Phaser.Geom.Rectangle.Contains)
             .setScrollFactor(0);
             
         const gasZone = this.add.zone(width - pedalInset, height - 90, 100, 140)
             .setOrigin(0.5)
-            .setInteractive()
+            .setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 140), Phaser.Geom.Rectangle.Contains)
             .setScrollFactor(0);
 
         // Enable multi-touch in Phaser
@@ -781,7 +784,6 @@ export default class MainScene extends Phaser.Scene {
         this.input.keyboard.once('keydown', hideTutorial);
 
 
-        // Handle resize to keep UI visible on all devices (like iPhone SE)
         this.scale.on('resize', (gameSize) => {
             const w = gameSize.width;
             const h = gameSize.height;
@@ -791,11 +793,27 @@ export default class MainScene extends Phaser.Scene {
             gasPedal.setPosition(w - inset, h - 90);
             speedGauge.setPosition(w / 2, h - 80);
             if (this.muteBtn) this.muteBtn.setPosition(w - 50, 130);
-            if (this.muteZone) this.muteZone.setPosition(w - 50, 130);
+            if (this.muteZone) {
+                this.muteZone.setPosition(w - 50, 130);
+                if (this.muteZone.input && this.muteZone.input.hitArea) {
+                    this.muteZone.input.hitArea.x = 0;
+                    this.muteZone.input.hitArea.y = 0;
+                }
+            }
             
             // Keep interactive zones perfectly aligned with visual graphics
             brakeZone.setPosition(inset, h - 90);
             gasZone.setPosition(w - inset, h - 90);
+            
+            // Update local coordinates of hit areas to match new pedal center positions
+            if (brakeZone.input && brakeZone.input.hitArea) {
+                brakeZone.input.hitArea.x = 0;
+                brakeZone.input.hitArea.y = 0;
+            }
+            if (gasZone.input && gasZone.input.hitArea) {
+                gasZone.input.hitArea.x = 0;
+                gasZone.input.hitArea.y = 0;
+            }
             
             if (this.tutorialGroup && this.tutorialGroup.active) {
                 this.tutorialGroup.destroy();
