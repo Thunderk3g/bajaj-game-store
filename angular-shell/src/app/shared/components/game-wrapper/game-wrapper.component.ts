@@ -4,20 +4,20 @@ import { FederationService } from '../../../core/services/federation.service';
 import { GamificationStoreService } from '../../../core/services/gamification-store.service';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { GameLoaderComponent } from '../game-loader/game-loader.component';
 
 @Component({
   selector: 'app-game-wrapper',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GameLoaderComponent],
   template: `
     <div class="game-wrapper">
-      <div *ngIf="loading && !error" class="loading-overlay">
-        <div class="loading-content">
-          <div class="spinner-ring">
-            <div class="ring"></div>
-          </div>
-          <p class="loading-text">Loading game<span class="dots"></span></p>
-        </div>
+      <div
+        *ngIf="(loading || loaderFading) && !error"
+        class="loading-overlay"
+        [class.fading]="loaderFading"
+      >
+        <app-game-loader></app-game-loader>
       </div>
 
       <div *ngIf="error" class="error-overlay">
@@ -120,64 +120,15 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       .loading-overlay {
         position: absolute;
         inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #0a0a0f;
+        background: #02050f;
         z-index: 10;
+        transition: opacity 0.55s ease;
+        opacity: 1;
       }
 
-      .loading-content {
-        text-align: center;
-      }
-
-      .spinner-ring {
-        width: 56px;
-        height: 56px;
-        margin: 0 auto 20px;
-        position: relative;
-      }
-
-      .ring {
-        width: 100%;
-        height: 100%;
-        border: 3px solid rgba(255, 255, 255, 0.08);
-        border-top-color: #667eea;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .loading-text {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.95rem;
-        font-weight: 500;
-        letter-spacing: 0.02em;
-      }
-
-      .dots::after {
-        content: '';
-        animation: dots 1.5s steps(4) infinite;
-      }
-
-      @keyframes dots {
-        0% {
-          content: '';
-        }
-        25% {
-          content: '.';
-        }
-        50% {
-          content: '..';
-        }
-        75% {
-          content: '...';
-        }
+      .loading-overlay.fading {
+        opacity: 0;
+        pointer-events: none;
       }
 
       .error-overlay {
@@ -273,6 +224,7 @@ export class GameWrapperComponent implements OnInit, OnDestroy {
   private gameId: string = '';
 
   loading = true;
+  loaderFading = false;
   error = false;
   errorMessage = '';
 
@@ -293,6 +245,7 @@ export class GameWrapperComponent implements OnInit, OnDestroy {
 
   private loadGame() {
     this.loading = true;
+    this.loaderFading = false;
     this.error = false;
 
     // Priority 1: Store-driven URL (JWT flow)
@@ -314,8 +267,17 @@ export class GameWrapperComponent implements OnInit, OnDestroy {
       requestAnimationFrame(() => {
         this.ngZone.run(() => {
           this.loading = false;
+          this.loaderFading = true;
           this.cdr.detectChanges();
         });
+
+        // Unmount the overlay once the fade-out completes
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            this.loaderFading = false;
+            this.cdr.detectChanges();
+          });
+        }, 600);
       });
     });
   }
